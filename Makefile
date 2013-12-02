@@ -1,22 +1,15 @@
 MAINDIR    = $(CURDIR)
 SRC        = $(MAINDIR)/kernel/src
 
-BOOTSRC    = $(wildcard $(SRC)/boot/*.c)
-MAINSRC    = $(wildcard $(SRC)/main/*.c)
-
-ASBOOTSRC = $(wildcard $(SRC)/boot/*.s)
-ASMAINSRC = $(wildcard $(SRC)/main/*.s)
-
-ASMBOOTSRC = $(wildcard $(SRC)/boot/*.asm)
-ASMMAINSRC = $(wildcard $(SRC)/main/*.asm)
-
-SRCS       = $(BOOTSRC)    $(MAINSRC)
-ASSRCS     = $(ASBOOTSRC)  $(ASMAINSRC)
-ASMSRCS    = $(ASMBOOTSRC) $(ASMMAINSRC)
+SRCS       = $(wildcard $(SRC)/boot/*.c) $(wildcard $(SRC)/main/*.c) $(wildcard $(SRC)/dev/*.c) $(wildcard $(SRC)/dev/vga/*.c)
+ASSRCS     = $(wildcard $(SRC)/boot/*.s) $(wildcard $(SRC)/main/*.s) $(wildcard $(SRC)/dev/*.s) $(wildcard $(SRC)/dev/vga/*.s)
+ASMSRCS    = $(wildcard $(SRC)/boot/*.asm) $(wildcard $(SRC)/main/*.asm) $(wildcard $(SRC)/dev/*.asm) $(wildcard $(SRC)/dev/vga/*.asm)
 
 COBJS      = $(patsubst %.c,%.o,$(SRCS))
 ASOBJS     = $(patsubst %.s,%.o,$(ASSRCS))
 ASMOBJS    = $(patsubst %.asm,%.o,$(ASMSRCS))
+
+OBJS       = $(COBJS) $(ASMOBJS) $(ASOBJS)
 
 CC         = gcc
 AS         = gcc
@@ -31,7 +24,7 @@ all:     printinfo link
 printinfo:
 	@echo -e "\033[32mBuilding kernel\033[0m"
 
-link:   $(COBJS) $(ASMOBJS) $(ASOBJS)
+link:   $(OBJS)
 	@echo -e "\033[33m  \033[1mLinking sources\033[0m"
 	@ld -melf_i386 -T link.ld -o lambda.kern $(ASOBJS) $(ASMOBJS) $(COBJS)
 
@@ -52,5 +45,5 @@ link:   $(COBJS) $(ASMOBJS) $(ASOBJS)
 
 
 clean:
-	@rm -f $(SRC)/*/*.o
+	@rm -f $(OBJS)
 	@rm -f lambda.kern
