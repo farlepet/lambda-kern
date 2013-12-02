@@ -28,7 +28,7 @@ static void scrollup()
 		vidmem[i] = 0x00;
 }
 
-void vga_put(u8 c)
+void vga_put(char c)
 {
 	switch(c)
 	{
@@ -45,7 +45,7 @@ void vga_put(u8 c)
 			break;
 
 		default:
-			*(vidmem + (xpos+ypos*xres)*2)     = c;
+			*(vidmem + (xpos+ypos*xres)*2)     = (u8)c;
 			*(vidmem + (xpos+ypos*xres)*2 + 1) = ((bkgc << 4) | forc);
 			xpos++;
 			break;
@@ -59,4 +59,19 @@ void vga_print(char *str)
 	int i = 0;
 	while(str[i] != 0)
 		vga_put((u8)str[i++]);
+}
+
+void vga_printnum(u32 n, int base)
+{
+	char nums[16] = "0123456789ABCDEF";
+	char ans[16] = { '0' };
+	int i = 0;
+	while(n)
+	{
+		ans[i++] = nums[n % base];
+		n /= base;
+	}
+
+	for(i--; i >= 0; i--)
+		vga_put(ans[i]);
 }

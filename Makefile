@@ -1,9 +1,9 @@
 MAINDIR    = $(CURDIR)
 SRC        = $(MAINDIR)/kernel/src
 
-SRCS       = $(wildcard $(SRC)/boot/*.c) $(wildcard $(SRC)/main/*.c) $(wildcard $(SRC)/dev/*.c) $(wildcard $(SRC)/dev/vga/*.c)
-ASSRCS     = $(wildcard $(SRC)/boot/*.s) $(wildcard $(SRC)/main/*.s) $(wildcard $(SRC)/dev/*.s) $(wildcard $(SRC)/dev/vga/*.s)
-ASMSRCS    = $(wildcard $(SRC)/boot/*.asm) $(wildcard $(SRC)/main/*.asm) $(wildcard $(SRC)/dev/*.asm) $(wildcard $(SRC)/dev/vga/*.asm)
+SRCS       = $(wildcard $(SRC)/boot/*.c)   $(wildcard $(SRC)/main/*.c)   $(wildcard $(SRC)/dev/*.c)   $(wildcard $(SRC)/dev/vga/*.c)   $(wildcard $(SRC)/mm/*.c)   $(wildcard $(SRC)/intr/*.c)   $(wildcard $(SRC)/dev/keyb/*.c)
+ASSRCS     = $(wildcard $(SRC)/boot/*.s)   $(wildcard $(SRC)/main/*.s)   $(wildcard $(SRC)/dev/*.s)   $(wildcard $(SRC)/dev/vga/*.s)   $(wildcard $(SRC)/mm/*.s)   $(wildcard $(SRC)/intr/*.s)   $(wildcard $(SRC)/dev/keyb/*.s)
+ASMSRCS    = $(wildcard $(SRC)/boot/*.asm) $(wildcard $(SRC)/main/*.asm) $(wildcard $(SRC)/dev/*.asm) $(wildcard $(SRC)/dev/vga/*.asm) $(wildcard $(SRC)/mm/*.asm) $(wildcard $(SRC)/intr/*.asm) $(wildcard $(SRC)/dev/keyb/*.asm)
 
 COBJS      = $(patsubst %.c,%.o,$(SRCS))
 ASOBJS     = $(patsubst %.s,%.o,$(ASSRCS))
