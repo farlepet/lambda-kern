@@ -16,3 +16,9 @@
 *.exe
 *.out
 *.app
+
+# Folders
+.kdev4
+
+# Config Files
+*.kdev4

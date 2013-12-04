@@ -17,39 +17,13 @@ load_idt:
 	ret
 
 
-handle_int:   
-	push eax
-	mov eax, [esp + 8]
-	mov [int_func], eax
-	pop eax
-
-	pusha                    ; Pushes edi,esi,ebp,esp,ebx,edx,ecx,eax
-
-	mov ax, ds               ; Lower 16-bits of eax = ds.
-	push eax                 ; save the data segment descriptor
-
-	mov ax, 0x10  ; load the kernel data segment descriptor
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
-
-	mov eax, [int_func]
-	call eax
-
-	pop eax        ; reload the original data segment descriptor
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
-
-	popa                     ; Pops edi,esi,ebp...
-	sti
-	iret           ; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
-
-
 dummy_int:
-	push .subf
-	jmp handle_int
-  .subf:
-	ret
+	cli
+	pusha
+	mov al, 0x20
+	mov dx, 0x20
+	; We still must allow other interrupts to occur when we finish
+	out dx, al
+	popa
+	sti
+	iret

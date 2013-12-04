@@ -2,10 +2,10 @@
 #define IDT_H
 
 #define IDT_ENTRY(off, sel, attr)     \
-	(((off  & 0x0000FFFFULL) << 48) | \
-	 ((sel  & 0x0000FFFFULL) << 32) | \
-	 ((attr & 0x000000FFULL) << 16) | \
-	 ((off  & 0xFFFF0000ULL) << 0))
+	(((off  & 0xFFFF0000ULL) << 32) | \
+	 ((attr & 0x000000FFULL) << 40) | \
+	 ((sel  & 0x0000FFFFULL) << 16) | \
+	 ((off  & 0x0000FFFFULL) << 0))
 
 /*
  * IDT types:
@@ -27,6 +27,6 @@
 void idt_init();
 
 // Set a descriptor in the IDT
-void set_idt(int, int, int, int, void *);
+void set_idt(int, int, int, void *);
 
 #endif
