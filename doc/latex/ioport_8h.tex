@@ -1,0 +1,133 @@
+\hypertarget{ioport_8h}{\section{kernel/inc/ioport.h File Reference}
+\label{ioport_8h}\index{kernel/inc/ioport.\-h@{kernel/inc/ioport.\-h}}
+}
+{\ttfamily \#include $<$types.\-h$>$}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \hyperlink{ioport_8h_abc086ee7e5764c55967724916e21b553}{outb} (\hyperlink{types_8h_a9e6c91d77e24643b888dbd1a1a590054}{u16} port, \hyperlink{types_8h_aed742c436da53c1080638ce6ef7d13de}{u8} value)
+\item 
+static void \hyperlink{ioport_8h_aa512b6d85e4dc328d305429c756b91e6}{outw} (\hyperlink{types_8h_a9e6c91d77e24643b888dbd1a1a590054}{u16} port, \hyperlink{types_8h_a9e6c91d77e24643b888dbd1a1a590054}{u16} value)
+\item 
+static void \hyperlink{ioport_8h_a69af5f2dace28273fec1ac7ae8fbe2b3}{outl} (\hyperlink{types_8h_a9e6c91d77e24643b888dbd1a1a590054}{u16} port, \hyperlink{types_8h_a10e94b422ef0c20dcdec20d31a1f5049}{u32} value)
+\item 
+static \hyperlink{types_8h_aed742c436da53c1080638ce6ef7d13de}{u8} \hyperlink{ioport_8h_a72469337290ae306e228d538970aef1d}{inb} (\hyperlink{types_8h_a9e6c91d77e24643b888dbd1a1a590054}{u16} port)
+\item 
+static \hyperlink{types_8h_a9e6c91d77e24643b888dbd1a1a590054}{u16} \hyperlink{ioport_8h_aae25743490c4dc54e9a713c64e79d7af}{inw} (\hyperlink{types_8h_a9e6c91d77e24643b888dbd1a1a590054}{u16} port)
+\item 
+static \hyperlink{types_8h_a10e94b422ef0c20dcdec20d31a1f5049}{u32} \hyperlink{ioport_8h_a7f72742d7f484f7f9884aa5b89e69693}{inl} (\hyperlink{types_8h_a9e6c91d77e24643b888dbd1a1a590054}{u16} port)
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\hypertarget{ioport_8h_a72469337290ae306e228d538970aef1d}{\index{ioport.\-h@{ioport.\-h}!inb@{inb}}
+\index{inb@{inb}!ioport.h@{ioport.\-h}}
+\subsubsection[{inb}]{\setlength{\rightskip}{0pt plus 5cm}static {\bf u8} inb (
+\begin{DoxyParamCaption}
+\item[{{\bf u16}}]{port}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}}\label{ioport_8h_a72469337290ae306e228d538970aef1d}
+
+
+Definition at line 23 of file ioport.\-h.
+
+
+\begin{DoxyCode}
+24 \{
+25         \hyperlink{types_8h_aed742c436da53c1080638ce6ef7d13de}{u8} ret;
+26         \textcolor{keyword}{asm} \textcolor{keyword}{volatile}(\textcolor{stringliteral}{"inb %1, %0"} : \textcolor{stringliteral}{"=a"} (ret) : \textcolor{stringliteral}{"dN"} (port));
+27         \textcolor{keywordflow}{return} ret;
+28 \}
+\end{DoxyCode}
+\hypertarget{ioport_8h_a7f72742d7f484f7f9884aa5b89e69693}{\index{ioport.\-h@{ioport.\-h}!inl@{inl}}
+\index{inl@{inl}!ioport.h@{ioport.\-h}}
+\subsubsection[{inl}]{\setlength{\rightskip}{0pt plus 5cm}static {\bf u32} inl (
+\begin{DoxyParamCaption}
+\item[{{\bf u16}}]{port}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}}\label{ioport_8h_a7f72742d7f484f7f9884aa5b89e69693}
+
+
+Definition at line 37 of file ioport.\-h.
+
+
+\begin{DoxyCode}
+38 \{
+39         \hyperlink{types_8h_a10e94b422ef0c20dcdec20d31a1f5049}{u32} ret;
+40         \textcolor{keyword}{asm} \textcolor{keyword}{volatile} (\textcolor{stringliteral}{"inl %1, %0"} : \textcolor{stringliteral}{"=a"} (ret) : \textcolor{stringliteral}{"dN"} (port));
+41         \textcolor{keywordflow}{return} ret;
+42 \}
+\end{DoxyCode}
+\hypertarget{ioport_8h_aae25743490c4dc54e9a713c64e79d7af}{\index{ioport.\-h@{ioport.\-h}!inw@{inw}}
+\index{inw@{inw}!ioport.h@{ioport.\-h}}
+\subsubsection[{inw}]{\setlength{\rightskip}{0pt plus 5cm}static {\bf u16} inw (
+\begin{DoxyParamCaption}
+\item[{{\bf u16}}]{port}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}}\label{ioport_8h_aae25743490c4dc54e9a713c64e79d7af}
+
+
+Definition at line 30 of file ioport.\-h.
+
+
+\begin{DoxyCode}
+31 \{
+32         \hyperlink{types_8h_a9e6c91d77e24643b888dbd1a1a590054}{u16} ret;
+33         \textcolor{keyword}{asm} \textcolor{keyword}{volatile} (\textcolor{stringliteral}{"inw %1, %0"} : \textcolor{stringliteral}{"=a"} (ret) : \textcolor{stringliteral}{"dN"} (port));
+34         \textcolor{keywordflow}{return} ret;
+35 \}
+\end{DoxyCode}
+\hypertarget{ioport_8h_abc086ee7e5764c55967724916e21b553}{\index{ioport.\-h@{ioport.\-h}!outb@{outb}}
+\index{outb@{outb}!ioport.h@{ioport.\-h}}
+\subsubsection[{outb}]{\setlength{\rightskip}{0pt plus 5cm}static void outb (
+\begin{DoxyParamCaption}
+\item[{{\bf u16}}]{port, }
+\item[{{\bf u8}}]{value}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}}\label{ioport_8h_abc086ee7e5764c55967724916e21b553}
+
+
+Definition at line 6 of file ioport.\-h.
+
+
+\begin{DoxyCode}
+7 \{
+8         \textcolor{keyword}{asm} \textcolor{keyword}{volatile} (\textcolor{stringliteral}{"outb %1, %0"} : : \textcolor{stringliteral}{"dN"} (port), \textcolor{stringliteral}{"a"} (value));
+9 \}
+\end{DoxyCode}
+\hypertarget{ioport_8h_a69af5f2dace28273fec1ac7ae8fbe2b3}{\index{ioport.\-h@{ioport.\-h}!outl@{outl}}
+\index{outl@{outl}!ioport.h@{ioport.\-h}}
+\subsubsection[{outl}]{\setlength{\rightskip}{0pt plus 5cm}static void outl (
+\begin{DoxyParamCaption}
+\item[{{\bf u16}}]{port, }
+\item[{{\bf u32}}]{value}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}}\label{ioport_8h_a69af5f2dace28273fec1ac7ae8fbe2b3}
+
+
+Definition at line 16 of file ioport.\-h.
+
+
+\begin{DoxyCode}
+17 \{
+18         \textcolor{keyword}{asm} \textcolor{keyword}{volatile}(\textcolor{stringliteral}{"outl %0,%1"} : : \textcolor{stringliteral}{"a"} (value), \textcolor{stringliteral}{"dN"} (port));
+19 \}
+\end{DoxyCode}
+\hypertarget{ioport_8h_aa512b6d85e4dc328d305429c756b91e6}{\index{ioport.\-h@{ioport.\-h}!outw@{outw}}
+\index{outw@{outw}!ioport.h@{ioport.\-h}}
+\subsubsection[{outw}]{\setlength{\rightskip}{0pt plus 5cm}static void outw (
+\begin{DoxyParamCaption}
+\item[{{\bf u16}}]{port, }
+\item[{{\bf u16}}]{value}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}}\label{ioport_8h_aa512b6d85e4dc328d305429c756b91e6}
+
+
+Definition at line 11 of file ioport.\-h.
+
+
+\begin{DoxyCode}
+12 \{
+13         \textcolor{keyword}{asm} \textcolor{keyword}{volatile}(\textcolor{stringliteral}{"outw %0,%1"} : : \textcolor{stringliteral}{"a"} (value), \textcolor{stringliteral}{"dN"} (port));
+14 \}
+\end{DoxyCode}

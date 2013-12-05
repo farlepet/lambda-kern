@@ -1,0 +1,95 @@
+\hypertarget{main_8c}{\section{kernel/src/main/main.c File Reference}
+\label{main_8c}\index{kernel/src/main/main.\-c@{kernel/src/main/main.\-c}}
+}
+{\ttfamily \#include $<$multiboot.\-h$>$}\\*
+{\ttfamily \#include $<$mm/paging.\-h$>$}\\*
+{\ttfamily \#include $<$mm/gdt.\-h$>$}\\*
+{\ttfamily \#include $<$intr/idt.\-h$>$}\\*
+{\ttfamily \#include $<$dev/vga/print.\-h$>$}\\*
+{\ttfamily \#include $<$ioport.\-h$>$}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{main_8c_aec0830b94783b020c7a7a4bed5f309f1}{inttest} ()
+\begin{DoxyCompactList}\small\item\em Simple function to test interrupts. \end{DoxyCompactList}\item 
+void \hyperlink{main_8c_ae64f2b4d62025b16350f72a4fcfca042}{exceptions\-\_\-init} ()
+\begin{DoxyCompactList}\small\item\em Initializes basic exception handlers. Found in intr/exceptions.\-asm. \end{DoxyCompactList}\item 
+int \hyperlink{main_8c_aea2e592c11f22989c1dae9320d742a7c}{kmain} (struct \hyperlink{structmultiboot}{multiboot} \hyperlink{types_8h_a2e3484535ee610c8e19e9859563abe48}{\-\_\-\-\_\-unused} $\ast$mboot\-\_\-ptr, \hyperlink{types_8h_a10e94b422ef0c20dcdec20d31a1f5049}{u32} \hyperlink{types_8h_a2e3484535ee610c8e19e9859563abe48}{\-\_\-\-\_\-unused} initial\-\_\-stack)
+\begin{DoxyCompactList}\small\item\em Main kernel function. Initializes all devices, and sets up environment. \end{DoxyCompactList}\item 
+void \hyperlink{types_8h_a2e3484535ee610c8e19e9859563abe48}{\-\_\-\-\_\-unused} \hyperlink{main_8c_a6d6ba0132f53c602be5d768af2398248}{test\-\_\-int} ()
+\begin{DoxyCompactList}\small\item\em A test function for the I\-D\-T. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\hypertarget{main_8c_ae64f2b4d62025b16350f72a4fcfca042}{\index{main.\-c@{main.\-c}!exceptions\-\_\-init@{exceptions\-\_\-init}}
+\index{exceptions\-\_\-init@{exceptions\-\_\-init}!main.c@{main.\-c}}
+\subsubsection[{exceptions\-\_\-init}]{\setlength{\rightskip}{0pt plus 5cm}void exceptions\-\_\-init (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{main_8c_ae64f2b4d62025b16350f72a4fcfca042}
+\hypertarget{main_8c_aec0830b94783b020c7a7a4bed5f309f1}{\index{main.\-c@{main.\-c}!inttest@{inttest}}
+\index{inttest@{inttest}!main.c@{main.\-c}}
+\subsubsection[{inttest}]{\setlength{\rightskip}{0pt plus 5cm}void inttest (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{main_8c_aec0830b94783b020c7a7a4bed5f309f1}
+\begin{DoxyRefDesc}{Deprecated}
+\item[\hyperlink{deprecated__deprecated000001}{Deprecated}]This is for testing only, it will be removed very soon. \end{DoxyRefDesc}
+\hypertarget{main_8c_aea2e592c11f22989c1dae9320d742a7c}{\index{main.\-c@{main.\-c}!kmain@{kmain}}
+\index{kmain@{kmain}!main.c@{main.\-c}}
+\subsubsection[{kmain}]{\setlength{\rightskip}{0pt plus 5cm}int kmain (
+\begin{DoxyParamCaption}
+\item[{struct {\bf multiboot} {\bf \-\_\-\-\_\-unused} $\ast$}]{mboot\-\_\-ptr, }
+\item[{{\bf u32} {\bf \-\_\-\-\_\-unused}}]{initial\-\_\-stack}
+\end{DoxyParamCaption}
+)}}\label{main_8c_aea2e592c11f22989c1dae9320d742a7c}
+
+
+Definition at line 15 of file main.\-c.
+
+
+
+References \-\_\-\-\_\-builtin\-\_\-ia32\-\_\-pause(), \-\_\-\-\_\-sti, exceptions\-\_\-init(), gdt\-\_\-init(), idt\-\_\-init(), inttest(), paging\-\_\-init(), set\-\_\-idt(), vga\-\_\-clear(), and vga\-\_\-print().
+
+
+\begin{DoxyCode}
+16 \{
+17     \hyperlink{print_8h_a0a09bc3b0111af74c7aa94b6504c3e9b}{vga\_clear}();
+18     \hyperlink{gdt_8h_aaa7a7d6a41843f8a0c64fd66967feef4}{gdt\_init}();
+19     \hyperlink{idt_8h_a88d4205d069421eb4f8e7577285f1180}{idt\_init}();
+20     \hyperlink{paging_8h_a569adfd13ea3c63741f64108821b1712}{paging\_init}();
+21     \hyperlink{idt_8h_af0624103b831428526e435be5d8b959c}{set\_idt}(0x21, 0x08, 0x8E, &\hyperlink{main_8c_aec0830b94783b020c7a7a4bed5f309f1}{inttest});
+22     \hyperlink{main_8c_ae64f2b4d62025b16350f72a4fcfca042}{exceptions\_init}();
+23     \hyperlink{types_8h_a22f5b50b8e582426daa2e9966aeb4a23}{\_\_sti};
+24     
+25     \hyperlink{print_8h_a10efa90188a292b08f1fefa5a1715550}{vga\_print}(\textcolor{stringliteral}{"Welcome to Lambda OS!\(\backslash\)n"});
+26 
+27     \textcolor{keywordflow}{for}(;;) \hyperlink{types_8h_a23e0b58b601799ddebe352ce8fd2818a}{\_\_builtin\_ia32\_pause}();
+28 \}
+\end{DoxyCode}
+\hypertarget{main_8c_a6d6ba0132f53c602be5d768af2398248}{\index{main.\-c@{main.\-c}!test\-\_\-int@{test\-\_\-int}}
+\index{test\-\_\-int@{test\-\_\-int}!main.c@{main.\-c}}
+\subsubsection[{test\-\_\-int}]{\setlength{\rightskip}{0pt plus 5cm}void {\bf \-\_\-\-\_\-unused} test\-\_\-int (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{main_8c_a6d6ba0132f53c602be5d768af2398248}
+\begin{DoxyRefDesc}{Deprecated}
+\item[\hyperlink{deprecated__deprecated000002}{Deprecated}]This is for testing only, it will be removed very soon. \end{DoxyRefDesc}
+
+
+Definition at line 34 of file main.\-c.
+
+
+
+References inb(), outb(), and vga\-\_\-print().
+
+
+\begin{DoxyCode}
+35 \{
+36     \hyperlink{print_8h_a10efa90188a292b08f1fefa5a1715550}{vga\_print}(\textcolor{stringliteral}{"I see the interrupts are working just fine!\(\backslash\)n"});
+37     \hyperlink{ioport_8h_abc086ee7e5764c55967724916e21b553}{outb}(0x20, 0x20);
+38     \hyperlink{ioport_8h_a72469337290ae306e228d538970aef1d}{inb}(0x60);
+39 \}\end{DoxyCode}

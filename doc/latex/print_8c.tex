@@ -1,0 +1,258 @@
+\hypertarget{print_8c}{\section{kernel/src/dev/vga/print.c File Reference}
+\label{print_8c}\index{kernel/src/dev/vga/print.\-c@{kernel/src/dev/vga/print.\-c}}
+}
+{\ttfamily \#include $<$types.\-h$>$}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{print_8c_a0a09bc3b0111af74c7aa94b6504c3e9b}{vga\-\_\-clear} ()
+\begin{DoxyCompactList}\small\item\em Clears V\-G\-A text. Clears the first plane of V\-G\-A memory, effectively clearing all text from the screen. \end{DoxyCompactList}\item 
+static void \hyperlink{print_8c_aa181fde17108dc717d58c85791205224}{scrollup} ()
+\begin{DoxyCompactList}\small\item\em Moves all V\-G\-A text up a line. Copies all text after the first line to the previous line, then clears the final line. \end{DoxyCompactList}\item 
+void \hyperlink{print_8c_a3f7e1edd8e3bcb023297e27d2fe8af20}{vga\-\_\-put} (char c)
+\begin{DoxyCompactList}\small\item\em Prints a single character to the V\-G\-A screen. Checks if character is printable, if so it places it in V\-G\-A memory, along with a color byte. If the character is not printable, it deals with it accordingly. \end{DoxyCompactList}\item 
+void \hyperlink{print_8c_a10efa90188a292b08f1fefa5a1715550}{vga\-\_\-print} (char $\ast$str)
+\begin{DoxyCompactList}\small\item\em Prints a string of characters. Prints every character in a character array , until it reaches a N\-U\-L\-L terminator. \end{DoxyCompactList}\item 
+void \hyperlink{print_8c_ade6f3c444e9b2f6c32eb8e25e03bd18b}{vga\-\_\-printnum} (\hyperlink{types_8h_a10e94b422ef0c20dcdec20d31a1f5049}{u32} n, int base)
+\begin{DoxyCompactList}\small\item\em Prints a number using the specified base. Prints a number using any base between 2 and 16, inclusive. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static \hyperlink{types_8h_aed742c436da53c1080638ce6ef7d13de}{u8} \hyperlink{print_8c_af10e603df005a65435ae052f38cfbb0b}{bkgc} = 0x00
+\begin{DoxyCompactList}\small\item\em Background color to use in vga\-\_\-put. \end{DoxyCompactList}\item 
+static \hyperlink{types_8h_aed742c436da53c1080638ce6ef7d13de}{u8} \hyperlink{print_8c_af6e8157f2c6bc49d516761f06c97f83e}{forc} = 0x07
+\begin{DoxyCompactList}\small\item\em Foreground color to use in vga\-\_\-put. \end{DoxyCompactList}\item 
+int \hyperlink{print_8c_a64bd209719805b927440b59fa98dfeb5}{xres} = 80
+\begin{DoxyCompactList}\small\item\em The current width of the V\-G\-A screen. \end{DoxyCompactList}\item 
+int \hyperlink{print_8c_aa56a403ffdfe2aec14965c0b618de1c1}{yres} = 25
+\begin{DoxyCompactList}\small\item\em The current hight of the V\-G\-A screen. \end{DoxyCompactList}\item 
+static int \hyperlink{print_8c_a4c8fb3f1c1ae597ee856290390ebc274}{xpos} = 0
+\begin{DoxyCompactList}\small\item\em X position of the cursor. \end{DoxyCompactList}\item 
+static int \hyperlink{print_8c_a4db09a4236b6f591c377857b932eb41a}{ypos} = 0
+\begin{DoxyCompactList}\small\item\em Y position of the cursor. \end{DoxyCompactList}\item 
+static \hyperlink{types_8h_aed742c436da53c1080638ce6ef7d13de}{u8} $\ast$ \hyperlink{print_8c_a24dd6e118cc27d3326790746cb714575}{vidmem} = (\hyperlink{types_8h_aed742c436da53c1080638ce6ef7d13de}{u8} $\ast$)0x\-B8000
+\begin{DoxyCompactList}\small\item\em Pointer to default V\-G\-A memory location. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\hypertarget{print_8c_aa181fde17108dc717d58c85791205224}{\index{print.\-c@{print.\-c}!scrollup@{scrollup}}
+\index{scrollup@{scrollup}!print.c@{print.\-c}}
+\subsubsection[{scrollup}]{\setlength{\rightskip}{0pt plus 5cm}static void scrollup (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [static]}}}\label{print_8c_aa181fde17108dc717d58c85791205224}
+
+
+Definition at line 31 of file print.\-c.
+
+
+
+References vidmem, xres, and yres.
+
+
+\begin{DoxyCode}
+32 \{
+33     \textcolor{keywordtype}{int} i = 0;
+34     \textcolor{keywordflow}{for}(; i < (\hyperlink{print_8c_a64bd209719805b927440b59fa98dfeb5}{xres} * (\hyperlink{print_8c_aa56a403ffdfe2aec14965c0b618de1c1}{yres} - 1) * 2); i++)
+35         \hyperlink{print_8c_a24dd6e118cc27d3326790746cb714575}{vidmem}[i] = \hyperlink{print_8c_a24dd6e118cc27d3326790746cb714575}{vidmem}[i + \hyperlink{print_8c_a64bd209719805b927440b59fa98dfeb5}{xres}*2];
+36     
+37     \textcolor{keywordflow}{for}(; i < (\hyperlink{print_8c_a64bd209719805b927440b59fa98dfeb5}{xres} * (\hyperlink{print_8c_aa56a403ffdfe2aec14965c0b618de1c1}{yres}) * 2); i++)
+38         \hyperlink{print_8c_a24dd6e118cc27d3326790746cb714575}{vidmem}[i] = 0x00;
+39 \}
+\end{DoxyCode}
+\hypertarget{print_8c_a0a09bc3b0111af74c7aa94b6504c3e9b}{\index{print.\-c@{print.\-c}!vga\-\_\-clear@{vga\-\_\-clear}}
+\index{vga\-\_\-clear@{vga\-\_\-clear}!print.c@{print.\-c}}
+\subsubsection[{vga\-\_\-clear}]{\setlength{\rightskip}{0pt plus 5cm}void vga\-\_\-clear (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{print_8c_a0a09bc3b0111af74c7aa94b6504c3e9b}
+
+
+Definition at line 19 of file print.\-c.
+
+
+
+References vidmem, xres, and yres.
+
+
+\begin{DoxyCode}
+20 \{
+21     \textcolor{keywordtype}{int} i = 0;
+22     \textcolor{keywordflow}{for}(; i < \hyperlink{print_8c_a64bd209719805b927440b59fa98dfeb5}{xres}*\hyperlink{print_8c_aa56a403ffdfe2aec14965c0b618de1c1}{yres}*2; i++)
+23         *(\hyperlink{print_8c_a24dd6e118cc27d3326790746cb714575}{vidmem} + i) = 0x00;
+24 \}
+\end{DoxyCode}
+\hypertarget{print_8c_a10efa90188a292b08f1fefa5a1715550}{\index{print.\-c@{print.\-c}!vga\-\_\-print@{vga\-\_\-print}}
+\index{vga\-\_\-print@{vga\-\_\-print}!print.c@{print.\-c}}
+\subsubsection[{vga\-\_\-print}]{\setlength{\rightskip}{0pt plus 5cm}void vga\-\_\-print (
+\begin{DoxyParamCaption}
+\item[{char $\ast$}]{str}
+\end{DoxyParamCaption}
+)}}\label{print_8c_a10efa90188a292b08f1fefa5a1715550}
+
+\begin{DoxyParams}{Parameters}
+{\em str} & the string to print \\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See Also}
+\hyperlink{print_8c_a3f7e1edd8e3bcb023297e27d2fe8af20}{vga\-\_\-put} 
+\end{DoxySeeAlso}
+
+
+Definition at line 81 of file print.\-c.
+
+
+
+References vga\-\_\-put().
+
+
+\begin{DoxyCode}
+82 \{
+83     \textcolor{keywordtype}{int} i = 0;
+84     \textcolor{keywordflow}{while}(str[i] != 0)
+85         \hyperlink{print_8h_a736a087bd4d8a71d195261774c83156c}{vga\_put}((\hyperlink{types_8h_aed742c436da53c1080638ce6ef7d13de}{u8})str[i++]);
+86 \}
+\end{DoxyCode}
+\hypertarget{print_8c_ade6f3c444e9b2f6c32eb8e25e03bd18b}{\index{print.\-c@{print.\-c}!vga\-\_\-printnum@{vga\-\_\-printnum}}
+\index{vga\-\_\-printnum@{vga\-\_\-printnum}!print.c@{print.\-c}}
+\subsubsection[{vga\-\_\-printnum}]{\setlength{\rightskip}{0pt plus 5cm}void vga\-\_\-printnum (
+\begin{DoxyParamCaption}
+\item[{{\bf u32}}]{n, }
+\item[{int}]{base}
+\end{DoxyParamCaption}
+)}}\label{print_8c_ade6f3c444e9b2f6c32eb8e25e03bd18b}
+
+\begin{DoxyParams}{Parameters}
+{\em n} & number to be printed \\
+\hline
+{\em base} & base to use when printing the number \\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See Also}
+\hyperlink{print_8c_a10efa90188a292b08f1fefa5a1715550}{vga\-\_\-print} 
+\end{DoxySeeAlso}
+
+
+Definition at line 95 of file print.\-c.
+
+
+
+References vga\-\_\-put().
+
+
+\begin{DoxyCode}
+96 \{
+97     \textcolor{keywordtype}{char} nums[16] = \textcolor{stringliteral}{"0123456789ABCDEF"};
+98     \textcolor{keywordtype}{char} ans[16] = \{ \textcolor{charliteral}{'0'} \};
+99     \textcolor{keywordtype}{int} i = 0;
+100     \textcolor{keywordflow}{while}(n)
+101     \{
+102         ans[i++] = nums[n % base];
+103         n /= base;
+104     \}
+105 
+106     \textcolor{keywordflow}{for}(i--; i >= 0; i--)
+107         \hyperlink{print_8h_a736a087bd4d8a71d195261774c83156c}{vga\_put}(ans[i]);
+108 \}\end{DoxyCode}
+\hypertarget{print_8c_a3f7e1edd8e3bcb023297e27d2fe8af20}{\index{print.\-c@{print.\-c}!vga\-\_\-put@{vga\-\_\-put}}
+\index{vga\-\_\-put@{vga\-\_\-put}!print.c@{print.\-c}}
+\subsubsection[{vga\-\_\-put}]{\setlength{\rightskip}{0pt plus 5cm}void vga\-\_\-put (
+\begin{DoxyParamCaption}
+\item[{char}]{c}
+\end{DoxyParamCaption}
+)}}\label{print_8c_a3f7e1edd8e3bcb023297e27d2fe8af20}
+
+\begin{DoxyParams}{Parameters}
+{\em c} & the input character \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 48 of file print.\-c.
+
+
+
+References bkgc, forc, scrollup(), vidmem, xpos, xres, ypos, and yres.
+
+
+\begin{DoxyCode}
+49 \{
+50     \textcolor{keywordflow}{switch}(c)
+51     \{
+52         \textcolor{keywordflow}{case} 0x00:
+53             \textcolor{keywordflow}{return};
+54 
+55         \textcolor{keywordflow}{case} \textcolor{charliteral}{'\(\backslash\)t'}:
+56             \hyperlink{print_8c_a4c8fb3f1c1ae597ee856290390ebc274}{xpos} = (\hyperlink{print_8c_a4c8fb3f1c1ae597ee856290390ebc274}{xpos} + 8) & ~(8);
+57             \textcolor{keywordflow}{break};
+58 
+59         \textcolor{keywordflow}{case} \textcolor{charliteral}{'\(\backslash\)n'}:
+60             \hyperlink{print_8c_a4c8fb3f1c1ae597ee856290390ebc274}{xpos} = 0;
+61             \hyperlink{print_8c_a4db09a4236b6f591c377857b932eb41a}{ypos}++;
+62             \textcolor{keywordflow}{break};
+63 
+64         \textcolor{keywordflow}{default}:
+65             *(\hyperlink{print_8c_a24dd6e118cc27d3326790746cb714575}{vidmem} + (\hyperlink{print_8c_a4c8fb3f1c1ae597ee856290390ebc274}{xpos}+\hyperlink{print_8c_a4db09a4236b6f591c377857b932eb41a}{ypos}*\hyperlink{print_8c_a64bd209719805b927440b59fa98dfeb5}{xres})*2)     = (\hyperlink{types_8h_aed742c436da53c1080638ce6ef7d13de}{u8})c;
+66             *(\hyperlink{print_8c_a24dd6e118cc27d3326790746cb714575}{vidmem} + (\hyperlink{print_8c_a4c8fb3f1c1ae597ee856290390ebc274}{xpos}+\hyperlink{print_8c_a4db09a4236b6f591c377857b932eb41a}{ypos}*\hyperlink{print_8c_a64bd209719805b927440b59fa98dfeb5}{xres})*2 + 1) = ((\hyperlink{print_8c_af10e603df005a65435ae052f38cfbb0b}{bkgc} << 4) | 
+      \hyperlink{print_8c_af6e8157f2c6bc49d516761f06c97f83e}{forc});
+67             \hyperlink{print_8c_a4c8fb3f1c1ae597ee856290390ebc274}{xpos}++;
+68             \textcolor{keywordflow}{break};
+69     \}
+70     \textcolor{keywordflow}{if}(\hyperlink{print_8c_a4c8fb3f1c1ae597ee856290390ebc274}{xpos} >= \hyperlink{print_8c_a64bd209719805b927440b59fa98dfeb5}{xres}) \{ \hyperlink{print_8c_a4c8fb3f1c1ae597ee856290390ebc274}{xpos} = 0; \hyperlink{print_8c_a4db09a4236b6f591c377857b932eb41a}{ypos}++; \}
+71     \textcolor{keywordflow}{if}(\hyperlink{print_8c_a4db09a4236b6f591c377857b932eb41a}{ypos} >= \hyperlink{print_8c_aa56a403ffdfe2aec14965c0b618de1c1}{yres}) \{ \hyperlink{print_8c_a4db09a4236b6f591c377857b932eb41a}{ypos} = \hyperlink{print_8c_aa56a403ffdfe2aec14965c0b618de1c1}{yres} - 1; \hyperlink{print_8c_aa181fde17108dc717d58c85791205224}{scrollup}(); \}
+72 \}
+\end{DoxyCode}
+
+
+\subsection{Variable Documentation}
+\hypertarget{print_8c_af10e603df005a65435ae052f38cfbb0b}{\index{print.\-c@{print.\-c}!bkgc@{bkgc}}
+\index{bkgc@{bkgc}!print.c@{print.\-c}}
+\subsubsection[{bkgc}]{\setlength{\rightskip}{0pt plus 5cm}{\bf u8} bkgc = 0x00\hspace{0.3cm}{\ttfamily [static]}}}\label{print_8c_af10e603df005a65435ae052f38cfbb0b}
+
+
+Definition at line 3 of file print.\-c.
+
+\hypertarget{print_8c_af6e8157f2c6bc49d516761f06c97f83e}{\index{print.\-c@{print.\-c}!forc@{forc}}
+\index{forc@{forc}!print.c@{print.\-c}}
+\subsubsection[{forc}]{\setlength{\rightskip}{0pt plus 5cm}{\bf u8} forc = 0x07\hspace{0.3cm}{\ttfamily [static]}}}\label{print_8c_af6e8157f2c6bc49d516761f06c97f83e}
+
+
+Definition at line 4 of file print.\-c.
+
+\hypertarget{print_8c_a24dd6e118cc27d3326790746cb714575}{\index{print.\-c@{print.\-c}!vidmem@{vidmem}}
+\index{vidmem@{vidmem}!print.c@{print.\-c}}
+\subsubsection[{vidmem}]{\setlength{\rightskip}{0pt plus 5cm}{\bf u8}$\ast$ vidmem = ({\bf u8} $\ast$)0x\-B8000\hspace{0.3cm}{\ttfamily [static]}}}\label{print_8c_a24dd6e118cc27d3326790746cb714575}
+
+
+Definition at line 12 of file print.\-c.
+
+\hypertarget{print_8c_a4c8fb3f1c1ae597ee856290390ebc274}{\index{print.\-c@{print.\-c}!xpos@{xpos}}
+\index{xpos@{xpos}!print.c@{print.\-c}}
+\subsubsection[{xpos}]{\setlength{\rightskip}{0pt plus 5cm}int xpos = 0\hspace{0.3cm}{\ttfamily [static]}}}\label{print_8c_a4c8fb3f1c1ae597ee856290390ebc274}
+
+
+Definition at line 9 of file print.\-c.
+
+\hypertarget{print_8c_a64bd209719805b927440b59fa98dfeb5}{\index{print.\-c@{print.\-c}!xres@{xres}}
+\index{xres@{xres}!print.c@{print.\-c}}
+\subsubsection[{xres}]{\setlength{\rightskip}{0pt plus 5cm}int xres = 80}}\label{print_8c_a64bd209719805b927440b59fa98dfeb5}
+
+
+Definition at line 6 of file print.\-c.
+
+\hypertarget{print_8c_a4db09a4236b6f591c377857b932eb41a}{\index{print.\-c@{print.\-c}!ypos@{ypos}}
+\index{ypos@{ypos}!print.c@{print.\-c}}
+\subsubsection[{ypos}]{\setlength{\rightskip}{0pt plus 5cm}int ypos = 0\hspace{0.3cm}{\ttfamily [static]}}}\label{print_8c_a4db09a4236b6f591c377857b932eb41a}
+
+
+Definition at line 10 of file print.\-c.
+
+\hypertarget{print_8c_aa56a403ffdfe2aec14965c0b618de1c1}{\index{print.\-c@{print.\-c}!yres@{yres}}
+\index{yres@{yres}!print.c@{print.\-c}}
+\subsubsection[{yres}]{\setlength{\rightskip}{0pt plus 5cm}int yres = 25}}\label{print_8c_aa56a403ffdfe2aec14965c0b618de1c1}
+
+
+Definition at line 7 of file print.\-c.
+

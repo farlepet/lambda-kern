@@ -1,0 +1,112 @@
+\hypertarget{idt_8h}{\section{kernel/inc/intr/idt.h File Reference}
+\label{idt_8h}\index{kernel/inc/intr/idt.\-h@{kernel/inc/intr/idt.\-h}}
+}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{idt_8h_a1b5bb8212147aadf0ae4d141f3a81e63}{I\-D\-T\-\_\-\-E\-N\-T\-R\-Y}(off, sel, attr)
+\item 
+\#define \hyperlink{idt_8h_af20a1f358842c522fa78c3b6ab715785}{I\-D\-T\-\_\-\-A\-T\-T\-R}(present, dpl, storeseg, type)
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{idt_8h_a88d4205d069421eb4f8e7577285f1180}{idt\-\_\-init} ()
+\item 
+void \hyperlink{idt_8h_af0624103b831428526e435be5d8b959c}{set\-\_\-idt} (int, int, int, void $\ast$)
+\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\hypertarget{idt_8h_af20a1f358842c522fa78c3b6ab715785}{\index{idt.\-h@{idt.\-h}!I\-D\-T\-\_\-\-A\-T\-T\-R@{I\-D\-T\-\_\-\-A\-T\-T\-R}}
+\index{I\-D\-T\-\_\-\-A\-T\-T\-R@{I\-D\-T\-\_\-\-A\-T\-T\-R}!idt.h@{idt.\-h}}
+\subsubsection[{I\-D\-T\-\_\-\-A\-T\-T\-R}]{\setlength{\rightskip}{0pt plus 5cm}\#define I\-D\-T\-\_\-\-A\-T\-T\-R(
+\begin{DoxyParamCaption}
+\item[{}]{present, }
+\item[{}]{dpl, }
+\item[{}]{storeseg, }
+\item[{}]{type}
+\end{DoxyParamCaption}
+)}}\label{idt_8h_af20a1f358842c522fa78c3b6ab715785}
+{\bfseries Value\-:}
+\begin{DoxyCode}
+(((present & 0x01) << 7) | \(\backslash\)
+    ((dpl      & 0x03) << 5) | \(\backslash\)
+    ((storeseg & 0x01) << 4) | \(\backslash\)
+    ((type     & 0x0F) << 0))
+\end{DoxyCode}
+
+
+Definition at line 19 of file idt.\-h.
+
+\hypertarget{idt_8h_a1b5bb8212147aadf0ae4d141f3a81e63}{\index{idt.\-h@{idt.\-h}!I\-D\-T\-\_\-\-E\-N\-T\-R\-Y@{I\-D\-T\-\_\-\-E\-N\-T\-R\-Y}}
+\index{I\-D\-T\-\_\-\-E\-N\-T\-R\-Y@{I\-D\-T\-\_\-\-E\-N\-T\-R\-Y}!idt.h@{idt.\-h}}
+\subsubsection[{I\-D\-T\-\_\-\-E\-N\-T\-R\-Y}]{\setlength{\rightskip}{0pt plus 5cm}\#define I\-D\-T\-\_\-\-E\-N\-T\-R\-Y(
+\begin{DoxyParamCaption}
+\item[{}]{off, }
+\item[{}]{sel, }
+\item[{}]{attr}
+\end{DoxyParamCaption}
+)}}\label{idt_8h_a1b5bb8212147aadf0ae4d141f3a81e63}
+{\bfseries Value\-:}
+\begin{DoxyCode}
+(((off  & 0xFFFF0000ULL) << 32) | \(\backslash\)
+     ((attr & 0x000000FFULL) << 40) | \(\backslash\)
+     ((sel  & 0x0000FFFFULL) << 16) | \(\backslash\)
+     ((off  & 0x0000FFFFULL) << 0))
+\end{DoxyCode}
+
+
+Definition at line 4 of file idt.\-h.
+
+
+
+\subsection{Function Documentation}
+\hypertarget{idt_8h_a88d4205d069421eb4f8e7577285f1180}{\index{idt.\-h@{idt.\-h}!idt\-\_\-init@{idt\-\_\-init}}
+\index{idt\-\_\-init@{idt\-\_\-init}!idt.h@{idt.\-h}}
+\subsubsection[{idt\-\_\-init}]{\setlength{\rightskip}{0pt plus 5cm}void idt\-\_\-init (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{idt_8h_a88d4205d069421eb4f8e7577285f1180}
+
+
+Definition at line 30 of file idt.\-c.
+
+
+
+References dummy\-\_\-int(), I\-D\-T, I\-D\-T\-\_\-\-E\-N\-T\-R\-Y, and reload\-\_\-idt().
+
+
+\begin{DoxyCode}
+31 \{
+32     \textcolor{keywordtype}{int} i = 0;
+33     \textcolor{keywordflow}{for}(; i < 256; i++)
+34         \hyperlink{idt_8c_a53832f8d40d9f1dbf1cc583fbccdbea5}{IDT}[i] = \hyperlink{idt_8h_a1b5bb8212147aadf0ae4d141f3a81e63}{IDT\_ENTRY}((\hyperlink{types_8h_a10e94b422ef0c20dcdec20d31a1f5049}{u32})&\hyperlink{idt_8c_a73661ba532acc6fbef07f6024a17d42b}{dummy\_int}, 0x08, 0x8E);
+35     
+36     \hyperlink{idt_8c_a62a668675f1909ccc78607fb65331da8}{reload\_idt}();
+37 \}
+\end{DoxyCode}
+\hypertarget{idt_8h_af0624103b831428526e435be5d8b959c}{\index{idt.\-h@{idt.\-h}!set\-\_\-idt@{set\-\_\-idt}}
+\index{set\-\_\-idt@{set\-\_\-idt}!idt.h@{idt.\-h}}
+\subsubsection[{set\-\_\-idt}]{\setlength{\rightskip}{0pt plus 5cm}void set\-\_\-idt (
+\begin{DoxyParamCaption}
+\item[{int}]{, }
+\item[{int}]{, }
+\item[{int}]{, }
+\item[{void $\ast$}]{}
+\end{DoxyParamCaption}
+)}}\label{idt_8h_af0624103b831428526e435be5d8b959c}
+
+
+Definition at line 39 of file idt.\-c.
+
+
+
+References I\-D\-T, and I\-D\-T\-\_\-\-E\-N\-T\-R\-Y.
+
+
+\begin{DoxyCode}
+40 \{
+41     \hyperlink{idt_8c_a53832f8d40d9f1dbf1cc583fbccdbea5}{IDT}[intr] = \hyperlink{idt_8h_a1b5bb8212147aadf0ae4d141f3a81e63}{IDT\_ENTRY}((\hyperlink{types_8h_a10e94b422ef0c20dcdec20d31a1f5049}{u32})func, sel, flags);
+42 \}\end{DoxyCode}

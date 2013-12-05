@@ -1,0 +1,341 @@
+\hypertarget{types_8h}{\section{kernel/inc/types.h File Reference}
+\label{types_8h}\index{kernel/inc/types.\-h@{kernel/inc/types.\-h}}
+}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{types_8h_a51412353281872c8a9cb933bf6f6860e}{\-\_\-\-\_\-alias}(N)~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-weak\-\_\-\-\_\-, \-\_\-\-\_\-alias\-\_\-\-\_\-(\#N)))
+\item 
+\#define \hyperlink{types_8h_ab8d4aa7e9ca368db7220dc9747189f1c}{\-\_\-\-\_\-pure}~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-pure\-\_\-\-\_\-))
+\item 
+\#define \hyperlink{types_8h_af4689d6a54aa1e22d9fcdb5a4ee1e00c}{\-\_\-\-\_\-align}(A)~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-aligned\-\_\-\-\_\-(\#A)))
+\item 
+\#define \hyperlink{types_8h_a02403dd691dff828ba6cb6d3379c35e4}{\-\_\-\-\_\-inline\-\_\-flat}~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-flatten\-\_\-\-\_\-))
+\item 
+\#define \hyperlink{types_8h_a0851bdffe742ee5d69089ff496b864c4}{\-\_\-\-\_\-error}(E)~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-error\-\_\-\-\_\-(\#E)))
+\item 
+\#define \hyperlink{types_8h_a3bb8024db048b7f0dcee85212218da88}{\-\_\-\-\_\-warning}(E)~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-warning\-\_\-\-\_\-(\#E)))
+\item 
+\#define \hyperlink{types_8h_a1d606e5c51fb29814027e012057397bc}{\-\_\-\-\_\-fastcall}~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-fastcall\-\_\-\-\_\-))
+\item 
+\#define \hyperlink{types_8h_a2483b543a28aeb82dfed626e5070f871}{\-\_\-\-\_\-thiscall}~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-thiscall\-\_\-\-\_\-))
+\item 
+\#define \hyperlink{types_8h_aa2329f285af4ab00c7487eccf5e7f0c6}{\-\_\-\-\_\-section}(S)~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-section\-\_\-\-\_\-(\#S)))
+\item 
+\#define \hyperlink{types_8h_a5b6df4fe38493e14648842364a76075f}{\-\_\-\-\_\-noreturn}~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-noreturn\-\_\-\-\_\-))
+\item 
+\#define \hyperlink{types_8h_a2e3484535ee610c8e19e9859563abe48}{\-\_\-\-\_\-unused}~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-unused\-\_\-\-\_\-))
+\item 
+\#define \hyperlink{types_8h_a2e24fbcdf05fd8c48773992b9e76bd07}{\-\_\-\-\_\-packed}~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-packed\-\_\-\-\_\-))
+\item 
+\#define \hyperlink{types_8h_af74f8ba1e24b5ef7ab220682dd106e37}{\-\_\-\-\_\-cold}~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-cold\-\_\-\-\_\-))
+\item 
+\#define \hyperlink{types_8h_aaa92ffc2c0cb30e9b5fda4c16a4bdd37}{\-\_\-\-\_\-hot}~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-hot\-\_\-\-\_\-))
+\item 
+\#define \hyperlink{types_8h_a4e1585cb1b8a465a6a9a702d97bb4ad8}{\-\_\-\-\_\-deprecated}~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-deprecated\-\_\-\-\_\-))
+\item 
+\#define \hyperlink{types_8h_a088bf637b2df66a8caccd2872f775bc6}{\-\_\-\-\_\-deprecated\-\_\-msg}(M)~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-deprecated\-\_\-\-\_\-(\#M)))
+\item 
+\#define \hyperlink{types_8h_a22f5b50b8e582426daa2e9966aeb4a23}{\-\_\-\-\_\-sti}~asm volatile(\char`\"{}sti\char`\"{})
+\item 
+\#define \hyperlink{types_8h_a239be14c23192feec61e0ceb8310672e}{\-\_\-\-\_\-cli}~asm volatile(\char`\"{}cli\char`\"{})
+\item 
+\#define \hyperlink{types_8h_a04735d02afba4ebee1ac64da0cd6e048}{\-\_\-\-\_\-hlt}~asm volatile(\char`\"{}hlt\char`\"{})
+\item 
+\#define \hyperlink{types_8h_a070d2ce7b6bb7e5c05602aa8c308d0c4}{N\-U\-L\-L}~(void $\ast$)0x00000000
+\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef char \hyperlink{types_8h_a2ff401e087cf786c38a6812723e94473}{s8}
+\item 
+typedef short \hyperlink{types_8h_a2e9bf6983da73775aa86158c825bf777}{s16}
+\item 
+typedef int \hyperlink{types_8h_aa62c75d314a0d1f37f79c4b73b2292e2}{s32}
+\item 
+typedef long long \hyperlink{types_8h_a93680f46d09022794e3923824923b42b}{s64}
+\item 
+typedef unsigned char \hyperlink{types_8h_aed742c436da53c1080638ce6ef7d13de}{u8}
+\item 
+typedef unsigned short \hyperlink{types_8h_a9e6c91d77e24643b888dbd1a1a590054}{u16}
+\item 
+typedef unsigned int \hyperlink{types_8h_a10e94b422ef0c20dcdec20d31a1f5049}{u32}
+\item 
+typedef unsigned long long \hyperlink{types_8h_ad758b7a5c3f18ed79d2fcd23d9f16357}{u64}
+\item 
+typedef enum \hyperlink{types_8h_a3e5b8192e7d9ffaf3542f1210aec18dd}{B\-O\-O\-L} \hyperlink{types_8h_ac4cce8e299d11a2379dc423007f99147}{bool}
+\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{types_8h_a3e5b8192e7d9ffaf3542f1210aec18dd}{B\-O\-O\-L} \{ \hyperlink{types_8h_a3e5b8192e7d9ffaf3542f1210aec18ddaa1e095cc966dbecf6a0d8aad75348d1a}{F\-A\-L\-S\-E}, 
+\hyperlink{types_8h_a3e5b8192e7d9ffaf3542f1210aec18ddaa82764c3079aea4e60c80e45befbb839}{T\-R\-U\-E}
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{types_8h_a23e0b58b601799ddebe352ce8fd2818a}{\-\_\-\-\_\-builtin\-\_\-ia32\-\_\-pause} ()
+\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\hypertarget{types_8h_a51412353281872c8a9cb933bf6f6860e}{\index{types.\-h@{types.\-h}!\-\_\-\-\_\-alias@{\-\_\-\-\_\-alias}}
+\index{\-\_\-\-\_\-alias@{\-\_\-\-\_\-alias}!types.h@{types.\-h}}
+\subsubsection[{\-\_\-\-\_\-alias}]{\setlength{\rightskip}{0pt plus 5cm}\#define \-\_\-\-\_\-alias(
+\begin{DoxyParamCaption}
+\item[{}]{N}
+\end{DoxyParamCaption}
+)~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-weak\-\_\-\-\_\-, \-\_\-\-\_\-alias\-\_\-\-\_\-(\#N)))}}\label{types_8h_a51412353281872c8a9cb933bf6f6860e}
+
+
+Definition at line 14 of file types.\-h.
+
+\hypertarget{types_8h_af4689d6a54aa1e22d9fcdb5a4ee1e00c}{\index{types.\-h@{types.\-h}!\-\_\-\-\_\-align@{\-\_\-\-\_\-align}}
+\index{\-\_\-\-\_\-align@{\-\_\-\-\_\-align}!types.h@{types.\-h}}
+\subsubsection[{\-\_\-\-\_\-align}]{\setlength{\rightskip}{0pt plus 5cm}\#define \-\_\-\-\_\-align(
+\begin{DoxyParamCaption}
+\item[{}]{A}
+\end{DoxyParamCaption}
+)~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-aligned\-\_\-\-\_\-(\#A)))}}\label{types_8h_af4689d6a54aa1e22d9fcdb5a4ee1e00c}
+
+
+Definition at line 18 of file types.\-h.
+
+\hypertarget{types_8h_a239be14c23192feec61e0ceb8310672e}{\index{types.\-h@{types.\-h}!\-\_\-\-\_\-cli@{\-\_\-\-\_\-cli}}
+\index{\-\_\-\-\_\-cli@{\-\_\-\-\_\-cli}!types.h@{types.\-h}}
+\subsubsection[{\-\_\-\-\_\-cli}]{\setlength{\rightskip}{0pt plus 5cm}\#define \-\_\-\-\_\-cli~asm volatile(\char`\"{}cli\char`\"{})}}\label{types_8h_a239be14c23192feec61e0ceb8310672e}
+
+
+Definition at line 43 of file types.\-h.
+
+\hypertarget{types_8h_af74f8ba1e24b5ef7ab220682dd106e37}{\index{types.\-h@{types.\-h}!\-\_\-\-\_\-cold@{\-\_\-\-\_\-cold}}
+\index{\-\_\-\-\_\-cold@{\-\_\-\-\_\-cold}!types.h@{types.\-h}}
+\subsubsection[{\-\_\-\-\_\-cold}]{\setlength{\rightskip}{0pt plus 5cm}\#define \-\_\-\-\_\-cold~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-cold\-\_\-\-\_\-))}}\label{types_8h_af74f8ba1e24b5ef7ab220682dd106e37}
+
+
+Definition at line 31 of file types.\-h.
+
+\hypertarget{types_8h_a4e1585cb1b8a465a6a9a702d97bb4ad8}{\index{types.\-h@{types.\-h}!\-\_\-\-\_\-deprecated@{\-\_\-\-\_\-deprecated}}
+\index{\-\_\-\-\_\-deprecated@{\-\_\-\-\_\-deprecated}!types.h@{types.\-h}}
+\subsubsection[{\-\_\-\-\_\-deprecated}]{\setlength{\rightskip}{0pt plus 5cm}\#define \-\_\-\-\_\-deprecated~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-deprecated\-\_\-\-\_\-))}}\label{types_8h_a4e1585cb1b8a465a6a9a702d97bb4ad8}
+
+
+Definition at line 35 of file types.\-h.
+
+\hypertarget{types_8h_a088bf637b2df66a8caccd2872f775bc6}{\index{types.\-h@{types.\-h}!\-\_\-\-\_\-deprecated\-\_\-msg@{\-\_\-\-\_\-deprecated\-\_\-msg}}
+\index{\-\_\-\-\_\-deprecated\-\_\-msg@{\-\_\-\-\_\-deprecated\-\_\-msg}!types.h@{types.\-h}}
+\subsubsection[{\-\_\-\-\_\-deprecated\-\_\-msg}]{\setlength{\rightskip}{0pt plus 5cm}\#define \-\_\-\-\_\-deprecated\-\_\-msg(
+\begin{DoxyParamCaption}
+\item[{}]{M}
+\end{DoxyParamCaption}
+)~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-deprecated\-\_\-\-\_\-(\#M)))}}\label{types_8h_a088bf637b2df66a8caccd2872f775bc6}
+
+
+Definition at line 36 of file types.\-h.
+
+\hypertarget{types_8h_a0851bdffe742ee5d69089ff496b864c4}{\index{types.\-h@{types.\-h}!\-\_\-\-\_\-error@{\-\_\-\-\_\-error}}
+\index{\-\_\-\-\_\-error@{\-\_\-\-\_\-error}!types.h@{types.\-h}}
+\subsubsection[{\-\_\-\-\_\-error}]{\setlength{\rightskip}{0pt plus 5cm}\#define \-\_\-\-\_\-error(
+\begin{DoxyParamCaption}
+\item[{}]{E}
+\end{DoxyParamCaption}
+)~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-error\-\_\-\-\_\-(\#E)))}}\label{types_8h_a0851bdffe742ee5d69089ff496b864c4}
+
+
+Definition at line 21 of file types.\-h.
+
+\hypertarget{types_8h_a1d606e5c51fb29814027e012057397bc}{\index{types.\-h@{types.\-h}!\-\_\-\-\_\-fastcall@{\-\_\-\-\_\-fastcall}}
+\index{\-\_\-\-\_\-fastcall@{\-\_\-\-\_\-fastcall}!types.h@{types.\-h}}
+\subsubsection[{\-\_\-\-\_\-fastcall}]{\setlength{\rightskip}{0pt plus 5cm}\#define \-\_\-\-\_\-fastcall~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-fastcall\-\_\-\-\_\-))}}\label{types_8h_a1d606e5c51fb29814027e012057397bc}
+
+
+Definition at line 24 of file types.\-h.
+
+\hypertarget{types_8h_a04735d02afba4ebee1ac64da0cd6e048}{\index{types.\-h@{types.\-h}!\-\_\-\-\_\-hlt@{\-\_\-\-\_\-hlt}}
+\index{\-\_\-\-\_\-hlt@{\-\_\-\-\_\-hlt}!types.h@{types.\-h}}
+\subsubsection[{\-\_\-\-\_\-hlt}]{\setlength{\rightskip}{0pt plus 5cm}\#define \-\_\-\-\_\-hlt~asm volatile(\char`\"{}hlt\char`\"{})}}\label{types_8h_a04735d02afba4ebee1ac64da0cd6e048}
+
+
+Definition at line 44 of file types.\-h.
+
+\hypertarget{types_8h_aaa92ffc2c0cb30e9b5fda4c16a4bdd37}{\index{types.\-h@{types.\-h}!\-\_\-\-\_\-hot@{\-\_\-\-\_\-hot}}
+\index{\-\_\-\-\_\-hot@{\-\_\-\-\_\-hot}!types.h@{types.\-h}}
+\subsubsection[{\-\_\-\-\_\-hot}]{\setlength{\rightskip}{0pt plus 5cm}\#define \-\_\-\-\_\-hot~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-hot\-\_\-\-\_\-))}}\label{types_8h_aaa92ffc2c0cb30e9b5fda4c16a4bdd37}
+
+
+Definition at line 32 of file types.\-h.
+
+\hypertarget{types_8h_a02403dd691dff828ba6cb6d3379c35e4}{\index{types.\-h@{types.\-h}!\-\_\-\-\_\-inline\-\_\-flat@{\-\_\-\-\_\-inline\-\_\-flat}}
+\index{\-\_\-\-\_\-inline\-\_\-flat@{\-\_\-\-\_\-inline\-\_\-flat}!types.h@{types.\-h}}
+\subsubsection[{\-\_\-\-\_\-inline\-\_\-flat}]{\setlength{\rightskip}{0pt plus 5cm}\#define \-\_\-\-\_\-inline\-\_\-flat~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-flatten\-\_\-\-\_\-))}}\label{types_8h_a02403dd691dff828ba6cb6d3379c35e4}
+
+
+Definition at line 19 of file types.\-h.
+
+\hypertarget{types_8h_a5b6df4fe38493e14648842364a76075f}{\index{types.\-h@{types.\-h}!\-\_\-\-\_\-noreturn@{\-\_\-\-\_\-noreturn}}
+\index{\-\_\-\-\_\-noreturn@{\-\_\-\-\_\-noreturn}!types.h@{types.\-h}}
+\subsubsection[{\-\_\-\-\_\-noreturn}]{\setlength{\rightskip}{0pt plus 5cm}\#define \-\_\-\-\_\-noreturn~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-noreturn\-\_\-\-\_\-))}}\label{types_8h_a5b6df4fe38493e14648842364a76075f}
+
+
+Definition at line 28 of file types.\-h.
+
+\hypertarget{types_8h_a2e24fbcdf05fd8c48773992b9e76bd07}{\index{types.\-h@{types.\-h}!\-\_\-\-\_\-packed@{\-\_\-\-\_\-packed}}
+\index{\-\_\-\-\_\-packed@{\-\_\-\-\_\-packed}!types.h@{types.\-h}}
+\subsubsection[{\-\_\-\-\_\-packed}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf multiboot\-\_\-memory\-\_\-map} \-\_\-\-\_\-packed~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-packed\-\_\-\-\_\-))}}\label{types_8h_a2e24fbcdf05fd8c48773992b9e76bd07}
+
+
+Definition at line 30 of file types.\-h.
+
+\hypertarget{types_8h_ab8d4aa7e9ca368db7220dc9747189f1c}{\index{types.\-h@{types.\-h}!\-\_\-\-\_\-pure@{\-\_\-\-\_\-pure}}
+\index{\-\_\-\-\_\-pure@{\-\_\-\-\_\-pure}!types.h@{types.\-h}}
+\subsubsection[{\-\_\-\-\_\-pure}]{\setlength{\rightskip}{0pt plus 5cm}\#define \-\_\-\-\_\-pure~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-pure\-\_\-\-\_\-))}}\label{types_8h_ab8d4aa7e9ca368db7220dc9747189f1c}
+
+
+Definition at line 16 of file types.\-h.
+
+\hypertarget{types_8h_aa2329f285af4ab00c7487eccf5e7f0c6}{\index{types.\-h@{types.\-h}!\-\_\-\-\_\-section@{\-\_\-\-\_\-section}}
+\index{\-\_\-\-\_\-section@{\-\_\-\-\_\-section}!types.h@{types.\-h}}
+\subsubsection[{\-\_\-\-\_\-section}]{\setlength{\rightskip}{0pt plus 5cm}\#define \-\_\-\-\_\-section(
+\begin{DoxyParamCaption}
+\item[{}]{S}
+\end{DoxyParamCaption}
+)~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-section\-\_\-\-\_\-(\#S)))}}\label{types_8h_aa2329f285af4ab00c7487eccf5e7f0c6}
+
+
+Definition at line 27 of file types.\-h.
+
+\hypertarget{types_8h_a22f5b50b8e582426daa2e9966aeb4a23}{\index{types.\-h@{types.\-h}!\-\_\-\-\_\-sti@{\-\_\-\-\_\-sti}}
+\index{\-\_\-\-\_\-sti@{\-\_\-\-\_\-sti}!types.h@{types.\-h}}
+\subsubsection[{\-\_\-\-\_\-sti}]{\setlength{\rightskip}{0pt plus 5cm}\#define \-\_\-\-\_\-sti~asm volatile(\char`\"{}sti\char`\"{})}}\label{types_8h_a22f5b50b8e582426daa2e9966aeb4a23}
+
+
+Definition at line 42 of file types.\-h.
+
+\hypertarget{types_8h_a2483b543a28aeb82dfed626e5070f871}{\index{types.\-h@{types.\-h}!\-\_\-\-\_\-thiscall@{\-\_\-\-\_\-thiscall}}
+\index{\-\_\-\-\_\-thiscall@{\-\_\-\-\_\-thiscall}!types.h@{types.\-h}}
+\subsubsection[{\-\_\-\-\_\-thiscall}]{\setlength{\rightskip}{0pt plus 5cm}\#define \-\_\-\-\_\-thiscall~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-thiscall\-\_\-\-\_\-))}}\label{types_8h_a2483b543a28aeb82dfed626e5070f871}
+
+
+Definition at line 25 of file types.\-h.
+
+\hypertarget{types_8h_a2e3484535ee610c8e19e9859563abe48}{\index{types.\-h@{types.\-h}!\-\_\-\-\_\-unused@{\-\_\-\-\_\-unused}}
+\index{\-\_\-\-\_\-unused@{\-\_\-\-\_\-unused}!types.h@{types.\-h}}
+\subsubsection[{\-\_\-\-\_\-unused}]{\setlength{\rightskip}{0pt plus 5cm}\#define \-\_\-\-\_\-unused~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-unused\-\_\-\-\_\-))}}\label{types_8h_a2e3484535ee610c8e19e9859563abe48}
+
+
+Definition at line 29 of file types.\-h.
+
+\hypertarget{types_8h_a3bb8024db048b7f0dcee85212218da88}{\index{types.\-h@{types.\-h}!\-\_\-\-\_\-warning@{\-\_\-\-\_\-warning}}
+\index{\-\_\-\-\_\-warning@{\-\_\-\-\_\-warning}!types.h@{types.\-h}}
+\subsubsection[{\-\_\-\-\_\-warning}]{\setlength{\rightskip}{0pt plus 5cm}\#define \-\_\-\-\_\-warning(
+\begin{DoxyParamCaption}
+\item[{}]{E}
+\end{DoxyParamCaption}
+)~\-\_\-\-\_\-attribute\-\_\-\-\_\-((\-\_\-\-\_\-warning\-\_\-\-\_\-(\#E)))}}\label{types_8h_a3bb8024db048b7f0dcee85212218da88}
+
+
+Definition at line 22 of file types.\-h.
+
+\hypertarget{types_8h_a070d2ce7b6bb7e5c05602aa8c308d0c4}{\index{types.\-h@{types.\-h}!N\-U\-L\-L@{N\-U\-L\-L}}
+\index{N\-U\-L\-L@{N\-U\-L\-L}!types.h@{types.\-h}}
+\subsubsection[{N\-U\-L\-L}]{\setlength{\rightskip}{0pt plus 5cm}\#define N\-U\-L\-L~(void $\ast$)0x00000000}}\label{types_8h_a070d2ce7b6bb7e5c05602aa8c308d0c4}
+
+
+Definition at line 47 of file types.\-h.
+
+
+
+\subsection{Typedef Documentation}
+\hypertarget{types_8h_ac4cce8e299d11a2379dc423007f99147}{\index{types.\-h@{types.\-h}!bool@{bool}}
+\index{bool@{bool}!types.h@{types.\-h}}
+\subsubsection[{bool}]{\setlength{\rightskip}{0pt plus 5cm}typedef enum {\bf B\-O\-O\-L}  {\bf bool}}}\label{types_8h_ac4cce8e299d11a2379dc423007f99147}
+\hypertarget{types_8h_a2e9bf6983da73775aa86158c825bf777}{\index{types.\-h@{types.\-h}!s16@{s16}}
+\index{s16@{s16}!types.h@{types.\-h}}
+\subsubsection[{s16}]{\setlength{\rightskip}{0pt plus 5cm}typedef short {\bf s16}}}\label{types_8h_a2e9bf6983da73775aa86158c825bf777}
+
+
+Definition at line 5 of file types.\-h.
+
+\hypertarget{types_8h_aa62c75d314a0d1f37f79c4b73b2292e2}{\index{types.\-h@{types.\-h}!s32@{s32}}
+\index{s32@{s32}!types.h@{types.\-h}}
+\subsubsection[{s32}]{\setlength{\rightskip}{0pt plus 5cm}typedef int {\bf s32}}}\label{types_8h_aa62c75d314a0d1f37f79c4b73b2292e2}
+
+
+Definition at line 6 of file types.\-h.
+
+\hypertarget{types_8h_a93680f46d09022794e3923824923b42b}{\index{types.\-h@{types.\-h}!s64@{s64}}
+\index{s64@{s64}!types.h@{types.\-h}}
+\subsubsection[{s64}]{\setlength{\rightskip}{0pt plus 5cm}typedef long long {\bf s64}}}\label{types_8h_a93680f46d09022794e3923824923b42b}
+
+
+Definition at line 7 of file types.\-h.
+
+\hypertarget{types_8h_a2ff401e087cf786c38a6812723e94473}{\index{types.\-h@{types.\-h}!s8@{s8}}
+\index{s8@{s8}!types.h@{types.\-h}}
+\subsubsection[{s8}]{\setlength{\rightskip}{0pt plus 5cm}typedef char {\bf s8}}}\label{types_8h_a2ff401e087cf786c38a6812723e94473}
+
+
+Definition at line 4 of file types.\-h.
+
+\hypertarget{types_8h_a9e6c91d77e24643b888dbd1a1a590054}{\index{types.\-h@{types.\-h}!u16@{u16}}
+\index{u16@{u16}!types.h@{types.\-h}}
+\subsubsection[{u16}]{\setlength{\rightskip}{0pt plus 5cm}typedef unsigned short {\bf u16}}}\label{types_8h_a9e6c91d77e24643b888dbd1a1a590054}
+
+
+Definition at line 10 of file types.\-h.
+
+\hypertarget{types_8h_a10e94b422ef0c20dcdec20d31a1f5049}{\index{types.\-h@{types.\-h}!u32@{u32}}
+\index{u32@{u32}!types.h@{types.\-h}}
+\subsubsection[{u32}]{\setlength{\rightskip}{0pt plus 5cm}typedef unsigned int {\bf u32}}}\label{types_8h_a10e94b422ef0c20dcdec20d31a1f5049}
+
+
+Definition at line 11 of file types.\-h.
+
+\hypertarget{types_8h_ad758b7a5c3f18ed79d2fcd23d9f16357}{\index{types.\-h@{types.\-h}!u64@{u64}}
+\index{u64@{u64}!types.h@{types.\-h}}
+\subsubsection[{u64}]{\setlength{\rightskip}{0pt plus 5cm}typedef unsigned long long {\bf u64}}}\label{types_8h_ad758b7a5c3f18ed79d2fcd23d9f16357}
+
+
+Definition at line 12 of file types.\-h.
+
+\hypertarget{types_8h_aed742c436da53c1080638ce6ef7d13de}{\index{types.\-h@{types.\-h}!u8@{u8}}
+\index{u8@{u8}!types.h@{types.\-h}}
+\subsubsection[{u8}]{\setlength{\rightskip}{0pt plus 5cm}typedef unsigned char {\bf u8}}}\label{types_8h_aed742c436da53c1080638ce6ef7d13de}
+
+
+Definition at line 9 of file types.\-h.
+
+
+
+\subsection{Enumeration Type Documentation}
+\hypertarget{types_8h_a3e5b8192e7d9ffaf3542f1210aec18dd}{\index{types.\-h@{types.\-h}!B\-O\-O\-L@{B\-O\-O\-L}}
+\index{B\-O\-O\-L@{B\-O\-O\-L}!types.h@{types.\-h}}
+\subsubsection[{B\-O\-O\-L}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf B\-O\-O\-L}}}\label{types_8h_a3e5b8192e7d9ffaf3542f1210aec18dd}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{F\-A\-L\-S\-E@{F\-A\-L\-S\-E}!types.\-h@{types.\-h}}\index{types.\-h@{types.\-h}!F\-A\-L\-S\-E@{F\-A\-L\-S\-E}}\item[{\em 
+\hypertarget{types_8h_a3e5b8192e7d9ffaf3542f1210aec18ddaa1e095cc966dbecf6a0d8aad75348d1a}{F\-A\-L\-S\-E}\label{types_8h_a3e5b8192e7d9ffaf3542f1210aec18ddaa1e095cc966dbecf6a0d8aad75348d1a}
+}]\index{T\-R\-U\-E@{T\-R\-U\-E}!types.\-h@{types.\-h}}\index{types.\-h@{types.\-h}!T\-R\-U\-E@{T\-R\-U\-E}}\item[{\em 
+\hypertarget{types_8h_a3e5b8192e7d9ffaf3542f1210aec18ddaa82764c3079aea4e60c80e45befbb839}{T\-R\-U\-E}\label{types_8h_a3e5b8192e7d9ffaf3542f1210aec18ddaa82764c3079aea4e60c80e45befbb839}
+}]\end{description}
+\end{Desc}
+
+
+Definition at line 49 of file types.\-h.
+
+
+\begin{DoxyCode}
+49 \{ \hyperlink{types_8h_a3e5b8192e7d9ffaf3542f1210aec18ddaa1e095cc966dbecf6a0d8aad75348d1a}{FALSE}, \hyperlink{types_8h_a3e5b8192e7d9ffaf3542f1210aec18ddaa82764c3079aea4e60c80e45befbb839}{TRUE} \} \hyperlink{types_8h_ac4cce8e299d11a2379dc423007f99147}{bool};
+\end{DoxyCode}
+
+
+\subsection{Function Documentation}
+\hypertarget{types_8h_a23e0b58b601799ddebe352ce8fd2818a}{\index{types.\-h@{types.\-h}!\-\_\-\-\_\-builtin\-\_\-ia32\-\_\-pause@{\-\_\-\-\_\-builtin\-\_\-ia32\-\_\-pause}}
+\index{\-\_\-\-\_\-builtin\-\_\-ia32\-\_\-pause@{\-\_\-\-\_\-builtin\-\_\-ia32\-\_\-pause}!types.h@{types.\-h}}
+\subsubsection[{\-\_\-\-\_\-builtin\-\_\-ia32\-\_\-pause}]{\setlength{\rightskip}{0pt plus 5cm}void \-\_\-\-\_\-builtin\-\_\-ia32\-\_\-pause (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{types_8h_a23e0b58b601799ddebe352ce8fd2818a}
