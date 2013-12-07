@@ -1,4 +1,0 @@
-void keyb_handle()
-{
-	
-}

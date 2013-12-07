@@ -11,9 +11,12 @@ extern void exceptions_init(); //!< Initializes basic exception handlers. Found 
 /**
  * \brief Main kernel function.
  * Initializes all devices, and sets up environment.
+ * @param mboot_ptr pointer to multiboot structure
+ * @param initial_stack location of the initial stack
  */
 int kmain(struct multiboot __unused *mboot_ptr, u32 __unused initial_stack)
 {
+#ifdef ARCH_X86
 	vga_clear();
 	gdt_init();
 	idt_init();
@@ -23,8 +26,10 @@ int kmain(struct multiboot __unused *mboot_ptr, u32 __unused initial_stack)
 	__sti;
 	
 	vga_print("Welcome to Lambda OS!\n");
+#endif // ARCH_X86
 
-	for(;;) __builtin_ia32_pause();
+
+	for(;;);
 }
 
 /**
