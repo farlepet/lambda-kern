@@ -187,33 +187,42 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">mboot_ptr</td><td>pointer to multiboot structure </td></tr>
+    <tr><td class="paramname">initial_stack</td><td>location of the initial stack </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p>Definition at line <a class="el" href="main_8c_source.html#l00015">15</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p>Definition at line <a class="el" href="main_8c_source.html#l00017">17</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
-<p>References <a class="el" href="types_8h.html#a23e0b58b601799ddebe352ce8fd2818a">__builtin_ia32_pause()</a>, <a class="el" href="types_8h_source.html#l00049">__sti</a>, <a class="el" href="main_8c.html#ae64f2b4d62025b16350f72a4fcfca042">exceptions_init()</a>, <a class="el" href="gdt_8c_source.html#l00023">gdt_init()</a>, <a class="el" href="idt_8c_source.html#l00050">idt_init()</a>, <a class="el" href="main_8c.html#aec0830b94783b020c7a7a4bed5f309f1">inttest()</a>, <a class="el" href="paging_8c_source.html#l00166">paging_init()</a>, <a class="el" href="idt_8c_source.html#l00067">set_idt()</a>, <a class="el" href="print_8c_source.html#l00019">vga_clear()</a>, and <a class="el" href="print_8c_source.html#l00081">vga_print()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;{</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    <a class="code" href="print_8h.html#a0a09bc3b0111af74c7aa94b6504c3e9b">vga_clear</a>();</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <a class="code" href="gdt_8h.html#aaa7a7d6a41843f8a0c64fd66967feef4">gdt_init</a>();</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    <a class="code" href="idt_8h.html#a88d4205d069421eb4f8e7577285f1180">idt_init</a>();</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    <a class="code" href="paging_8h.html#a569adfd13ea3c63741f64108821b1712">paging_init</a>();</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <a class="code" href="idt_8h.html#af0624103b831428526e435be5d8b959c">set_idt</a>(0x21, 0x08, 0x8E, &amp;<a class="code" href="main_8c.html#aec0830b94783b020c7a7a4bed5f309f1">inttest</a>);</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <a class="code" href="main_8c.html#ae64f2b4d62025b16350f72a4fcfca042">exceptions_init</a>();</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <a class="code" href="types_8h.html#a22f5b50b8e582426daa2e9966aeb4a23">__sti</a>;</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    </div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <a class="code" href="print_8h.html#a10efa90188a292b08f1fefa5a1715550">vga_print</a>(<span class="stringliteral">&quot;Welcome to Lambda OS!\n&quot;</span>);</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keywordflow">for</span>(;;) <a class="code" href="types_8h.html#a23e0b58b601799ddebe352ce8fd2818a">__builtin_ia32_pause</a>();</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;}</div>
-<div class="ttc" id="types_8h_html_a23e0b58b601799ddebe352ce8fd2818a"><div class="ttname"><a href="types_8h.html#a23e0b58b601799ddebe352ce8fd2818a">__builtin_ia32_pause</a></div><div class="ttdeci">void __builtin_ia32_pause()</div><div class="ttdoc">Energy-saving alternative to nop </div></div>
+<p>References <a class="el" href="types_8h_source.html#l00049">__sti</a>, <a class="el" href="main_8c.html#ae64f2b4d62025b16350f72a4fcfca042">exceptions_init()</a>, <a class="el" href="gdt_8c_source.html#l00023">gdt_init()</a>, <a class="el" href="idt_8c_source.html#l00050">idt_init()</a>, <a class="el" href="main_8c.html#aec0830b94783b020c7a7a4bed5f309f1">inttest()</a>, <a class="el" href="paging_8c_source.html#l00166">paging_init()</a>, <a class="el" href="idt_8c_source.html#l00067">set_idt()</a>, <a class="el" href="print_8c_source.html#l00019">vga_clear()</a>, and <a class="el" href="print_8c_source.html#l00081">vga_print()</a>.</p>
+<div class="fragment"><div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;{</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#ifdef ARCH_X86</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor"></span>    <a class="code" href="print_8c.html#a0a09bc3b0111af74c7aa94b6504c3e9b">vga_clear</a>();</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <a class="code" href="gdt_8c.html#aaa7a7d6a41843f8a0c64fd66967feef4">gdt_init</a>();</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <a class="code" href="idt_8c.html#a88d4205d069421eb4f8e7577285f1180">idt_init</a>();</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <a class="code" href="paging_8c.html#a569adfd13ea3c63741f64108821b1712">paging_init</a>();</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <a class="code" href="idt_8c.html#af10270eb36bbdc1a3aa66dd31d529263">set_idt</a>(0x21, 0x08, 0x8E, &amp;<a class="code" href="main_8c.html#aec0830b94783b020c7a7a4bed5f309f1">inttest</a>);</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <a class="code" href="main_8c.html#ae64f2b4d62025b16350f72a4fcfca042">exceptions_init</a>();</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <a class="code" href="types_8h.html#a22f5b50b8e582426daa2e9966aeb4a23">__sti</a>;</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    </div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <a class="code" href="print_8c.html#a10efa90188a292b08f1fefa5a1715550">vga_print</a>(<span class="stringliteral">&quot;Welcome to Lambda OS!\n&quot;</span>);</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor">#endif // ARCH_X86</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="keywordflow">for</span>(;;);</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;}</div>
 <div class="ttc" id="main_8c_html_aec0830b94783b020c7a7a4bed5f309f1"><div class="ttname"><a href="main_8c.html#aec0830b94783b020c7a7a4bed5f309f1">inttest</a></div><div class="ttdeci">void inttest()</div><div class="ttdoc">Simple function to test interrupts. </div></div>
-<div class="ttc" id="idt_8h_html_af0624103b831428526e435be5d8b959c"><div class="ttname"><a href="idt_8h.html#af0624103b831428526e435be5d8b959c">set_idt</a></div><div class="ttdeci">void set_idt(int, int, int, void *)</div><div class="ttdoc">Set an entry in the IDT. Sets the information in an IDT entry. </div><div class="ttdef"><b>Definition:</b> <a href="idt_8c_source.html#l00067">idt.c:67</a></div></div>
-<div class="ttc" id="idt_8h_html_a88d4205d069421eb4f8e7577285f1180"><div class="ttname"><a href="idt_8h.html#a88d4205d069421eb4f8e7577285f1180">idt_init</a></div><div class="ttdeci">void idt_init()</div><div class="ttdoc">Initializes the IDT Initializes the IDT by first setting every IDT entry to use the dummy interrupt t...</div><div class="ttdef"><b>Definition:</b> <a href="idt_8c_source.html#l00050">idt.c:50</a></div></div>
-<div class="ttc" id="print_8h_html_a0a09bc3b0111af74c7aa94b6504c3e9b"><div class="ttname"><a href="print_8h.html#a0a09bc3b0111af74c7aa94b6504c3e9b">vga_clear</a></div><div class="ttdeci">void vga_clear()</div><div class="ttdoc">Clears VGA text. Clears the first plane of VGA memory, effectively clearing all text from the screen...</div><div class="ttdef"><b>Definition:</b> <a href="print_8c_source.html#l00019">print.c:19</a></div></div>
-<div class="ttc" id="paging_8h_html_a569adfd13ea3c63741f64108821b1712"><div class="ttname"><a href="paging_8h.html#a569adfd13ea3c63741f64108821b1712">paging_init</a></div><div class="ttdeci">void paging_init()</div><div class="ttdoc">Initialize paging. Creates a new page directory, and clears it. Thes creates a new page table...</div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00166">paging.c:166</a></div></div>
+<div class="ttc" id="print_8c_html_a10efa90188a292b08f1fefa5a1715550"><div class="ttname"><a href="print_8c.html#a10efa90188a292b08f1fefa5a1715550">vga_print</a></div><div class="ttdeci">void vga_print(char *str)</div><div class="ttdoc">Prints a string of characters. Prints every character in a character array , until it reaches a NULL ...</div><div class="ttdef"><b>Definition:</b> <a href="print_8c_source.html#l00081">print.c:81</a></div></div>
+<div class="ttc" id="paging_8c_html_a569adfd13ea3c63741f64108821b1712"><div class="ttname"><a href="paging_8c.html#a569adfd13ea3c63741f64108821b1712">paging_init</a></div><div class="ttdeci">void paging_init()</div><div class="ttdoc">Initialize paging. Creates a new page directory, and clears it. Thes creates a new page table...</div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00166">paging.c:166</a></div></div>
+<div class="ttc" id="print_8c_html_a0a09bc3b0111af74c7aa94b6504c3e9b"><div class="ttname"><a href="print_8c.html#a0a09bc3b0111af74c7aa94b6504c3e9b">vga_clear</a></div><div class="ttdeci">void vga_clear()</div><div class="ttdoc">Clears VGA text. Clears the first plane of VGA memory, effectively clearing all text from the screen...</div><div class="ttdef"><b>Definition:</b> <a href="print_8c_source.html#l00019">print.c:19</a></div></div>
+<div class="ttc" id="idt_8c_html_a88d4205d069421eb4f8e7577285f1180"><div class="ttname"><a href="idt_8c.html#a88d4205d069421eb4f8e7577285f1180">idt_init</a></div><div class="ttdeci">void idt_init()</div><div class="ttdoc">Initializes the IDT Initializes the IDT by first setting every IDT entry to use the dummy interrupt t...</div><div class="ttdef"><b>Definition:</b> <a href="idt_8c_source.html#l00050">idt.c:50</a></div></div>
+<div class="ttc" id="gdt_8c_html_aaa7a7d6a41843f8a0c64fd66967feef4"><div class="ttname"><a href="gdt_8c.html#aaa7a7d6a41843f8a0c64fd66967feef4">gdt_init</a></div><div class="ttdeci">void gdt_init()</div><div class="ttdoc">Initialize the GDT Initializes the GDT then the TSS. </div><div class="ttdef"><b>Definition:</b> <a href="gdt_8c_source.html#l00023">gdt.c:23</a></div></div>
 <div class="ttc" id="main_8c_html_ae64f2b4d62025b16350f72a4fcfca042"><div class="ttname"><a href="main_8c.html#ae64f2b4d62025b16350f72a4fcfca042">exceptions_init</a></div><div class="ttdeci">void exceptions_init()</div><div class="ttdoc">Initializes basic exception handlers. Found in intr/exceptions.asm. </div></div>
-<div class="ttc" id="gdt_8h_html_aaa7a7d6a41843f8a0c64fd66967feef4"><div class="ttname"><a href="gdt_8h.html#aaa7a7d6a41843f8a0c64fd66967feef4">gdt_init</a></div><div class="ttdeci">void gdt_init()</div><div class="ttdoc">Initialize the GDT Initializes the GDT then the TSS. </div><div class="ttdef"><b>Definition:</b> <a href="gdt_8c_source.html#l00023">gdt.c:23</a></div></div>
+<div class="ttc" id="idt_8c_html_af10270eb36bbdc1a3aa66dd31d529263"><div class="ttname"><a href="idt_8c.html#af10270eb36bbdc1a3aa66dd31d529263">set_idt</a></div><div class="ttdeci">void set_idt(int intr, int sel, int flags, void *func)</div><div class="ttdoc">Set an entry in the IDT. Sets the information in an IDT entry. </div><div class="ttdef"><b>Definition:</b> <a href="idt_8c_source.html#l00067">idt.c:67</a></div></div>
 <div class="ttc" id="types_8h_html_a22f5b50b8e582426daa2e9966aeb4a23"><div class="ttname"><a href="types_8h.html#a22f5b50b8e582426daa2e9966aeb4a23">__sti</a></div><div class="ttdeci">#define __sti</div><div class="ttdef"><b>Definition:</b> <a href="types_8h_source.html#l00049">types.h:49</a></div></div>
-<div class="ttc" id="print_8h_html_a10efa90188a292b08f1fefa5a1715550"><div class="ttname"><a href="print_8h.html#a10efa90188a292b08f1fefa5a1715550">vga_print</a></div><div class="ttdeci">void vga_print(char *str)</div><div class="ttdoc">Prints a string of characters. Prints every character in a character array , until it reaches a NULL ...</div><div class="ttdef"><b>Definition:</b> <a href="print_8c_source.html#l00081">print.c:81</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -231,16 +240,16 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000002">Deprecated:</a></b></dt><dd>This is for testing only, it will be removed very soon. </dd></dl>
 
-<p>Definition at line <a class="el" href="main_8c_source.html#l00034">34</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p>Definition at line <a class="el" href="main_8c_source.html#l00039">39</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 <p>References <a class="el" href="ioport_8h_source.html#l00056">inb()</a>, <a class="el" href="ioport_8h_source.html#l00020">outb()</a>, and <a class="el" href="print_8c_source.html#l00081">vga_print()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;{</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <a class="code" href="print_8h.html#a10efa90188a292b08f1fefa5a1715550">vga_print</a>(<span class="stringliteral">&quot;I see the interrupts are working just fine!\n&quot;</span>);</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(0x20, 0x20);</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <a class="code" href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a>(0x60);</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;}<div class="ttc" id="ioport_8h_html_a72469337290ae306e228d538970aef1d"><div class="ttname"><a href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a></div><div class="ttdeci">static u8 inb(u16 port)</div><div class="ttdoc">read a byte from a port. Grab a byte from a port. </div><div class="ttdef"><b>Definition:</b> <a href="ioport_8h_source.html#l00056">ioport.h:56</a></div></div>
+<div class="fragment"><div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;{</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <a class="code" href="print_8c.html#a10efa90188a292b08f1fefa5a1715550">vga_print</a>(<span class="stringliteral">&quot;I see the interrupts are working just fine!\n&quot;</span>);</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(0x20, 0x20);</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <a class="code" href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a>(0x60);</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;}<div class="ttc" id="print_8c_html_a10efa90188a292b08f1fefa5a1715550"><div class="ttname"><a href="print_8c.html#a10efa90188a292b08f1fefa5a1715550">vga_print</a></div><div class="ttdeci">void vga_print(char *str)</div><div class="ttdoc">Prints a string of characters. Prints every character in a character array , until it reaches a NULL ...</div><div class="ttdef"><b>Definition:</b> <a href="print_8c_source.html#l00081">print.c:81</a></div></div>
+<div class="ttc" id="ioport_8h_html_a72469337290ae306e228d538970aef1d"><div class="ttname"><a href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a></div><div class="ttdeci">static u8 inb(u16 port)</div><div class="ttdoc">read a byte from a port. Grab a byte from a port. </div><div class="ttdef"><b>Definition:</b> <a href="ioport_8h_source.html#l00056">ioport.h:56</a></div></div>
 <div class="ttc" id="ioport_8h_html_abc086ee7e5764c55967724916e21b553"><div class="ttname"><a href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a></div><div class="ttdeci">static void outb(u16 port, u8 value)</div><div class="ttdoc">Output a byte to a port. Outputs a byte on a port. </div><div class="ttdef"><b>Definition:</b> <a href="ioport_8h_source.html#l00020">ioport.h:20</a></div></div>
-<div class="ttc" id="print_8h_html_a10efa90188a292b08f1fefa5a1715550"><div class="ttname"><a href="print_8h.html#a10efa90188a292b08f1fefa5a1715550">vga_print</a></div><div class="ttdeci">void vga_print(char *str)</div><div class="ttdoc">Prints a string of characters. Prints every character in a character array , until it reaches a NULL ...</div><div class="ttdef"><b>Definition:</b> <a href="print_8c_source.html#l00081">print.c:81</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -250,7 +259,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_3dd30a497388ee684638f120a124721c.html">src</a></li><li class="navelem"><a class="el" href="dir_f2d89d2b1d9c2db1a3c63568d0092ca4.html">main</a></li><li class="navelem"><a class="el" href="main_8c.html">main.c</a></li>
-    <li class="footer">Generated on Sat Dec 7 2013 05:41:44 for Lambda OS by
+    <li class="footer">Generated on Sat Dec 7 2013 17:57:35 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

@@ -181,17 +181,17 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section see"><dt>See Also</dt><dd><a class="el" href="print_8c.html#a3f7e1edd8e3bcb023297e27d2fe8af20" title="Prints a single character to the VGA screen. Checks if character is printable, if so it places it in ...">vga_put</a> </dd></dl>
+<dl class="section see"><dt>See Also</dt><dd><a class="el" href="print_8h.html#a736a087bd4d8a71d195261774c83156c" title="Prints a single character to the VGA screen. Checks if character is printable, if so it places it in ...">vga_put</a> </dd></dl>
 
 <p>Definition at line <a class="el" href="print_8c_source.html#l00081">81</a> of file <a class="el" href="print_8c_source.html">print.c</a>.</p>
 
-<p>References <a class="el" href="print_8h.html#a736a087bd4d8a71d195261774c83156c">vga_put()</a>.</p>
+<p>References <a class="el" href="print_8c_source.html#l00048">vga_put()</a>.</p>
 <div class="fragment"><div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;{</div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordtype">int</span> i = 0;</div>
 <div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <span class="keywordflow">while</span>(str[i] != 0)</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;        <a class="code" href="print_8h.html#a736a087bd4d8a71d195261774c83156c">vga_put</a>((<a class="code" href="types_8h.html#aed742c436da53c1080638ce6ef7d13de">u8</a>)str[i++]);</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;        <a class="code" href="print_8c.html#a3f7e1edd8e3bcb023297e27d2fe8af20">vga_put</a>((<a class="code" href="types_8h.html#aed742c436da53c1080638ce6ef7d13de">u8</a>)str[i++]);</div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;}</div>
-<div class="ttc" id="print_8h_html_a736a087bd4d8a71d195261774c83156c"><div class="ttname"><a href="print_8h.html#a736a087bd4d8a71d195261774c83156c">vga_put</a></div><div class="ttdeci">void vga_put(u8 c)</div><div class="ttdoc">Prints a single character to the VGA screen. Checks if character is printable, if so it places it in ...</div></div>
+<div class="ttc" id="print_8c_html_a3f7e1edd8e3bcb023297e27d2fe8af20"><div class="ttname"><a href="print_8c.html#a3f7e1edd8e3bcb023297e27d2fe8af20">vga_put</a></div><div class="ttdeci">void vga_put(char c)</div><div class="ttdoc">Prints a single character to the VGA screen. Checks if character is printable, if so it places it in ...</div><div class="ttdef"><b>Definition:</b> <a href="print_8c_source.html#l00048">print.c:48</a></div></div>
 <div class="ttc" id="types_8h_html_aed742c436da53c1080638ce6ef7d13de"><div class="ttname"><a href="types_8h.html#aed742c436da53c1080638ce6ef7d13de">u8</a></div><div class="ttdeci">unsigned char u8</div><div class="ttdoc">Unsigned 8 bit value. </div><div class="ttdef"><b>Definition:</b> <a href="types_8h_source.html#l00016">types.h:16</a></div></div>
 </div><!-- fragment -->
 </div>
@@ -226,11 +226,11 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section see"><dt>See Also</dt><dd><a class="el" href="print_8c.html#a10efa90188a292b08f1fefa5a1715550" title="Prints a string of characters. Prints every character in a character array , until it reaches a NULL ...">vga_print</a> </dd></dl>
+<dl class="section see"><dt>See Also</dt><dd><a class="el" href="print_8h.html#a10efa90188a292b08f1fefa5a1715550" title="Prints a string of characters. Prints every character in a character array , until it reaches a NULL ...">vga_print</a> </dd></dl>
 
 <p>Definition at line <a class="el" href="print_8c_source.html#l00095">95</a> of file <a class="el" href="print_8c_source.html">print.c</a>.</p>
 
-<p>References <a class="el" href="print_8h.html#a736a087bd4d8a71d195261774c83156c">vga_put()</a>.</p>
+<p>References <a class="el" href="print_8c_source.html#l00048">vga_put()</a>.</p>
 <div class="fragment"><div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;{</div>
 <div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <span class="keywordtype">char</span> nums[16] = <span class="stringliteral">&quot;0123456789ABCDEF&quot;</span>;</div>
 <div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="keywordtype">char</span> ans[16] = { <span class="charliteral">&#39;0&#39;</span> };</div>
@@ -242,8 +242,8 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    }</div>
 <div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;</div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    <span class="keywordflow">for</span>(i--; i &gt;= 0; i--)</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;        <a class="code" href="print_8h.html#a736a087bd4d8a71d195261774c83156c">vga_put</a>(ans[i]);</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;}<div class="ttc" id="print_8h_html_a736a087bd4d8a71d195261774c83156c"><div class="ttname"><a href="print_8h.html#a736a087bd4d8a71d195261774c83156c">vga_put</a></div><div class="ttdeci">void vga_put(u8 c)</div><div class="ttdoc">Prints a single character to the VGA screen. Checks if character is printable, if so it places it in ...</div></div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;        <a class="code" href="print_8c.html#a3f7e1edd8e3bcb023297e27d2fe8af20">vga_put</a>(ans[i]);</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;}<div class="ttc" id="print_8c_html_a3f7e1edd8e3bcb023297e27d2fe8af20"><div class="ttname"><a href="print_8c.html#a3f7e1edd8e3bcb023297e27d2fe8af20">vga_put</a></div><div class="ttdeci">void vga_put(char c)</div><div class="ttdoc">Prints a single character to the VGA screen. Checks if character is printable, if so it places it in ...</div><div class="ttdef"><b>Definition:</b> <a href="print_8c_source.html#l00048">print.c:48</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -275,7 +275,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_25ecda1410e8adf967f2aaaca1260861.html">inc</a></li><li class="navelem"><a class="el" href="dir_97c3c7de1556bf0f04ef10a8373aa580.html">dev</a></li><li class="navelem"><a class="el" href="dir_fc10f390d7946371007c4d5db9ebd893.html">vga</a></li><li class="navelem"><a class="el" href="print_8h.html">print.h</a></li>
-    <li class="footer">Generated on Sat Dec 7 2013 05:41:44 for Lambda OS by
+    <li class="footer">Generated on Sat Dec 7 2013 17:57:35 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.5"/>
-<title>Lambda OS: kernel/src/mm/paging.c File Reference</title>
+<title>Lambda OS: kernel/arch/x86/mm/paging.c File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -417,11 +417,11 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section see"><dt>See Also</dt><dd><a class="el" href="paging_8c.html#a0dec1d6d8c55ad0fafff3656c7cee62e" title="Clear a page directory to it&#39;s default values. Clear the page directory marking every page table as n...">clear_pagedir</a> </dd>
+<dl class="section see"><dt>See Also</dt><dd><a class="el" href="paging_8h.html#a0dec1d6d8c55ad0fafff3656c7cee62e" title="Clear a page directory to it&#39;s default values. Clear the page directory marking every page table as n...">clear_pagedir</a> </dd>
 <dd>
-<a class="el" href="paging_8c.html#ac7992cc47468ac72eeb8f08f94f210d2" title="Fill a page table with pages. Fill a pagetable with pages starting from addr and ending up at addr + ...">fill_pagetable</a> </dd>
+<a class="el" href="paging_8h.html#ac7992cc47468ac72eeb8f08f94f210d2" title="Fill a page table with pages. Fill a pagetable with pages starting from addr and ending up at addr + ...">fill_pagetable</a> </dd>
 <dd>
-<a class="el" href="paging_8c.html#ae62af42af2d4cb211a64978ff1ef060e" title="Enable paging. Enable the paging flag in cr0. ">enable_paging</a> </dd></dl>
+<a class="el" href="paging_8h.html#ae62af42af2d4cb211a64978ff1ef060e" title="Enable paging. Enable the paging flag in cr0. ">enable_paging</a> </dd></dl>
 
 <p>Definition at line <a class="el" href="paging_8c_source.html#l00166">166</a> of file <a class="el" href="paging_8c_source.html">paging.c</a>.</p>
 
@@ -437,22 +437,22 @@ Variables</h2></td></tr>
 <div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    <a class="code" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> i = 0;</div>
 <div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;    <span class="keywordflow">for</span>(; i &lt; <a class="code" href="paging_8c.html#a3337b35daceb6ab9c5edf3bf526e469a">nframes</a>; i++, <a class="code" href="paging_8c.html#a247734b0af2e71834b2ddc3523ffa0fa">frames</a>[i] = 0);</div>
 <div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;</div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    <a class="code" href="paging_8h.html#a0dec1d6d8c55ad0fafff3656c7cee62e">clear_pagedir</a>(<a class="code" href="paging_8c.html#a01d74d2dec403b67edcbc35310419b54">pagedir</a>);</div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;    <a class="code" href="paging_8h.html#ac7992cc47468ac72eeb8f08f94f210d2">fill_pagetable</a>(<a class="code" href="paging_8c.html#a78ee631b14ab62b76384e0eec3680ccb">pagetbl1</a>, 0x00000000);</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    <a class="code" href="paging_8c.html#a0dec1d6d8c55ad0fafff3656c7cee62e">clear_pagedir</a>(<a class="code" href="paging_8c.html#a01d74d2dec403b67edcbc35310419b54">pagedir</a>);</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;    <a class="code" href="paging_8c.html#ac7992cc47468ac72eeb8f08f94f210d2">fill_pagetable</a>(<a class="code" href="paging_8c.html#a78ee631b14ab62b76384e0eec3680ccb">pagetbl1</a>, 0x00000000);</div>
 <div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    <a class="code" href="paging_8c.html#a01d74d2dec403b67edcbc35310419b54">pagedir</a>[0] = (<a class="code" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>)<a class="code" href="paging_8c.html#a78ee631b14ab62b76384e0eec3680ccb">pagetbl1</a> | 3; <span class="comment">// supervisor, rw, present</span></div>
 <div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;</div>
-<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    <a class="code" href="paging_8h.html#a44844a86a2d9dfe3c92936bbe16d2d0d">set_pagedir</a>(<a class="code" href="paging_8c.html#a01d74d2dec403b67edcbc35310419b54">pagedir</a>);</div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    <a class="code" href="paging_8h.html#ae62af42af2d4cb211a64978ff1ef060e">enable_paging</a>();</div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;}<div class="ttc" id="paging_8h_html_ae62af42af2d4cb211a64978ff1ef060e"><div class="ttname"><a href="paging_8h.html#ae62af42af2d4cb211a64978ff1ef060e">enable_paging</a></div><div class="ttdeci">void enable_paging()</div><div class="ttdoc">Enable paging. Enable the paging flag in cr0. </div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00135">paging.c:135</a></div></div>
-<div class="ttc" id="paging_8h_html_ac7992cc47468ac72eeb8f08f94f210d2"><div class="ttname"><a href="paging_8h.html#ac7992cc47468ac72eeb8f08f94f210d2">fill_pagetable</a></div><div class="ttdeci">void fill_pagetable(u32 *table, u32 addr)</div><div class="ttdoc">Fill a page table with pages. Fill a pagetable with pages starting from addr and ending up at addr + ...</div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00114">paging.c:114</a></div></div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    <a class="code" href="paging_8c.html#a44844a86a2d9dfe3c92936bbe16d2d0d">set_pagedir</a>(<a class="code" href="paging_8c.html#a01d74d2dec403b67edcbc35310419b54">pagedir</a>);</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    <a class="code" href="paging_8c.html#ae62af42af2d4cb211a64978ff1ef060e">enable_paging</a>();</div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;}<div class="ttc" id="paging_8c_html_a0dec1d6d8c55ad0fafff3656c7cee62e"><div class="ttname"><a href="paging_8c.html#a0dec1d6d8c55ad0fafff3656c7cee62e">clear_pagedir</a></div><div class="ttdeci">void clear_pagedir(u32 *dir)</div><div class="ttdoc">Clear a page directory to it&amp;#39;s default values. Clear the page directory marking every page table as n...</div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00101">paging.c:101</a></div></div>
+<div class="ttc" id="paging_8c_html_a44844a86a2d9dfe3c92936bbe16d2d0d"><div class="ttname"><a href="paging_8c.html#a44844a86a2d9dfe3c92936bbe16d2d0d">set_pagedir</a></div><div class="ttdeci">void set_pagedir(u32 *dir)</div><div class="ttdoc">Set the current page directory Sets the current page directory by setting cr3 to dir ...</div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00126">paging.c:126</a></div></div>
+<div class="ttc" id="paging_8c_html_ae62af42af2d4cb211a64978ff1ef060e"><div class="ttname"><a href="paging_8c.html#ae62af42af2d4cb211a64978ff1ef060e">enable_paging</a></div><div class="ttdeci">void enable_paging()</div><div class="ttdoc">Enable paging. Enable the paging flag in cr0. </div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00135">paging.c:135</a></div></div>
 <div class="ttc" id="paging_8c_html_a3337b35daceb6ab9c5edf3bf526e469a"><div class="ttname"><a href="paging_8c.html#a3337b35daceb6ab9c5edf3bf526e469a">nframes</a></div><div class="ttdeci">static u32 nframes</div><div class="ttdoc">Number of frames in the table. </div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00013">paging.c:13</a></div></div>
 <div class="ttc" id="paging_8c_html_a01d74d2dec403b67edcbc35310419b54"><div class="ttname"><a href="paging_8c.html#a01d74d2dec403b67edcbc35310419b54">pagedir</a></div><div class="ttdeci">static u32 * pagedir</div><div class="ttdoc">Main kernel pagedirectory. </div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00008">paging.c:8</a></div></div>
 <div class="ttc" id="types_8h_html_a10e94b422ef0c20dcdec20d31a1f5049"><div class="ttname"><a href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a></div><div class="ttdeci">unsigned int u32</div><div class="ttdoc">Unsigned 32 bit value. </div><div class="ttdef"><b>Definition:</b> <a href="types_8h_source.html#l00018">types.h:18</a></div></div>
-<div class="ttc" id="paging_8h_html_a0dec1d6d8c55ad0fafff3656c7cee62e"><div class="ttname"><a href="paging_8h.html#a0dec1d6d8c55ad0fafff3656c7cee62e">clear_pagedir</a></div><div class="ttdeci">void clear_pagedir(u32 *dir)</div><div class="ttdoc">Clear a page directory to it&amp;#39;s default values. Clear the page directory marking every page table as n...</div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00101">paging.c:101</a></div></div>
 <div class="ttc" id="paging_8c_html_a78ee631b14ab62b76384e0eec3680ccb"><div class="ttname"><a href="paging_8c.html#a78ee631b14ab62b76384e0eec3680ccb">pagetbl1</a></div><div class="ttdeci">static u32 * pagetbl1</div><div class="ttdoc">Kernels first pagetable. </div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00009">paging.c:9</a></div></div>
 <div class="ttc" id="paging_8c_html_addbce032f1a6b8fed9b601bbaa43d7be"><div class="ttname"><a href="paging_8c.html#addbce032f1a6b8fed9b601bbaa43d7be">firstframe</a></div><div class="ttdeci">static u32 * firstframe</div><div class="ttdoc">The location of the first page frame. </div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00015">paging.c:15</a></div></div>
-<div class="ttc" id="paging_8h_html_a44844a86a2d9dfe3c92936bbe16d2d0d"><div class="ttname"><a href="paging_8h.html#a44844a86a2d9dfe3c92936bbe16d2d0d">set_pagedir</a></div><div class="ttdeci">void set_pagedir(u32 *dir)</div><div class="ttdoc">Set the current page directory Sets the current page directory by setting cr3 to dir ...</div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00126">paging.c:126</a></div></div>
 <div class="ttc" id="paging_8c_html_a95f05feb6b1c576f3d83a427f5cd082d"><div class="ttname"><a href="paging_8c.html#a95f05feb6b1c576f3d83a427f5cd082d">kern_end</a></div><div class="ttdeci">u32 kern_end</div><div class="ttdoc">End address of the kernel. </div></div>
+<div class="ttc" id="paging_8c_html_ac7992cc47468ac72eeb8f08f94f210d2"><div class="ttname"><a href="paging_8c.html#ac7992cc47468ac72eeb8f08f94f210d2">fill_pagetable</a></div><div class="ttdeci">void fill_pagetable(u32 *table, u32 addr)</div><div class="ttdoc">Fill a page table with pages. Fill a pagetable with pages starting from addr and ending up at addr + ...</div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00114">paging.c:114</a></div></div>
 <div class="ttc" id="paging_8c_html_a247734b0af2e71834b2ddc3523ffa0fa"><div class="ttname"><a href="paging_8c.html#a247734b0af2e71834b2ddc3523ffa0fa">frames</a></div><div class="ttdeci">static u32 * frames</div><div class="ttdoc">Table stating which frames are available. </div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00011">paging.c:11</a></div></div>
 </div><!-- fragment -->
 </div>
@@ -734,8 +734,8 @@ Variables</h2></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_3dd30a497388ee684638f120a124721c.html">src</a></li><li class="navelem"><a class="el" href="dir_5b3aa51974e4a4b79bde998cacaa7abf.html">mm</a></li><li class="navelem"><a class="el" href="paging_8c.html">paging.c</a></li>
-    <li class="footer">Generated on Sat Dec 7 2013 05:41:44 for Lambda OS by
+    <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_4a04b9aac4eefdd334a78e565f4616f2.html">arch</a></li><li class="navelem"><a class="el" href="dir_0ce8714634557e35558d1ff2ffab94d6.html">x86</a></li><li class="navelem"><a class="el" href="dir_7c13a396c62eec3d86490ab07a304f3c.html">mm</a></li><li class="navelem"><a class="el" href="paging_8c.html">paging.c</a></li>
+    <li class="footer">Generated on Sat Dec 7 2013 17:57:35 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>
