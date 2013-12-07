@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.5"/>
-<title>Lambda OS: multiboot_memory_map Struct Reference</title>
+<title>Lambda OS: multiboot_mod_list Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -85,7 +85,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
 </div>
 <script type="text/javascript">
-$(document).ready(function(){initNavTree('structmultiboot__memory__map.html','');});
+$(document).ready(function(){initNavTree('structmultiboot__mod__list.html','');});
 </script>
 <div id="doc-content">
 <!-- window showing the filter options -->
@@ -106,121 +106,88 @@ $(document).ready(function(){initNavTree('structmultiboot__memory__map.html','')
   <div class="summary">
 <a href="#pub-attribs">Data Fields</a>  </div>
   <div class="headertitle">
-<div class="title">multiboot_memory_map Struct Reference</div>  </div>
+<div class="title">multiboot_mod_list Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>Structure of the memory map. Structure of the memory map given to us in the multiboot structure by multiboot-compatible bootloaders.  
- <a href="structmultiboot__memory__map.html#details">More...</a></p>
+<p>Struture of an entry in the list of modules. Structure of the module list the the multiboot header provides us.  
+ <a href="structmultiboot__mod__list.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="multiboot_8h_source.html">multiboot.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:ac0ad4b16395ba1e3d7101a6aa1be8ec4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__memory__map.html#ac0ad4b16395ba1e3d7101a6aa1be8ec4">size</a></td></tr>
-<tr class="separator:ac0ad4b16395ba1e3d7101a6aa1be8ec4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaf761d2db0b02fc4308e98d5bb6666db"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__memory__map.html#aaf761d2db0b02fc4308e98d5bb6666db">base_addr_low</a></td></tr>
-<tr class="memdesc:aaf761d2db0b02fc4308e98d5bb6666db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lower 32 bits of memory address.  <a href="#aaf761d2db0b02fc4308e98d5bb6666db">More...</a><br/></td></tr>
-<tr class="separator:aaf761d2db0b02fc4308e98d5bb6666db"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abb1eaa44de30dceb57df988e5748af93"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__memory__map.html#abb1eaa44de30dceb57df988e5748af93">base_addr_high</a></td></tr>
-<tr class="memdesc:abb1eaa44de30dceb57df988e5748af93"><td class="mdescLeft">&#160;</td><td class="mdescRight">Upper 32 bits of memory address.  <a href="#abb1eaa44de30dceb57df988e5748af93">More...</a><br/></td></tr>
-<tr class="separator:abb1eaa44de30dceb57df988e5748af93"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8138f4682dc7e0736759a73edebc114b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__memory__map.html#a8138f4682dc7e0736759a73edebc114b">length_low</a></td></tr>
-<tr class="memdesc:a8138f4682dc7e0736759a73edebc114b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lower 32 bits of region length.  <a href="#a8138f4682dc7e0736759a73edebc114b">More...</a><br/></td></tr>
-<tr class="separator:a8138f4682dc7e0736759a73edebc114b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2877672a868d3d8f097d0f44790ee1c2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__memory__map.html#a2877672a868d3d8f097d0f44790ee1c2">length_high</a></td></tr>
-<tr class="memdesc:a2877672a868d3d8f097d0f44790ee1c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Upper 32 bits of region length.  <a href="#a2877672a868d3d8f097d0f44790ee1c2">More...</a><br/></td></tr>
-<tr class="separator:a2877672a868d3d8f097d0f44790ee1c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4e1768afd1cc4042b2d202c6e880cb70"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__memory__map.html#a4e1768afd1cc4042b2d202c6e880cb70">type</a></td></tr>
-<tr class="memdesc:a4e1768afd1cc4042b2d202c6e880cb70"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of memory region.  <a href="#a4e1768afd1cc4042b2d202c6e880cb70">More...</a><br/></td></tr>
-<tr class="separator:a4e1768afd1cc4042b2d202c6e880cb70"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a15801952e2d90d0f83661deb6291d8bd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__mod__list.html#a15801952e2d90d0f83661deb6291d8bd">mod_start</a></td></tr>
+<tr class="memdesc:a15801952e2d90d0f83661deb6291d8bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start address of module.  <a href="#a15801952e2d90d0f83661deb6291d8bd">More...</a><br/></td></tr>
+<tr class="separator:a15801952e2d90d0f83661deb6291d8bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6937426555b034005bd41d2b9720834b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__mod__list.html#a6937426555b034005bd41d2b9720834b">mod_end</a></td></tr>
+<tr class="memdesc:a6937426555b034005bd41d2b9720834b"><td class="mdescLeft">&#160;</td><td class="mdescRight">End address of module.  <a href="#a6937426555b034005bd41d2b9720834b">More...</a><br/></td></tr>
+<tr class="separator:a6937426555b034005bd41d2b9720834b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c3c9bc5a45f087fa98ada5e9ca04fd3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__mod__list.html#a6c3c9bc5a45f087fa98ada5e9ca04fd3">cmdline</a></td></tr>
+<tr class="memdesc:a6c3c9bc5a45f087fa98ada5e9ca04fd3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Address of module command line.  <a href="#a6c3c9bc5a45f087fa98ada5e9ca04fd3">More...</a><br/></td></tr>
+<tr class="separator:a6c3c9bc5a45f087fa98ada5e9ca04fd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a319f948e449211b3fff20f53b88154f3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__mod__list.html#a319f948e449211b3fff20f53b88154f3">pad</a></td></tr>
+<tr class="memdesc:a319f948e449211b3fff20f53b88154f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Padding to make this 16 bytes.  <a href="#a319f948e449211b3fff20f53b88154f3">More...</a><br/></td></tr>
+<tr class="separator:a319f948e449211b3fff20f53b88154f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><dl class="section see"><dt>See Also</dt><dd><a class="el" href="structmultiboot.html" title="A structure defining the information the bootloader passes us. Details the information structure give...">multiboot</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00051">51</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
+<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00066">66</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
 </div><h2 class="groupheader">Field Documentation</h2>
-<a class="anchor" id="abb1eaa44de30dceb57df988e5748af93"></a>
+<a class="anchor" id="a6c3c9bc5a45f087fa98ada5e9ca04fd3"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot_memory_map::base_addr_high</td>
+          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot_mod_list::cmdline</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00055">55</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
+<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00070">70</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="aaf761d2db0b02fc4308e98d5bb6666db"></a>
+<a class="anchor" id="a6937426555b034005bd41d2b9720834b"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot_memory_map::base_addr_low</td>
+          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot_mod_list::mod_end</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00054">54</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
+<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00069">69</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a2877672a868d3d8f097d0f44790ee1c2"></a>
+<a class="anchor" id="a15801952e2d90d0f83661deb6291d8bd"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot_memory_map::length_high</td>
+          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot_mod_list::mod_start</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00057">57</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
+<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00068">68</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a8138f4682dc7e0736759a73edebc114b"></a>
+<a class="anchor" id="a319f948e449211b3fff20f53b88154f3"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot_memory_map::length_low</td>
+          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot_mod_list::pad</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00056">56</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="ac0ad4b16395ba1e3d7101a6aa1be8ec4"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot_memory_map::size</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00053">53</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a4e1768afd1cc4042b2d202c6e880cb70"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot_memory_map::type</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00058">58</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
+<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00071">71</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
 
 </div>
 </div>
@@ -232,7 +199,7 @@ Data Fields</h2></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="structmultiboot__memory__map.html">multiboot_memory_map</a></li>
+    <li class="navelem"><a class="el" href="structmultiboot__mod__list.html">multiboot_mod_list</a></li>
     <li class="footer">Generated on Sat Dec 7 2013 05:41:44 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>

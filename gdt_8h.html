@@ -110,11 +110,15 @@ $(document).ready(function(){initNavTree('gdt_8h.html','');});
 </div><!--header-->
 <div class="contents">
 
+<p>Contains GDT-related definitions.  
+<a href="#details">More...</a></p>
+
 <p><a href="gdt_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
 <tr class="memitem:a61efcb1719af86a45f399bbda4f27fb0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gdt_8h.html#a61efcb1719af86a45f399bbda4f27fb0">GDT_ENTRY</a>(base, limit, flags)</td></tr>
+<tr class="memdesc:a61efcb1719af86a45f399bbda4f27fb0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helps create a GDT entry Makes the creation of a GDT entry much cleaner.  <a href="#a61efcb1719af86a45f399bbda4f27fb0">More...</a><br/></td></tr>
 <tr class="separator:a61efcb1719af86a45f399bbda4f27fb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6c82380062eea492f704e4f0017dcb45"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gdt_8h.html#a6c82380062eea492f704e4f0017dcb45">GDT_NULL</a>&#160;&#160;&#160;<a class="el" href="gdt_8h.html#a61efcb1719af86a45f399bbda4f27fb0">GDT_ENTRY</a>(0, 0, 0)</td></tr>
 <tr class="separator:a6c82380062eea492f704e4f0017dcb45"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -130,9 +134,14 @@ Macros</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:aaa7a7d6a41843f8a0c64fd66967feef4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="gdt_8h.html#aaa7a7d6a41843f8a0c64fd66967feef4">gdt_init</a> ()</td></tr>
+<tr class="memdesc:aaa7a7d6a41843f8a0c64fd66967feef4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the GDT Initializes the GDT then the TSS.  <a href="#aaa7a7d6a41843f8a0c64fd66967feef4">More...</a><br/></td></tr>
 <tr class="separator:aaa7a7d6a41843f8a0c64fd66967feef4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Macro Definition Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Contains a function to initialize the GDT, and a defenition to help make creating GDT entries easier. </p>
+
+<p>Definition in file <a class="el" href="gdt_8h_source.html">gdt.h</a>.</p>
+</div><h2 class="groupheader">Macro Definition Documentation</h2>
 <a class="anchor" id="a6040aa338f4a0b0bdfabef99deecf468"></a>
 <div class="memitem">
 <div class="memproto">
@@ -143,7 +152,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="gdt_8h_source.html#l00012">12</a> of file <a class="el" href="gdt_8h_source.html">gdt.h</a>.</p>
+<p>Definition at line <a class="el" href="gdt_8h_source.html#l00026">26</a> of file <a class="el" href="gdt_8h_source.html">gdt.h</a>.</p>
 
 </div>
 </div>
@@ -157,7 +166,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="gdt_8h_source.html#l00014">14</a> of file <a class="el" href="gdt_8h_source.html">gdt.h</a>.</p>
+<p>Definition at line <a class="el" href="gdt_8h_source.html#l00028">28</a> of file <a class="el" href="gdt_8h_source.html">gdt.h</a>.</p>
 
 </div>
 </div>
@@ -171,7 +180,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="gdt_8h_source.html#l00013">13</a> of file <a class="el" href="gdt_8h_source.html">gdt.h</a>.</p>
+<p>Definition at line <a class="el" href="gdt_8h_source.html#l00027">27</a> of file <a class="el" href="gdt_8h_source.html">gdt.h</a>.</p>
 
 </div>
 </div>
@@ -185,7 +194,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="gdt_8h_source.html#l00015">15</a> of file <a class="el" href="gdt_8h_source.html">gdt.h</a>.</p>
+<p>Definition at line <a class="el" href="gdt_8h_source.html#l00029">29</a> of file <a class="el" href="gdt_8h_source.html">gdt.h</a>.</p>
 
 </div>
 </div>
@@ -223,8 +232,16 @@ Functions</h2></td></tr>
 <div class="line">    (((limit)  &amp; 0x000f0000ULL) &lt;&lt; 32) |  \</div>
 <div class="line">    (((base)   &amp; 0x00ffffffULL) &lt;&lt; 16) |  \</div>
 <div class="line">    ((limit)   &amp; 0x0000ffffULL))</div>
-</div><!-- fragment -->
-<p>Definition at line <a class="el" href="gdt_8h_source.html#l00004">4</a> of file <a class="el" href="gdt_8h_source.html">gdt.h</a>.</p>
+</div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">base</td><td>start of memory that this entry will specify </td></tr>
+    <tr><td class="paramname">limit</td><td>end of memory that this entry will specify </td></tr>
+    <tr><td class="paramname">flags</td><td>information about the segment </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="gdt_8h_source.html#l00018">18</a> of file <a class="el" href="gdt_8h_source.html">gdt.h</a>.</p>
 
 </div>
 </div>
@@ -238,7 +255,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="gdt_8h_source.html#l00011">11</a> of file <a class="el" href="gdt_8h_source.html">gdt.h</a>.</p>
+<p>Definition at line <a class="el" href="gdt_8h_source.html#l00025">25</a> of file <a class="el" href="gdt_8h_source.html">gdt.h</a>.</p>
 
 </div>
 </div>
@@ -256,23 +273,23 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="gdt_8c_source.html#l00019">19</a> of file <a class="el" href="gdt_8c_source.html">gdt.c</a>.</p>
+<p>Definition at line <a class="el" href="gdt_8c_source.html#l00023">23</a> of file <a class="el" href="gdt_8c_source.html">gdt.c</a>.</p>
 
-<p>References <a class="el" href="gdt_8c_source.html#l00006">GDT</a>, <a class="el" href="gdt_8h_source.html#l00004">GDT_ENTRY</a>, <a class="el" href="gdt_8c.html#a55c5a32518e4f8021dcdad37d27df174">load_gdt()</a>, <a class="el" href="gdt_8c.html#a62c3311f43b5f1fa28c492ad1cbfd2a2">load_tss()</a>, <a class="el" href="gdt_8c.html#a05de93b96abf57915887ef30434c31dc">seg_reload()</a>, and <a class="el" href="gdt_8c_source.html#l00004">TSS</a>.</p>
-<div class="fragment"><div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;{</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <a class="code" href="gdt_8c.html#abf13a6d64056dff3d7be082e8d23e0d4">GDT</a>[5] = <a class="code" href="gdt_8h.html#a61efcb1719af86a45f399bbda4f27fb0">GDT_ENTRY</a>((<a class="code" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>)&amp;<a class="code" href="gdt_8c.html#a6f7d0a0e284ff1d13522c3815e966462">TSS</a>, <span class="keyword">sizeof</span>(TSS), 0x0089); <span class="comment">// Or should it be 0x00E9?</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    TSS[2] = 0x10;</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <a class="code" href="gdt_8c.html#a55c5a32518e4f8021dcdad37d27df174">load_gdt</a>(<a class="code" href="gdt_8c.html#abf13a6d64056dff3d7be082e8d23e0d4">GDT</a>, <span class="keyword">sizeof</span>(<a class="code" href="gdt_8c.html#abf13a6d64056dff3d7be082e8d23e0d4">GDT</a>));</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <a class="code" href="gdt_8c.html#a05de93b96abf57915887ef30434c31dc">seg_reload</a>();</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <a class="code" href="gdt_8c.html#a62c3311f43b5f1fa28c492ad1cbfd2a2">load_tss</a>();</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;}<div class="ttc" id="gdt_8c_html_abf13a6d64056dff3d7be082e8d23e0d4"><div class="ttname"><a href="gdt_8c.html#abf13a6d64056dff3d7be082e8d23e0d4">GDT</a></div><div class="ttdeci">u64 GDT[6]</div><div class="ttdef"><b>Definition:</b> <a href="gdt_8c_source.html#l00006">gdt.c:6</a></div></div>
-<div class="ttc" id="gdt_8h_html_a61efcb1719af86a45f399bbda4f27fb0"><div class="ttname"><a href="gdt_8h.html#a61efcb1719af86a45f399bbda4f27fb0">GDT_ENTRY</a></div><div class="ttdeci">#define GDT_ENTRY(base, limit, flags)</div><div class="ttdef"><b>Definition:</b> <a href="gdt_8h_source.html#l00004">gdt.h:4</a></div></div>
-<div class="ttc" id="gdt_8c_html_a55c5a32518e4f8021dcdad37d27df174"><div class="ttname"><a href="gdt_8c.html#a55c5a32518e4f8021dcdad37d27df174">load_gdt</a></div><div class="ttdeci">void load_gdt(u64 *, u32)</div></div>
-<div class="ttc" id="gdt_8c_html_a6f7d0a0e284ff1d13522c3815e966462"><div class="ttname"><a href="gdt_8c.html#a6f7d0a0e284ff1d13522c3815e966462">TSS</a></div><div class="ttdeci">u32 TSS[26]</div><div class="ttdef"><b>Definition:</b> <a href="gdt_8c_source.html#l00004">gdt.c:4</a></div></div>
-<div class="ttc" id="types_8h_html_a10e94b422ef0c20dcdec20d31a1f5049"><div class="ttname"><a href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a></div><div class="ttdeci">unsigned int u32</div><div class="ttdef"><b>Definition:</b> <a href="types_8h_source.html#l00011">types.h:11</a></div></div>
-<div class="ttc" id="gdt_8c_html_a05de93b96abf57915887ef30434c31dc"><div class="ttname"><a href="gdt_8c.html#a05de93b96abf57915887ef30434c31dc">seg_reload</a></div><div class="ttdeci">void seg_reload()</div></div>
-<div class="ttc" id="gdt_8c_html_a62c3311f43b5f1fa28c492ad1cbfd2a2"><div class="ttname"><a href="gdt_8c.html#a62c3311f43b5f1fa28c492ad1cbfd2a2">load_tss</a></div><div class="ttdeci">void load_tss()</div></div>
+<p>References <a class="el" href="gdt_8c_source.html#l00006">GDT</a>, <a class="el" href="gdt_8h_source.html#l00018">GDT_ENTRY</a>, <a class="el" href="gdt_8c.html#a55c5a32518e4f8021dcdad37d27df174">load_gdt()</a>, <a class="el" href="gdt_8c.html#a62c3311f43b5f1fa28c492ad1cbfd2a2">load_tss()</a>, <a class="el" href="gdt_8c.html#a05de93b96abf57915887ef30434c31dc">seg_reload()</a>, and <a class="el" href="gdt_8c_source.html#l00004">TSS</a>.</p>
+<div class="fragment"><div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;{</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <a class="code" href="gdt_8c.html#abf13a6d64056dff3d7be082e8d23e0d4">GDT</a>[5] = <a class="code" href="gdt_8h.html#a61efcb1719af86a45f399bbda4f27fb0">GDT_ENTRY</a>((<a class="code" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>)&amp;<a class="code" href="gdt_8c.html#a6f7d0a0e284ff1d13522c3815e966462">TSS</a>, <span class="keyword">sizeof</span>(TSS), 0x0089); <span class="comment">// Or should it be 0x00E9?</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    TSS[2] = 0x10;</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <a class="code" href="gdt_8c.html#a55c5a32518e4f8021dcdad37d27df174">load_gdt</a>(<a class="code" href="gdt_8c.html#abf13a6d64056dff3d7be082e8d23e0d4">GDT</a>, <span class="keyword">sizeof</span>(<a class="code" href="gdt_8c.html#abf13a6d64056dff3d7be082e8d23e0d4">GDT</a>));</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <a class="code" href="gdt_8c.html#a05de93b96abf57915887ef30434c31dc">seg_reload</a>();</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <a class="code" href="gdt_8c.html#a62c3311f43b5f1fa28c492ad1cbfd2a2">load_tss</a>();</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;}<div class="ttc" id="gdt_8c_html_abf13a6d64056dff3d7be082e8d23e0d4"><div class="ttname"><a href="gdt_8c.html#abf13a6d64056dff3d7be082e8d23e0d4">GDT</a></div><div class="ttdeci">u64 GDT[6]</div><div class="ttdoc">The Global Descriptor Table. </div><div class="ttdef"><b>Definition:</b> <a href="gdt_8c_source.html#l00006">gdt.c:6</a></div></div>
+<div class="ttc" id="gdt_8h_html_a61efcb1719af86a45f399bbda4f27fb0"><div class="ttname"><a href="gdt_8h.html#a61efcb1719af86a45f399bbda4f27fb0">GDT_ENTRY</a></div><div class="ttdeci">#define GDT_ENTRY(base, limit, flags)</div><div class="ttdoc">Helps create a GDT entry Makes the creation of a GDT entry much cleaner. </div><div class="ttdef"><b>Definition:</b> <a href="gdt_8h_source.html#l00018">gdt.h:18</a></div></div>
+<div class="ttc" id="gdt_8c_html_a55c5a32518e4f8021dcdad37d27df174"><div class="ttname"><a href="gdt_8c.html#a55c5a32518e4f8021dcdad37d27df174">load_gdt</a></div><div class="ttdeci">void load_gdt(u64 *, u32)</div><div class="ttdoc">Sets the GDT pointer with lidt </div></div>
+<div class="ttc" id="gdt_8c_html_a6f7d0a0e284ff1d13522c3815e966462"><div class="ttname"><a href="gdt_8c.html#a6f7d0a0e284ff1d13522c3815e966462">TSS</a></div><div class="ttdeci">u32 TSS[26]</div><div class="ttdoc">The Task State Segment. </div><div class="ttdef"><b>Definition:</b> <a href="gdt_8c_source.html#l00004">gdt.c:4</a></div></div>
+<div class="ttc" id="types_8h_html_a10e94b422ef0c20dcdec20d31a1f5049"><div class="ttname"><a href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a></div><div class="ttdeci">unsigned int u32</div><div class="ttdoc">Unsigned 32 bit value. </div><div class="ttdef"><b>Definition:</b> <a href="types_8h_source.html#l00018">types.h:18</a></div></div>
+<div class="ttc" id="gdt_8c_html_a05de93b96abf57915887ef30434c31dc"><div class="ttname"><a href="gdt_8c.html#a05de93b96abf57915887ef30434c31dc">seg_reload</a></div><div class="ttdeci">void seg_reload()</div><div class="ttdoc">Reloads the segment registers. </div></div>
+<div class="ttc" id="gdt_8c_html_a62c3311f43b5f1fa28c492ad1cbfd2a2"><div class="ttname"><a href="gdt_8c.html#a62c3311f43b5f1fa28c492ad1cbfd2a2">load_tss</a></div><div class="ttdeci">void load_tss()</div><div class="ttdoc">Sets the TSS descriptor. </div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -282,7 +299,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_25ecda1410e8adf967f2aaaca1260861.html">inc</a></li><li class="navelem"><a class="el" href="dir_f076441bd65cf73d8fffcd59c5d93bb1.html">mm</a></li><li class="navelem"><a class="el" href="gdt_8h.html">gdt.h</a></li>
-    <li class="footer">Generated on Fri Dec 6 2013 15:39:10 for Lambda OS by
+    <li class="footer">Generated on Sat Dec 7 2013 05:41:44 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

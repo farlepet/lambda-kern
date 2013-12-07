@@ -109,29 +109,44 @@ $(document).ready(function(){initNavTree('multiboot_8h.html','');});
 <div class="title">multiboot.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Contains structures related to multiboot-compatible bootloaders.  
+<a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;<a class="el" href="types_8h_source.html">types.h</a>&gt;</code><br/>
 </div>
 <p><a href="multiboot_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Structures</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__elf__section__header__table.html">multiboot_elf_section_header_table</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">ELF information given by bootloader ELF file information as presented by the multiboot structure.  <a href="structmultiboot__elf__section__header__table.html#details">More...</a><br/></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html">multiboot</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A structure defining the information the bootloader passes us. Details the information structure given to us by a multiboot-compatible bootloader.  <a href="structmultiboot.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__memory__map.html">multiboot_memory_map</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structure of the memory map. Structure of the memory map given to us in the multiboot structure by multiboot-compatible bootloaders.  <a href="structmultiboot__memory__map.html#details">More...</a><br/></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__mod__list.html">multiboot_mod_list</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Struture of an entry in the list of modules. Structure of the module list the the multiboot header provides us.  <a href="structmultiboot__mod__list.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:a38d40f30491f5ce3b6a73c56766f0b84"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structmultiboot.html">multiboot</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="multiboot_8h.html#a38d40f30491f5ce3b6a73c56766f0b84">__packed</a></td></tr>
-<tr class="separator:a38d40f30491f5ce3b6a73c56766f0b84"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ab72dfe4441a3bd40a3cbd97a197fbe"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structmultiboot.html">multiboot</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="multiboot_8h.html#a5ab72dfe4441a3bd40a3cbd97a197fbe">__packed</a></td></tr>
+<tr class="separator:a5ab72dfe4441a3bd40a3cbd97a197fbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Variable Documentation</h2>
-<a class="anchor" id="a38d40f30491f5ce3b6a73c56766f0b84"></a>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Contains structures that help with dealing with the information multiboot-compatible bootloaders (i.e. GRUB) give us. </p>
+
+<p>Definition in file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
+</div><h2 class="groupheader">Variable Documentation</h2>
+<a class="anchor" id="a5ab72dfe4441a3bd40a3cbd97a197fbe"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">struct <a class="el" href="structmultiboot__memory__map.html">multiboot_memory_map</a>  __packed</td>
+          <td class="memname">struct <a class="el" href="structmultiboot__mod__list.html">multiboot_mod_list</a>  __packed</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -144,7 +159,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_25ecda1410e8adf967f2aaaca1260861.html">inc</a></li><li class="navelem"><a class="el" href="multiboot_8h.html">multiboot.h</a></li>
-    <li class="footer">Generated on Fri Dec 6 2013 15:39:10 for Lambda OS by
+    <li class="footer">Generated on Sat Dec 7 2013 05:41:44 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

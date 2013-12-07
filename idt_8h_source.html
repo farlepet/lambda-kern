@@ -106,51 +106,52 @@ $(document).ready(function(){initNavTree('idt_8h_source.html','');});
 <div class="title">idt.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<a href="idt_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#ifndef IDT_H</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define IDT_H</span></div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00011"></a><span class="lineno"><a class="line" href="idt_8h.html#a1b5bb8212147aadf0ae4d141f3a81e63">   11</a></span>&#160;<span class="preprocessor">#define IDT_ENTRY(off, sel, attr)     \</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor">    (((off  &amp; 0xFFFF0000ULL) &lt;&lt; 32) | \</span></div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">     ((attr &amp; 0x000000FFULL) &lt;&lt; 40) | \</span></div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">     ((sel  &amp; 0x0000FFFFULL) &lt;&lt; 16) | \</span></div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">     ((off  &amp; 0x0000FFFFULL) &lt;&lt; 0))</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00021"></a><span class="lineno"><a class="line" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260b">   21</a></span>&#160;<span class="keyword">enum</span> <a class="code" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260b">idt_int_type</a></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;{</div>
-<div class="line"><a name="l00023"></a><span class="lineno"><a class="line" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba57ea71f67633a814779ccb8deb94c414">   23</a></span>&#160;    <a class="code" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba57ea71f67633a814779ccb8deb94c414">task32</a> = 0x05, </div>
-<div class="line"><a name="l00024"></a><span class="lineno"><a class="line" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba8ff5c96a72a35cf6fec0244fe358fbd1">   24</a></span>&#160;    <a class="code" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba8ff5c96a72a35cf6fec0244fe358fbd1">int16</a>  = 0x06, </div>
-<div class="line"><a name="l00025"></a><span class="lineno"><a class="line" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba03750e05490671e0183874b134b24bc4">   25</a></span>&#160;    <a class="code" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba03750e05490671e0183874b134b24bc4">trap16</a> = 0x07, </div>
-<div class="line"><a name="l00026"></a><span class="lineno"><a class="line" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260bae972a1e345b1f14e384cf97c034258bf">   26</a></span>&#160;    <a class="code" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260bae972a1e345b1f14e384cf97c034258bf">int32</a>  = 0x0E, </div>
-<div class="line"><a name="l00027"></a><span class="lineno"><a class="line" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba70befd88b0ca844ccc27a2195a3793e4">   27</a></span>&#160;    <a class="code" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba70befd88b0ca844ccc27a2195a3793e4">trap32</a> = 0x0F  </div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;};</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;</div>
-<div class="line"><a name="l00038"></a><span class="lineno"><a class="line" href="idt_8h.html#af20a1f358842c522fa78c3b6ab715785">   38</a></span>&#160;<span class="preprocessor">#define IDT_ATTR(present, dpl, storeseg, type) \</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor">    (((present &amp; 0x01) &lt;&lt; 7) | \</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor">    ((dpl      &amp; 0x03) &lt;&lt; 5) | \</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="preprocessor">    ((storeseg &amp; 0x01) &lt;&lt; 4) | \</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">    ((type     &amp; 0x0F) &lt;&lt; 0))</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="keywordtype">void</span> <a class="code" href="idt_8h.html#a88d4205d069421eb4f8e7577285f1180">idt_init</a>();</div>
+<a href="idt_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#ifndef IDT_H</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define IDT_H</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00018"></a><span class="lineno"><a class="line" href="idt_8h.html#a1b5bb8212147aadf0ae4d141f3a81e63">   18</a></span>&#160;<span class="preprocessor">#define IDT_ENTRY(off, sel, attr)     \</span></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">    (((off  &amp; 0xFFFF0000ULL) &lt;&lt; 32) | \</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">     ((attr &amp; 0x000000FFULL) &lt;&lt; 40) | \</span></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">     ((sel  &amp; 0x0000FFFFULL) &lt;&lt; 16) | \</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">     ((off  &amp; 0x0000FFFFULL) &lt;&lt; 0))</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00028"></a><span class="lineno"><a class="line" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260b">   28</a></span>&#160;<span class="keyword">enum</span> <a class="code" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260b">idt_int_type</a></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;{</div>
+<div class="line"><a name="l00030"></a><span class="lineno"><a class="line" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba57ea71f67633a814779ccb8deb94c414">   30</a></span>&#160;    <a class="code" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba57ea71f67633a814779ccb8deb94c414">task32</a> = 0x05, </div>
+<div class="line"><a name="l00031"></a><span class="lineno"><a class="line" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba8ff5c96a72a35cf6fec0244fe358fbd1">   31</a></span>&#160;    <a class="code" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba8ff5c96a72a35cf6fec0244fe358fbd1">int16</a>  = 0x06, </div>
+<div class="line"><a name="l00032"></a><span class="lineno"><a class="line" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba03750e05490671e0183874b134b24bc4">   32</a></span>&#160;    <a class="code" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba03750e05490671e0183874b134b24bc4">trap16</a> = 0x07, </div>
+<div class="line"><a name="l00033"></a><span class="lineno"><a class="line" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260bae972a1e345b1f14e384cf97c034258bf">   33</a></span>&#160;    <a class="code" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260bae972a1e345b1f14e384cf97c034258bf">int32</a>  = 0x0E, </div>
+<div class="line"><a name="l00034"></a><span class="lineno"><a class="line" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba70befd88b0ca844ccc27a2195a3793e4">   34</a></span>&#160;    <a class="code" href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba70befd88b0ca844ccc27a2195a3793e4">trap32</a> = 0x0F  </div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;};</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
+<div class="line"><a name="l00046"></a><span class="lineno"><a class="line" href="idt_8h.html#af20a1f358842c522fa78c3b6ab715785">   46</a></span>&#160;<span class="preprocessor">#define IDT_ATTR(present, dpl, storeseg, type) \</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor">    (((present &amp; 0x01) &lt;&lt; 7) | \</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor">    ((dpl      &amp; 0x03) &lt;&lt; 5) | \</span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">    ((storeseg &amp; 0x01) &lt;&lt; 4) | \</span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">    ((type     &amp; 0x0F) &lt;&lt; 0))</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor"></span></div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="keywordtype">void</span> <a class="code" href="idt_8h.html#af0624103b831428526e435be5d8b959c">set_idt</a>(<span class="keywordtype">int</span>, <span class="keywordtype">int</span>, <span class="keywordtype">int</span>, <span class="keywordtype">void</span> *);</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="ttc" id="idt_8h_html_af8132f7edd90a6d09e511c2b36b1260ba70befd88b0ca844ccc27a2195a3793e4"><div class="ttname"><a href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba70befd88b0ca844ccc27a2195a3793e4">trap32</a></div><div class="ttdoc">32-bit trap gate </div><div class="ttdef"><b>Definition:</b> <a href="idt_8h_source.html#l00027">idt.h:27</a></div></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="keywordtype">void</span> <a class="code" href="idt_8h.html#a88d4205d069421eb4f8e7577285f1180">idt_init</a>();</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="keywordtype">void</span> <a class="code" href="idt_8h.html#af0624103b831428526e435be5d8b959c">set_idt</a>(<span class="keywordtype">int</span>, <span class="keywordtype">int</span>, <span class="keywordtype">int</span>, <span class="keywordtype">void</span> *);</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="ttc" id="idt_8h_html_af8132f7edd90a6d09e511c2b36b1260ba70befd88b0ca844ccc27a2195a3793e4"><div class="ttname"><a href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba70befd88b0ca844ccc27a2195a3793e4">trap32</a></div><div class="ttdoc">32-bit trap gate </div><div class="ttdef"><b>Definition:</b> <a href="idt_8h_source.html#l00034">idt.h:34</a></div></div>
 <div class="ttc" id="idt_8h_html_af0624103b831428526e435be5d8b959c"><div class="ttname"><a href="idt_8h.html#af0624103b831428526e435be5d8b959c">set_idt</a></div><div class="ttdeci">void set_idt(int, int, int, void *)</div><div class="ttdoc">Set an entry in the IDT. Sets the information in an IDT entry. </div><div class="ttdef"><b>Definition:</b> <a href="idt_8c_source.html#l00067">idt.c:67</a></div></div>
 <div class="ttc" id="idt_8h_html_a88d4205d069421eb4f8e7577285f1180"><div class="ttname"><a href="idt_8h.html#a88d4205d069421eb4f8e7577285f1180">idt_init</a></div><div class="ttdeci">void idt_init()</div><div class="ttdoc">Initializes the IDT Initializes the IDT by first setting every IDT entry to use the dummy interrupt t...</div><div class="ttdef"><b>Definition:</b> <a href="idt_8c_source.html#l00050">idt.c:50</a></div></div>
-<div class="ttc" id="idt_8h_html_af8132f7edd90a6d09e511c2b36b1260b"><div class="ttname"><a href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260b">idt_int_type</a></div><div class="ttdeci">idt_int_type</div><div class="ttdoc">Different IDT entry types. Usable types for the attribute flag type in the IDT. </div><div class="ttdef"><b>Definition:</b> <a href="idt_8h_source.html#l00021">idt.h:21</a></div></div>
-<div class="ttc" id="idt_8h_html_af8132f7edd90a6d09e511c2b36b1260ba8ff5c96a72a35cf6fec0244fe358fbd1"><div class="ttname"><a href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba8ff5c96a72a35cf6fec0244fe358fbd1">int16</a></div><div class="ttdoc">16-bit interrupt gate </div><div class="ttdef"><b>Definition:</b> <a href="idt_8h_source.html#l00024">idt.h:24</a></div></div>
-<div class="ttc" id="idt_8h_html_af8132f7edd90a6d09e511c2b36b1260bae972a1e345b1f14e384cf97c034258bf"><div class="ttname"><a href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260bae972a1e345b1f14e384cf97c034258bf">int32</a></div><div class="ttdoc">32-bit interrupt gate </div><div class="ttdef"><b>Definition:</b> <a href="idt_8h_source.html#l00026">idt.h:26</a></div></div>
-<div class="ttc" id="idt_8h_html_af8132f7edd90a6d09e511c2b36b1260ba57ea71f67633a814779ccb8deb94c414"><div class="ttname"><a href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba57ea71f67633a814779ccb8deb94c414">task32</a></div><div class="ttdoc">32-bit task gate </div><div class="ttdef"><b>Definition:</b> <a href="idt_8h_source.html#l00023">idt.h:23</a></div></div>
-<div class="ttc" id="idt_8h_html_af8132f7edd90a6d09e511c2b36b1260ba03750e05490671e0183874b134b24bc4"><div class="ttname"><a href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba03750e05490671e0183874b134b24bc4">trap16</a></div><div class="ttdoc">16-bit trap gate </div><div class="ttdef"><b>Definition:</b> <a href="idt_8h_source.html#l00025">idt.h:25</a></div></div>
+<div class="ttc" id="idt_8h_html_af8132f7edd90a6d09e511c2b36b1260b"><div class="ttname"><a href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260b">idt_int_type</a></div><div class="ttdeci">idt_int_type</div><div class="ttdoc">Different IDT entry types. Usable types for the attribute flag type in the IDT. </div><div class="ttdef"><b>Definition:</b> <a href="idt_8h_source.html#l00028">idt.h:28</a></div></div>
+<div class="ttc" id="idt_8h_html_af8132f7edd90a6d09e511c2b36b1260ba8ff5c96a72a35cf6fec0244fe358fbd1"><div class="ttname"><a href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba8ff5c96a72a35cf6fec0244fe358fbd1">int16</a></div><div class="ttdoc">16-bit interrupt gate </div><div class="ttdef"><b>Definition:</b> <a href="idt_8h_source.html#l00031">idt.h:31</a></div></div>
+<div class="ttc" id="idt_8h_html_af8132f7edd90a6d09e511c2b36b1260bae972a1e345b1f14e384cf97c034258bf"><div class="ttname"><a href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260bae972a1e345b1f14e384cf97c034258bf">int32</a></div><div class="ttdoc">32-bit interrupt gate </div><div class="ttdef"><b>Definition:</b> <a href="idt_8h_source.html#l00033">idt.h:33</a></div></div>
+<div class="ttc" id="idt_8h_html_af8132f7edd90a6d09e511c2b36b1260ba57ea71f67633a814779ccb8deb94c414"><div class="ttname"><a href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba57ea71f67633a814779ccb8deb94c414">task32</a></div><div class="ttdoc">32-bit task gate </div><div class="ttdef"><b>Definition:</b> <a href="idt_8h_source.html#l00030">idt.h:30</a></div></div>
+<div class="ttc" id="idt_8h_html_af8132f7edd90a6d09e511c2b36b1260ba03750e05490671e0183874b134b24bc4"><div class="ttname"><a href="idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba03750e05490671e0183874b134b24bc4">trap16</a></div><div class="ttdoc">16-bit trap gate </div><div class="ttdef"><b>Definition:</b> <a href="idt_8h_source.html#l00032">idt.h:32</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_25ecda1410e8adf967f2aaaca1260861.html">inc</a></li><li class="navelem"><a class="el" href="dir_f91cd87be93de027c13aa159d254b287.html">intr</a></li><li class="navelem"><a class="el" href="idt_8h.html">idt.h</a></li>
-    <li class="footer">Generated on Fri Dec 6 2013 15:39:10 for Lambda OS by
+    <li class="footer">Generated on Sat Dec 7 2013 05:41:44 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

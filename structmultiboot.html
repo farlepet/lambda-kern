@@ -110,91 +110,48 @@ $(document).ready(function(){initNavTree('structmultiboot.html','');});
 </div><!--header-->
 <div class="contents">
 
+<p>A structure defining the information the bootloader passes us. Details the information structure given to us by a multiboot-compatible bootloader.  
+</p>
+
 <p><code>#include &lt;<a class="el" href="multiboot_8h_source.html">multiboot.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
 <tr class="memitem:a4bd2793467fd4f7ed02ec304fff4eb81"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#a4bd2793467fd4f7ed02ec304fff4eb81">flags</a></td></tr>
+<tr class="memdesc:a4bd2793467fd4f7ed02ec304fff4eb81"><td class="mdescLeft">&#160;</td><td class="mdescRight">Multiboot version.  <a href="#a4bd2793467fd4f7ed02ec304fff4eb81">More...</a><br/></td></tr>
 <tr class="separator:a4bd2793467fd4f7ed02ec304fff4eb81"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac2b15c0a29fd98a3e1d957c9f8b9bd0b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#ac2b15c0a29fd98a3e1d957c9f8b9bd0b">mem_lower</a></td></tr>
+<tr class="memdesc:ac2b15c0a29fd98a3e1d957c9f8b9bd0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Available lower memory.  <a href="#ac2b15c0a29fd98a3e1d957c9f8b9bd0b">More...</a><br/></td></tr>
 <tr class="separator:ac2b15c0a29fd98a3e1d957c9f8b9bd0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1aaf0f2c74463a9906e25ce50cd8e871"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#a1aaf0f2c74463a9906e25ce50cd8e871">mem_upper</a></td></tr>
+<tr class="memdesc:a1aaf0f2c74463a9906e25ce50cd8e871"><td class="mdescLeft">&#160;</td><td class="mdescRight">Available lower memory.  <a href="#a1aaf0f2c74463a9906e25ce50cd8e871">More...</a><br/></td></tr>
 <tr class="separator:a1aaf0f2c74463a9906e25ce50cd8e871"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adf150e01b0cdf6f201914cd8a44272f9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#adf150e01b0cdf6f201914cd8a44272f9">boot_device</a></td></tr>
+<tr class="memdesc:adf150e01b0cdf6f201914cd8a44272f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">The device the kernel booted from.  <a href="#adf150e01b0cdf6f201914cd8a44272f9">More...</a><br/></td></tr>
 <tr class="separator:adf150e01b0cdf6f201914cd8a44272f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aec49b8fa70998fb8c40e10d3e085a011"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#aec49b8fa70998fb8c40e10d3e085a011">cmdline</a></td></tr>
+<tr class="memdesc:aec49b8fa70998fb8c40e10d3e085a011"><td class="mdescLeft">&#160;</td><td class="mdescRight">Command line that was passed to the kernel.  <a href="#aec49b8fa70998fb8c40e10d3e085a011">More...</a><br/></td></tr>
 <tr class="separator:aec49b8fa70998fb8c40e10d3e085a011"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a96f82c08b21585317616beeacde278cc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#a96f82c08b21585317616beeacde278cc">mods_count</a></td></tr>
+<tr class="memdesc:a96f82c08b21585317616beeacde278cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of modules in memory.  <a href="#a96f82c08b21585317616beeacde278cc">More...</a><br/></td></tr>
 <tr class="separator:a96f82c08b21585317616beeacde278cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac64fd6bca4d231cbb450ba685a2b3400"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#ac64fd6bca4d231cbb450ba685a2b3400">mods_addr</a></td></tr>
+<tr class="memdesc:ac64fd6bca4d231cbb450ba685a2b3400"><td class="mdescLeft">&#160;</td><td class="mdescRight">Address of pointer to first module.  <a href="#ac64fd6bca4d231cbb450ba685a2b3400">More...</a><br/></td></tr>
 <tr class="separator:ac64fd6bca4d231cbb450ba685a2b3400"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6760a249410286719d6eec4e6074bdd6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#a6760a249410286719d6eec4e6074bdd6">num</a></td></tr>
-<tr class="separator:a6760a249410286719d6eec4e6074bdd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9f1d21c3f7b3071d7362b02dbc3f17e4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#a9f1d21c3f7b3071d7362b02dbc3f17e4">size</a></td></tr>
-<tr class="separator:a9f1d21c3f7b3071d7362b02dbc3f17e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab44163587f7ba8ca8f2b21e38a460525"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#ab44163587f7ba8ca8f2b21e38a460525">addr</a></td></tr>
-<tr class="separator:ab44163587f7ba8ca8f2b21e38a460525"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a62d5ef63cc8db466e77e24a7bcc0fea3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#a62d5ef63cc8db466e77e24a7bcc0fea3">shndx</a></td></tr>
-<tr class="separator:a62d5ef63cc8db466e77e24a7bcc0fea3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:accf14f9d7fa299c559bf5be13dc2b7e0"><td class="memItemLeft" align="right" valign="top">struct <br class="typebreak"/>
+<a class="el" href="structmultiboot__elf__section__header__table.html">multiboot_elf_section_header_table</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#accf14f9d7fa299c559bf5be13dc2b7e0">elf_head_table</a></td></tr>
+<tr class="separator:accf14f9d7fa299c559bf5be13dc2b7e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a777be6ba5e5eb725abe899dfc2aa5b62"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#a777be6ba5e5eb725abe899dfc2aa5b62">mmap_length</a></td></tr>
+<tr class="memdesc:a777be6ba5e5eb725abe899dfc2aa5b62"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of memory map entries.  <a href="#a777be6ba5e5eb725abe899dfc2aa5b62">More...</a><br/></td></tr>
 <tr class="separator:a777be6ba5e5eb725abe899dfc2aa5b62"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac70f33ae46b06b6aeea2754e4e6f7b04"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#ac70f33ae46b06b6aeea2754e4e6f7b04">mmap_addr</a></td></tr>
+<tr class="memdesc:ac70f33ae46b06b6aeea2754e4e6f7b04"><td class="mdescLeft">&#160;</td><td class="mdescRight">Address of first memory map entry.  <a href="#ac70f33ae46b06b6aeea2754e4e6f7b04">More...</a><br/></td></tr>
 <tr class="separator:ac70f33ae46b06b6aeea2754e4e6f7b04"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac4ed667a59de48634e82f06becff8b50"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#ac4ed667a59de48634e82f06becff8b50">drives_length</a></td></tr>
-<tr class="separator:ac4ed667a59de48634e82f06becff8b50"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ace53c2abbb16b1883be941f3147a0a1a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#ace53c2abbb16b1883be941f3147a0a1a">drives_addr</a></td></tr>
-<tr class="separator:ace53c2abbb16b1883be941f3147a0a1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af6f16dad5291bd882d56902a60e799c2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#af6f16dad5291bd882d56902a60e799c2">config_table</a></td></tr>
-<tr class="separator:af6f16dad5291bd882d56902a60e799c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a704fd81b1fd6ce2dbe7ad8ba988e0bcc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#a704fd81b1fd6ce2dbe7ad8ba988e0bcc">boot_loader_name</a></td></tr>
-<tr class="separator:a704fd81b1fd6ce2dbe7ad8ba988e0bcc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a311fadc6cf55014adab6d4ac4f78b96b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#a311fadc6cf55014adab6d4ac4f78b96b">apm_table</a></td></tr>
-<tr class="separator:a311fadc6cf55014adab6d4ac4f78b96b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a477fcc5846931e0d2730cc9c269c04c9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#a477fcc5846931e0d2730cc9c269c04c9">vbe_control_info</a></td></tr>
-<tr class="separator:a477fcc5846931e0d2730cc9c269c04c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a58ad75a9d9fd3c24eb6950c2044291b3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#a58ad75a9d9fd3c24eb6950c2044291b3">vbe_mode_info</a></td></tr>
-<tr class="separator:a58ad75a9d9fd3c24eb6950c2044291b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac7cfbb437ea598de2cf5b7d6c9d00a43"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#ac7cfbb437ea598de2cf5b7d6c9d00a43">vbe_mode</a></td></tr>
-<tr class="separator:ac7cfbb437ea598de2cf5b7d6c9d00a43"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afea093067e53f8a3b96cc90fae5907e9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#afea093067e53f8a3b96cc90fae5907e9">vbe_interface_seg</a></td></tr>
-<tr class="separator:afea093067e53f8a3b96cc90fae5907e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac303063ff863962ae4f670e16b7a07e5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#ac303063ff863962ae4f670e16b7a07e5">vbe_interface_off</a></td></tr>
-<tr class="separator:ac303063ff863962ae4f670e16b7a07e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac81c753152ce5392f591d5dbc124e87f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot.html#ac81c753152ce5392f591d5dbc124e87f">vbe_interface_len</a></td></tr>
-<tr class="separator:ac81c753152ce5392f591d5dbc124e87f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00006">6</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
+<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00031">31</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
 </div><h2 class="groupheader">Field Documentation</h2>
-<a class="anchor" id="ab44163587f7ba8ca8f2b21e38a460525"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot::addr</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00017">17</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a311fadc6cf55014adab6d4ac4f78b96b"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot::apm_table</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00025">25</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
-
-</div>
-</div>
 <a class="anchor" id="adf150e01b0cdf6f201914cd8a44272f9"></a>
 <div class="memitem">
 <div class="memproto">
@@ -205,21 +162,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00011">11</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a704fd81b1fd6ce2dbe7ad8ba988e0bcc"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot::boot_loader_name</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00024">24</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
+<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00036">36</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
 
 </div>
 </div>
@@ -233,49 +176,21 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00012">12</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
+<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00037">37</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="af6f16dad5291bd882d56902a60e799c2"></a>
+<a class="anchor" id="accf14f9d7fa299c559bf5be13dc2b7e0"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot::config_table</td>
+          <td class="memname">struct <a class="el" href="structmultiboot__elf__section__header__table.html">multiboot_elf_section_header_table</a> multiboot::elf_head_table</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00023">23</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="ace53c2abbb16b1883be941f3147a0a1a"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot::drives_addr</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00022">22</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="ac4ed667a59de48634e82f06becff8b50"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot::drives_length</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00021">21</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
+<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00040">40</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
 
 </div>
 </div>
@@ -289,7 +204,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00008">8</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
+<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00033">33</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
 
 </div>
 </div>
@@ -303,7 +218,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00009">9</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
+<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00034">34</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
 
 </div>
 </div>
@@ -317,7 +232,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00010">10</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
+<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00035">35</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
 
 </div>
 </div>
@@ -331,7 +246,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00020">20</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
+<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00042">42</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
 
 </div>
 </div>
@@ -345,7 +260,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00019">19</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
+<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00041">41</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
 
 </div>
 </div>
@@ -359,7 +274,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00014">14</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
+<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00039">39</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
 
 </div>
 </div>
@@ -373,133 +288,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00013">13</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a6760a249410286719d6eec4e6074bdd6"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot::num</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00015">15</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a62d5ef63cc8db466e77e24a7bcc0fea3"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot::shndx</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00018">18</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a9f1d21c3f7b3071d7362b02dbc3f17e4"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot::size</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00016">16</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a477fcc5846931e0d2730cc9c269c04c9"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot::vbe_control_info</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00026">26</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="ac81c753152ce5392f591d5dbc124e87f"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot::vbe_interface_len</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00031">31</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="ac303063ff863962ae4f670e16b7a07e5"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot::vbe_interface_off</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00030">30</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="afea093067e53f8a3b96cc90fae5907e9"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot::vbe_interface_seg</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00029">29</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="ac7cfbb437ea598de2cf5b7d6c9d00a43"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot::vbe_mode</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00028">28</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a58ad75a9d9fd3c24eb6950c2044291b3"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a> multiboot::vbe_mode_info</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00027">27</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
+<p>Definition at line <a class="el" href="multiboot_8h_source.html#l00038">38</a> of file <a class="el" href="multiboot_8h_source.html">multiboot.h</a>.</p>
 
 </div>
 </div>
@@ -512,7 +301,7 @@ Data Fields</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="structmultiboot.html">multiboot</a></li>
-    <li class="footer">Generated on Fri Dec 6 2013 15:39:10 for Lambda OS by
+    <li class="footer">Generated on Sat Dec 7 2013 05:41:44 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>
