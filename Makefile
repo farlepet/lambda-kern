@@ -20,36 +20,37 @@ AS         = gcc
 ifeq ($(ARCH), X86)
 CFLAGS     = -m32 -I$(MAINDIR)/kernel/inc -nostdlib -nostdinc -fno-builtin -Wall -Wextra -Werror -DARCH_X86
 ASFLAGS    = -m32 -I$(MAINDIR)/kernel/inc -nostdlib -nostdinc -fno-builtin -Wall -Wextra -Werror -DARCH_X86
-NASMFLAGS  = -felf
 
 link:   $(OBJS)
 	@echo -e "\033[33m  \033[1mBuilding x86-specific bits\033[0m"
 	@cd $(MAINDIR)/kernel/arch/x86; make
 	@echo -e "\033[33m  \033[1mLinking sources\033[0m"
 	@ld -melf_i386 -T link_x86.ld -o lambda.kern $(ASOBJS) $(ASMOBJS) $(COBJS) kernel/arch/x86/arch.a
+	@echo -e "\033[33m  \033[1mCreating ISO\033[0m"
+	@cp lambda.kern CD/lambda.kern
+	@grub-mkrescue -o lambda-os.iso CD
 endif
 
 ifeq ($(ARCH), X86_64)
 CFLAGS     = -m64 -I$(MAINDIR)/kernel/inc -mcmodel=kernel -ffreestanding -nostdlib -nostdinc -fno-builtin -Wall -Wextra -Werror -DARCH_X86_64
 ASFLAGS    = -m64 -I$(MAINDIR)/kernel/inc -mcmodel=kernel -ffreestanding -nostdlib -nostdinc -fno-builtin -Wall -Wextra -Werror -DARCH_X86_64
-NASMFLAGS  = -felf64
 
 link:   $(OBJS)
 	@echo -e "\033[33m  \033[1mBuilding x86_64-specific bits\033[0m"
 	@cd $(MAINDIR)/kernel/arch/x86_64; make
 	@echo -e "\033[33m  \033[1mLinking sources\033[0m"
-	@ld -melf_x86_64 -T link_x86_64.ld -o lambda.kern $(ASOBJS) $(ASMOBJS) $(COBJS) kernel/arch/x86_64/arch.a
+	@ld -melf_x86_64 -T link_x86_64.ld -z max-page-size=0x1000 -o lambda.kern $(ASOBJS) $(ASMOBJS) $(COBJS) kernel/arch/x86_64/arch.a
+	@echo -e "\033[33m  \033[1mCreating ISO\033[0m"
+	@cp lambda.kern CD/lambda.kern
+	@grub-mkrescue -o lambda-os.iso CD
 endif
 
-all:     printinfo link
 
-
-
-
-
-
-
+all: printinfo link iso
 	
+
+
+
 printinfo:
 	@echo -e "\033[32mBuilding kernel\033[0m"
 
@@ -76,7 +77,6 @@ clean:
 	@rm -r -f doc
 	@cd $(MAINDIR)/kernel/arch/x86; make clean
 	@cd $(MAINDIR)/kernel/arch/x86_64; make clean
-
 
 docs:
 	@echo -e "\033[32mGenerating documentation\033[0m"

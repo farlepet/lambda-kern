@@ -34,8 +34,8 @@ MbHdr:
 	DD	EntryPoint
  
 	; End Of Tags
-	DW	0, 0
-	DD	8
+	;DD	0
+	;DD	8
  
 	; Hdr End Mark
 HdrEnd:

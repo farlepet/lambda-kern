@@ -22,3 +22,7 @@
 
 # Config Files
 *.kdev4
+
+# Output files
+*.kern
+*.iso
