@@ -15,14 +15,14 @@ OBJS       = $(ASOBJS) $(COBJS) $(ASMOBJS)
 
 CC         = gcc
 AS         = gcc
-CFLAGS     = -m32 -I$(KERNDIR)/inc -I$(MAINDIR) -nostdlib -nostdinc -fno-builtin -Wall -Wextra -Werror -DARCH_X86
-ASFLAGS    = -m32 -I$(KERNDIR)/inc -I$(MAINDIR) -nostdlib -nostdinc -fno-builtin -Wall -Wextra -Werror -DARCH_X86
-NASMFLAGS  = -f elf
+CFLAGS     = -m64 -I$(KERNDIR)/inc -I$(MAINDIR) -mcmodel=kernel -ffreestanding -nostdlib -nostdinc -fno-builtin -Wall -Wextra -Werror -DARCH_X86_64
+ASFLAGS    = -m64 -I$(KERNDIR)/inc -I$(MAINDIR) -mcmodel=kernel -ffreestanding -nostdlib -nostdinc -fno-builtin -Wall -Wextra -Werror -DARCH_X86_64
+NASMFLAGS  = -felf64
 
 all:     link
 
 link:   $(OBJS)
-	@ar rvs --target=elf32-i386 arch.a $(OBJS) > /dev/null
+	@ar rvs --target=elf64-x86-64 arch.a $(OBJS) > /dev/null
 
 
 
@@ -42,4 +42,4 @@ link:   $(OBJS)
 
 clean:
 	@rm -f $(OBJS)
-	@rm -f x86.arch.a
+	@rm -f x86_64.arch.a

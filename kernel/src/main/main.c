@@ -8,6 +8,7 @@
 extern void inttest(); //!< Simple function to test interrupts. \deprecated This is for testing only, it will be removed very soon.
 extern void exceptions_init(); //!< Initializes basic exception handlers. Found in intr/exceptions.asm
 
+
 /**
  * \brief Main kernel function.
  * Initializes all devices, and sets up environment.
@@ -28,9 +29,9 @@ int kmain(struct multiboot __unused *mboot_ptr, u32 __unused initial_stack)
 	vga_print("Welcome to Lambda OS!\n");
 #endif // ARCH_X86
 
-
 	for(;;);
 }
+
 
 /**
  * \brief A test function for the IDT.

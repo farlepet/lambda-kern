@@ -8,6 +8,9 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+
+
+#ifdef ARCH_X86
 typedef char      s8;  //!< Signed 8 bit value
 typedef short     s16; //!< Signed 16 bit value
 typedef int       s32; //!< Signed 32 bit value
@@ -17,6 +20,21 @@ typedef unsigned char      u8;  //!< Unsigned 8 bit value
 typedef unsigned short     u16; //!< Unsigned 16 bit value
 typedef unsigned int       u32; //!< Unsigned 32 bit value
 typedef unsigned long long u64; //!< Unsigned 64 bit value
+#endif // ARCH_X86
+
+#ifdef ARCH_X86_64
+typedef char  s8;  //!< Signed 8 bit value
+typedef short s16; //!< Signed 16 bit value
+typedef int   s32; //!< Signed 32 bit value
+typedef long  s64; //!< Signed 64 bit value
+
+typedef unsigned char  u8;  //!< Unsigned 8 bit value
+typedef unsigned short u16; //!< Unsigned 16 bit value
+typedef unsigned int   u32; //!< Unsigned 32 bit value
+typedef unsigned long  u64; //!< Unsigned 64 bit value
+#endif // ARCH_X86_64
+
+
 
 #define __alias(N)    __attribute__((__weak__, __alias__(#N))) //!< Create an alias to another object
 

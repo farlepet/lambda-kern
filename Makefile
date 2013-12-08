@@ -17,19 +17,33 @@ OBJS       = $(COBJS) $(ASMOBJS) $(ASOBJS)
 CC         = gcc
 AS         = gcc
 
-all:     printinfo link
-
 ifeq ($(ARCH), X86)
 CFLAGS     = -m32 -I$(MAINDIR)/kernel/inc -nostdlib -nostdinc -fno-builtin -Wall -Wextra -Werror -DARCH_X86
 ASFLAGS    = -m32 -I$(MAINDIR)/kernel/inc -nostdlib -nostdinc -fno-builtin -Wall -Wextra -Werror -DARCH_X86
-NASMFLAGS  = -f elf
+NASMFLAGS  = -felf
 
 link:   $(OBJS)
 	@echo -e "\033[33m  \033[1mBuilding x86-specific bits\033[0m"
 	@cd $(MAINDIR)/kernel/arch/x86; make
 	@echo -e "\033[33m  \033[1mLinking sources\033[0m"
-	@ld -melf_i386 -T link_x86.ld -o lambda.kern $(ASOBJS) $(ASMOBJS) $(COBJS) kernel/arch/x86/x86.arch.a
+	@ld -melf_i386 -T link_x86.ld -o lambda.kern $(ASOBJS) $(ASMOBJS) $(COBJS) kernel/arch/x86/arch.a
 endif
+
+ifeq ($(ARCH), X86_64)
+CFLAGS     = -m64 -I$(MAINDIR)/kernel/inc -mcmodel=kernel -ffreestanding -nostdlib -nostdinc -fno-builtin -Wall -Wextra -Werror -DARCH_X86_64
+ASFLAGS    = -m64 -I$(MAINDIR)/kernel/inc -mcmodel=kernel -ffreestanding -nostdlib -nostdinc -fno-builtin -Wall -Wextra -Werror -DARCH_X86_64
+NASMFLAGS  = -felf64
+
+link:   $(OBJS)
+	@echo -e "\033[33m  \033[1mBuilding x86_64-specific bits\033[0m"
+	@cd $(MAINDIR)/kernel/arch/x86_64; make
+	@echo -e "\033[33m  \033[1mLinking sources\033[0m"
+	@ld -melf_x86_64 -T link_x86_64.ld -o lambda.kern $(ASOBJS) $(ASMOBJS) $(COBJS) kernel/arch/x86_64/arch.a
+endif
+
+all:     printinfo link
+
+
 
 
 
@@ -61,6 +75,7 @@ clean:
 	@rm -f lambda.kern
 	@rm -r -f doc
 	@cd $(MAINDIR)/kernel/arch/x86; make clean
+	@cd $(MAINDIR)/kernel/arch/x86_64; make clean
 
 
 docs:
