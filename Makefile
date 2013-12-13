@@ -4,9 +4,14 @@ SRC        = $(MAINDIR)/kernel/src
 # Default architecture
 ARCH       = X86
 
-SRCS       = $(wildcard $(SRC)/main/*.c)   $(wildcard $(SRC)/dev/*.c)   $(wildcard $(SRC)/dev/video/*.c)   $(wildcard $(SRC)/dev/keyb/*.c)
+SRCS       = $(wildcard $(SRC)/main/*.c)   $(wildcard $(SRC)/dev/*.c)   $(wildcard $(SRC)/dev/video/*.c)   $(wildcard $(SRC)/dev/keyb/*.c)   \
+             $(wildcard $(SRC)/intr/*.c)
+
 ASSRCS     = $(wildcard $(SRC)/main/*.s)   $(wildcard $(SRC)/dev/*.s)   $(wildcard $(SRC)/dev/video/*.s)   $(wildcard $(SRC)/dev/keyb/*.s)
+             $(wildcard $(SRC)/intr/*.s)
+
 ASMSRCS    = $(wildcard $(SRC)/main/*.asm) $(wildcard $(SRC)/dev/*.asm) $(wildcard $(SRC)/dev/video/*.asm) $(wildcard $(SRC)/dev/keyb/*.asm)
+             $(wildcard $(SRC)/intr/*.asm)
 
 COBJS      = $(patsubst %.c,%.o,$(SRCS))
 ASOBJS     = $(patsubst %.s,%.o,$(ASSRCS))
@@ -18,8 +23,8 @@ CC         = gcc
 AS         = gcc
 
 ifeq ($(ARCH), X86)
-CFLAGS     = -m32 -I$(MAINDIR)/kernel/inc -nostdlib -nostdinc -fno-builtin -Wall -Wextra -Werror -DARCH_X86
-ASFLAGS    = -m32 -I$(MAINDIR)/kernel/inc -nostdlib -nostdinc -fno-builtin -Wall -Wextra -Werror -DARCH_X86
+CFLAGS     = -m32 -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -nostdlib -nostdinc -Wall -Wextra -Werror -lgcc -DARCH_X86
+ASFLAGS    = -m32 -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -nostdlib -nostdinc -Wall -Wextra -Werror -DARCH_X86
 
 link:   $(OBJS)
 	@echo -e "\033[33m  \033[1mBuilding x86-specific bits\033[0m"
@@ -32,8 +37,8 @@ link:   $(OBJS)
 endif
 
 ifeq ($(ARCH), X86_64)
-CFLAGS     = -m64 -I$(MAINDIR)/kernel/inc -mcmodel=kernel -ffreestanding -nostdlib -nostdinc -fno-builtin -Wall -Wextra -Werror -DARCH_X86_64
-ASFLAGS    = -m64 -I$(MAINDIR)/kernel/inc -mcmodel=kernel -ffreestanding -nostdlib -nostdinc -fno-builtin -Wall -Wextra -Werror -DARCH_X86_64
+CFLAGS     = -m64 -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -mcmodel=kernel -mno-red-zone -ffreestanding -nostdlib -nostdinc -Wall -Wextra -Werror -lgcc -DARCH_X86_64
+ASFLAGS    = -m64 -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -mcmodel=kernel -mno-red-zone -ffreestanding -nostdlib -nostdinc -Wall -Wextra -Werror -DARCH_X86_64
 
 link:   $(OBJS)
 	@echo -e "\033[33m  \033[1mBuilding x86_64-specific bits\033[0m"

@@ -1,7 +1,7 @@
 #include <multiboot.h>
 #include <mm/paging.h>
 #include <mm/gdt.h>
-#include <intr/idt.h>
+#include <intr/intr.h>
 #include <dev/vga/print.h>
 #include <ioport.h>
 #include <dev/serial/serial.h>
@@ -19,12 +19,17 @@ int kmain(struct multiboot __unused *mboot_ptr, u32 __unused initial_stack)
 {
 #ifdef ARCH_X86
 	gdt_init();
-	idt_init();
+#endif
+	
+	interrupts_init();
+	
+#ifdef ARCH_X86
 	paging_init();
-	set_idt(0x21, 0x08, 0x8E, &inttest);
 	exceptions_init();
-	__sti;
 #endif // ARCH_X86
+	
+	//set_interrupt(KEYBOARD_INT, &inttest);
+//__sti;
 	
 #if defined(ARCH_X86) || defined(ARCH_X86_64)
 	vga_print("Welcome to Lambda OS!\n");

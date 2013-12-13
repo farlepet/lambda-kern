@@ -23,15 +23,17 @@ typedef unsigned long long u64; //!< Unsigned 64 bit value
 #endif // ARCH_X86
 
 #ifdef ARCH_X86_64
-typedef char  s8;  //!< Signed 8 bit value
-typedef short s16; //!< Signed 16 bit value
-typedef int   s32; //!< Signed 32 bit value
-typedef long  s64; //!< Signed 64 bit value
+typedef char      s8;   //!< Signed 8 bit value
+typedef short     s16;  //!< Signed 16 bit value
+typedef int       s32;  //!< Signed 32 bit value
+typedef long      s64;  //!< Signed 64 bit value
+typedef long long s128; //!< Signed 128 bit value
 
-typedef unsigned char  u8;  //!< Unsigned 8 bit value
-typedef unsigned short u16; //!< Unsigned 16 bit value
-typedef unsigned int   u32; //!< Unsigned 32 bit value
-typedef unsigned long  u64; //!< Unsigned 64 bit value
+typedef unsigned char      u8;   //!< Unsigned 8 bit value
+typedef unsigned short     u16;  //!< Unsigned 16 bit value
+typedef unsigned int       u32;  //!< Unsigned 32 bit value
+typedef unsigned long      u64;  //!< Unsigned 64 bit value
+typedef unsigned long long u128; //!< Unsigned 128 bit value
 #endif // ARCH_X86_64
 
 

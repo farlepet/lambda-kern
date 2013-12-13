@@ -20,9 +20,9 @@ OBJS       = $(ASOBJS) $(COBJS) $(ASMOBJS)
 
 CC         = gcc
 AS         = gcc
-CFLAGS     = -m64 -g -I$(KERNDIR)/inc -I$(MAINDIR) -mcmodel=kernel -ffreestanding -nostdlib -nostdinc -fno-builtin -Wall -Wextra -Werror -DARCH_X86_64
-ASFLAGS    = -m64 -g -I$(KERNDIR)/inc -I$(MAINDIR) -mcmodel=kernel -ffreestanding -nostdlib -nostdinc -fno-builtin -Wall -Wextra -Werror -DARCH_X86_64
-NASMFLAGS  = -felf64
+CFLAGS     = -m64 -g -I$(KERNDIR)/inc -I$(MAINDIR) -mcmodel=kernel -mno-red-zone -ffreestanding -nostdlib -nostdinc -Wall -Wextra -Werror -lgcc -DARCH_X86_64
+ASFLAGS    = -m64 -g -I$(KERNDIR)/inc -I$(MAINDIR) -mcmodel=kernel -mno-red-zone -ffreestanding -nostdlib -nostdinc -Wall -Wextra -Werror -lgcc -DARCH_X86_64
+NASMFLAGS  = -felf64 -P../../inc/asm/pusha64.inc
 
 all:     link
 

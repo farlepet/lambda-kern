@@ -20,8 +20,8 @@ OBJS       = $(ASOBJS) $(COBJS) $(ASMOBJS)
 
 CC         = gcc
 AS         = gcc
-CFLAGS     = -m32 -I$(KERNDIR)/inc -I$(MAINDIR) -nostdlib -nostdinc -fno-builtin -Wall -Wextra -Werror -DARCH_X86
-ASFLAGS    = -m32 -I$(KERNDIR)/inc -I$(MAINDIR) -nostdlib -nostdinc -fno-builtin -Wall -Wextra -Werror -DARCH_X86
+CFLAGS     = -m32 -I$(KERNDIR)/inc -I$(MAINDIR) -nostdlib -nostdinc -Wall -Wextra -Werror -lgcc -DARCH_X86
+ASFLAGS    = -m32 -I$(KERNDIR)/inc -I$(MAINDIR) -nostdlib -nostdinc -Wall -Wextra -Werror -lgcc -DARCH_X86
 NASMFLAGS  = -f elf
 
 all:     link

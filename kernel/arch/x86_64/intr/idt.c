@@ -5,7 +5,7 @@
 extern void load_idt(u64 *, u32); //!< Use `lidt` to set the IDT pointer.
 extern void dummy_int(); //!< Dummy interrupt se all IRQ's can function, even if not setup.
 
-u64 IDT[256]; //!< Interrupt Descriptor Table. Table of all interrupt handlers and settings.
+struct idt_entry_64 IDT[256]; //!< Interrupt Descriptor Table. Table of all interrupt handlers and settings.
 
 /**
  * \brief Remap the IRQ's to fire interrupts after the offsets.
@@ -18,15 +18,15 @@ u64 IDT[256]; //!< Interrupt Descriptor Table. Table of all interrupt handlers a
 static void remap_pic(int off1, int off2)
 {
 	outb(0x20, 0x11);
-  	outb(0xA0, 0x11);
-  	outb(0x21, off1);
-  	outb(0xA1, off2);
-  	outb(0x21, 0x04);
-  	outb(0xA1, 0x02);
-  	outb(0x21, 0x01);
-  	outb(0xA1, 0x01);
- 	outb(0x21, 0x0);
-  	outb(0xA1, 0x0);
+	outb(0xA0, 0x11);
+	outb(0x21, off1);
+	outb(0xA1, off2);
+	outb(0x21, 0x04);
+	outb(0xA1, 0x02);
+	outb(0x21, 0x01);
+	outb(0xA1, 0x01);
+	outb(0x21, 0x0);
+	outb(0xA1, 0x0);
 }
 
 /**
@@ -37,7 +37,7 @@ static void remap_pic(int off1, int off2)
  */
 static void reload_idt()
 {
-	load_idt(IDT, sizeof(IDT)-1);
+	load_idt((u64 *)&IDT[0], sizeof(IDT)-1);
 	remap_pic(0x20, 0x28);
 }
 
@@ -51,7 +51,7 @@ void idt_init()
 {
 	int i = 0;
 	for(; i < 256; i++)
-		IDT[i] = IDT_ENTRY((u32)&dummy_int, 0x08, 0x8E);
+		IDT_ENTRY(IDT[i], (u64)&dummy_int, 0x08, 0x8E);
 	
 	reload_idt();
 }
@@ -66,5 +66,5 @@ void idt_init()
  */
 void set_idt(int intr, int sel, int flags, void *func)
 {
-	IDT[intr] = IDT_ENTRY((u32)func, sel, flags);
+	IDT_ENTRY(IDT[intr], (u64)func, sel, flags);
 }

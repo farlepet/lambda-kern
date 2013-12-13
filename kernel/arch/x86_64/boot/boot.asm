@@ -160,3 +160,24 @@ Gdtr2:
 Gdtr3:
 	DW	23
 	DQ	TmpGdt + 24 + 0xFFFFFFFF80000000
+
+
+
+
+
+
+
+
+
+; Temporary!!!
+[BITS 64]
+
+extern test_int
+global inttest
+inttest:
+	cli
+	pushaq
+	call test_int
+	popaq
+	sti
+	iretq

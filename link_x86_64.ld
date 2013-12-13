@@ -53,6 +53,13 @@ SECTIONS
 	
 	_bssEnd = . - VIRT_BASE;
 	
+	.init ALIGN(0x1000) : AT(ADDR(.init) - VIRT_BASE)
+	{
+		*(.init)
+	}
+	
+	kern_end = . - VIRT_BASE;
+	
 	/DISCARD/ :
 	{
 		*(.comment)
