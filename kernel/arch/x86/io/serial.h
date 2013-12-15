@@ -1,3 +1,6 @@
+#ifndef SERIAL_H
+#define SERIAL_H
+
 #include <types.h>
 
 #define SERIAL_COM1 0x3f8
@@ -15,3 +18,5 @@ char serial_read(u16 port);
 int is_transmit_empty(u16 port);
 
 void serial_write(u16 port, char a);
+
+#endif

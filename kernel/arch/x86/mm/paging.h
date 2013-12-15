@@ -11,6 +11,9 @@
 #include <types.h>
 
 
+extern u32 kern_start;          //!< Start address of the kernel
+extern u32 kern_end;            //!< End address of the kernel
+
 /**
  * \brief Allocate a frame.
  * Allocates a page frame then returns its address
@@ -62,10 +65,11 @@ void disable_paging();
  * and fills it with addresses starting at 0. Then it sets the page tables
  * first page table as the newly created one. Then it sets the page directory,
  * and enables paging.
+ * @param eom end of memory
  * @see clear_pagedir
  * @see fill_pagetable
  * @see enable_paging
  */
-void paging_init();
+void paging_init(u32 eom);
 
 #endif

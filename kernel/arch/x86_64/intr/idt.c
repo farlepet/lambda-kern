@@ -1,5 +1,5 @@
 #include <types.h>
-#include <ioport.h>
+#include <io/ioport.h>
 #include "idt.h"
 
 extern void load_idt(u64 *, u32); //!< Use `lidt` to set the IDT pointer.

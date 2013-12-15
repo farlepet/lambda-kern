@@ -1,13 +1,10 @@
 #include <types.h>
 #include <dev/vga/print.h>
+#include "paging.h"
+#include "mem.h"
 
-// Defined in link.ld:
-extern u32 kern_start;          //!< Start address of the kernel
-extern u32 kern_end;            //!< End address of the kernel
-
-static u32 *pagedir;            //!< Main kernel pagedirectory
-static u32 *pagetbl1;           //!< Kernels first pagetable
-
+static u32 *pagedir;  //!< Main kernel pagedirectory
+static u32 *pagetbl1; //!< First page table
 static u32 *frames;             //!< Table stating which frames are available
 static u32 prealloc_frames[20]; //!< 20 frames that are free, used by alloc_frame
 static u32 nframes;             //!< Number of frames in the table
@@ -45,7 +42,7 @@ static void *get_free_frame()
 		u32 i = 0;
 		while(test_frame(i) != 0)
 		{
-			if(frames[i/32] == 0xFFFF)
+			if(frames[i/32] == 0xFFFFFFFF)
 			{
 				i += 32;
 				continue;
@@ -78,6 +75,23 @@ void *alloc_frame()
 			pframe = 0;
 		}
 		return (void *)prealloc_frames[pframe++];
+}
+
+void map_page(void * physaddr, void * virtualaddr, unsigned int flags)
+{
+	// Make sure that both addresses are page-aligned.
+	
+	u32 pdindex = (u32)virtualaddr >> 22;
+	u32 ptindex = (u32)virtualaddr >> 12 & 0x03FF;
+	
+	// Should I check if it is already present? I don't know...
+	if(pagedir[pdindex] & 0x01)
+		((u32 *)pagedir[pdindex])[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
+	else
+	{
+		pagedir[pdindex] = (u32)alloc_frame() | 0x03;
+		((u32 *)pagedir[pdindex])[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
+	}
 }
 
 /**
@@ -113,7 +127,7 @@ void clear_pagedir(u32 *dir)
  */
 void fill_pagetable(u32 *table, u32 addr)
 {
-	unsigned int i;
+	u32 i;
 	for(i = 0; i < 1024; i++, addr += 0x1000)
 		table[i] = addr | 3;  // supervisor, rw, present.
 }
@@ -152,25 +166,27 @@ void disable_paging()
 	asm volatile("mov %0, %%cr0":: "b"(cr0));
 }
 
-
+extern u32 apic;
 /**
  * \brief Initialize paging.
  * Creates a new page directory, and clears it. Thes creates a new page table,
  * and fills it with addresses starting at 0. Then it sets the page tables
  * first page table as the newly created one. Then it sets the page directory,
  * and enables paging.
+ * @param eom end of memory
  * @see clear_pagedir
  * @see fill_pagetable
  * @see enable_paging
  */
-void paging_init()
+void paging_init(u32 eom)
 {
-	pagedir = (u32 *)(((u32)&kern_end & 0xFFFFF000) + 0x1000);
-	pagetbl1 = pagedir + 1024;
+	pagedir    = (u32 *)FIRST_PAGEDIR;
+	pagetbl1   = (u32 *)FIRST_PAGETBL;
+	
+	frames     = (u32 *)FRAMES_TABLE;
+	firstframe = (u32 *)FRAMES_START;
 
-	firstframe = (pagetbl1 + 0x8000); // Make sure if is a fair distance away from kernel paging structures
-
-	int end_mem = 0x1000000; // Temporary
+	int end_mem = eom; // Temporary
 	nframes = end_mem / 0x1000;
 	u32 i = 0;
 	for(; i < nframes; i++, frames[i] = 0);
@@ -178,6 +194,9 @@ void paging_init()
 	clear_pagedir(pagedir);
 	fill_pagetable(pagetbl1, 0x00000000);
 	pagedir[0] = (u32)pagetbl1 | 3; // supervisor, rw, present
+	
+	apic = APIC_VIRT;
+	map_page((void *)APIC_PHYS, (void *)apic, 3);
 
 	set_pagedir(pagedir);
 	enable_paging();

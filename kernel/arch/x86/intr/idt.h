@@ -15,10 +15,10 @@
  * @param sel the GDT selector
  * @param attr the IDT entry's attribute byte
  */
-#define IDT_ENTRY(off, sel, attr)     \
+#define IDT_ENTRY(off, sel, attr)    \
 	(((off  & 0xFFFF0000ULL) << 32) | \
-	 ((attr & 0x000000FFULL) << 40) | \
-	 ((sel  & 0x0000FFFFULL) << 16) | \
+	 ((attr & 0x000000FFULL) << 40) |  \
+	 ((sel  & 0x0000FFFFULL) << 16) |   \
 	 ((off  & 0x0000FFFFULL) << 0))
 
 /**
@@ -45,8 +45,8 @@ enum idt_int_type
  */
 #define IDT_ATTR(present, dpl, storeseg, type) \
 	(((present & 0x01) << 7) | \
-	((dpl      & 0x03) << 5) | \
-	((storeseg & 0x01) << 4) | \
+	((dpl      & 0x03) << 5) |  \
+	((storeseg & 0x01) << 4) |   \
 	((type     & 0x0F) << 0))
 
 
@@ -68,5 +68,10 @@ void idt_init();
  * @see IDT_ATTR
  */
 void set_idt(int, int, int, void *);
+
+
+int disable_irq(u8 irq);
+
+int enable_irq(u8 irq);
 
 #endif

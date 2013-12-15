@@ -1,5 +1,5 @@
 #include <types.h>
-#include <ioport.h>
+#include <io/ioport.h>
 #include "idt.h"
 
 extern void load_idt(u64 *, u32); //!< Use `lidt` to set the IDT pointer.
@@ -67,4 +67,24 @@ void idt_init()
 void set_idt(int intr, int sel, int flags, void *func)
 {
 	IDT[intr] = IDT_ENTRY((u32)func, sel, flags);
+}
+
+
+
+
+
+int disable_irq(u8 irq)
+{
+	if(irq > 16) return 1;
+	if(irq < 8)  outb(0x21, inb(0x21) | (1 >> irq));
+	else         outb(0xA1, inb(0xA1) | (0x100 >> irq));
+	return 0;
+}
+
+int enable_irq(u8 irq)
+{
+	if(irq > 16) return 1;
+	if(irq < 8)  outb(0x21, inb(0x21) & ~(1 >> irq));
+	else         outb(0xA1, inb(0xA1) & ~(0x100 >> irq));
+	return 0;
 }

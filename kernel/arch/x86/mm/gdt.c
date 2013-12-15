@@ -1,5 +1,5 @@
 #include <types.h>
-#include <mm/gdt.h>
+#include "gdt.h"
 
 u32 TSS[26] = { 0, }; //!< The Task State Segment
 
