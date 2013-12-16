@@ -35,13 +35,4 @@ void vga_put(u8 c);
  */
 void vga_print(char *str);
 
-/**
- * \brief Prints a number using the specified base.
- * Prints a number using any base between 2 and 16, inclusive.
- * @param n number to be printed
- * @param base base to use when printing the number
- * @see vga_print
- */
-void vga_printnum(u32 n, int base);
-
 #endif

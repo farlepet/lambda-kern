@@ -1,5 +1,4 @@
 #include <multiboot.h>
-#include <kernel/arch/x86/dev/vga/print.h>
 
 struct multiboot_tag *find_multiboot_table(struct multiboot_header_tag* mboot_tag, u32 type)
 {

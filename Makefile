@@ -5,13 +5,13 @@ SRC        = $(MAINDIR)/kernel/src
 ARCH       = X86
 
 SRCS       = $(wildcard $(SRC)/main/*.c)   $(wildcard $(SRC)/dev/*.c)    $(wildcard $(SRC)/dev/video/*.c)   $(wildcard $(SRC)/dev/keyb/*.c)   \
-             $(wildcard $(SRC)/intr/*.c)   $(wildcard $(SRC)/time/*.c)   $(wildcard $(SRC)/mm/*.c)
+             $(wildcard $(SRC)/intr/*.c)   $(wildcard $(SRC)/time/*.c)   $(wildcard $(SRC)/mm/*.c)          $(wildcard $(SRC)/io/*.c)
 
 ASSRCS     = $(wildcard $(SRC)/main/*.s)   $(wildcard $(SRC)/dev/*.s)    $(wildcard $(SRC)/dev/video/*.s)   $(wildcard $(SRC)/dev/keyb/*.s)
-             $(wildcard $(SRC)/intr/*.s)   $(wildcard $(SRC)/time/*.s)   $(wildcard $(SRC)/mm/*.s)
+             $(wildcard $(SRC)/intr/*.s)   $(wildcard $(SRC)/time/*.s)   $(wildcard $(SRC)/mm/*.s)          $(wildcard $(SRC)/io/*.s)
 
 ASMSRCS    = $(wildcard $(SRC)/main/*.asm) $(wildcard $(SRC)/dev/*.asm)  $(wildcard $(SRC)/dev/video/*.asm) $(wildcard $(SRC)/dev/keyb/*.asm)
-             $(wildcard $(SRC)/intr/*.asm) $(wildcard $(SRC)/time/*.asm) $(wildcard $(SRC)/mm/*.asm)
+             $(wildcard $(SRC)/intr/*.asm) $(wildcard $(SRC)/time/*.asm) $(wildcard $(SRC)/mm/*.asm)        $(wildcard $(SRC)/io/*.asm)
 
 COBJS      = $(patsubst %.c,%.o,$(SRCS))
 ASOBJS     = $(patsubst %.s,%.o,$(ASSRCS))

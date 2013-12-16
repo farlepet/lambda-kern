@@ -1,5 +1,5 @@
 #include <types.h>
-#include <dev/vga/print.h>
+#include <video.h>
 #include "paging.h"
 #include "mem.h"
 

@@ -4,12 +4,15 @@
 #include <intr/intr.h>
 #include <time/time.h>
 
-extern void pit_int();
+extern void pit_int(); //!< The PIT interrupt handler
 
-u64 kernel_time;
+u64 kernel_time; //!< Number of elapsed ticks since the PIT was initialized
 
-
-
+/**
+ * \brief PIT interrupt handler.
+ * The main part of the PIT interrupt handler, called from pit_int().
+ * @see pit_int
+ */
 void pit_handler()
 {
 	kernel_time++;
@@ -21,6 +24,11 @@ void pit_handler()
 				do_time_block_timeup(i);
 }
 
+/**
+ * \brief Creates a PIT reload value.
+ * Creates a PIT reload value from the specified frequency.
+ * @param freq frequency in Hz
+ */
 static __inline u32 get_reload(u32 freq)
 {
 	if(freq < 18)      return 0x10000;   // Is the frequency too small?
@@ -28,6 +36,11 @@ static __inline u32 get_reload(u32 freq)
 	return (1193180 / freq);           // If not, compute the reload value
 }
 
+/**
+ * \brief Initialize the PIT.
+ * Initialized the PIT using the supplied frequency if possible.
+ * @param freq frequency in Hz
+ */
 void pit_init(u32 freq)
 {
 	u32 reload = get_reload(freq);

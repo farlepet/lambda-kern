@@ -15,10 +15,26 @@
 
 #endif
 
+/**
+ * \brief Initializes interrupts.
+ * Initializes based on the target architecture.
+ */
 void interrupts_init();
 
+/**
+ * \brief Attaches an interrupt handler to an interrupt.
+ * Attaches an interrupt handler to the specified interrupt.
+ * @param n number of the interrupt
+ * @param handler the location of the interrupt handler
+ */
 void set_interrupt(u32 n, void *handler);
 
+
+/**
+ * \brief Initializes the system timer.
+ * Initializes the timer used by the target architecture.
+ * @param quantum the speed in Hz
+ */
 void timer_init(u32 quantum);
 
 #endif

@@ -102,6 +102,8 @@ void vga_printnum(u32 n, int base)
 		ans[i++] = nums[n % base];
 		n /= base;
 	}
+	
+	if(!i) i = 1;
 
 	for(i--; i >= 0; i--)
 		vga_put(ans[i]);

@@ -1,9 +1,9 @@
 #include <multiboot.h>
 #include <intr/intr.h>
-#include <kernel/arch/x86/dev/vga/print.h>
 #include <kernel/arch/x86/io/ioport.h>
 #include <kernel/arch/x86/io/serial.h>
 #include <mm/mm.h>
+#include <video.h>
 
 extern void inttest(); //!< Simple function to test interrupts. \deprecated This is for testing only, it will be removed very soon.
 
@@ -23,10 +23,7 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 
 	timer_init(100);
 
-	
-#if defined(ARCH_X86) || defined(ARCH_X86_64)
-	vga_print("Welcome to Lambda OS!\n");
-#endif
+	kprint("Welcome to Lambda OS!\n");
 	
 	for(;;);
 }
@@ -38,7 +35,7 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
  */
 void __unused test_int()
 {
-	vga_print("I see the interrupts are working just fine!\n");
+	kprint("I see the interrupts are working just fine!\n");
 	outb(0x20, 0x20);
 	inb(0x60);
 }
