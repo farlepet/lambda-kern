@@ -19,9 +19,23 @@ dummy_int:
 	cli
 	pusha
 	mov al, 0x20
-	mov dx, 0x20
-	; We still must allow other interrupts to occur when we finish
-	out dx, al
+	out 0x20, al
+	out 0xA0, al
+	popa
+	sti
+	iret
+
+
+
+
+global pit_int
+extern pit_handler
+pit_int:
+	cli
+	pusha
+	call pit_handler
+	mov al, 0x20
+	out 0x20, al
 	popa
 	sti
 	iret

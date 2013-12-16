@@ -186,8 +186,8 @@ void paging_init(u32 eom)
 	frames     = (u32 *)FRAMES_TABLE;
 	firstframe = (u32 *)FRAMES_START;
 
-	int end_mem = eom; // Temporary
-	nframes = end_mem / 0x1000;
+	nframes = (u32)(eom - (u32)firstframe) / 0x1000;
+	
 	u32 i = 0;
 	for(; i < nframes; i++, frames[i] = 0);
 
@@ -196,7 +196,7 @@ void paging_init(u32 eom)
 	pagedir[0] = (u32)pagetbl1 | 3; // supervisor, rw, present
 	
 	apic = APIC_VIRT;
-	map_page((void *)APIC_PHYS, (void *)apic, 3);
+	map_page((void *)APIC_PHYS, (void *)APIC_VIRT, 3); // APIC
 
 	set_pagedir(pagedir);
 	enable_paging();

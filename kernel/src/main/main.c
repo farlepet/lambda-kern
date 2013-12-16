@@ -1,13 +1,11 @@
 #include <multiboot.h>
-#include <kernel/arch/x86/mm/paging.h>
-#include <kernel/arch/x86/mm/gdt.h>
 #include <intr/intr.h>
 #include <kernel/arch/x86/dev/vga/print.h>
 #include <kernel/arch/x86/io/ioport.h>
 #include <kernel/arch/x86/io/serial.h>
+#include <mm/mm.h>
 
 extern void inttest(); //!< Simple function to test interrupts. \deprecated This is for testing only, it will be removed very soon.
-extern void exceptions_init(); //!< Initializes basic exception handlers. Found in intr/exceptions.asm
 
 /**
  * \brief Main kernel function.
@@ -15,26 +13,20 @@ extern void exceptions_init(); //!< Initializes basic exception handlers. Found 
  * @param mboot_ptr pointer to multiboot structure
  * @param initial_stack location of the initial stack
  */
-int kmain(struct multiboot __unused *mboot_ptr, u32 __unused initial_stack)
+int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 {
-#ifdef ARCH_X86
-	gdt_init();
-#endif
+	if(magic != 0x36d76289) for(;;);
+	
+	mm_init(mboot_tag);
 	
 	interrupts_init();
-	
-#ifdef ARCH_X86
-	paging_init(0x1000000);
-	exceptions_init();
-#endif // ARCH_X86
 
 	timer_init(100);
-	set_interrupt(TIMER_INT, &inttest);
 
 	
 #if defined(ARCH_X86) || defined(ARCH_X86_64)
 	vga_print("Welcome to Lambda OS!\n");
-#endif // defined(ARCH_X86) || defined(ARCH_X86_64)
+#endif
 	
 	for(;;);
 }

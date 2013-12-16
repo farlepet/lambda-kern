@@ -4,6 +4,7 @@
 #include <kernel/arch/x86/intr/apic.h>
 #include <kernel/arch/x86/intr/idt.h>
 #include <kernel/arch/x86/intr/pit.h>
+extern void exceptions_init(); //!< Initializes basic exception handlers. Found in intr/exceptions.asm
 #endif
 
 #ifdef ARCH_X86_64
@@ -15,7 +16,7 @@ void interrupts_init()
 {
 #ifdef ARCH_X86
 	idt_init();
-	//enableAPIC(); // Broken
+	exceptions_init();
 __sti;
 #endif
 #ifdef ARCH_X86_64
