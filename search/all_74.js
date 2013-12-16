@@ -2,7 +2,6 @@ var searchData=
 [
   ['task32',['task32',['../intr_2idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba57ea71f67633a814779ccb8deb94c414',1,'task32():&#160;idt.h'],['../64_2intr_2idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba57ea71f67633a814779ccb8deb94c414',1,'task32():&#160;idt.h']]],
   ['test_5fframe',['test_frame',['../paging_8c.html#aec230565edc62c3911800334ba8357bb',1,'paging.c']]],
-  ['test_5fint',['test_int',['../main_8c.html#a6d6ba0132f53c602be5d768af2398248',1,'main.c']]],
   ['time_2ec',['time.c',['../time_8c.html',1,'']]],
   ['time_2eh',['time.h',['../time_8h.html',1,'']]],
   ['time_5fblock',['time_block',['../structtime__block.html',1,'']]],

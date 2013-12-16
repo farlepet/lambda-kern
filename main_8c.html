@@ -45,7 +45,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="annotated.html"><span>Data&#160;Structures</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -92,7 +91,7 @@ $(document).ready(function(){initNavTree('main_8c.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Data Structures</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Data Structures</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -119,33 +118,11 @@ $(document).ready(function(){initNavTree('main_8c.html','');});
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aec0830b94783b020c7a7a4bed5f309f1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#aec0830b94783b020c7a7a4bed5f309f1">inttest</a> ()</td></tr>
-<tr class="memdesc:aec0830b94783b020c7a7a4bed5f309f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simple function to test interrupts.  <a href="#aec0830b94783b020c7a7a4bed5f309f1">More...</a><br/></td></tr>
-<tr class="separator:aec0830b94783b020c7a7a4bed5f309f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6efa8ec9abc76ea5b6e3bd14db26afee"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a6efa8ec9abc76ea5b6e3bd14db26afee">kmain</a> (struct <a class="el" href="structmultiboot__header__tag.html">multiboot_header_tag</a> *mboot_tag, u32 magic)</td></tr>
 <tr class="memdesc:a6efa8ec9abc76ea5b6e3bd14db26afee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main kernel function. Initializes all devices, and sets up environment.  <a href="#a6efa8ec9abc76ea5b6e3bd14db26afee">More...</a><br/></td></tr>
 <tr class="separator:a6efa8ec9abc76ea5b6e3bd14db26afee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6d6ba0132f53c602be5d768af2398248"><td class="memItemLeft" align="right" valign="top">void <a class="el" href="types_8h.html#a2e3484535ee610c8e19e9859563abe48">__unused</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a6d6ba0132f53c602be5d768af2398248">test_int</a> ()</td></tr>
-<tr class="memdesc:a6d6ba0132f53c602be5d768af2398248"><td class="mdescLeft">&#160;</td><td class="mdescRight">A test function for the IDT.  <a href="#a6d6ba0132f53c602be5d768af2398248">More...</a><br/></td></tr>
-<tr class="separator:a6d6ba0132f53c602be5d768af2398248"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="aec0830b94783b020c7a7a4bed5f309f1"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void inttest </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000001">Deprecated:</a></b></dt><dd>This is for testing only, it will be removed very soon. </dd></dl>
-
-</div>
-</div>
 <a class="anchor" id="a6efa8ec9abc76ea5b6e3bd14db26afee"></a>
 <div class="memitem">
 <div class="memproto">
@@ -177,52 +154,30 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="main_8c_source.html#l00016">16</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p>Definition at line <a class="el" href="main_8c_source.html#l00014">14</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
-<p>References <a class="el" href="interrupts_8c_source.html#l00017">interrupts_init()</a>, <a class="el" href="video_8c_source.html#l00024">kprint()</a>, <a class="el" href="mm_8c_source.html#l00015">mm_init()</a>, and <a class="el" href="interrupts_8c_source.html#l00051">timer_init()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;{</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <span class="keywordflow">if</span>(magic != 0x36d76289) <span class="keywordflow">for</span>(;;);</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    </div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    <a class="code" href="mm_8h.html#a71b6b31127095637741152869fffe3f1">mm_init</a>(mboot_tag);</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    </div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <a class="code" href="intr_8h.html#a5c99cba5ccc698fc7feb8902442176ea">interrupts_init</a>();</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <a class="code" href="intr_8h.html#a315282e15976b1078b869b347205c29a">timer_init</a>(100);</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <a class="code" href="video_8h.html#a9c163b4ca9a9bd7315ab683595dc5868">kprint</a>(<span class="stringliteral">&quot;Welcome to Lambda OS!\n&quot;</span>);</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    </div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keywordflow">for</span>(;;);</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;}</div>
-<div class="ttc" id="intr_8h_html_a315282e15976b1078b869b347205c29a"><div class="ttname"><a href="intr_8h.html#a315282e15976b1078b869b347205c29a">timer_init</a></div><div class="ttdeci">void timer_init(u32 quantum)</div><div class="ttdoc">Initializes the system timer. Initializes the timer used by the target architecture. </div><div class="ttdef"><b>Definition:</b> <a href="interrupts_8c_source.html#l00051">interrupts.c:51</a></div></div>
+<p>References <a class="el" href="interrupts_8c_source.html#l00017">interrupts_init()</a>, <a class="el" href="video_8c_source.html#l00024">kprint()</a>, <a class="el" href="video_8c_source.html#l00038">kprintnum()</a>, <a class="el" href="mm_8c_source.html#l00015">mm_init()</a>, and <a class="el" href="interrupts_8c_source.html#l00051">timer_init()</a>.</p>
+<div class="fragment"><div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;{</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    <span class="keywordflow">if</span>(magic != 0x36d76289)</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    {</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;        <a class="code" href="video_8h.html#a9c163b4ca9a9bd7315ab683595dc5868">kprint</a>(<span class="stringliteral">&quot;Invalid magic number given by the bootloader: 0x&quot;</span>);</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;        <a class="code" href="video_8h.html#a6b51bed3a98ab61318794a831f95186f">kprintnum</a>(magic, 16);</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;        <a class="code" href="video_8h.html#a9c163b4ca9a9bd7315ab683595dc5868">kprint</a>(<span class="stringliteral">&quot;\n&quot;</span>);</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    }</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    </div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <a class="code" href="mm_8h.html#a71b6b31127095637741152869fffe3f1">mm_init</a>(mboot_tag);</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    </div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <a class="code" href="intr_8h.html#a5c99cba5ccc698fc7feb8902442176ea">interrupts_init</a>();</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <a class="code" href="intr_8h.html#a315282e15976b1078b869b347205c29a">timer_init</a>(100);</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <a class="code" href="video_8h.html#a9c163b4ca9a9bd7315ab683595dc5868">kprint</a>(<span class="stringliteral">&quot;Welcome to Lambda OS!\n&quot;</span>);</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    </div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="keywordflow">for</span>(;;);</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;}<div class="ttc" id="intr_8h_html_a315282e15976b1078b869b347205c29a"><div class="ttname"><a href="intr_8h.html#a315282e15976b1078b869b347205c29a">timer_init</a></div><div class="ttdeci">void timer_init(u32 quantum)</div><div class="ttdoc">Initializes the system timer. Initializes the timer used by the target architecture. </div><div class="ttdef"><b>Definition:</b> <a href="interrupts_8c_source.html#l00051">interrupts.c:51</a></div></div>
+<div class="ttc" id="video_8h_html_a6b51bed3a98ab61318794a831f95186f"><div class="ttname"><a href="video_8h.html#a6b51bed3a98ab61318794a831f95186f">kprintnum</a></div><div class="ttdeci">void kprintnum(u32 num, int base)</div><div class="ttdoc">Prints a number using the specified base. Prints a number using any base between 2 and 16...</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00038">video.c:38</a></div></div>
 <div class="ttc" id="intr_8h_html_a5c99cba5ccc698fc7feb8902442176ea"><div class="ttname"><a href="intr_8h.html#a5c99cba5ccc698fc7feb8902442176ea">interrupts_init</a></div><div class="ttdeci">void interrupts_init()</div><div class="ttdoc">Initializes interrupts. Initializes based on the target architecture. </div><div class="ttdef"><b>Definition:</b> <a href="interrupts_8c_source.html#l00017">interrupts.c:17</a></div></div>
 <div class="ttc" id="mm_8h_html_a71b6b31127095637741152869fffe3f1"><div class="ttname"><a href="mm_8h.html#a71b6b31127095637741152869fffe3f1">mm_init</a></div><div class="ttdeci">void mm_init(struct multiboot_header_tag *mboot_tag)</div><div class="ttdoc">Initializes memory management. Initializes memory management for the target archetecture. </div><div class="ttdef"><b>Definition:</b> <a href="mm_8c_source.html#l00015">mm.c:15</a></div></div>
-<div class="ttc" id="video_8h_html_a9c163b4ca9a9bd7315ab683595dc5868"><div class="ttname"><a href="video_8h.html#a9c163b4ca9a9bd7315ab683595dc5868">kprint</a></div><div class="ttdeci">void kprint(char *str)</div><div class="ttdoc">Prints a string of characters. Uses the current architecture&amp;#39;s print function. </div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00024">video.c:24</a></div></div>
-</div><!-- fragment -->
-</div>
-</div>
-<a class="anchor" id="a6d6ba0132f53c602be5d768af2398248"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void <a class="el" href="types_8h.html#a2e3484535ee610c8e19e9859563abe48">__unused</a> test_int </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000002">Deprecated:</a></b></dt><dd>This is for testing only, it will be removed very soon. </dd></dl>
-
-<p>Definition at line <a class="el" href="main_8c_source.html#l00036">36</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
-
-<p>References <a class="el" href="io_2ioport_8h_source.html#l00056">inb()</a>, <a class="el" href="video_8c_source.html#l00024">kprint()</a>, and <a class="el" href="io_2ioport_8h_source.html#l00020">outb()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;{</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <a class="code" href="video_8h.html#a9c163b4ca9a9bd7315ab683595dc5868">kprint</a>(<span class="stringliteral">&quot;I see the interrupts are working just fine!\n&quot;</span>);</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <a class="code" href="io_2ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(0x20, 0x20);</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <a class="code" href="io_2ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a>(0x60);</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;}<div class="ttc" id="io_2ioport_8h_html_abc086ee7e5764c55967724916e21b553"><div class="ttname"><a href="io_2ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a></div><div class="ttdeci">static void outb(u16 port, u8 value)</div><div class="ttdoc">Output a byte to a port. Outputs a byte on a port. </div><div class="ttdef"><b>Definition:</b> <a href="io_2ioport_8h_source.html#l00020">ioport.h:20</a></div></div>
-<div class="ttc" id="io_2ioport_8h_html_a72469337290ae306e228d538970aef1d"><div class="ttname"><a href="io_2ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a></div><div class="ttdeci">static u8 inb(u16 port)</div><div class="ttdoc">read a byte from a port. Grab a byte from a port. </div><div class="ttdef"><b>Definition:</b> <a href="io_2ioport_8h_source.html#l00056">ioport.h:56</a></div></div>
 <div class="ttc" id="video_8h_html_a9c163b4ca9a9bd7315ab683595dc5868"><div class="ttname"><a href="video_8h.html#a9c163b4ca9a9bd7315ab683595dc5868">kprint</a></div><div class="ttdeci">void kprint(char *str)</div><div class="ttdoc">Prints a string of characters. Uses the current architecture&amp;#39;s print function. </div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00024">video.c:24</a></div></div>
 </div><!-- fragment -->
 </div>
@@ -233,7 +188,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_3dd30a497388ee684638f120a124721c.html">src</a></li><li class="navelem"><a class="el" href="dir_f2d89d2b1d9c2db1a3c63568d0092ca4.html">main</a></li><li class="navelem"><a class="el" href="main_8c.html">main.c</a></li>
-    <li class="footer">Generated on Mon Dec 16 2013 09:18:47 for Lambda OS by
+    <li class="footer">Generated on Mon Dec 16 2013 09:39:13 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

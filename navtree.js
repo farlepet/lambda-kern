@@ -1,7 +1,6 @@
 var NAVTREE =
 [
   [ "Lambda OS", "index.html", [
-    [ "Deprecated List", "deprecated.html", null ],
     [ "Data Structures", null, [
       [ "Data Structures", "annotated.html", "annotated" ],
       [ "Data Structure Index", "classes.html", null ],
@@ -28,7 +27,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "64_2dev_2keyb_2input_8c.html",
-"mm_8c_source.html"
+"mm_8h_source.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

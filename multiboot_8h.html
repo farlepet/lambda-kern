@@ -45,7 +45,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="annotated.html"><span>Data&#160;Structures</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -92,7 +91,7 @@ $(document).ready(function(){initNavTree('multiboot_8h.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Data Structures</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Data Structures</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Macros</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -119,33 +118,46 @@ $(document).ready(function(){initNavTree('multiboot_8h.html','');});
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__header__tag.html">multiboot_header_tag</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Information about the multiboot tags.  <a href="structmultiboot__header__tag.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__tag.html">multiboot_tag</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">General structure of a multiboot tag.  <a href="structmultiboot__tag.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__basic__memory__tag.html">multiboot_basic_memory_tag</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Amount of consecutive memory available.  <a href="structmultiboot__basic__memory__tag.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__boot__device__tag.html">multiboot_boot_device_tag</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The device the kernel booted from.  <a href="structmultiboot__boot__device__tag.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__cmdline__tag.html">multiboot_cmdline_tag</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The commandline given to the kernel.  <a href="structmultiboot__cmdline__tag.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__module__tag.html">multiboot_module_tag</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Any modules specified to be loaded.  <a href="structmultiboot__module__tag.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__elf__headers__tag.html">multiboot_elf_headers_tag</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Information on the ELF headers.  <a href="structmultiboot__elf__headers__tag.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__memory__map__tag.html">multiboot_memory_map_tag</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Map of system memory.  <a href="structmultiboot__memory__map__tag.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__memory__map__entry.html">multiboot_memory_map_entry</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Entry used by <a class="el" href="structmultiboot__memory__map__tag.html" title="Map of system memory. ">multiboot_memory_map_tag</a>.  <a href="structmultiboot__memory__map__entry.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__bootloader__name__tag.html">multiboot_bootloader_name_tag</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Name of bootloader kernel loaded from.  <a href="structmultiboot__bootloader__name__tag.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__apm__table__tag.html">multiboot_apm_table_tag</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">APM information table.  <a href="structmultiboot__apm__table__tag.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmultiboot__vbe__tag.html">multiboot_vbe_tag</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">VBE information.  <a href="structmultiboot__vbe__tag.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a93a0df7201080b93f585c3078a8460af"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structmultiboot__tag.html">multiboot_tag</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="multiboot_8h.html#a93a0df7201080b93f585c3078a8460af">find_multiboot_table</a> (struct <a class="el" href="structmultiboot__header__tag.html">multiboot_header_tag</a> *mboot_tag, u32 type)</td></tr>
+<tr class="memdesc:a93a0df7201080b93f585c3078a8460af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the first multiboot entry with a certain type value. Finds the first multiboot entry with a certain type value, then returns it as a <a class="el" href="structmultiboot__tag.html" title="General structure of a multiboot tag. ">multiboot_tag</a>.  <a href="#a93a0df7201080b93f585c3078a8460af">More...</a><br/></td></tr>
 <tr class="separator:a93a0df7201080b93f585c3078a8460af"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -176,27 +188,35 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">mboot_tag</td><td>the pointer to the multiboot tags header </td></tr>
+    <tr><td class="paramname">type</td><td>the type value to look for </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section see"><dt>See Also</dt><dd><a class="el" href="structmultiboot__tag.html" title="General structure of a multiboot tag. ">multiboot_tag</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="multiboot_8c_source.html#l00003">3</a> of file <a class="el" href="multiboot_8c_source.html">multiboot.c</a>.</p>
+<p>Definition at line <a class="el" href="multiboot_8c_source.html#l00011">11</a> of file <a class="el" href="multiboot_8c_source.html">multiboot.c</a>.</p>
 
-<p>References <a class="el" href="multiboot_8h_source.html#l00015">multiboot_header_tag::size</a>, <a class="el" href="multiboot_8h_source.html#l00022">multiboot_tag::size</a>, and <a class="el" href="multiboot_8h_source.html#l00021">multiboot_tag::type</a>.</p>
-<div class="fragment"><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;{</div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;    u32 <a class="code" href="structmultiboot__basic__memory__tag.html#a168a5bd962ed96360cc4ba4b3d7fde5b">size</a> = mboot_tag-&gt;<a class="code" href="structmultiboot__header__tag.html#a600ea6674bbc05aca99c337e14384a59">size</a>;</div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;    u32 i = 8; <span class="comment">// Bypass multiboot_header_tag</span></div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;    <span class="keywordflow">while</span>(i &lt; size)</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;    {</div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;        <span class="keyword">struct </span><a class="code" href="structmultiboot__tag.html">multiboot_tag</a> *tag = (<span class="keyword">struct </span><a class="code" href="structmultiboot__tag.html">multiboot_tag</a> *)(i + (u32)mboot_tag);</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;        </div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;        <span class="keywordflow">if</span>(tag-&gt;<a class="code" href="structmultiboot__tag.html#ae5862b38ad043d3bbcdd375f4aa251fa">type</a> == <a class="code" href="structmultiboot__tag.html#ae5862b38ad043d3bbcdd375f4aa251fa">type</a>) <span class="keywordflow">return</span> tag;</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;        i += tag-&gt;<a class="code" href="structmultiboot__tag.html#aea1e8e58c2708e504287725c26074090">size</a>;</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;        <span class="keywordflow">if</span>(i &amp; 0x07) i = (i &amp; ~0x07) + 8; <span class="comment">// Entries are aways padded</span></div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    }</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    <span class="keywordflow">return</span> 0; <span class="comment">// Couldn&#39;t find an appropiate tag</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;}<div class="ttc" id="structmultiboot__tag_html_aea1e8e58c2708e504287725c26074090"><div class="ttname"><a href="structmultiboot__tag.html#aea1e8e58c2708e504287725c26074090">multiboot_tag::size</a></div><div class="ttdeci">u32 size</div><div class="ttdoc">Size of multiboot tag. </div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00022">multiboot.h:22</a></div></div>
-<div class="ttc" id="structmultiboot__tag_html_ae5862b38ad043d3bbcdd375f4aa251fa"><div class="ttname"><a href="structmultiboot__tag.html#ae5862b38ad043d3bbcdd375f4aa251fa">multiboot_tag::type</a></div><div class="ttdeci">u32 type</div><div class="ttdoc">Type of multiboot tag. </div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00021">multiboot.h:21</a></div></div>
-<div class="ttc" id="structmultiboot__header__tag_html_a600ea6674bbc05aca99c337e14384a59"><div class="ttname"><a href="structmultiboot__header__tag.html#a600ea6674bbc05aca99c337e14384a59">multiboot_header_tag::size</a></div><div class="ttdeci">u32 size</div><div class="ttdoc">Total size of multiboot tags. </div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00015">multiboot.h:15</a></div></div>
-<div class="ttc" id="structmultiboot__basic__memory__tag_html_a168a5bd962ed96360cc4ba4b3d7fde5b"><div class="ttname"><a href="structmultiboot__basic__memory__tag.html#a168a5bd962ed96360cc4ba4b3d7fde5b">multiboot_basic_memory_tag::size</a></div><div class="ttdeci">u32 size</div><div class="ttdoc">Always 16. </div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00028">multiboot.h:28</a></div></div>
-<div class="ttc" id="structmultiboot__tag_html"><div class="ttname"><a href="structmultiboot__tag.html">multiboot_tag</a></div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00019">multiboot.h:19</a></div></div>
+<p>References <a class="el" href="multiboot_8h_source.html#l00016">multiboot_header_tag::size</a>, <a class="el" href="multiboot_8h_source.html#l00024">multiboot_tag::size</a>, and <a class="el" href="multiboot_8h_source.html#l00023">multiboot_tag::type</a>.</p>
+<div class="fragment"><div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;{</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    u32 <a class="code" href="structmultiboot__basic__memory__tag.html#a168a5bd962ed96360cc4ba4b3d7fde5b">size</a> = mboot_tag-&gt;<a class="code" href="structmultiboot__header__tag.html#a600ea6674bbc05aca99c337e14384a59">size</a>;</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    u32 i = 8; <span class="comment">// Bypass multiboot_header_tag</span></div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    <span class="keywordflow">while</span>(i &lt; size)</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    {</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;        <span class="keyword">struct </span><a class="code" href="structmultiboot__tag.html">multiboot_tag</a> *tag = (<span class="keyword">struct </span><a class="code" href="structmultiboot__tag.html">multiboot_tag</a> *)(i + (u32)mboot_tag);</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;        </div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;        <span class="keywordflow">if</span>(tag-&gt;<a class="code" href="structmultiboot__tag.html#ae5862b38ad043d3bbcdd375f4aa251fa">type</a> == <a class="code" href="structmultiboot__tag.html#ae5862b38ad043d3bbcdd375f4aa251fa">type</a>) <span class="keywordflow">return</span> tag;</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;        i += tag-&gt;<a class="code" href="structmultiboot__tag.html#aea1e8e58c2708e504287725c26074090">size</a>;</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;        <span class="keywordflow">if</span>(i &amp; 0x07) i = (i &amp; ~0x07) + 8; <span class="comment">// Entries are aways padded</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    }</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="keywordflow">return</span> 0; <span class="comment">// Couldn&#39;t find an appropiate tag</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;}<div class="ttc" id="structmultiboot__tag_html_aea1e8e58c2708e504287725c26074090"><div class="ttname"><a href="structmultiboot__tag.html#aea1e8e58c2708e504287725c26074090">multiboot_tag::size</a></div><div class="ttdeci">u32 size</div><div class="ttdoc">Size of multiboot tag. </div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00024">multiboot.h:24</a></div></div>
+<div class="ttc" id="structmultiboot__tag_html_ae5862b38ad043d3bbcdd375f4aa251fa"><div class="ttname"><a href="structmultiboot__tag.html#ae5862b38ad043d3bbcdd375f4aa251fa">multiboot_tag::type</a></div><div class="ttdeci">u32 type</div><div class="ttdoc">Type of multiboot tag. </div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00023">multiboot.h:23</a></div></div>
+<div class="ttc" id="structmultiboot__header__tag_html_a600ea6674bbc05aca99c337e14384a59"><div class="ttname"><a href="structmultiboot__header__tag.html#a600ea6674bbc05aca99c337e14384a59">multiboot_header_tag::size</a></div><div class="ttdeci">u32 size</div><div class="ttdoc">Total size of multiboot tags. </div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00016">multiboot.h:16</a></div></div>
+<div class="ttc" id="structmultiboot__basic__memory__tag_html_a168a5bd962ed96360cc4ba4b3d7fde5b"><div class="ttname"><a href="structmultiboot__basic__memory__tag.html#a168a5bd962ed96360cc4ba4b3d7fde5b">multiboot_basic_memory_tag::size</a></div><div class="ttdeci">u32 size</div><div class="ttdoc">Always 16. </div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00031">multiboot.h:31</a></div></div>
+<div class="ttc" id="structmultiboot__tag_html"><div class="ttname"><a href="structmultiboot__tag.html">multiboot_tag</a></div><div class="ttdoc">General structure of a multiboot tag. </div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00021">multiboot.h:21</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -206,7 +226,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_25ecda1410e8adf967f2aaaca1260861.html">inc</a></li><li class="navelem"><a class="el" href="multiboot_8h.html">multiboot.h</a></li>
-    <li class="footer">Generated on Mon Dec 16 2013 09:18:47 for Lambda OS by
+    <li class="footer">Generated on Mon Dec 16 2013 09:39:13 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>
