@@ -12,7 +12,7 @@ var types_8h =
     [ "__hot", "types_8h.html#aaa92ffc2c0cb30e9b5fda4c16a4bdd37", null ],
     [ "__inline_flat", "types_8h.html#a02403dd691dff828ba6cb6d3379c35e4", null ],
     [ "__noreturn", "types_8h.html#a5b6df4fe38493e14648842364a76075f", null ],
-    [ "__packed", "types_8h.html#a0a1d4b765f460f894875b59e805005b7", null ],
+    [ "__packed", "types_8h.html#a0fe7dde4488278fd739041b673efa525", null ],
     [ "__pure", "types_8h.html#ab8d4aa7e9ca368db7220dc9747189f1c", null ],
     [ "__section", "types_8h.html#aa2329f285af4ab00c7487eccf5e7f0c6", null ],
     [ "__sti", "types_8h.html#a22f5b50b8e582426daa2e9966aeb4a23", null ],
@@ -21,14 +21,6 @@ var types_8h =
     [ "__warning", "types_8h.html#a3bb8024db048b7f0dcee85212218da88", null ],
     [ "NULL", "types_8h.html#a070d2ce7b6bb7e5c05602aa8c308d0c4", null ],
     [ "bool", "types_8h.html#ac4cce8e299d11a2379dc423007f99147", null ],
-    [ "s16", "types_8h.html#a2e9bf6983da73775aa86158c825bf777", null ],
-    [ "s32", "types_8h.html#aa62c75d314a0d1f37f79c4b73b2292e2", null ],
-    [ "s64", "types_8h.html#a93680f46d09022794e3923824923b42b", null ],
-    [ "s8", "types_8h.html#a2ff401e087cf786c38a6812723e94473", null ],
-    [ "u16", "types_8h.html#a9e6c91d77e24643b888dbd1a1a590054", null ],
-    [ "u32", "types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049", null ],
-    [ "u64", "types_8h.html#ad758b7a5c3f18ed79d2fcd23d9f16357", null ],
-    [ "u8", "types_8h.html#aed742c436da53c1080638ce6ef7d13de", null ],
     [ "BOOL", "types_8h.html#a3e5b8192e7d9ffaf3542f1210aec18dd", [
       [ "FALSE", "types_8h.html#a3e5b8192e7d9ffaf3542f1210aec18ddaa1e095cc966dbecf6a0d8aad75348d1a", null ],
       [ "TRUE", "types_8h.html#a3e5b8192e7d9ffaf3542f1210aec18ddaa82764c3079aea4e60c80e45befbb839", null ]

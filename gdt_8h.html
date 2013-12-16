@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.5"/>
-<title>Lambda OS: kernel/inc/mm/gdt.h File Reference</title>
+<title>Lambda OS: kernel/arch/x86/mm/gdt.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -277,7 +277,7 @@ Functions</h2></td></tr>
 
 <p>References <a class="el" href="gdt_8c_source.html#l00006">GDT</a>, <a class="el" href="gdt_8h_source.html#l00018">GDT_ENTRY</a>, <a class="el" href="gdt_8c.html#a55c5a32518e4f8021dcdad37d27df174">load_gdt()</a>, <a class="el" href="gdt_8c.html#a62c3311f43b5f1fa28c492ad1cbfd2a2">load_tss()</a>, <a class="el" href="gdt_8c.html#a05de93b96abf57915887ef30434c31dc">seg_reload()</a>, and <a class="el" href="gdt_8c_source.html#l00004">TSS</a>.</p>
 <div class="fragment"><div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;{</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <a class="code" href="gdt_8c.html#abf13a6d64056dff3d7be082e8d23e0d4">GDT</a>[5] = <a class="code" href="gdt_8h.html#a61efcb1719af86a45f399bbda4f27fb0">GDT_ENTRY</a>((<a class="code" href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a>)&amp;<a class="code" href="gdt_8c.html#a6f7d0a0e284ff1d13522c3815e966462">TSS</a>, <span class="keyword">sizeof</span>(TSS), 0x0089); <span class="comment">// Or should it be 0x00E9?</span></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <a class="code" href="gdt_8c.html#abf13a6d64056dff3d7be082e8d23e0d4">GDT</a>[5] = <a class="code" href="gdt_8h.html#a61efcb1719af86a45f399bbda4f27fb0">GDT_ENTRY</a>((u32)&amp;<a class="code" href="gdt_8c.html#a6f7d0a0e284ff1d13522c3815e966462">TSS</a>, <span class="keyword">sizeof</span>(TSS), 0x0089); <span class="comment">// Or should it be 0x00E9?</span></div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    TSS[2] = 0x10;</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <a class="code" href="gdt_8c.html#a55c5a32518e4f8021dcdad37d27df174">load_gdt</a>(<a class="code" href="gdt_8c.html#abf13a6d64056dff3d7be082e8d23e0d4">GDT</a>, <span class="keyword">sizeof</span>(<a class="code" href="gdt_8c.html#abf13a6d64056dff3d7be082e8d23e0d4">GDT</a>));</div>
@@ -287,7 +287,6 @@ Functions</h2></td></tr>
 <div class="ttc" id="gdt_8h_html_a61efcb1719af86a45f399bbda4f27fb0"><div class="ttname"><a href="gdt_8h.html#a61efcb1719af86a45f399bbda4f27fb0">GDT_ENTRY</a></div><div class="ttdeci">#define GDT_ENTRY(base, limit, flags)</div><div class="ttdoc">Helps create a GDT entry Makes the creation of a GDT entry much cleaner. </div><div class="ttdef"><b>Definition:</b> <a href="gdt_8h_source.html#l00018">gdt.h:18</a></div></div>
 <div class="ttc" id="gdt_8c_html_a55c5a32518e4f8021dcdad37d27df174"><div class="ttname"><a href="gdt_8c.html#a55c5a32518e4f8021dcdad37d27df174">load_gdt</a></div><div class="ttdeci">void load_gdt(u64 *, u32)</div><div class="ttdoc">Sets the GDT pointer with lidt </div></div>
 <div class="ttc" id="gdt_8c_html_a6f7d0a0e284ff1d13522c3815e966462"><div class="ttname"><a href="gdt_8c.html#a6f7d0a0e284ff1d13522c3815e966462">TSS</a></div><div class="ttdeci">u32 TSS[26]</div><div class="ttdoc">The Task State Segment. </div><div class="ttdef"><b>Definition:</b> <a href="gdt_8c_source.html#l00004">gdt.c:4</a></div></div>
-<div class="ttc" id="types_8h_html_a10e94b422ef0c20dcdec20d31a1f5049"><div class="ttname"><a href="types_8h.html#a10e94b422ef0c20dcdec20d31a1f5049">u32</a></div><div class="ttdeci">unsigned int u32</div><div class="ttdoc">Unsigned 32 bit value. </div><div class="ttdef"><b>Definition:</b> <a href="types_8h_source.html#l00018">types.h:18</a></div></div>
 <div class="ttc" id="gdt_8c_html_a05de93b96abf57915887ef30434c31dc"><div class="ttname"><a href="gdt_8c.html#a05de93b96abf57915887ef30434c31dc">seg_reload</a></div><div class="ttdeci">void seg_reload()</div><div class="ttdoc">Reloads the segment registers. </div></div>
 <div class="ttc" id="gdt_8c_html_a62c3311f43b5f1fa28c492ad1cbfd2a2"><div class="ttname"><a href="gdt_8c.html#a62c3311f43b5f1fa28c492ad1cbfd2a2">load_tss</a></div><div class="ttdeci">void load_tss()</div><div class="ttdoc">Sets the TSS descriptor. </div></div>
 </div><!-- fragment -->
@@ -298,8 +297,8 @@ Functions</h2></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_25ecda1410e8adf967f2aaaca1260861.html">inc</a></li><li class="navelem"><a class="el" href="dir_f076441bd65cf73d8fffcd59c5d93bb1.html">mm</a></li><li class="navelem"><a class="el" href="gdt_8h.html">gdt.h</a></li>
-    <li class="footer">Generated on Sat Dec 7 2013 17:57:35 for Lambda OS by
+    <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_4a04b9aac4eefdd334a78e565f4616f2.html">arch</a></li><li class="navelem"><a class="el" href="dir_0ce8714634557e35558d1ff2ffab94d6.html">x86</a></li><li class="navelem"><a class="el" href="dir_7c13a396c62eec3d86490ab07a304f3c.html">mm</a></li><li class="navelem"><a class="el" href="gdt_8h.html">gdt.h</a></li>
+    <li class="footer">Generated on Mon Dec 16 2013 09:18:47 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>
