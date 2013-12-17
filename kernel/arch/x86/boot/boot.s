@@ -36,15 +36,3 @@ start:
 endloop:
 	hlt
 	jmp endloop
-
-
-
-.extern test_int
-.global inttest
-inttest:
-	cli
-	pushal
-	call test_int
-	popal
-	sti
-	iret

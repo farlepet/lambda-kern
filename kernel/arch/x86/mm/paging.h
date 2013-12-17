@@ -27,6 +27,15 @@ void *alloc_frame();
 void free_frame(void *frane);
 
 /**
+ * \brief Map a virtual address to a physical one.
+ * Map a virtual address to a physical one.
+ * @param physaddr physical address to be mapped to
+ * @param virtualaddr virtual address to map
+ * @param flags information about the page mapping
+ */
+void map_page(void *physaddr, void *virtualaddr, u32 flags);
+
+/**
  * \brief Clear a page directory to it's default values.
  * Clear the page directory marking every page table as non-existant.
  */

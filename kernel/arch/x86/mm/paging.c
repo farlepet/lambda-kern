@@ -3,8 +3,8 @@
 #include "paging.h"
 #include "mem.h"
 
-static u32 *pagedir;  //!< Main kernel pagedirectory
-static u32 *pagetbl1; //!< First page table
+static u32 *pagedir;            //!< Main kernel pagedirectory
+static u32 *pagetbl1;           //!< First page table
 static u32 *frames;             //!< Table stating which frames are available
 static u32 prealloc_frames[20]; //!< 20 frames that are free, used by alloc_frame
 static u32 nframes;             //!< Number of frames in the table
@@ -77,7 +77,14 @@ void *alloc_frame()
 		return (void *)prealloc_frames[pframe++];
 }
 
-void map_page(void * physaddr, void * virtualaddr, unsigned int flags)
+/**
+ * \brief Map a virtual address to a physical one.
+ * Map a virtual address to a physical one.
+ * @param physaddr physical address to be mapped to
+ * @param virtualaddr virtual address to map
+ * @param flags information about the page mapping
+ */
+void map_page(void *physaddr, void *virtualaddr, u32 flags)
 {
 	// Make sure that both addresses are page-aligned.
 	

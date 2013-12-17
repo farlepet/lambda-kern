@@ -5,8 +5,6 @@
 #include <mm/mm.h>
 #include <video.h>
 
-extern void inttest(); //!< Simple function to test interrupts. \deprecated This is for testing only, it will be removed very soon.
-
 /**
  * \brief Main kernel function.
  * Initializes all devices, and sets up environment.
@@ -15,7 +13,11 @@ extern void inttest(); //!< Simple function to test interrupts. \deprecated This
  */
 int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 {
-	if(magic != 0x36d76289) for(;;);
+	if(magic != 0x36d76289)
+	{
+		kprintf("Invalid magic number given by the bootloader: 0x%X", magic);
+		for(;;);
+	}
 	
 	mm_init(mboot_tag);
 	
@@ -23,19 +25,7 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 
 	timer_init(100);
 
-	kprint("Welcome to Lambda OS!\n");
+	kprintf("Welcome to Lambda OS!");
 	
 	for(;;);
-}
-
-
-/**
- * \brief A test function for the IDT.
- * \deprecated This is for testing only, it will be removed very soon.
- */
-void __unused test_int()
-{
-	kprint("I see the interrupts are working just fine!\n");
-	outb(0x20, 0x20);
-	inb(0x60);
 }

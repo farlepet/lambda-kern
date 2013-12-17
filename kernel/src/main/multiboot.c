@@ -1,5 +1,13 @@
 #include <multiboot.h>
 
+/**
+ * \brief Finds the first multiboot entry with a certain type value.
+ * Finds the first multiboot entry with a certain type value, then returns it
+ * as a multiboot_tag.
+ * @param mboot_tag the pointer to the multiboot tags header
+ * @param type the type value to look for
+ * @see multiboot_tag
+ */
 struct multiboot_tag *find_multiboot_table(struct multiboot_header_tag* mboot_tag, u32 type)
 {
 	u32 size = mboot_tag->size;
