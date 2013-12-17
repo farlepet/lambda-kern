@@ -7,7 +7,7 @@ var paging_8c =
     [ "fill_pagetable", "paging_8c.html#ac7992cc47468ac72eeb8f08f94f210d2", null ],
     [ "free_frame", "paging_8c.html#a84f2e5bf7896e25c26ba9e0ea4a70715", null ],
     [ "get_free_frame", "paging_8c.html#a4e8b2a17d9a96f0148b6a3b249669c2c", null ],
-    [ "map_page", "paging_8c.html#adf8c9211327b122b455fabf292cc2411", null ],
+    [ "map_page", "paging_8c.html#ae46f6fc37cc817eba111627d8966d49d", null ],
     [ "paging_init", "paging_8c.html#ab45e6fbcdd413040eb68d48da756d3f9", null ],
     [ "set_frame", "paging_8c.html#a6ce6be4831ec09237b26ea3a826c6ebc", null ],
     [ "set_pagedir", "paging_8c.html#a44844a86a2d9dfe3c92936bbe16d2d0d", null ],

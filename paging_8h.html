@@ -123,6 +123,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a72ac221bab13f82af38cae1fd828278a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="paging_8h.html#a72ac221bab13f82af38cae1fd828278a">free_frame</a> (void *frane)</td></tr>
 <tr class="memdesc:a72ac221bab13f82af38cae1fd828278a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free an allocated frame. Free an allocated page frame, allowing it to be allocated again.  <a href="#a72ac221bab13f82af38cae1fd828278a">More...</a><br/></td></tr>
 <tr class="separator:a72ac221bab13f82af38cae1fd828278a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae46f6fc37cc817eba111627d8966d49d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="paging_8h.html#ae46f6fc37cc817eba111627d8966d49d">map_page</a> (void *physaddr, void *virtualaddr, u32 flags)</td></tr>
+<tr class="memdesc:ae46f6fc37cc817eba111627d8966d49d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Map a virtual address to a physical one. Map a virtual address to a physical one.  <a href="#ae46f6fc37cc817eba111627d8966d49d">More...</a><br/></td></tr>
+<tr class="separator:ae46f6fc37cc817eba111627d8966d49d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0dec1d6d8c55ad0fafff3656c7cee62e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="paging_8h.html#a0dec1d6d8c55ad0fafff3656c7cee62e">clear_pagedir</a> (u32 *dir)</td></tr>
 <tr class="memdesc:a0dec1d6d8c55ad0fafff3656c7cee62e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear a page directory to it's default values. Clear the page directory marking every page table as non-existant.  <a href="#a0dec1d6d8c55ad0fafff3656c7cee62e">More...</a><br/></td></tr>
 <tr class="separator:a0dec1d6d8c55ad0fafff3656c7cee62e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -206,12 +209,12 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="paging_8c_source.html#l00115">115</a> of file <a class="el" href="paging_8c_source.html">paging.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;{</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    <span class="keywordtype">int</span> i = 0;</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    <span class="keywordflow">for</span>(i = 0; i &lt; 1024; i++)</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;        dir[i] = 2; <span class="comment">// supervisor, rw, not present.</span></div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;}</div>
+<p>Definition at line <a class="el" href="paging_8c_source.html#l00122">122</a> of file <a class="el" href="paging_8c_source.html">paging.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;{</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    <span class="keywordtype">int</span> i = 0;</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    <span class="keywordflow">for</span>(i = 0; i &lt; 1024; i++)</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;        dir[i] = 2; <span class="comment">// supervisor, rw, not present.</span></div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -228,13 +231,13 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="paging_8c_source.html#l00161">161</a> of file <a class="el" href="paging_8c_source.html">paging.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;{</div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;    u32 cr0;</div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    <span class="keyword">asm</span> <span class="keyword">volatile</span>(<span class="stringliteral">&quot;mov %%cr0, %0&quot;</span>: <span class="stringliteral">&quot;=b&quot;</span>(cr0));</div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    cr0 &amp;= ~0x80000000;</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    <span class="keyword">asm</span> <span class="keyword">volatile</span>(<span class="stringliteral">&quot;mov %0, %%cr0&quot;</span>:: <span class="stringliteral">&quot;b&quot;</span>(cr0));</div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;}</div>
+<p>Definition at line <a class="el" href="paging_8c_source.html#l00168">168</a> of file <a class="el" href="paging_8c_source.html">paging.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;{</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    u32 cr0;</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    <span class="keyword">asm</span> <span class="keyword">volatile</span>(<span class="stringliteral">&quot;mov %%cr0, %0&quot;</span>: <span class="stringliteral">&quot;=b&quot;</span>(cr0));</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    cr0 &amp;= ~0x80000000;</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    <span class="keyword">asm</span> <span class="keyword">volatile</span>(<span class="stringliteral">&quot;mov %0, %%cr0&quot;</span>:: <span class="stringliteral">&quot;b&quot;</span>(cr0));</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -251,13 +254,13 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="paging_8c_source.html#l00149">149</a> of file <a class="el" href="paging_8c_source.html">paging.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;{</div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    u32 cr0;</div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    <span class="keyword">asm</span> <span class="keyword">volatile</span>(<span class="stringliteral">&quot;mov %%cr0, %0&quot;</span>: <span class="stringliteral">&quot;=b&quot;</span>(cr0));</div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    cr0 |= 0x80000000;</div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    <span class="keyword">asm</span> <span class="keyword">volatile</span>(<span class="stringliteral">&quot;mov %0, %%cr0&quot;</span>:: <span class="stringliteral">&quot;b&quot;</span>(cr0));</div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;}</div>
+<p>Definition at line <a class="el" href="paging_8c_source.html#l00156">156</a> of file <a class="el" href="paging_8c_source.html">paging.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;{</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    u32 cr0;</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    <span class="keyword">asm</span> <span class="keyword">volatile</span>(<span class="stringliteral">&quot;mov %%cr0, %0&quot;</span>: <span class="stringliteral">&quot;=b&quot;</span>(cr0));</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    cr0 |= 0x80000000;</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    <span class="keyword">asm</span> <span class="keyword">volatile</span>(<span class="stringliteral">&quot;mov %0, %%cr0&quot;</span>:: <span class="stringliteral">&quot;b&quot;</span>(cr0));</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -292,12 +295,12 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="paging_8c_source.html#l00128">128</a> of file <a class="el" href="paging_8c_source.html">paging.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;{</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    u32 i;</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    <span class="keywordflow">for</span>(i = 0; i &lt; 1024; i++, addr += 0x1000)</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;        table[i] = addr | 3;  <span class="comment">// supervisor, rw, present.</span></div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;}</div>
+<p>Definition at line <a class="el" href="paging_8c_source.html#l00135">135</a> of file <a class="el" href="paging_8c_source.html">paging.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;{</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;    u32 i;</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;    <span class="keywordflow">for</span>(i = 0; i &lt; 1024; i++, addr += 0x1000)</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;        table[i] = addr | 3;  <span class="comment">// supervisor, rw, present.</span></div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -315,17 +318,78 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="paging_8c_source.html#l00101">101</a> of file <a class="el" href="paging_8c_source.html">paging.c</a>.</p>
+<p>Definition at line <a class="el" href="paging_8c_source.html#l00108">108</a> of file <a class="el" href="paging_8c_source.html">paging.c</a>.</p>
 
 <p>References <a class="el" href="paging_8c_source.html#l00012">firstframe</a>, and <a class="el" href="paging_8c_source.html#l00020">set_frame()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;{</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    u32 f = (u32)frame;</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    f -= (u32)<a class="code" href="paging_8c.html#addbce032f1a6b8fed9b601bbaa43d7be">firstframe</a>;</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    f /= 0x1000;</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    <a class="code" href="paging_8c.html#a6ce6be4831ec09237b26ea3a826c6ebc">set_frame</a>(f, 0);</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;}</div>
+<div class="fragment"><div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;{</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    u32 f = (u32)frame;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    f -= (u32)<a class="code" href="paging_8c.html#addbce032f1a6b8fed9b601bbaa43d7be">firstframe</a>;</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    f /= 0x1000;</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    <a class="code" href="paging_8c.html#a6ce6be4831ec09237b26ea3a826c6ebc">set_frame</a>(f, 0);</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;}</div>
 <div class="ttc" id="paging_8c_html_a6ce6be4831ec09237b26ea3a826c6ebc"><div class="ttname"><a href="paging_8c.html#a6ce6be4831ec09237b26ea3a826c6ebc">set_frame</a></div><div class="ttdeci">static void set_frame(u32 frame, u32 val)</div><div class="ttdoc">Makes the frame unavailable or available. Sets the current frame to be used or unused, depending on val. </div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00020">paging.c:20</a></div></div>
 <div class="ttc" id="paging_8c_html_addbce032f1a6b8fed9b601bbaa43d7be"><div class="ttname"><a href="paging_8c.html#addbce032f1a6b8fed9b601bbaa43d7be">firstframe</a></div><div class="ttdeci">static u32 * firstframe</div><div class="ttdoc">The location of the first page frame. </div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00012">paging.c:12</a></div></div>
+</div><!-- fragment -->
+</div>
+</div>
+<a class="anchor" id="ae46f6fc37cc817eba111627d8966d49d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void map_page </td>
+          <td>(</td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>physaddr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>virtualaddr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">u32&#160;</td>
+          <td class="paramname"><em>flags</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">physaddr</td><td>physical address to be mapped to </td></tr>
+    <tr><td class="paramname">virtualaddr</td><td>virtual address to map </td></tr>
+    <tr><td class="paramname">flags</td><td>information about the page mapping </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="paging_8c_source.html#l00087">87</a> of file <a class="el" href="paging_8c_source.html">paging.c</a>.</p>
+
+<p>References <a class="el" href="paging_8c_source.html#l00063">alloc_frame()</a>, and <a class="el" href="paging_8c_source.html#l00006">pagedir</a>.</p>
+<div class="fragment"><div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;{</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="comment">// Make sure that both addresses are page-aligned.</span></div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    </div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    u32 pdindex = (u32)virtualaddr &gt;&gt; 22;</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    u32 ptindex = (u32)virtualaddr &gt;&gt; 12 &amp; 0x03FF;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    </div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <span class="comment">// Should I check if it is already present? I don&#39;t know...</span></div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="paging_8c.html#a01d74d2dec403b67edcbc35310419b54">pagedir</a>[pdindex] &amp; 0x01)</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;        ((u32 *)<a class="code" href="paging_8c.html#a01d74d2dec403b67edcbc35310419b54">pagedir</a>[pdindex])[ptindex] = ((u32)physaddr) | (flags &amp; 0xFFF) | 0x01;</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    {</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;        <a class="code" href="paging_8c.html#a01d74d2dec403b67edcbc35310419b54">pagedir</a>[pdindex] = (u32)<a class="code" href="paging_8c.html#a0692bf8dce3ee5883abdba6625491437">alloc_frame</a>() | 0x03;</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;        ((u32 *)<a class="code" href="paging_8c.html#a01d74d2dec403b67edcbc35310419b54">pagedir</a>[pdindex])[ptindex] = ((u32)physaddr) | (flags &amp; 0xFFF) | 0x01;</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    }</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;}</div>
+<div class="ttc" id="paging_8c_html_a0692bf8dce3ee5883abdba6625491437"><div class="ttname"><a href="paging_8c.html#a0692bf8dce3ee5883abdba6625491437">alloc_frame</a></div><div class="ttdeci">void * alloc_frame()</div><div class="ttdoc">Allocate a frame. Allocates a page frame then returns its address. </div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00063">paging.c:63</a></div></div>
+<div class="ttc" id="paging_8c_html_a01d74d2dec403b67edcbc35310419b54"><div class="ttname"><a href="paging_8c.html#a01d74d2dec403b67edcbc35310419b54">pagedir</a></div><div class="ttdeci">static u32 * pagedir</div><div class="ttdoc">Main kernel pagedirectory. </div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00006">paging.c:6</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -354,45 +418,45 @@ Variables</h2></td></tr>
 <dd>
 <a class="el" href="paging_8h.html#ae62af42af2d4cb211a64978ff1ef060e" title="Enable paging. Enable the paging flag in cr0. ">enable_paging</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="paging_8c_source.html#l00181">181</a> of file <a class="el" href="paging_8c_source.html">paging.c</a>.</p>
+<p>Definition at line <a class="el" href="paging_8c_source.html#l00188">188</a> of file <a class="el" href="paging_8c_source.html">paging.c</a>.</p>
 
-<p>References <a class="el" href="paging_8c.html#ac303745ad264b3591e88202a5f88060b">apic</a>, <a class="el" href="mem_8h_source.html#l00009">APIC_PHYS</a>, <a class="el" href="mem_8h_source.html#l00010">APIC_VIRT</a>, <a class="el" href="paging_8c_source.html#l00115">clear_pagedir()</a>, <a class="el" href="paging_8c_source.html#l00149">enable_paging()</a>, <a class="el" href="paging_8c_source.html#l00128">fill_pagetable()</a>, <a class="el" href="mem_8h_source.html#l00006">FIRST_PAGEDIR</a>, <a class="el" href="mem_8h_source.html#l00007">FIRST_PAGETBL</a>, <a class="el" href="paging_8c_source.html#l00012">firstframe</a>, <a class="el" href="paging_8c_source.html#l00008">frames</a>, <a class="el" href="mem_8h_source.html#l00013">FRAMES_START</a>, <a class="el" href="mem_8h_source.html#l00012">FRAMES_TABLE</a>, <a class="el" href="paging_8c_source.html#l00080">map_page()</a>, <a class="el" href="paging_8c_source.html#l00010">nframes</a>, <a class="el" href="paging_8c_source.html#l00006">pagedir</a>, <a class="el" href="paging_8c_source.html#l00007">pagetbl1</a>, and <a class="el" href="paging_8c_source.html#l00140">set_pagedir()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;{</div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    <a class="code" href="paging_8c.html#a01d74d2dec403b67edcbc35310419b54">pagedir</a>    = (u32 *)<a class="code" href="mem_8h.html#ac7f4e0245d6aa62f1605ec92e3f74e19">FIRST_PAGEDIR</a>;</div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;    <a class="code" href="paging_8c.html#a78ee631b14ab62b76384e0eec3680ccb">pagetbl1</a>   = (u32 *)<a class="code" href="mem_8h.html#ae42c6a4d28deda21c14313f92a2d9af5">FIRST_PAGETBL</a>;</div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;    </div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    <a class="code" href="paging_8c.html#a247734b0af2e71834b2ddc3523ffa0fa">frames</a>     = (u32 *)<a class="code" href="mem_8h.html#aa0e221f556df4f0b3ca5e6b75ed7b554">FRAMES_TABLE</a>;</div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    <a class="code" href="paging_8c.html#addbce032f1a6b8fed9b601bbaa43d7be">firstframe</a> = (u32 *)<a class="code" href="mem_8h.html#a61ac234688a12bf083ac1abb075c4938">FRAMES_START</a>;</div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;</div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    <a class="code" href="paging_8c.html#a3337b35daceb6ab9c5edf3bf526e469a">nframes</a> = (u32)(eom - (u32)<a class="code" href="paging_8c.html#addbce032f1a6b8fed9b601bbaa43d7be">firstframe</a>) / 0x1000;</div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    </div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;    u32 i = 0;</div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;    <span class="keywordflow">for</span>(; i &lt; <a class="code" href="paging_8c.html#a3337b35daceb6ab9c5edf3bf526e469a">nframes</a>; i++, <a class="code" href="paging_8c.html#a247734b0af2e71834b2ddc3523ffa0fa">frames</a>[i] = 0);</div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;</div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;    <a class="code" href="paging_8c.html#a0dec1d6d8c55ad0fafff3656c7cee62e">clear_pagedir</a>(<a class="code" href="paging_8c.html#a01d74d2dec403b67edcbc35310419b54">pagedir</a>);</div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    <a class="code" href="paging_8c.html#ac7992cc47468ac72eeb8f08f94f210d2">fill_pagetable</a>(<a class="code" href="paging_8c.html#a78ee631b14ab62b76384e0eec3680ccb">pagetbl1</a>, 0x00000000);</div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    <a class="code" href="paging_8c.html#a01d74d2dec403b67edcbc35310419b54">pagedir</a>[0] = (u32)<a class="code" href="paging_8c.html#a78ee631b14ab62b76384e0eec3680ccb">pagetbl1</a> | 3; <span class="comment">// supervisor, rw, present</span></div>
+<p>References <a class="el" href="paging_8c.html#ac303745ad264b3591e88202a5f88060b">apic</a>, <a class="el" href="mem_8h_source.html#l00009">APIC_PHYS</a>, <a class="el" href="mem_8h_source.html#l00010">APIC_VIRT</a>, <a class="el" href="paging_8c_source.html#l00122">clear_pagedir()</a>, <a class="el" href="paging_8c_source.html#l00156">enable_paging()</a>, <a class="el" href="paging_8c_source.html#l00135">fill_pagetable()</a>, <a class="el" href="mem_8h_source.html#l00006">FIRST_PAGEDIR</a>, <a class="el" href="mem_8h_source.html#l00007">FIRST_PAGETBL</a>, <a class="el" href="paging_8c_source.html#l00012">firstframe</a>, <a class="el" href="paging_8c_source.html#l00008">frames</a>, <a class="el" href="mem_8h_source.html#l00013">FRAMES_START</a>, <a class="el" href="mem_8h_source.html#l00012">FRAMES_TABLE</a>, <a class="el" href="paging_8c_source.html#l00087">map_page()</a>, <a class="el" href="paging_8c_source.html#l00010">nframes</a>, <a class="el" href="paging_8c_source.html#l00006">pagedir</a>, <a class="el" href="paging_8c_source.html#l00007">pagetbl1</a>, and <a class="el" href="paging_8c_source.html#l00147">set_pagedir()</a>.</p>
+<div class="fragment"><div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;{</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    <a class="code" href="paging_8c.html#a01d74d2dec403b67edcbc35310419b54">pagedir</a>    = (u32 *)<a class="code" href="mem_8h.html#ac7f4e0245d6aa62f1605ec92e3f74e19">FIRST_PAGEDIR</a>;</div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;    <a class="code" href="paging_8c.html#a78ee631b14ab62b76384e0eec3680ccb">pagetbl1</a>   = (u32 *)<a class="code" href="mem_8h.html#ae42c6a4d28deda21c14313f92a2d9af5">FIRST_PAGETBL</a>;</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;    </div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;    <a class="code" href="paging_8c.html#a247734b0af2e71834b2ddc3523ffa0fa">frames</a>     = (u32 *)<a class="code" href="mem_8h.html#aa0e221f556df4f0b3ca5e6b75ed7b554">FRAMES_TABLE</a>;</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;    <a class="code" href="paging_8c.html#addbce032f1a6b8fed9b601bbaa43d7be">firstframe</a> = (u32 *)<a class="code" href="mem_8h.html#a61ac234688a12bf083ac1abb075c4938">FRAMES_START</a>;</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    <a class="code" href="paging_8c.html#a3337b35daceb6ab9c5edf3bf526e469a">nframes</a> = (u32)(eom - (u32)<a class="code" href="paging_8c.html#addbce032f1a6b8fed9b601bbaa43d7be">firstframe</a>) / 0x1000;</div>
 <div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;    </div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;    <a class="code" href="paging_8c.html#ac303745ad264b3591e88202a5f88060b">apic</a> = <a class="code" href="mem_8h.html#aaff43738319c46b6ce481cca97ead5ba">APIC_VIRT</a>;</div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    <a class="code" href="paging_8c.html#adf8c9211327b122b455fabf292cc2411">map_page</a>((<span class="keywordtype">void</span> *)<a class="code" href="mem_8h.html#a6b6748a4437a94eba4929c4ea3309ad7">APIC_PHYS</a>, (<span class="keywordtype">void</span> *)<a class="code" href="mem_8h.html#aaff43738319c46b6ce481cca97ead5ba">APIC_VIRT</a>, 3); <span class="comment">// APIC</span></div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;    u32 i = 0;</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    <span class="keywordflow">for</span>(; i &lt; <a class="code" href="paging_8c.html#a3337b35daceb6ab9c5edf3bf526e469a">nframes</a>; i++, <a class="code" href="paging_8c.html#a247734b0af2e71834b2ddc3523ffa0fa">frames</a>[i] = 0);</div>
 <div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;</div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;    <a class="code" href="paging_8c.html#a44844a86a2d9dfe3c92936bbe16d2d0d">set_pagedir</a>(<a class="code" href="paging_8c.html#a01d74d2dec403b67edcbc35310419b54">pagedir</a>);</div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;    <a class="code" href="paging_8c.html#ae62af42af2d4cb211a64978ff1ef060e">enable_paging</a>();</div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;}<div class="ttc" id="paging_8c_html_a0dec1d6d8c55ad0fafff3656c7cee62e"><div class="ttname"><a href="paging_8c.html#a0dec1d6d8c55ad0fafff3656c7cee62e">clear_pagedir</a></div><div class="ttdeci">void clear_pagedir(u32 *dir)</div><div class="ttdoc">Clear a page directory to it&amp;#39;s default values. Clear the page directory marking every page table as n...</div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00115">paging.c:115</a></div></div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;    <a class="code" href="paging_8c.html#a0dec1d6d8c55ad0fafff3656c7cee62e">clear_pagedir</a>(<a class="code" href="paging_8c.html#a01d74d2dec403b67edcbc35310419b54">pagedir</a>);</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;    <a class="code" href="paging_8c.html#ac7992cc47468ac72eeb8f08f94f210d2">fill_pagetable</a>(<a class="code" href="paging_8c.html#a78ee631b14ab62b76384e0eec3680ccb">pagetbl1</a>, 0x00000000);</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;    <a class="code" href="paging_8c.html#a01d74d2dec403b67edcbc35310419b54">pagedir</a>[0] = (u32)<a class="code" href="paging_8c.html#a78ee631b14ab62b76384e0eec3680ccb">pagetbl1</a> | 3; <span class="comment">// supervisor, rw, present</span></div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;    </div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;    <a class="code" href="paging_8c.html#ac303745ad264b3591e88202a5f88060b">apic</a> = <a class="code" href="mem_8h.html#aaff43738319c46b6ce481cca97ead5ba">APIC_VIRT</a>;</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;    <a class="code" href="paging_8c.html#ae46f6fc37cc817eba111627d8966d49d">map_page</a>((<span class="keywordtype">void</span> *)<a class="code" href="mem_8h.html#a6b6748a4437a94eba4929c4ea3309ad7">APIC_PHYS</a>, (<span class="keywordtype">void</span> *)<a class="code" href="mem_8h.html#aaff43738319c46b6ce481cca97ead5ba">APIC_VIRT</a>, 3); <span class="comment">// APIC</span></div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;</div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;    <a class="code" href="paging_8c.html#a44844a86a2d9dfe3c92936bbe16d2d0d">set_pagedir</a>(<a class="code" href="paging_8c.html#a01d74d2dec403b67edcbc35310419b54">pagedir</a>);</div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;    <a class="code" href="paging_8c.html#ae62af42af2d4cb211a64978ff1ef060e">enable_paging</a>();</div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;}<div class="ttc" id="paging_8c_html_ae46f6fc37cc817eba111627d8966d49d"><div class="ttname"><a href="paging_8c.html#ae46f6fc37cc817eba111627d8966d49d">map_page</a></div><div class="ttdeci">void map_page(void *physaddr, void *virtualaddr, u32 flags)</div><div class="ttdoc">Map a virtual address to a physical one. Map a virtual address to a physical one. ...</div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00087">paging.c:87</a></div></div>
+<div class="ttc" id="paging_8c_html_a0dec1d6d8c55ad0fafff3656c7cee62e"><div class="ttname"><a href="paging_8c.html#a0dec1d6d8c55ad0fafff3656c7cee62e">clear_pagedir</a></div><div class="ttdeci">void clear_pagedir(u32 *dir)</div><div class="ttdoc">Clear a page directory to it&amp;#39;s default values. Clear the page directory marking every page table as n...</div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00122">paging.c:122</a></div></div>
 <div class="ttc" id="paging_8c_html_ac303745ad264b3591e88202a5f88060b"><div class="ttname"><a href="paging_8c.html#ac303745ad264b3591e88202a5f88060b">apic</a></div><div class="ttdeci">u32 apic</div></div>
-<div class="ttc" id="paging_8c_html_a44844a86a2d9dfe3c92936bbe16d2d0d"><div class="ttname"><a href="paging_8c.html#a44844a86a2d9dfe3c92936bbe16d2d0d">set_pagedir</a></div><div class="ttdeci">void set_pagedir(u32 *dir)</div><div class="ttdoc">Set the current page directory Sets the current page directory by setting cr3 to dir ...</div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00140">paging.c:140</a></div></div>
+<div class="ttc" id="paging_8c_html_a44844a86a2d9dfe3c92936bbe16d2d0d"><div class="ttname"><a href="paging_8c.html#a44844a86a2d9dfe3c92936bbe16d2d0d">set_pagedir</a></div><div class="ttdeci">void set_pagedir(u32 *dir)</div><div class="ttdoc">Set the current page directory Sets the current page directory by setting cr3 to dir ...</div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00147">paging.c:147</a></div></div>
 <div class="ttc" id="mem_8h_html_aa0e221f556df4f0b3ca5e6b75ed7b554"><div class="ttname"><a href="mem_8h.html#aa0e221f556df4f0b3ca5e6b75ed7b554">FRAMES_TABLE</a></div><div class="ttdeci">#define FRAMES_TABLE</div><div class="ttdef"><b>Definition:</b> <a href="mem_8h_source.html#l00012">mem.h:12</a></div></div>
 <div class="ttc" id="mem_8h_html_aaff43738319c46b6ce481cca97ead5ba"><div class="ttname"><a href="mem_8h.html#aaff43738319c46b6ce481cca97ead5ba">APIC_VIRT</a></div><div class="ttdeci">#define APIC_VIRT</div><div class="ttdef"><b>Definition:</b> <a href="mem_8h_source.html#l00010">mem.h:10</a></div></div>
-<div class="ttc" id="paging_8c_html_ae62af42af2d4cb211a64978ff1ef060e"><div class="ttname"><a href="paging_8c.html#ae62af42af2d4cb211a64978ff1ef060e">enable_paging</a></div><div class="ttdeci">void enable_paging()</div><div class="ttdoc">Enable paging. Enable the paging flag in cr0. </div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00149">paging.c:149</a></div></div>
+<div class="ttc" id="paging_8c_html_ae62af42af2d4cb211a64978ff1ef060e"><div class="ttname"><a href="paging_8c.html#ae62af42af2d4cb211a64978ff1ef060e">enable_paging</a></div><div class="ttdeci">void enable_paging()</div><div class="ttdoc">Enable paging. Enable the paging flag in cr0. </div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00156">paging.c:156</a></div></div>
 <div class="ttc" id="paging_8c_html_a3337b35daceb6ab9c5edf3bf526e469a"><div class="ttname"><a href="paging_8c.html#a3337b35daceb6ab9c5edf3bf526e469a">nframes</a></div><div class="ttdeci">static u32 nframes</div><div class="ttdoc">Number of frames in the table. </div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00010">paging.c:10</a></div></div>
 <div class="ttc" id="mem_8h_html_ac7f4e0245d6aa62f1605ec92e3f74e19"><div class="ttname"><a href="mem_8h.html#ac7f4e0245d6aa62f1605ec92e3f74e19">FIRST_PAGEDIR</a></div><div class="ttdeci">#define FIRST_PAGEDIR</div><div class="ttdef"><b>Definition:</b> <a href="mem_8h_source.html#l00006">mem.h:6</a></div></div>
 <div class="ttc" id="paging_8c_html_a01d74d2dec403b67edcbc35310419b54"><div class="ttname"><a href="paging_8c.html#a01d74d2dec403b67edcbc35310419b54">pagedir</a></div><div class="ttdeci">static u32 * pagedir</div><div class="ttdoc">Main kernel pagedirectory. </div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00006">paging.c:6</a></div></div>
-<div class="ttc" id="paging_8c_html_adf8c9211327b122b455fabf292cc2411"><div class="ttname"><a href="paging_8c.html#adf8c9211327b122b455fabf292cc2411">map_page</a></div><div class="ttdeci">void map_page(void *physaddr, void *virtualaddr, unsigned int flags)</div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00080">paging.c:80</a></div></div>
 <div class="ttc" id="paging_8c_html_a78ee631b14ab62b76384e0eec3680ccb"><div class="ttname"><a href="paging_8c.html#a78ee631b14ab62b76384e0eec3680ccb">pagetbl1</a></div><div class="ttdeci">static u32 * pagetbl1</div><div class="ttdoc">First page table. </div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00007">paging.c:7</a></div></div>
 <div class="ttc" id="paging_8c_html_addbce032f1a6b8fed9b601bbaa43d7be"><div class="ttname"><a href="paging_8c.html#addbce032f1a6b8fed9b601bbaa43d7be">firstframe</a></div><div class="ttdeci">static u32 * firstframe</div><div class="ttdoc">The location of the first page frame. </div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00012">paging.c:12</a></div></div>
 <div class="ttc" id="mem_8h_html_a61ac234688a12bf083ac1abb075c4938"><div class="ttname"><a href="mem_8h.html#a61ac234688a12bf083ac1abb075c4938">FRAMES_START</a></div><div class="ttdeci">#define FRAMES_START</div><div class="ttdef"><b>Definition:</b> <a href="mem_8h_source.html#l00013">mem.h:13</a></div></div>
 <div class="ttc" id="mem_8h_html_ae42c6a4d28deda21c14313f92a2d9af5"><div class="ttname"><a href="mem_8h.html#ae42c6a4d28deda21c14313f92a2d9af5">FIRST_PAGETBL</a></div><div class="ttdeci">#define FIRST_PAGETBL</div><div class="ttdef"><b>Definition:</b> <a href="mem_8h_source.html#l00007">mem.h:7</a></div></div>
-<div class="ttc" id="paging_8c_html_ac7992cc47468ac72eeb8f08f94f210d2"><div class="ttname"><a href="paging_8c.html#ac7992cc47468ac72eeb8f08f94f210d2">fill_pagetable</a></div><div class="ttdeci">void fill_pagetable(u32 *table, u32 addr)</div><div class="ttdoc">Fill a page table with pages. Fill a pagetable with pages starting from addr and ending up at addr + ...</div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00128">paging.c:128</a></div></div>
+<div class="ttc" id="paging_8c_html_ac7992cc47468ac72eeb8f08f94f210d2"><div class="ttname"><a href="paging_8c.html#ac7992cc47468ac72eeb8f08f94f210d2">fill_pagetable</a></div><div class="ttdeci">void fill_pagetable(u32 *table, u32 addr)</div><div class="ttdoc">Fill a page table with pages. Fill a pagetable with pages starting from addr and ending up at addr + ...</div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00135">paging.c:135</a></div></div>
 <div class="ttc" id="paging_8c_html_a247734b0af2e71834b2ddc3523ffa0fa"><div class="ttname"><a href="paging_8c.html#a247734b0af2e71834b2ddc3523ffa0fa">frames</a></div><div class="ttdeci">static u32 * frames</div><div class="ttdoc">Table stating which frames are available. </div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00008">paging.c:8</a></div></div>
 <div class="ttc" id="mem_8h_html_a6b6748a4437a94eba4929c4ea3309ad7"><div class="ttname"><a href="mem_8h.html#a6b6748a4437a94eba4929c4ea3309ad7">APIC_PHYS</a></div><div class="ttdeci">#define APIC_PHYS</div><div class="ttdef"><b>Definition:</b> <a href="mem_8h_source.html#l00009">mem.h:9</a></div></div>
 </div><!-- fragment -->
@@ -418,10 +482,10 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="paging_8c_source.html#l00140">140</a> of file <a class="el" href="paging_8c_source.html">paging.c</a>.</p>
-<div class="fragment"><div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;{</div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;    <span class="keyword">asm</span> <span class="keyword">volatile</span>(<span class="stringliteral">&quot;mov %0, %%cr3&quot;</span>:: <span class="stringliteral">&quot;b&quot;</span>(dir));</div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;}</div>
+<p>Definition at line <a class="el" href="paging_8c_source.html#l00147">147</a> of file <a class="el" href="paging_8c_source.html">paging.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;{</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    <span class="keyword">asm</span> <span class="keyword">volatile</span>(<span class="stringliteral">&quot;mov %0, %%cr3&quot;</span>:: <span class="stringliteral">&quot;b&quot;</span>(dir));</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -456,7 +520,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_4a04b9aac4eefdd334a78e565f4616f2.html">arch</a></li><li class="navelem"><a class="el" href="dir_0ce8714634557e35558d1ff2ffab94d6.html">x86</a></li><li class="navelem"><a class="el" href="dir_7c13a396c62eec3d86490ab07a304f3c.html">mm</a></li><li class="navelem"><a class="el" href="paging_8h.html">paging.h</a></li>
-    <li class="footer">Generated on Mon Dec 16 2013 09:39:13 for Lambda OS by
+    <li class="footer">Generated on Tue Dec 17 2013 10:46:57 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

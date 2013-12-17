@@ -5,6 +5,7 @@ var dir_25ecda1410e8adf967f2aaaca1260861 =
     [ "mm", "dir_f076441bd65cf73d8fffcd59c5d93bb1.html", "dir_f076441bd65cf73d8fffcd59c5d93bb1" ],
     [ "time", "dir_c7fbbc184330fa1032c3ba36a7337236.html", "dir_c7fbbc184330fa1032c3ba36a7337236" ],
     [ "multiboot.h", "multiboot_8h.html", "multiboot_8h" ],
+    [ "string.h", "string_8h.html", "string_8h" ],
     [ "types.h", "types_8h.html", "types_8h" ],
     [ "video.h", "video_8h.html", "video_8h" ]
 ];

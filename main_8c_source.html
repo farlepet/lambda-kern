@@ -116,41 +116,39 @@ $(document).ready(function(){initNavTree('main_8c_source.html','');});
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;{</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    <span class="keywordflow">if</span>(magic != 0x36d76289)</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    {</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;        <a class="code" href="video_8h.html#a9c163b4ca9a9bd7315ab683595dc5868">kprint</a>(<span class="stringliteral">&quot;Invalid magic number given by the bootloader: 0x&quot;</span>);</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;        <a class="code" href="video_8h.html#a6b51bed3a98ab61318794a831f95186f">kprintnum</a>(magic, 16);</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;        <a class="code" href="video_8h.html#a9c163b4ca9a9bd7315ab683595dc5868">kprint</a>(<span class="stringliteral">&quot;\n&quot;</span>);</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    }</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    </div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <a class="code" href="mm_8h.html#a71b6b31127095637741152869fffe3f1">mm_init</a>(mboot_tag);</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    </div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <a class="code" href="intr_8h.html#a5c99cba5ccc698fc7feb8902442176ea">interrupts_init</a>();</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <a class="code" href="intr_8h.html#a315282e15976b1078b869b347205c29a">timer_init</a>(100);</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <a class="code" href="video_8h.html#a9c163b4ca9a9bd7315ab683595dc5868">kprint</a>(<span class="stringliteral">&quot;Welcome to Lambda OS!\n&quot;</span>);</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    </div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="keywordflow">for</span>(;;);</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;}</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;        <a class="code" href="video_8h.html#a4b25c75363a4f246991a45f8c2807210">kprintf</a>(<span class="stringliteral">&quot;Invalid magic number given by the bootloader: 0x%X&quot;</span>, magic);</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;        <span class="keywordflow">for</span>(;;);</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    }</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    </div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <a class="code" href="mm_8h.html#a71b6b31127095637741152869fffe3f1">mm_init</a>(mboot_tag);</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    </div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <a class="code" href="intr_8h.html#a5c99cba5ccc698fc7feb8902442176ea">interrupts_init</a>();</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <a class="code" href="intr_8h.html#a315282e15976b1078b869b347205c29a">timer_init</a>(100);</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <a class="code" href="video_8h.html#a4b25c75363a4f246991a45f8c2807210">kprintf</a>(<span class="stringliteral">&quot;Welcome to Lambda OS!&quot;</span>);</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    </div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <span class="keywordflow">for</span>(;;);</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;}</div>
 <div class="ttc" id="io_2ioport_8h_html"><div class="ttname"><a href="io_2ioport_8h.html">ioport.h</a></div></div>
 <div class="ttc" id="intr_8h_html_a315282e15976b1078b869b347205c29a"><div class="ttname"><a href="intr_8h.html#a315282e15976b1078b869b347205c29a">timer_init</a></div><div class="ttdeci">void timer_init(u32 quantum)</div><div class="ttdoc">Initializes the system timer. Initializes the timer used by the target architecture. </div><div class="ttdef"><b>Definition:</b> <a href="interrupts_8c_source.html#l00051">interrupts.c:51</a></div></div>
 <div class="ttc" id="main_8c_html_a6efa8ec9abc76ea5b6e3bd14db26afee"><div class="ttname"><a href="main_8c.html#a6efa8ec9abc76ea5b6e3bd14db26afee">kmain</a></div><div class="ttdeci">int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)</div><div class="ttdoc">Main kernel function. Initializes all devices, and sets up environment. </div><div class="ttdef"><b>Definition:</b> <a href="main_8c_source.html#l00014">main.c:14</a></div></div>
 <div class="ttc" id="structmultiboot__header__tag_html"><div class="ttname"><a href="structmultiboot__header__tag.html">multiboot_header_tag</a></div><div class="ttdoc">Information about the multiboot tags. </div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00014">multiboot.h:14</a></div></div>
 <div class="ttc" id="video_8h_html"><div class="ttname"><a href="video_8h.html">video.h</a></div></div>
-<div class="ttc" id="video_8h_html_a6b51bed3a98ab61318794a831f95186f"><div class="ttname"><a href="video_8h.html#a6b51bed3a98ab61318794a831f95186f">kprintnum</a></div><div class="ttdeci">void kprintnum(u32 num, int base)</div><div class="ttdoc">Prints a number using the specified base. Prints a number using any base between 2 and 16...</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00038">video.c:38</a></div></div>
 <div class="ttc" id="io_2serial_8h_html"><div class="ttname"><a href="io_2serial_8h.html">serial.h</a></div></div>
+<div class="ttc" id="video_8h_html_a4b25c75363a4f246991a45f8c2807210"><div class="ttname"><a href="video_8h.html#a4b25c75363a4f246991a45f8c2807210">kprintf</a></div><div class="ttdeci">int kprintf(char *format,...)</div><div class="ttdoc">Creates and prints a string based on input format string and arguments. Uses print to convert the for...</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00412">video.c:412</a></div></div>
 <div class="ttc" id="mm_8h_html"><div class="ttname"><a href="mm_8h.html">mm.h</a></div></div>
 <div class="ttc" id="intr_8h_html_a5c99cba5ccc698fc7feb8902442176ea"><div class="ttname"><a href="intr_8h.html#a5c99cba5ccc698fc7feb8902442176ea">interrupts_init</a></div><div class="ttdeci">void interrupts_init()</div><div class="ttdoc">Initializes interrupts. Initializes based on the target architecture. </div><div class="ttdef"><b>Definition:</b> <a href="interrupts_8c_source.html#l00017">interrupts.c:17</a></div></div>
 <div class="ttc" id="multiboot_8h_html"><div class="ttname"><a href="multiboot_8h.html">multiboot.h</a></div><div class="ttdoc">Contains structures related to multiboot-compatible bootloaders. </div></div>
 <div class="ttc" id="intr_8h_html"><div class="ttname"><a href="intr_8h.html">intr.h</a></div></div>
 <div class="ttc" id="mm_8h_html_a71b6b31127095637741152869fffe3f1"><div class="ttname"><a href="mm_8h.html#a71b6b31127095637741152869fffe3f1">mm_init</a></div><div class="ttdeci">void mm_init(struct multiboot_header_tag *mboot_tag)</div><div class="ttdoc">Initializes memory management. Initializes memory management for the target archetecture. </div><div class="ttdef"><b>Definition:</b> <a href="mm_8c_source.html#l00015">mm.c:15</a></div></div>
-<div class="ttc" id="video_8h_html_a9c163b4ca9a9bd7315ab683595dc5868"><div class="ttname"><a href="video_8h.html#a9c163b4ca9a9bd7315ab683595dc5868">kprint</a></div><div class="ttdeci">void kprint(char *str)</div><div class="ttdoc">Prints a string of characters. Uses the current architecture&amp;#39;s print function. </div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00024">video.c:24</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_3dd30a497388ee684638f120a124721c.html">src</a></li><li class="navelem"><a class="el" href="dir_f2d89d2b1d9c2db1a3c63568d0092ca4.html">main</a></li><li class="navelem"><a class="el" href="main_8c.html">main.c</a></li>
-    <li class="footer">Generated on Mon Dec 16 2013 09:39:13 for Lambda OS by
+    <li class="footer">Generated on Tue Dec 17 2013 10:46:57 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

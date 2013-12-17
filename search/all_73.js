@@ -3,8 +3,8 @@ var searchData=
   ['scrollup',['scrollup',['../dev_2vga_2print_8c.html#aa181fde17108dc717d58c85791205224',1,'scrollup():&#160;print.c'],['../64_2dev_2vga_2print_8c.html#aa181fde17108dc717d58c85791205224',1,'scrollup():&#160;print.c']]],
   ['seg_5freload',['seg_reload',['../gdt_8c.html#a05de93b96abf57915887ef30434c31dc',1,'gdt.c']]],
   ['selector',['selector',['../structidt__entry__64.html#aae20cf3e8940e81d5c4f3748a2924197',1,'idt_entry_64']]],
-  ['serial_2ec',['serial.c',['../io_2serial_8c.html',1,'']]],
   ['serial_2ec',['serial.c',['../64_2io_2serial_8c.html',1,'']]],
+  ['serial_2ec',['serial.c',['../io_2serial_8c.html',1,'']]],
   ['serial_2eh',['serial.h',['../64_2io_2serial_8h.html',1,'']]],
   ['serial_2eh',['serial.h',['../io_2serial_8h.html',1,'']]],
   ['serial_5fcom1',['SERIAL_COM1',['../io_2serial_8h.html#a7dba27fd7950f6e40269808bd9238aca',1,'SERIAL_COM1():&#160;serial.h'],['../64_2io_2serial_8h.html#a7dba27fd7950f6e40269808bd9238aca',1,'SERIAL_COM1():&#160;serial.h']]],
@@ -21,5 +21,10 @@ var searchData=
   ['set_5fpagedir',['set_pagedir',['../paging_8c.html#a44844a86a2d9dfe3c92936bbe16d2d0d',1,'set_pagedir(u32 *dir):&#160;paging.c'],['../paging_8h.html#a44844a86a2d9dfe3c92936bbe16d2d0d',1,'set_pagedir(u32 *dir):&#160;paging.c']]],
   ['shndx',['shndx',['../structmultiboot__elf__headers__tag.html#abb63ca17dfef6ba5fed794984df1c419',1,'multiboot_elf_headers_tag']]],
   ['size',['size',['../structmultiboot__header__tag.html#a600ea6674bbc05aca99c337e14384a59',1,'multiboot_header_tag::size()'],['../structmultiboot__tag.html#aea1e8e58c2708e504287725c26074090',1,'multiboot_tag::size()'],['../structmultiboot__basic__memory__tag.html#a168a5bd962ed96360cc4ba4b3d7fde5b',1,'multiboot_basic_memory_tag::size()'],['../structmultiboot__boot__device__tag.html#a6b7cbe7a7b5ab12374174fdd330c34b7',1,'multiboot_boot_device_tag::size()'],['../structmultiboot__cmdline__tag.html#a530a2fffeabbec1e7af5f45459906634',1,'multiboot_cmdline_tag::size()'],['../structmultiboot__module__tag.html#aeec086d64391b281f34265e6197c105f',1,'multiboot_module_tag::size()'],['../structmultiboot__elf__headers__tag.html#a219f0b3b8dee361e1ce68169269948ec',1,'multiboot_elf_headers_tag::size()'],['../structmultiboot__memory__map__tag.html#ad56ae48718f3cd958f72f9c988fa9b2a',1,'multiboot_memory_map_tag::size()'],['../structmultiboot__bootloader__name__tag.html#afca346b41d11aa201306576a7ff10cea',1,'multiboot_bootloader_name_tag::size()'],['../structmultiboot__apm__table__tag.html#a77c746b7c702622271b006516430c0a2',1,'multiboot_apm_table_tag::size()'],['../structmultiboot__vbe__tag.html#acaeed1fb36d7122000029c0c07544741',1,'multiboot_vbe_tag::size()']]],
+  ['sprintf',['sprintf',['../video_8h.html#a3f1aefcf7ec1de49c20118ee9cbb02dc',1,'sprintf(char *out, char *format,...):&#160;video.c'],['../video_8c.html#a3f1aefcf7ec1de49c20118ee9cbb02dc',1,'sprintf(char *out, char *format,...):&#160;video.c']]],
+  ['string_2ec',['string.c',['../string_8c.html',1,'']]],
+  ['string_2eh',['string.h',['../string_8h.html',1,'']]],
+  ['string_5fspec',['STRING_SPEC',['../video_8h.html#a7957f0cbee507e677777c45af24f8305',1,'video.h']]],
+  ['strlen',['strlen',['../string_8h.html#ae6c8de953239811a34eeeab09458e55e',1,'strlen(const char *str):&#160;string.c'],['../string_8c.html#ae6c8de953239811a34eeeab09458e55e',1,'strlen(const char *str):&#160;string.c']]],
   ['sub_5fpartition',['sub_partition',['../structmultiboot__boot__device__tag.html#adaeee4fe25aa5a348560c1616ba969d0',1,'multiboot_boot_device_tag']]]
 ];

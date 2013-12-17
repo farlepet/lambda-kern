@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['char_5fspec',['CHAR_SPEC',['../video_8h.html#a5f3f068910b2bc980fb92c95b72dd7e5',1,'video.h']]],
   ['clear_5fpagedir',['clear_pagedir',['../paging_8c.html#a0dec1d6d8c55ad0fafff3656c7cee62e',1,'clear_pagedir(u32 *dir):&#160;paging.c'],['../paging_8h.html#a0dec1d6d8c55ad0fafff3656c7cee62e',1,'clear_pagedir(u32 *dir):&#160;paging.c']]],
   ['cmdline',['cmdline',['../structmultiboot__cmdline__tag.html#af54ab0d1284386e45624f4eeb35685ca',1,'multiboot_cmdline_tag']]],
   ['count',['count',['../structtime__block.html#ab3532976d627078c81afa2667233713e',1,'time_block']]],

@@ -7,6 +7,9 @@ var searchData=
   ['keyboard_5fint',['KEYBOARD_INT',['../intr_8h.html#af293630e7d389d1cb0b293ac60ae0296',1,'intr.h']]],
   ['kmain',['kmain',['../main_8c.html#a6efa8ec9abc76ea5b6e3bd14db26afee',1,'main.c']]],
   ['kprint',['kprint',['../video_8h.html#a9c163b4ca9a9bd7315ab683595dc5868',1,'kprint(char *str):&#160;video.c'],['../video_8c.html#a9c163b4ca9a9bd7315ab683595dc5868',1,'kprint(char *str):&#160;video.c']]],
+  ['kprintf',['kprintf',['../video_8h.html#a4b25c75363a4f246991a45f8c2807210',1,'kprintf(char *format,...):&#160;video.c'],['../video_8c.html#a4b25c75363a4f246991a45f8c2807210',1,'kprintf(char *format,...):&#160;video.c']]],
   ['kprintnum',['kprintnum',['../video_8h.html#a6b51bed3a98ab61318794a831f95186f',1,'kprintnum(u32 num, int base):&#160;video.c'],['../video_8c.html#a6b51bed3a98ab61318794a831f95186f',1,'kprintnum(u32 num, int base):&#160;video.c']]],
-  ['kput',['kput',['../video_8h.html#adaf7eb760749b489484d8c5a62932088',1,'kput(char c):&#160;video.c'],['../video_8c.html#adaf7eb760749b489484d8c5a62932088',1,'kput(char c):&#160;video.c']]]
+  ['kput',['kput',['../video_8h.html#adaf7eb760749b489484d8c5a62932088',1,'kput(char c):&#160;video.c'],['../video_8c.html#adaf7eb760749b489484d8c5a62932088',1,'kput(char c):&#160;video.c']]],
+  ['kwprint',['kwprint',['../video_8c.html#ae311673faec8a052cb24b99761f94c2d',1,'video.c']]],
+  ['kwput',['kwput',['../video_8c.html#afcd2b10a34bb5913417312f00e6f3661',1,'video.c']]]
 ];
