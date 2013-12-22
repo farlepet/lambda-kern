@@ -3,7 +3,7 @@
 #include <mm/mm.h>
 
 #ifdef ARCH_X86
-#include <kernel/arch/x86/dev/vga/print.h>
+#include <dev/vga/print.h>
 #endif
 
 /**
@@ -187,8 +187,9 @@ static int print(char *out, char *format, int *varg)
 	
 	int nchars = 0;    // Number of chars printed so far
 	
-	format--;
-	while(*++format)
+	u32 temp;
+	
+	for(; *format != 0; format++)
 	{
 		if(!is_in_spec)
 		{
@@ -198,179 +199,149 @@ static int print(char *out, char *format, int *varg)
 				continue;
 			}
 			*out++ = *format;
+			nchars++;
 			continue;
 		}
 		
-		if(*format == FMT_SPEC)
+		switch(*format)
 		{
-			is_in_spec = 0;
-			*out++ = FMT_SPEC;
-			continue;
-		}
-		
-		
-		if(*format == 'l')
-		{
-			if(size < 2)
-				size++;
-			continue;
-		}
-		
-		if(*format == 'L')
-		{
-			size = 1;
-			continue;
-		}
-		
-		if(*format == 'h')
-		{
-			if(size > -2)
-				size--;
-			continue;
-		}
-		
-		if(*format == 'z' || *format == 'j' || *format == 't')
-		{
-			size = 0;
-			continue;
-		}
-		
-		if(*format == '+')
-		{
-			showsign = 1;
-			continue;
-		}
-		
-		if(*format == ' ')
-		{
-			signspace = 1;
-			continue;
-		}
-		
-		if(*format == '-')
-		{
-			leftalign = 1;
-			continue;
-		}
-		
-		if(*format == '0')
-		{
-			padzeros = 1;
-			continue;
-		}
-		
-		if(*format >= '0' && *format <= '9')
-		{
-			width = get_dec(format, &format);
-			format--;
-			continue;
-		}
-		
-		if(*format == '.')
-		{
-			precision = get_dec(format, &format);
-			format--;
-			continue;
-		}
-		
-		
-		if(IS_SPEC(*format))
-		{
-			if(DECIMAL_SPEC(*format))
-			{
-				int n = *varg++;
-				if(size == -1) n &= 0xFFFF;
-				if(size == -2) n &= 0xFF;
-				if(size == 2){} // TODO: Handle this!
-				int i = print_int(n, 10, 0, width, padzeros, showsign, signspace, 0, out);
-				nchars += i;
-				out += i;
-			}
+			case FMT_SPEC: is_in_spec = 0;
+						   *out++ = FMT_SPEC;
+						   nchars++;
+						   break;
 			
-			if(UNSIGNED_SPEC(*format))
-			{
-				u32 n = *varg++;
-				if(size == -1) n &= 0xFFFF;
-				if(size == -2) n &= 0xFF;
-				if(size == 2){} // TODO: Handle this!
-				int i = print_int(n, 10, 1, width, padzeros, showsign, signspace, 0, out);
-				nchars += i;
-				out += i;
-			}
+			case 'l': if(size < 2) size++;
+					  break;
+		
+			case 'L': size = 1;
+					  break;
 			
-			// Unimplemented:
-			if(FDOUBLE_SPEC(*format)) varg++;
-			if(EDOUBLE_SPEC(*format)) varg++;
-			if(GDOUBLE_SPEC(*format)) varg++;
+			case 'h': if(size > -2) size--;
+					  break;
 			
-			if(HEX_SPEC(*format))
-			{
-				u32 n = *varg++;
-				if(size == -1) n &= 0xFFFF;
-				if(size == -2) n &= 0xFF;
-				if(size == 2){} // TODO: Handle this!
-				int i = print_int(n, 16, 1, width, padzeros, showsign, signspace, (*format == 'X'), out);
-				nchars += i;
-				out += i;
-			}
+			case 'z':
+			case 'j':
+			case 't': size = 0;
+					  break;
+		
+			case '+': showsign = 1;
+					  break;
 			
-			if(OCTAL_SPEC(*format))
-			{
-				u32 n = *varg++;
-				if(size == -1) n &= 0xFFFF;
-				if(size == -2) n &= 0xFF;
-				if(size == 2){} // TODO: Handle this!
-				int i = print_int(n, 8, 1, width, padzeros, showsign, signspace, 0, out);
-				nchars += i;
-				out += i;
-			}
+			case ' ': signspace = 1;
+					  break;
 			
-			if(STRING_SPEC(*format))
-			{
-				char *str = (char *)*varg++;
-				if(size > 0)
-				{
-					while(*str) *out++ = *str++;
-					nchars += wcslen((short *)str);
-				}
-				else
-				{
-					while(*str) *out++ = *str++;
-					nchars += strlen(str);
-				}
-			}
+			case '-': leftalign = 1;
+					  break;
+		
+			case '0': padzeros = 1;
+					  break;
 			
-			if(CHAR_SPEC(*format))
-			{
-				int ch = *varg++;
-				if(size > 0) *out++ = (char)ch;
-				else         *out++ = (char)ch;
-				nchars++;
-			}
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9': width = get_dec(format, &format);
+					  format--;
+					  break;
 			
-			if(POINTER_SPEC(*format))
-			{
-				u32 i = *varg++;
-				nchars += print_int(i, 16, 1, width, padzeros, showsign, signspace, 1 /* Should this be upper or lower case? */, out);
-			}
-			
-			// Unimplemented:
-			if(HEXFLOAT_SPEC(*format)) varg++;
-			
-			if(INUM_SPEC(*format))
-			{
-				*varg++ = nchars;
-			}
+			case '.': format++;
+					  precision = get_dec(format, &format);
+					  format--;
+					  break;
 			
 			
-			is_in_spec = 0;
-			size       = 0;
-			width      = 0;
-			precision  = 0;
-			showsign   = 0;
-			signspace  = 0;
-			leftalign  = 0;
-			padzeros   = 0;
+		// Numbers, strings, etc...
+			
+			case 'd':
+			case 'i': temp = *varg++;
+					  if(size == -1) temp &= 0xFFFF;
+					  if(size == -2) temp &= 0xFF;
+					  if(size == 2){} // TODO: Handle this!
+					  temp = print_int(temp, 10, 0, width, padzeros, showsign, signspace, 0, out);
+					  nchars += temp;
+					  out += temp-1;
+					  ZERO_ALL_VID();
+					  break;
+					  
+			case 'u': temp = *varg++;
+					  if(size == -1) temp &= 0xFFFF;
+					  if(size == -2) temp &= 0xFF;
+					  if(size == 2){} // TODO: Handle this!
+					  temp = print_int(temp, 10, 1, width, padzeros, showsign, signspace, 0, out);
+					  nchars += temp;
+					  out += temp-1;
+					  ZERO_ALL_VID();
+					  break;
+			
+			case 'f':
+			case 'F':
+			case 'e':
+			case 'E':
+			case 'g':
+			case 'G': varg++;
+					  ZERO_ALL_VID();
+					  break;
+					  
+			case 'x':
+			case 'X': temp = *varg++;
+					  if(size == -1) temp &= 0xFFFF;
+					  if(size == -2) temp &= 0xFF;
+					  if(size == 2){} // TODO: Handle this!
+					  temp = print_int(temp, 16, 1, width, padzeros, showsign, signspace, (*format == 'X'), out);
+					  nchars += temp;
+					  out += temp-1;
+					  ZERO_ALL_VID();
+					  break;
+			
+			case 'o': temp = *varg++;
+					  if(size == -1) temp &= 0xFFFF;
+					  if(size == -2) temp &= 0xFF;
+					  if(size == 2){} // TODO: Handle this!
+					  temp = print_int(temp, 8, 1, width, padzeros, showsign, signspace, 0, out);
+					  nchars += temp;
+					  out += temp-1;
+					  ZERO_ALL_VID();
+					  break;
+					 
+			case 's': temp = *varg++;
+					  if(size > 0)
+					  {
+						 nchars += wcslen((short *)temp);
+						 while(*(short *)temp) *out++ = *(short *)temp++;
+					  }
+					  else
+					  {
+						  nchars += wcslen((short *)temp);
+						  while(*(short *)temp) *out++ = *(short *)temp++;
+					  }
+					  ZERO_ALL_VID();
+					  break;
+					
+			case 'c': temp = *varg++;
+					  if(size > 0) *out++ = (char)temp;
+					  else         *out++ = (char)temp;
+					  nchars++;
+					  ZERO_ALL_VID();
+					  break;
+					
+			case 'p': temp = *varg++;
+					  temp = print_int(temp, 16, 1, width, padzeros, showsign, signspace, 1 /* Should this be upper or lower case? */, out);
+					  nchars += temp;
+					  out += temp-1;
+					  break;
+					
+			case 'a':
+			case 'A': varg++;
+					  ZERO_ALL_VID();
+					  break;
+					
+			case 'n': *varg++ = nchars;
+					  ZERO_ALL_VID();
+					  break;
 		}
 		
 	}
@@ -413,6 +384,27 @@ int kprintf(char *format, ...)
 {
 	int *varg = (int *)&format;
 	char temp[1024];
+	int i = 0;
+	while(i < 1024) temp[i++] = ' ';
+	int ret = print(temp, format, ++varg);
+	kprint(temp);
+	return ret;
+}
+
+/**
+ * \brief Creates and prints a string based on input format string and arguments.
+ * Uses `print` to convert the format string and any number of arguments in varg to
+ * a string then prints that string to the screen.
+ * @param format format string
+ * @param varg argument list
+ * @return the number of characters printed
+ * @see print
+ */
+int kprintv(char *format, int *varg)
+{
+	char temp[1024];
+	int i = 0;
+	while(i < 1024) temp[i++] = ' ';
 	int ret = print(temp, format, ++varg);
 	kprint(temp);
 	return ret;

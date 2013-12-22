@@ -3,6 +3,8 @@
 
 struct time_block time_blocks[MAX_TIME_BLOCKS] = { { NULL, 0, 0 }, }; //!< Array of timeblocks used by various processes
 
+u64 kerneltime; //!< Number of elapsed ticks since the PIT was initialized
+
 /**
  * \brief Called when count reaches 0.
  * This makes it easier for the timer interrupt to call event(). After calling event()

@@ -1,4 +1,5 @@
 #include <types.h>
+#include <intr/int.h>
 
 #ifndef INTERRUPT_H
 #define INTERRUPT_H
@@ -10,8 +11,8 @@
 
 #else
 
-#define TIMER_INT
-#define KEYBOARD_INT
+#define TIMER_INT    0
+#define KEYBOARD_INT 0
 
 #endif
 

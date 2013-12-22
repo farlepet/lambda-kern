@@ -66,10 +66,6 @@ typedef unsigned long long u128; //!< Unsigned 128 bit value
 #define __deprecated_msg(M)
 #endif
 
-#define __sti    asm volatile("sti")
-#define __cli    asm volatile("cli")
-#define __hlt    asm volatile("hlt")
-
 
 #define NULL (void *)0x00000000
 

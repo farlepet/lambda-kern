@@ -6,7 +6,6 @@
 
 extern void pit_int(); //!< The PIT interrupt handler
 
-u64 kernel_time; //!< Number of elapsed ticks since the PIT was initialized
 
 /**
  * \brief PIT interrupt handler.
@@ -15,7 +14,7 @@ u64 kernel_time; //!< Number of elapsed ticks since the PIT was initialized
  */
 void pit_handler()
 {
-	kernel_time++;
+	kerneltime++;
 	
 	register u32 i = 0;
 	for(; i < MAX_TIME_BLOCKS; i++)

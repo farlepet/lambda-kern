@@ -1,10 +1,11 @@
 #include <mm/mm.h>
 #include <multiboot.h>
 #include <video.h>
+#include <err/panic.h>
 
 #ifdef ARCH_X86
-#include <kernel/arch/x86/mm/paging.h>
-#include <kernel/arch/x86/mm/gdt.h>
+#include <mm/paging.h>
+#include <mm/gdt.h>
 #endif
 
 /**
@@ -17,10 +18,7 @@ void mm_init(struct multiboot_header_tag *mboot_tag)
 	struct multiboot_basic_memory_tag *mem_tag = (struct multiboot_basic_memory_tag *)find_multiboot_table(mboot_tag, 4);
 	
 	if(!mem_tag)
-	{
-		kprint("No memory information tag found!\n");
-		for(;;);
-	}
+		kpanic("No memory information tag found in multiboot tags!");
 	
 #ifdef ARCH_X86
 	gdt_init();

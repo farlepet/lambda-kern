@@ -1,13 +1,18 @@
 #include <types.h>
+#include <err/error.h>
 
-#ifdef ARCH_X86
-#include <kernel/arch/x86/intr/idt.h>
-#include <kernel/arch/x86/intr/pit.h>
+#if  defined(ARCH_X86)
+
+#include <intr/idt.h>
+#include <intr/pit.h>
+#include <intr/int.h>
 extern void exceptions_init(); //!< Initializes basic exception handlers. Found in intr/exceptions.asm
-#endif
 
-#ifdef ARCH_X86_64
-#include <kernel/arch/x86_64/intr/idt.h>
+#elif defined(ARCH_X86_64)
+
+#include <intr/idt.h>
+#include <intr/int.h>
+
 #endif
 
 /**
@@ -16,15 +21,13 @@ extern void exceptions_init(); //!< Initializes basic exception handlers. Found 
  */
 void interrupts_init()
 {
-#ifdef ARCH_X86
+#if  defined(ARCH_X86)
 	idt_init();
 	exceptions_init();
-__sti;
-#endif
-#ifdef ARCH_X86_64
+#elif defined(ARCH_X86_64)
 	idt_init();
-__sti;
 #endif
+	kerror(ERR_BOOTINFO, 1, "Interrupts enabled");
 }
 
 /**
@@ -35,12 +38,12 @@ __sti;
  */
 void set_interrupt(u32 n, void *handler)
 {
-#ifdef ARCH_X86
+#if   defined(ARCH_X86)
+	set_idt(n, 0x08, 0x8E, handler);
+#elif defined(ARCH_X86_64)
 	set_idt(n, 0x08, 0x8E, handler);
 #endif
-#ifdef ARCH_X86_64
-	set_idt(n, 0x08, 0x8E, handler);
-#endif
+	kerror(ERR_INFO, 1, "Interrupt vector 0x%X set");
 }
 
 /**
@@ -54,5 +57,6 @@ void timer_init(u32 quantum)
 	pit_init(quantum);
 #else
 	(void)quantum;
-#endif	
+#endif
+	kerror(ERR_BOOTINFO, 1, "Timer initialized");
 }

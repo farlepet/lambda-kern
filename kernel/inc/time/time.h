@@ -3,6 +3,8 @@
 
 #include <types.h>
 
+u64 kerneltime; //!< Number of elapsed ticks since the PIT was initialized
+
 /**
  * \brief A structure to help with timing.
  * A structure that helps processes keep time. Every timer tick, count will

@@ -1,7 +1,7 @@
 #include <multiboot.h>
 #include <intr/intr.h>
-#include <kernel/arch/x86/io/ioport.h>
-#include <kernel/arch/x86/io/serial.h>
+#include <err/panic.h>
+#include <err/error.h>
 #include <mm/mm.h>
 #include <video.h>
 
@@ -14,18 +14,16 @@
 int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 {
 	if(magic != 0x36d76289)
-	{
-		kprintf("Invalid magic number given by the bootloader: 0x%X", magic);
-		for(;;);
-	}
+		kpanic("Invalid magic number given by the bootloader: 0x%08X", magic);
+	
 	
 	mm_init(mboot_tag);
 	
 	interrupts_init();
 
-	timer_init(100);
-
-	kprintf("Welcome to Lambda OS!");
+	timer_init(1000); // At this speed, the counter will roll over after 5997302.87 centuries
+	
+	kerror(ERR_BOOTINFO, 1, "Lambda OS kernel finished initializing");
 	
 	for(;;);
 }
