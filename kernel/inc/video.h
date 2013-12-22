@@ -75,6 +75,6 @@ int kprintf(char *format, ...);
  * @return the number of characters printed
  * @see print
  */
-int kprintv(char *format, int *varg);
+int kprintv(char *format, ptr_t *varg);
 
 #endif

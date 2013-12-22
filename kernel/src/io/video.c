@@ -2,7 +2,7 @@
 #include <string.h>
 #include <mm/mm.h>
 
-#ifdef ARCH_X86
+#if (defined(ARCH_X86) | defined(ARCH_X86_64))
 #include <dev/vga/print.h>
 #endif
 
@@ -13,7 +13,7 @@
  */
 void kput(char c)
 {
-#ifdef ARCH_X86
+#if (defined(ARCH_X86) | defined(ARCH_X86_64))
 	vga_put((u8)c);
 #endif
 }
@@ -25,7 +25,7 @@ void kput(char c)
  */
 void kwput(int c)
 {
-#ifdef ARCH_X86
+#if (defined(ARCH_X86) | defined(ARCH_X86_64))
 	vga_put((u8)c);
 #endif
 }
@@ -47,7 +47,7 @@ void kprint(char *str)
  * @param str the input string
  * @see kwput
  */
-void kwprint(short *str)
+void kwprint(u16 *str)
 {
 	while(*str) kwput(*str++);
 }
@@ -174,7 +174,7 @@ static int get_dec(char *str, char **out)
  * @param varg the list of arguments
  * @return the number of charactern placed in `out`
  */
-static int print(char *out, char *format, int *varg)
+static int print(char *out, char *format, ptr_t *varg)
 {
 	int is_in_spec = 0;
 	int size = 0;      // Size of the integer
@@ -187,7 +187,7 @@ static int print(char *out, char *format, int *varg)
 	
 	int nchars = 0;    // Number of chars printed so far
 	
-	u32 temp;
+	ptr_t temp;
 	
 	for(; *format != 0; format++)
 	{
@@ -310,13 +310,13 @@ static int print(char *out, char *format, int *varg)
 			case 's': temp = *varg++;
 					  if(size > 0)
 					  {
-						 nchars += wcslen((short *)temp);
-						 while(*(short *)temp) *out++ = *(short *)temp++;
+						 nchars += wcslen((s16 *)temp);
+						 while(*(s16 *)temp) *out++ = *(s16 *)temp++;
 					  }
 					  else
 					  {
-						  nchars += wcslen((short *)temp);
-						  while(*(short *)temp) *out++ = *(short *)temp++;
+						  nchars += strlen((char *)temp);
+						  while(*(char *)temp) *out++ = *(char *)temp++;
 					  }
 					  ZERO_ALL_VID();
 					  break;
@@ -367,7 +367,7 @@ static int print(char *out, char *format, int *varg)
  */
 int sprintf(char *out, char *format, ...)
 {
-	int *varg = (int *)&format;
+	ptr_t *varg = (ptr_t *)&format;
 	return print(out, format, varg);
 }
 
@@ -382,7 +382,7 @@ int sprintf(char *out, char *format, ...)
  */
 int kprintf(char *format, ...)
 {
-	int *varg = (int *)&format;
+	ptr_t *varg = (ptr_t *)&format;
 	char temp[1024];
 	int i = 0;
 	while(i < 1024) temp[i++] = ' ';
@@ -400,7 +400,7 @@ int kprintf(char *format, ...)
  * @return the number of characters printed
  * @see print
  */
-int kprintv(char *format, int *varg)
+int kprintv(char *format, ptr_t *varg)
 {
 	char temp[1024];
 	int i = 0;

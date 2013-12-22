@@ -33,7 +33,7 @@ struct  idt_entry_64 {
 		ent.flags    = attr;                               \
 		ent.selector = sel;                                 \
 		ent.reserved = 0;                                    \
-		ent.reservedIst = 0;                                  \
+		ent.reservedIst = 1;                                  \
 	} while(0);
 
 /**
@@ -59,10 +59,10 @@ enum idt_int_type
  * @see idt_int_type
  */
 #define IDT_ATTR(present, dpl, storeseg, type) \
-(((present & 0x01) << 7) | \
-((dpl      & 0x03) << 5) | \
-((storeseg & 0x01) << 4) | \
-((type     & 0x0F) << 0))
+	(((present & 0x01) << 7) | \
+	((dpl      & 0x03) << 5) | \
+	((storeseg & 0x01) << 4) | \
+	((type     & 0x0F) << 0))
 
 
 /**

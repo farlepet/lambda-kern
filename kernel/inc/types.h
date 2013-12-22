@@ -20,6 +20,8 @@ typedef unsigned char      u8;  //!< Unsigned 8 bit value
 typedef unsigned short     u16; //!< Unsigned 16 bit value
 typedef unsigned int       u32; //!< Unsigned 32 bit value
 typedef unsigned long long u64; //!< Unsigned 64 bit value
+
+typedef unsigned int ptr_t; //!< Pointer
 #endif // ARCH_X86
 
 #ifdef ARCH_X86_64
@@ -34,6 +36,8 @@ typedef unsigned short     u16;  //!< Unsigned 16 bit value
 typedef unsigned int       u32;  //!< Unsigned 32 bit value
 typedef unsigned long      u64;  //!< Unsigned 64 bit value
 typedef unsigned long long u128; //!< Unsigned 128 bit value
+
+typedef unsigned long ptr_t; //!< Pointer
 #endif // ARCH_X86_64
 
 

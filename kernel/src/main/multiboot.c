@@ -14,7 +14,7 @@ struct multiboot_tag *find_multiboot_table(struct multiboot_header_tag* mboot_ta
 	u32 i = 8; // Bypass multiboot_header_tag
 	while(i < size)
 	{
-		struct multiboot_tag *tag = (struct multiboot_tag *)(i + (u32)mboot_tag);
+		struct multiboot_tag *tag = (struct multiboot_tag *)(i + (ptr_t)mboot_tag);
 		
 		if(tag->type == type) return tag;
 		i += tag->size;

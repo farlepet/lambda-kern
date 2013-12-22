@@ -37,7 +37,10 @@ static void remap_pic(int off1, int off2)
  */
 static void reload_idt()
 {
-	load_idt((u64 *)&IDT[0], sizeof(IDT)-1);
+	struct { u16 limit; u64 offset; } idtr;
+	idtr.limit = sizeof(IDT) - 1;
+	idtr.offset = (u64)&IDT[0];
+	asm volatile("lidtq %0" :: "m"(idtr));
 	remap_pic(0x20, 0x28);
 }
 
@@ -51,7 +54,7 @@ void idt_init()
 {
 	int i = 0;
 	for(; i < 256; i++)
-		IDT_ENTRY(IDT[i], (u64)&dummy_int, 0x08, 0x8E);
+		IDT_ENTRY(IDT[i], (u64)&dummy_int, 0x08, IDT_ATTR(0, 0, 0x0, int32)); //0x8E);
 	
 	reload_idt();
 }

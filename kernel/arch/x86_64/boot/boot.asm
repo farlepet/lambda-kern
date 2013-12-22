@@ -47,6 +47,9 @@ HdrEnd:
 [GLOBAL EntryPoint]
 [EXTERN Stack]
 EntryPoint:
+	mov [mboot_tag], ebx
+	mov [mboot_magic], eax
+	
 	mov eax, Gdtr1
 	lgdt [eax]
  
@@ -84,7 +87,10 @@ EntryPoint:
 	; If you later decide to unmap the lower zone, you will have an invalid Gdt if you're still using Gdtr2
 	mov rax, Gdtr3
 	lgdt [rax]
- 
+
+	push qword [mboot_magic]
+	push qword [mboot_tag]
+	
 	mov rax, kmain
 	call rax
 	cli
@@ -161,23 +167,5 @@ Gdtr3:
 	DW	23
 	DQ	TmpGdt + 24 + 0xFFFFFFFF80000000
 
-
-
-
-
-
-
-
-
-; Temporary!!!
-[BITS 64]
-
-extern test_int
-global inttest
-inttest:
-	cli
-	pushaq
-	call test_int
-	popaq
-	sti
-	iretq
+mboot_tag:   DQ 0
+mboot_magic: DQ 0

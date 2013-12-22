@@ -23,7 +23,7 @@ void kerror(error_level errlvl, int en_int, char *msg, ...)
 	
 	if(errlvl >= minlvl)
 	{
-		int *varg = (int *)&msg;
+		ptr_t *varg = (ptr_t *)&msg;
 		kprintf("[%08X%08X] ", (u32)(kerneltime >> 32), (u32)kerneltime);
 		kprintv(msg, ++varg);
 		kput('\n');

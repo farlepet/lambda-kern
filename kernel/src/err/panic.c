@@ -10,7 +10,7 @@
  */
 void kpanic(char *msg, ...)
 {
-	int *varg = (int *)&msg;
+	ptr_t *varg = (ptr_t *)&msg;
 	
 	disable_interrupts();
 	
