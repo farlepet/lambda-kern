@@ -121,55 +121,55 @@ $(document).ready(function(){initNavTree('types_8h_source.html','');});
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span>     u16; </div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>       u32; </div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span> u64; </div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#endif // ARCH_X86</span></div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#ifdef ARCH_X86_64</span></div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor"></span><span class="keyword">typedef</span> <span class="keywordtype">char</span>      s8;   </div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">short</span>     s16;  </div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">int</span>       s32;  </div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">long</span>      s64;  </div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span> s128; </div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span>      u8;   </div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span>     u16;  </div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>       u32;  </div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span>      u64;  </div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span> u128; </div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">#endif // ARCH_X86_64</span></div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> ptr_t; </div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#endif // ARCH_X86</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">#ifdef ARCH_X86_64</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor"></span><span class="keyword">typedef</span> <span class="keywordtype">char</span>      s8;   </div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">short</span>     s16;  </div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">int</span>       s32;  </div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">long</span>      s64;  </div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span> s128; </div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span>      u8;   </div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span>     u16;  </div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>       u32;  </div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span>      u64;  </div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span> u128; </div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
-<div class="line"><a name="l00041"></a><span class="lineno"><a class="line" href="types_8h.html#a51412353281872c8a9cb933bf6f6860e">   41</a></span>&#160;<span class="preprocessor">#define __alias(N)    __attribute__((__weak__, __alias__(#N))) </span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> ptr_t; </div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="preprocessor">#endif // ARCH_X86_64</span></div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00043"></a><span class="lineno"><a class="line" href="types_8h.html#ab8d4aa7e9ca368db7220dc9747189f1c">   43</a></span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define __pure        __attribute__((__pure__))                </span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00045"></a><span class="lineno"><a class="line" href="types_8h.html#af4689d6a54aa1e22d9fcdb5a4ee1e00c">   45</a></span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define __align(A)    __attribute__((__aligned__(#A)))         </span></div>
-<div class="line"><a name="l00046"></a><span class="lineno"><a class="line" href="types_8h.html#a02403dd691dff828ba6cb6d3379c35e4">   46</a></span>&#160;<span class="preprocessor">#define __inline_flat __attribute__((__flatten__))             </span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00048"></a><span class="lineno"><a class="line" href="types_8h.html#a0851bdffe742ee5d69089ff496b864c4">   48</a></span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define __error(E)    __attribute__((__error__(#E)))           </span></div>
-<div class="line"><a name="l00049"></a><span class="lineno"><a class="line" href="types_8h.html#a3bb8024db048b7f0dcee85212218da88">   49</a></span>&#160;<span class="preprocessor">#define __warning(E)  __attribute__((__warning__(#E)))         </span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00051"></a><span class="lineno"><a class="line" href="types_8h.html#a1d606e5c51fb29814027e012057397bc">   51</a></span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define __fastcall    __attribute__((__fastcall__))            </span></div>
-<div class="line"><a name="l00052"></a><span class="lineno"><a class="line" href="types_8h.html#a2483b543a28aeb82dfed626e5070f871">   52</a></span>&#160;<span class="preprocessor">#define __thiscall    __attribute__((__thiscall__))            </span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00054"></a><span class="lineno"><a class="line" href="types_8h.html#aa2329f285af4ab00c7487eccf5e7f0c6">   54</a></span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define __section(S)  __attribute__((__section__(#S)))         </span></div>
-<div class="line"><a name="l00055"></a><span class="lineno"><a class="line" href="types_8h.html#a5b6df4fe38493e14648842364a76075f">   55</a></span>&#160;<span class="preprocessor">#define __noreturn    __attribute__((__noreturn__))            </span></div>
-<div class="line"><a name="l00056"></a><span class="lineno"><a class="line" href="types_8h.html#a2e3484535ee610c8e19e9859563abe48">   56</a></span>&#160;<span class="preprocessor">#define __unused      __attribute__((__unused__))              </span></div>
-<div class="line"><a name="l00057"></a><span class="lineno"><a class="line" href="types_8h.html#a0fe7dde4488278fd739041b673efa525">   57</a></span>&#160;<span class="preprocessor">#define __packed      __attribute__((__packed__))              </span></div>
-<div class="line"><a name="l00058"></a><span class="lineno"><a class="line" href="types_8h.html#af74f8ba1e24b5ef7ab220682dd106e37">   58</a></span>&#160;<span class="preprocessor">#define __cold        __attribute__((__cold__))                </span></div>
-<div class="line"><a name="l00059"></a><span class="lineno"><a class="line" href="types_8h.html#aaa92ffc2c0cb30e9b5fda4c16a4bdd37">   59</a></span>&#160;<span class="preprocessor">#define __hot         __attribute__((__hot__))                 </span></div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#ifndef ALLOW_DEPRECATED</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno"><a class="line" href="types_8h.html#a4e1585cb1b8a465a6a9a702d97bb4ad8">   62</a></span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define __deprecated         __attribute__((__deprecated__))</span></div>
-<div class="line"><a name="l00063"></a><span class="lineno"><a class="line" href="types_8h.html#a088bf637b2df66a8caccd2872f775bc6">   63</a></span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define __deprecated_msg(M)  __attribute__((__deprecated__(#M)))</span></div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define __deprecated</span></div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define __deprecated_msg(M)</span></div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00069"></a><span class="lineno"><a class="line" href="types_8h.html#a22f5b50b8e582426daa2e9966aeb4a23">   69</a></span>&#160;<span class="preprocessor">#define __sti    asm volatile(&quot;sti&quot;)</span></div>
-<div class="line"><a name="l00070"></a><span class="lineno"><a class="line" href="types_8h.html#a239be14c23192feec61e0ceb8310672e">   70</a></span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define __cli    asm volatile(&quot;cli&quot;)</span></div>
-<div class="line"><a name="l00071"></a><span class="lineno"><a class="line" href="types_8h.html#a04735d02afba4ebee1ac64da0cd6e048">   71</a></span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define __hlt    asm volatile(&quot;hlt&quot;)</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;</div>
+<div class="line"><a name="l00045"></a><span class="lineno"><a class="line" href="types_8h.html#a51412353281872c8a9cb933bf6f6860e">   45</a></span>&#160;<span class="preprocessor">#define __alias(N)    __attribute__((__weak__, __alias__(#N))) </span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00047"></a><span class="lineno"><a class="line" href="types_8h.html#ab8d4aa7e9ca368db7220dc9747189f1c">   47</a></span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define __pure        __attribute__((__pure__))                </span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00049"></a><span class="lineno"><a class="line" href="types_8h.html#af4689d6a54aa1e22d9fcdb5a4ee1e00c">   49</a></span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define __align(A)    __attribute__((__aligned__(#A)))         </span></div>
+<div class="line"><a name="l00050"></a><span class="lineno"><a class="line" href="types_8h.html#a02403dd691dff828ba6cb6d3379c35e4">   50</a></span>&#160;<span class="preprocessor">#define __inline_flat __attribute__((__flatten__))             </span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00052"></a><span class="lineno"><a class="line" href="types_8h.html#a0851bdffe742ee5d69089ff496b864c4">   52</a></span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define __error(E)    __attribute__((__error__(#E)))           </span></div>
+<div class="line"><a name="l00053"></a><span class="lineno"><a class="line" href="types_8h.html#a3bb8024db048b7f0dcee85212218da88">   53</a></span>&#160;<span class="preprocessor">#define __warning(E)  __attribute__((__warning__(#E)))         </span></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00055"></a><span class="lineno"><a class="line" href="types_8h.html#a1d606e5c51fb29814027e012057397bc">   55</a></span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define __fastcall    __attribute__((__fastcall__))            </span></div>
+<div class="line"><a name="l00056"></a><span class="lineno"><a class="line" href="types_8h.html#a2483b543a28aeb82dfed626e5070f871">   56</a></span>&#160;<span class="preprocessor">#define __thiscall    __attribute__((__thiscall__))            </span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00058"></a><span class="lineno"><a class="line" href="types_8h.html#aa2329f285af4ab00c7487eccf5e7f0c6">   58</a></span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define __section(S)  __attribute__((__section__(#S)))         </span></div>
+<div class="line"><a name="l00059"></a><span class="lineno"><a class="line" href="types_8h.html#a5b6df4fe38493e14648842364a76075f">   59</a></span>&#160;<span class="preprocessor">#define __noreturn    __attribute__((__noreturn__))            </span></div>
+<div class="line"><a name="l00060"></a><span class="lineno"><a class="line" href="types_8h.html#a2e3484535ee610c8e19e9859563abe48">   60</a></span>&#160;<span class="preprocessor">#define __unused      __attribute__((__unused__))              </span></div>
+<div class="line"><a name="l00061"></a><span class="lineno"><a class="line" href="types_8h.html#a0fe7dde4488278fd739041b673efa525">   61</a></span>&#160;<span class="preprocessor">#define __packed      __attribute__((__packed__))              </span></div>
+<div class="line"><a name="l00062"></a><span class="lineno"><a class="line" href="types_8h.html#af74f8ba1e24b5ef7ab220682dd106e37">   62</a></span>&#160;<span class="preprocessor">#define __cold        __attribute__((__cold__))                </span></div>
+<div class="line"><a name="l00063"></a><span class="lineno"><a class="line" href="types_8h.html#aaa92ffc2c0cb30e9b5fda4c16a4bdd37">   63</a></span>&#160;<span class="preprocessor">#define __hot         __attribute__((__hot__))                 </span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#ifndef ALLOW_DEPRECATED</span></div>
+<div class="line"><a name="l00066"></a><span class="lineno"><a class="line" href="types_8h.html#a4e1585cb1b8a465a6a9a702d97bb4ad8">   66</a></span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define __deprecated         __attribute__((__deprecated__))</span></div>
+<div class="line"><a name="l00067"></a><span class="lineno"><a class="line" href="types_8h.html#a088bf637b2df66a8caccd2872f775bc6">   67</a></span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define __deprecated_msg(M)  __attribute__((__deprecated__(#M)))</span></div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define __deprecated</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define __deprecated_msg(M)</span></div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="preprocessor"></span></div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
 <div class="line"><a name="l00074"></a><span class="lineno"><a class="line" href="types_8h.html#a070d2ce7b6bb7e5c05602aa8c308d0c4">   74</a></span>&#160;<span class="preprocessor">#define NULL (void *)0x00000000</span></div>
@@ -190,7 +190,7 @@ $(document).ready(function(){initNavTree('types_8h_source.html','');});
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_25ecda1410e8adf967f2aaaca1260861.html">inc</a></li><li class="navelem"><a class="el" href="types_8h.html">types.h</a></li>
-    <li class="footer">Generated on Tue Dec 17 2013 10:46:57 for Lambda OS by
+    <li class="footer">Generated on Sun Dec 22 2013 11:27:48 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

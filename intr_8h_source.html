@@ -106,41 +106,42 @@ $(document).ready(function(){initNavTree('intr_8h_source.html','');});
 </div><!--header-->
 <div class="contents">
 <a href="intr_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="types_8h.html">types.h</a>&gt;</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;</div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#ifndef INTERRUPT_H</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define INTERRUPT_H</span></div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#if defined(ARCH_X86) | defined(ARCH_X86_64)</span></div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#define TIMER_INT    32</span></div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define KEYBOARD_INT 33</span></div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00013"></a><span class="lineno"><a class="line" href="intr_8h.html#a4942cc81f79a73b94b937b21cdcaf653">   13</a></span>&#160;<span class="preprocessor">#define TIMER_INT</span></div>
-<div class="line"><a name="l00014"></a><span class="lineno"><a class="line" href="intr_8h.html#af293630e7d389d1cb0b293ac60ae0296">   14</a></span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define KEYBOARD_INT</span></div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keywordtype">void</span> <a class="code" href="intr_8h.html#a5c99cba5ccc698fc7feb8902442176ea">interrupts_init</a>();</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="keywordtype">void</span> <a class="code" href="intr_8h.html#aefa0ab9f48fa8c7cfa0b4cd1e2d1b8c9">set_interrupt</a>(u32 n, <span class="keywordtype">void</span> *handler);</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &lt;intr/int.h&gt;</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;</div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#ifndef INTERRUPT_H</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define INTERRUPT_H</span></div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#if defined(ARCH_X86) | defined(ARCH_X86_64)</span></div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#define TIMER_INT    32</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define KEYBOARD_INT 33</span></div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00014"></a><span class="lineno"><a class="line" href="intr_8h.html#a4942cc81f79a73b94b937b21cdcaf653">   14</a></span>&#160;<span class="preprocessor">#define TIMER_INT    0</span></div>
+<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="intr_8h.html#af293630e7d389d1cb0b293ac60ae0296">   15</a></span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define KEYBOARD_INT 0</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keywordtype">void</span> <a class="code" href="intr_8h.html#a5c99cba5ccc698fc7feb8902442176ea">interrupts_init</a>();</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="keywordtype">void</span> <a class="code" href="intr_8h.html#aefa0ab9f48fa8c7cfa0b4cd1e2d1b8c9">set_interrupt</a>(u32 n, <span class="keywordtype">void</span> *handler);</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="keywordtype">void</span> <a class="code" href="intr_8h.html#a315282e15976b1078b869b347205c29a">timer_init</a>(u32 quantum);</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="keywordtype">void</span> <a class="code" href="intr_8h.html#a315282e15976b1078b869b347205c29a">timer_init</a>(u32 quantum);</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="types_8h_html"><div class="ttname"><a href="types_8h.html">types.h</a></div><div class="ttdoc">Contains useful types and definitions. </div></div>
-<div class="ttc" id="intr_8h_html_aefa0ab9f48fa8c7cfa0b4cd1e2d1b8c9"><div class="ttname"><a href="intr_8h.html#aefa0ab9f48fa8c7cfa0b4cd1e2d1b8c9">set_interrupt</a></div><div class="ttdeci">void set_interrupt(u32 n, void *handler)</div><div class="ttdoc">Attaches an interrupt handler to an interrupt. Attaches an interrupt handler to the specified interru...</div><div class="ttdef"><b>Definition:</b> <a href="interrupts_8c_source.html#l00036">interrupts.c:36</a></div></div>
-<div class="ttc" id="intr_8h_html_a315282e15976b1078b869b347205c29a"><div class="ttname"><a href="intr_8h.html#a315282e15976b1078b869b347205c29a">timer_init</a></div><div class="ttdeci">void timer_init(u32 quantum)</div><div class="ttdoc">Initializes the system timer. Initializes the timer used by the target architecture. </div><div class="ttdef"><b>Definition:</b> <a href="interrupts_8c_source.html#l00051">interrupts.c:51</a></div></div>
-<div class="ttc" id="intr_8h_html_a5c99cba5ccc698fc7feb8902442176ea"><div class="ttname"><a href="intr_8h.html#a5c99cba5ccc698fc7feb8902442176ea">interrupts_init</a></div><div class="ttdeci">void interrupts_init()</div><div class="ttdoc">Initializes interrupts. Initializes based on the target architecture. </div><div class="ttdef"><b>Definition:</b> <a href="interrupts_8c_source.html#l00017">interrupts.c:17</a></div></div>
+<div class="ttc" id="intr_8h_html_aefa0ab9f48fa8c7cfa0b4cd1e2d1b8c9"><div class="ttname"><a href="intr_8h.html#aefa0ab9f48fa8c7cfa0b4cd1e2d1b8c9">set_interrupt</a></div><div class="ttdeci">void set_interrupt(u32 n, void *handler)</div><div class="ttdoc">Attaches an interrupt handler to an interrupt. Attaches an interrupt handler to the specified interru...</div><div class="ttdef"><b>Definition:</b> <a href="interrupts_8c_source.html#l00039">interrupts.c:39</a></div></div>
+<div class="ttc" id="intr_8h_html_a315282e15976b1078b869b347205c29a"><div class="ttname"><a href="intr_8h.html#a315282e15976b1078b869b347205c29a">timer_init</a></div><div class="ttdeci">void timer_init(u32 quantum)</div><div class="ttdoc">Initializes the system timer. Initializes the timer used by the target architecture. </div><div class="ttdef"><b>Definition:</b> <a href="interrupts_8c_source.html#l00054">interrupts.c:54</a></div></div>
+<div class="ttc" id="intr_8h_html_a5c99cba5ccc698fc7feb8902442176ea"><div class="ttname"><a href="intr_8h.html#a5c99cba5ccc698fc7feb8902442176ea">interrupts_init</a></div><div class="ttdeci">void interrupts_init()</div><div class="ttdoc">Initializes interrupts. Initializes based on the target architecture. </div><div class="ttdef"><b>Definition:</b> <a href="interrupts_8c_source.html#l00022">interrupts.c:22</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_25ecda1410e8adf967f2aaaca1260861.html">inc</a></li><li class="navelem"><a class="el" href="dir_f91cd87be93de027c13aa159d254b287.html">intr</a></li><li class="navelem"><a class="el" href="intr_8h.html">intr.h</a></li>
-    <li class="footer">Generated on Tue Dec 17 2013 10:46:57 for Lambda OS by
+    <li class="footer">Generated on Sun Dec 22 2013 11:27:48 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

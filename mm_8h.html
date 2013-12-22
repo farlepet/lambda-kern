@@ -140,14 +140,16 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>the location of the page </dd></dl>
 <dl class="section see"><dt>See Also</dt><dd><a class="el" href="paging_8h.html#a72ac221bab13f82af38cae1fd828278a" title="Free an allocated frame. Free an allocated page frame, allowing it to be allocated again...">free_frame</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="mm_8c_source.html#l00038">38</a> of file <a class="el" href="mm_8c_source.html">mm.c</a>.</p>
+<p>Definition at line <a class="el" href="mm_8c_source.html#l00037">37</a> of file <a class="el" href="mm_8c_source.html">mm.c</a>.</p>
 
 <p>References <a class="el" href="paging_8c_source.html#l00063">alloc_frame()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;{</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor">#ifdef ARCH_X86</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="preprocessor"></span>    <span class="keywordflow">return</span> <a class="code" href="paging_8c.html#a0692bf8dce3ee5883abdba6625491437">alloc_frame</a>();</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor"></span>}</div>
+<div class="fragment"><div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;{</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor">#if   defined(ARCH_X86)</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor"></span>    <span class="keywordflow">return</span> <a class="code" href="paging_8c.html#a0692bf8dce3ee5883abdba6625491437">alloc_frame</a>();</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="preprocessor">#elif defined(ARCH_X86_64)</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor"></span>    <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor"></span>}</div>
 <div class="ttc" id="paging_8c_html_a0692bf8dce3ee5883abdba6625491437"><div class="ttname"><a href="paging_8c.html#a0692bf8dce3ee5883abdba6625491437">alloc_frame</a></div><div class="ttdeci">void * alloc_frame()</div><div class="ttdoc">Allocate a frame. Allocates a page frame then returns its address. </div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00063">paging.c:63</a></div></div>
 </div><!-- fragment -->
 </div>
@@ -173,14 +175,16 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section see"><dt>See Also</dt><dd><a class="el" href="mm_8c.html#aacfa00f5a8f0aa2e3e5019586a4db770" title="Allocate a page. Allocate a page the size of the target architecture&#39;s pages and using the target arc...">alloc_page</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="mm_8c_source.html#l00051">51</a> of file <a class="el" href="mm_8c_source.html">mm.c</a>.</p>
+<p>Definition at line <a class="el" href="mm_8c_source.html#l00052">52</a> of file <a class="el" href="mm_8c_source.html">mm.c</a>.</p>
 
 <p>References <a class="el" href="paging_8c_source.html#l00108">free_frame()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;{</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor">#ifdef ARCH_X86</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="preprocessor"></span>    <a class="code" href="paging_8c.html#a84f2e5bf7896e25c26ba9e0ea4a70715">free_frame</a>(page);</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="preprocessor">}<div class="ttc" id="paging_8c_html_a84f2e5bf7896e25c26ba9e0ea4a70715"><div class="ttname"><a href="paging_8c.html#a84f2e5bf7896e25c26ba9e0ea4a70715">free_frame</a></div><div class="ttdeci">void free_frame(void *frame)</div><div class="ttdoc">Free an allocated frame. Free an allocated page frame, allowing it to be allocated again...</div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00108">paging.c:108</a></div></div>
+<div class="fragment"><div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;{</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="preprocessor">#if   defined(ARCH_X86)</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="preprocessor"></span>    <a class="code" href="paging_8c.html#a84f2e5bf7896e25c26ba9e0ea4a70715">free_frame</a>(page);</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="preprocessor">#elif defined(ARCH_X86_64)</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="preprocessor"></span>    (void)page;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="preprocessor">}<div class="ttc" id="paging_8c_html_a84f2e5bf7896e25c26ba9e0ea4a70715"><div class="ttname"><a href="paging_8c.html#a84f2e5bf7896e25c26ba9e0ea4a70715">free_frame</a></div><div class="ttdeci">void free_frame(void *frame)</div><div class="ttdoc">Free an allocated frame. Free an allocated page frame, allowing it to be allocated again...</div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00108">paging.c:108</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -204,28 +208,26 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="mm_8c_source.html#l00015">15</a> of file <a class="el" href="mm_8c_source.html">mm.c</a>.</p>
+<p>Definition at line <a class="el" href="mm_8c_source.html#l00016">16</a> of file <a class="el" href="mm_8c_source.html">mm.c</a>.</p>
 
-<p>References <a class="el" href="multiboot_8c_source.html#l00011">find_multiboot_table()</a>, <a class="el" href="gdt_8c_source.html#l00023">gdt_init()</a>, <a class="el" href="video_8c_source.html#l00039">kprint()</a>, <a class="el" href="multiboot_8h_source.html#l00033">multiboot_basic_memory_tag::mem_upper</a>, and <a class="el" href="paging_8c_source.html#l00188">paging_init()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;{</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    <span class="keyword">struct </span><a class="code" href="structmultiboot__basic__memory__tag.html">multiboot_basic_memory_tag</a> *mem_tag = (<span class="keyword">struct </span><a class="code" href="structmultiboot__basic__memory__tag.html">multiboot_basic_memory_tag</a> *)<a class="code" href="multiboot_8h.html#a93a0df7201080b93f585c3078a8460af">find_multiboot_table</a>(mboot_tag, 4);</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    </div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    <span class="keywordflow">if</span>(!mem_tag)</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    {</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;        <a class="code" href="video_8h.html#a9c163b4ca9a9bd7315ab683595dc5868">kprint</a>(<span class="stringliteral">&quot;No memory information tag found!\n&quot;</span>);</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;        <span class="keywordflow">for</span>(;;);</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    }</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    </div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#ifdef ARCH_X86</span></div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor"></span>    <a class="code" href="gdt_8c.html#aaa7a7d6a41843f8a0c64fd66967feef4">gdt_init</a>();</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <a class="code" href="paging_8c.html#ab45e6fbcdd413040eb68d48da756d3f9">paging_init</a>(mem_tag-&gt;<a class="code" href="structmultiboot__basic__memory__tag.html#a0e1b758c03266187cbfd75222e784c44">mem_upper</a> * 1024); <span class="comment">// memory in mem_tag in in KiB</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor"></span>}</div>
+<p>References <a class="el" href="multiboot_8c_source.html#l00011">find_multiboot_table()</a>, <a class="el" href="gdt_8c_source.html#l00023">gdt_init()</a>, <a class="el" href="panic_8c_source.html#l00011">kpanic()</a>, <a class="el" href="multiboot_8h_source.html#l00033">multiboot_basic_memory_tag::mem_upper</a>, and <a class="el" href="paging_8c_source.html#l00188">paging_init()</a>.</p>
+<div class="fragment"><div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;{</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <span class="keyword">struct </span><a class="code" href="structmultiboot__basic__memory__tag.html">multiboot_basic_memory_tag</a> *mem_tag = (<span class="keyword">struct </span><a class="code" href="structmultiboot__basic__memory__tag.html">multiboot_basic_memory_tag</a> *)<a class="code" href="multiboot_8h.html#a93a0df7201080b93f585c3078a8460af">find_multiboot_table</a>(mboot_tag, 4);</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#if   defined(ARCH_X86) // Shouldn&#39;t be required</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor"></span>    <span class="keywordflow">if</span>(!mem_tag)</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;        <a class="code" href="panic_8h.html#ad9596da66fc4b2244b44cd89d7097617">kpanic</a>(<span class="stringliteral">&quot;No memory information tag found in multiboot tags!&quot;</span>);</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    </div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <a class="code" href="gdt_8c.html#aaa7a7d6a41843f8a0c64fd66967feef4">gdt_init</a>();</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <a class="code" href="paging_8c.html#ab45e6fbcdd413040eb68d48da756d3f9">paging_init</a>(mem_tag-&gt;<a class="code" href="structmultiboot__basic__memory__tag.html#a0e1b758c03266187cbfd75222e784c44">mem_upper</a> * 1024); <span class="comment">// memory in mem_tag is in KiB</span></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#elif defined(ARCH_X86_64)</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor"></span>    (void)mem_tag;</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor"></span>}</div>
 <div class="ttc" id="multiboot_8h_html_a93a0df7201080b93f585c3078a8460af"><div class="ttname"><a href="multiboot_8h.html#a93a0df7201080b93f585c3078a8460af">find_multiboot_table</a></div><div class="ttdeci">struct multiboot_tag * find_multiboot_table(struct multiboot_header_tag *mboot_tag, u32 type)</div><div class="ttdoc">Finds the first multiboot entry with a certain type value. Finds the first multiboot entry with a cer...</div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8c_source.html#l00011">multiboot.c:11</a></div></div>
 <div class="ttc" id="paging_8c_html_ab45e6fbcdd413040eb68d48da756d3f9"><div class="ttname"><a href="paging_8c.html#ab45e6fbcdd413040eb68d48da756d3f9">paging_init</a></div><div class="ttdeci">void paging_init(u32 eom)</div><div class="ttdoc">Initialize paging. Creates a new page directory, and clears it. Thes creates a new page table...</div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00188">paging.c:188</a></div></div>
 <div class="ttc" id="gdt_8c_html_aaa7a7d6a41843f8a0c64fd66967feef4"><div class="ttname"><a href="gdt_8c.html#aaa7a7d6a41843f8a0c64fd66967feef4">gdt_init</a></div><div class="ttdeci">void gdt_init()</div><div class="ttdoc">Initialize the GDT Initializes the GDT then the TSS. </div><div class="ttdef"><b>Definition:</b> <a href="gdt_8c_source.html#l00023">gdt.c:23</a></div></div>
 <div class="ttc" id="structmultiboot__basic__memory__tag_html_a0e1b758c03266187cbfd75222e784c44"><div class="ttname"><a href="structmultiboot__basic__memory__tag.html#a0e1b758c03266187cbfd75222e784c44">multiboot_basic_memory_tag::mem_upper</a></div><div class="ttdeci">u32 mem_upper</div><div class="ttdoc">Amount of consecutive usable momory in KiB. </div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00033">multiboot.h:33</a></div></div>
-<div class="ttc" id="video_8h_html_a9c163b4ca9a9bd7315ab683595dc5868"><div class="ttname"><a href="video_8h.html#a9c163b4ca9a9bd7315ab683595dc5868">kprint</a></div><div class="ttdeci">void kprint(char *str)</div><div class="ttdoc">Prints a string of characters. Uses the current architecture&amp;#39;s print function. </div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00039">video.c:39</a></div></div>
+<div class="ttc" id="panic_8h_html_ad9596da66fc4b2244b44cd89d7097617"><div class="ttname"><a href="panic_8h.html#ad9596da66fc4b2244b44cd89d7097617">kpanic</a></div><div class="ttdeci">void kpanic(char *msg,...)</div><div class="ttdoc">Halts OS after printing error information. Disabled interrupts, prints the provided error message...</div><div class="ttdef"><b>Definition:</b> <a href="panic_8c_source.html#l00011">panic.c:11</a></div></div>
 <div class="ttc" id="structmultiboot__basic__memory__tag_html"><div class="ttname"><a href="structmultiboot__basic__memory__tag.html">multiboot_basic_memory_tag</a></div><div class="ttdoc">Amount of consecutive memory available. </div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00028">multiboot.h:28</a></div></div>
 </div><!-- fragment -->
 </div>
@@ -236,7 +238,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_25ecda1410e8adf967f2aaaca1260861.html">inc</a></li><li class="navelem"><a class="el" href="dir_f076441bd65cf73d8fffcd59c5d93bb1.html">mm</a></li><li class="navelem"><a class="el" href="mm_8h.html">mm.h</a></li>
-    <li class="footer">Generated on Tue Dec 17 2013 10:46:57 for Lambda OS by
+    <li class="footer">Generated on Sun Dec 22 2013 11:27:48 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

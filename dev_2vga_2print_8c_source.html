@@ -118,7 +118,7 @@ $(document).ready(function(){initNavTree('dev_2vga_2print_8c_source.html','');})
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;</div>
 <div class="line"><a name="l00012"></a><span class="lineno"><a class="line" href="dev_2vga_2print_8c.html#a24dd6e118cc27d3326790746cb714575">   12</a></span>&#160;<span class="keyword">static</span> u8 *<a class="code" href="dev_2vga_2print_8c.html#a24dd6e118cc27d3326790746cb714575">vidmem</a> = (u8 *)0xB8000; </div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;</div>
-<div class="line"><a name="l00019"></a><span class="lineno"><a class="line" href="print_8h.html#a0a09bc3b0111af74c7aa94b6504c3e9b">   19</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="dev_2vga_2print_8c.html#a0a09bc3b0111af74c7aa94b6504c3e9b">vga_clear</a>()</div>
+<div class="line"><a name="l00019"></a><span class="lineno"><a class="line" href="64_2dev_2vga_2print_8h.html#a0a09bc3b0111af74c7aa94b6504c3e9b">   19</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="dev_2vga_2print_8c.html#a0a09bc3b0111af74c7aa94b6504c3e9b">vga_clear</a>()</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;{</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <span class="keywordtype">int</span> i = 0;</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <span class="keywordflow">for</span>(; i &lt; <a class="code" href="dev_2vga_2print_8c.html#a64bd209719805b927440b59fa98dfeb5">xres</a>*<a class="code" href="dev_2vga_2print_8c.html#aa56a403ffdfe2aec14965c0b618de1c1">yres</a>*2; i++)</div>
@@ -161,7 +161,7 @@ $(document).ready(function(){initNavTree('dev_2vga_2print_8c_source.html','');})
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="dev_2vga_2print_8c.html#a4db09a4236b6f591c377857b932eb41a">ypos</a> &gt;= <a class="code" href="dev_2vga_2print_8c.html#aa56a403ffdfe2aec14965c0b618de1c1">yres</a>) { <a class="code" href="dev_2vga_2print_8c.html#a4db09a4236b6f591c377857b932eb41a">ypos</a> = <a class="code" href="dev_2vga_2print_8c.html#aa56a403ffdfe2aec14965c0b618de1c1">yres</a> - 1; <a class="code" href="dev_2vga_2print_8c.html#aa181fde17108dc717d58c85791205224">scrollup</a>(); }</div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;}</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
-<div class="line"><a name="l00081"></a><span class="lineno"><a class="line" href="print_8h.html#a10efa90188a292b08f1fefa5a1715550">   81</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="dev_2vga_2print_8c.html#a10efa90188a292b08f1fefa5a1715550">vga_print</a>(<span class="keywordtype">char</span> *str)</div>
+<div class="line"><a name="l00081"></a><span class="lineno"><a class="line" href="64_2dev_2vga_2print_8h.html#a10efa90188a292b08f1fefa5a1715550">   81</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="dev_2vga_2print_8c.html#a10efa90188a292b08f1fefa5a1715550">vga_print</a>(<span class="keywordtype">char</span> *str)</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;{</div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordtype">int</span> i = 0;</div>
 <div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <span class="keywordflow">while</span>(str[i] != 0)</div>
@@ -203,7 +203,7 @@ $(document).ready(function(){initNavTree('dev_2vga_2print_8c_source.html','');})
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_4a04b9aac4eefdd334a78e565f4616f2.html">arch</a></li><li class="navelem"><a class="el" href="dir_0ce8714634557e35558d1ff2ffab94d6.html">x86</a></li><li class="navelem"><a class="el" href="dir_deed9d899a1178442b05b262dad42ece.html">dev</a></li><li class="navelem"><a class="el" href="dir_370853c617da681ab4d4decb448c9a80.html">vga</a></li><li class="navelem"><a class="el" href="dev_2vga_2print_8c.html">print.c</a></li>
-    <li class="footer">Generated on Tue Dec 17 2013 10:46:57 for Lambda OS by
+    <li class="footer">Generated on Sun Dec 22 2013 11:27:48 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

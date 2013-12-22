@@ -200,9 +200,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <b>Value:</b><div class="fragment"><div class="line">(((present &amp; 0x01) &lt;&lt; 7) | \</div>
-<div class="line">((dpl      &amp; 0x03) &lt;&lt; 5) | \</div>
-<div class="line">((storeseg &amp; 0x01) &lt;&lt; 4) | \</div>
-<div class="line">((type     &amp; 0x0F) &lt;&lt; 0))</div>
+<div class="line">    ((dpl      &amp; 0x03) &lt;&lt; 5) | \</div>
+<div class="line">    ((storeseg &amp; 0x01) &lt;&lt; 4) | \</div>
+<div class="line">    ((type     &amp; 0x0F) &lt;&lt; 0))</div>
 </div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">present</td><td>is the entry present? </td></tr>
@@ -261,7 +261,7 @@ Variables</h2></td></tr>
 <div class="line">        ent.flags    = attr;                               \</div>
 <div class="line">        ent.selector = sel;                                 \</div>
 <div class="line">        ent.reserved = 0;                                    \</div>
-<div class="line">        ent.reservedIst = 0;                                  \</div>
+<div class="line">        ent.reservedIst = 1;                                  \</div>
 <div class="line">    } <span class="keywordflow">while</span>(0);</div>
 </div><!-- fragment -->
 <p>Definition at line <a class="el" href="64_2intr_2idt_8h_source.html#l00027">27</a> of file <a class="el" href="64_2intr_2idt_8h_source.html">idt.h</a>.</p>
@@ -343,8 +343,6 @@ Variables</h2></td></tr>
 <dl class="section see"><dt>See Also</dt><dd><a class="el" href="64_2intr_2idt_8c.html#a2c579dffc2271136205ebd85cd39c225" title="Loads the IDT pointer. Loads the IDT pointer, then remaps the PIC. ">reload_idt</a> </dd></dl>
 
 <p>Definition at line <a class="el" href="intr_2idt_8c_source.html#l00050">50</a> of file <a class="el" href="intr_2idt_8c_source.html">idt.c</a>.</p>
-
-<p>References <a class="el" href="intr_2idt_8c.html#a73661ba532acc6fbef07f6024a17d42b">dummy_int()</a>, <a class="el" href="intr_2idt_8c_source.html#l00008">IDT</a>, <a class="el" href="intr_2idt_8h_source.html#l00018">IDT_ENTRY</a>, and <a class="el" href="intr_2idt_8c_source.html#l00038">reload_idt()</a>.</p>
 <div class="fragment"><div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;{</div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keywordtype">int</span> i = 0;</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordflow">for</span>(; i &lt; 256; i++)</div>
@@ -450,7 +448,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_4a04b9aac4eefdd334a78e565f4616f2.html">arch</a></li><li class="navelem"><a class="el" href="dir_688b298655e1996fca4be5778dd3b283.html">x86_64</a></li><li class="navelem"><a class="el" href="dir_3a640e9d20525c5417eedee548b83662.html">intr</a></li><li class="navelem"><a class="el" href="64_2intr_2idt_8h.html">idt.h</a></li>
-    <li class="footer">Generated on Tue Dec 17 2013 10:46:57 for Lambda OS by
+    <li class="footer">Generated on Sun Dec 22 2013 11:27:48 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

@@ -86,6 +86,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
     <ul class="tablist">
       <li><a href="#index__"><span>_</span></a></li>
       <li><a href="#index_a"><span>a</span></a></li>
+      <li><a href="#index_b"><span>b</span></a></li>
       <li><a href="#index_c"><span>c</span></a></li>
       <li><a href="#index_d"><span>d</span></a></li>
       <li><a href="#index_e"><span>e</span></a></li>
@@ -159,6 +160,13 @@ $(document).ready(function(){initNavTree('globals_func.html','');});
 </ul>
 
 
+<h3><a class="anchor" id="index_b"></a>- b -</h3><ul>
+<li>busy_wait()
+: <a class="el" href="intr_2int_8h.html#a9545bdecacf9a54e87040eed17d121e6">int.h</a>
+</li>
+</ul>
+
+
 <h3><a class="anchor" id="index_c"></a>- c -</h3><ul>
 <li>clear_pagedir()
 : <a class="el" href="paging_8c.html#a0dec1d6d8c55ad0fafff3656c7cee62e">paging.c</a>
@@ -168,13 +176,16 @@ $(document).ready(function(){initNavTree('globals_func.html','');});
 
 
 <h3><a class="anchor" id="index_d"></a>- d -</h3><ul>
+<li>disable_interrupts()
+: <a class="el" href="intr_2int_8h.html#a581446e0a9841a0535fd2a35ae9b67f2">int.h</a>
+</li>
 <li>disable_irq()
-: <a class="el" href="intr_2idt_8c.html#a8048d9b3854370b0eb935c3a30f81da4">idt.c</a>
-, <a class="el" href="intr_2idt_8h.html#a8048d9b3854370b0eb935c3a30f81da4">idt.h</a>
+: <a class="el" href="intr_2idt_8h.html#a8048d9b3854370b0eb935c3a30f81da4">idt.h</a>
+, <a class="el" href="intr_2idt_8c.html#a8048d9b3854370b0eb935c3a30f81da4">idt.c</a>
 </li>
 <li>disable_paging()
-: <a class="el" href="paging_8h.html#a65805eac601918e3f84e052063dac28b">paging.h</a>
-, <a class="el" href="paging_8c.html#a65805eac601918e3f84e052063dac28b">paging.c</a>
+: <a class="el" href="paging_8c.html#a65805eac601918e3f84e052063dac28b">paging.c</a>
+, <a class="el" href="paging_8h.html#a65805eac601918e3f84e052063dac28b">paging.h</a>
 </li>
 <li>do_time_block_timeup()
 : <a class="el" href="time_8h.html#ab53eb0474b8a81a7f1e897476c53a644">time.h</a>
@@ -187,13 +198,16 @@ $(document).ready(function(){initNavTree('globals_func.html','');});
 
 
 <h3><a class="anchor" id="index_e"></a>- e -</h3><ul>
+<li>enable_interrupts()
+: <a class="el" href="intr_2int_8h.html#a04895df25c408c90d3f11fe3149c51b2">int.h</a>
+</li>
 <li>enable_irq()
-: <a class="el" href="intr_2idt_8c.html#a9bba11dac050d594c7099b056e3249e5">idt.c</a>
-, <a class="el" href="intr_2idt_8h.html#a9bba11dac050d594c7099b056e3249e5">idt.h</a>
+: <a class="el" href="intr_2idt_8h.html#a9bba11dac050d594c7099b056e3249e5">idt.h</a>
+, <a class="el" href="intr_2idt_8c.html#a9bba11dac050d594c7099b056e3249e5">idt.c</a>
 </li>
 <li>enable_paging()
-: <a class="el" href="paging_8c.html#ae62af42af2d4cb211a64978ff1ef060e">paging.c</a>
-, <a class="el" href="paging_8h.html#ae62af42af2d4cb211a64978ff1ef060e">paging.h</a>
+: <a class="el" href="paging_8h.html#ae62af42af2d4cb211a64978ff1ef060e">paging.h</a>
+, <a class="el" href="paging_8c.html#ae62af42af2d4cb211a64978ff1ef060e">paging.c</a>
 </li>
 </ul>
 
@@ -239,13 +253,17 @@ $(document).ready(function(){initNavTree('globals_func.html','');});
 <li>idt_init()
 : <a class="el" href="intr_2idt_8c.html#a88d4205d069421eb4f8e7577285f1180">idt.c</a>
 , <a class="el" href="intr_2idt_8h.html#a88d4205d069421eb4f8e7577285f1180">idt.h</a>
+, <a class="el" href="main_8c.html#a88d4205d069421eb4f8e7577285f1180">main.c</a>
 , <a class="el" href="64_2intr_2idt_8c.html#a88d4205d069421eb4f8e7577285f1180">idt.c</a>
 </li>
 <li>inb()
 : <a class="el" href="io_2ioport_8h.html#a72469337290ae306e228d538970aef1d">ioport.h</a>
 </li>
 <li>inl()
-: <a class="el" href="64_2io_2ioport_8h.html#a7f72742d7f484f7f9884aa5b89e69693">ioport.h</a>
+: <a class="el" href="io_2ioport_8h.html#a7f72742d7f484f7f9884aa5b89e69693">ioport.h</a>
+</li>
+<li>interrupt_halt()
+: <a class="el" href="intr_2int_8h.html#a8f0cee2662994d427d4287d0975028f1">int.h</a>
 </li>
 <li>interrupts_init()
 : <a class="el" href="intr_8h.html#a5c99cba5ccc698fc7feb8902442176ea">intr.h</a>
@@ -256,19 +274,25 @@ $(document).ready(function(){initNavTree('globals_func.html','');});
 </li>
 <li>is_transmit_empty()
 : <a class="el" href="io_2serial_8c.html#a13526cfea7bc49d3c6d8c09b250e4401">serial.c</a>
-, <a class="el" href="64_2io_2serial_8h.html#a13526cfea7bc49d3c6d8c09b250e4401">serial.h</a>
-, <a class="el" href="64_2io_2serial_8c.html#a13526cfea7bc49d3c6d8c09b250e4401">serial.c</a>
 , <a class="el" href="io_2serial_8h.html#a13526cfea7bc49d3c6d8c09b250e4401">serial.h</a>
 </li>
 </ul>
 
 
 <h3><a class="anchor" id="index_k"></a>- k -</h3><ul>
+<li>kerror()
+: <a class="el" href="error_8h.html#adb8c10d984436f7239cc7cd12e77279f">error.h</a>
+, <a class="el" href="error_8c.html#adb8c10d984436f7239cc7cd12e77279f">error.c</a>
+</li>
 <li>keyb_handle()
-: <a class="el" href="dev_2keyb_2input_8c.html#ac5075d4aa0e763d594441ad434996c96">input.c</a>
+: <a class="el" href="64_2dev_2keyb_2input_8c.html#ac5075d4aa0e763d594441ad434996c96">input.c</a>
 </li>
 <li>kmain()
 : <a class="el" href="main_8c.html#a6efa8ec9abc76ea5b6e3bd14db26afee">main.c</a>
+</li>
+<li>kpanic()
+: <a class="el" href="panic_8h.html#ad9596da66fc4b2244b44cd89d7097617">panic.h</a>
+, <a class="el" href="panic_8c.html#ad9596da66fc4b2244b44cd89d7097617">panic.c</a>
 </li>
 <li>kprint()
 : <a class="el" href="video_8h.html#a9c163b4ca9a9bd7315ab683595dc5868">video.h</a>
@@ -282,12 +306,16 @@ $(document).ready(function(){initNavTree('globals_func.html','');});
 : <a class="el" href="video_8h.html#a6b51bed3a98ab61318794a831f95186f">video.h</a>
 , <a class="el" href="video_8c.html#a6b51bed3a98ab61318794a831f95186f">video.c</a>
 </li>
+<li>kprintv()
+: <a class="el" href="video_8h.html#a697cb2a9ff013fda470d8aad7fd7eaaa">video.h</a>
+, <a class="el" href="video_8c.html#a697cb2a9ff013fda470d8aad7fd7eaaa">video.c</a>
+</li>
 <li>kput()
 : <a class="el" href="video_8c.html#adaf7eb760749b489484d8c5a62932088">video.c</a>
 , <a class="el" href="video_8h.html#adaf7eb760749b489484d8c5a62932088">video.h</a>
 </li>
 <li>kwprint()
-: <a class="el" href="video_8c.html#ae311673faec8a052cb24b99761f94c2d">video.c</a>
+: <a class="el" href="video_8c.html#a8777a3137a89016c5748e3a2a4d7c147">video.c</a>
 </li>
 <li>kwput()
 : <a class="el" href="video_8c.html#afcd2b10a34bb5913417312f00e6f3661">video.c</a>
@@ -349,7 +377,7 @@ $(document).ready(function(){initNavTree('globals_func.html','');});
 : <a class="el" href="pit_8c.html#a51542b64f61ebce314144a478f0335c2">pit.c</a>
 </li>
 <li>print()
-: <a class="el" href="video_8c.html#aac46e16f79d2030a761fdd3a15f35166">video.c</a>
+: <a class="el" href="video_8c.html#ac293bcbecd4362a339b2f60ed50fdf77">video.c</a>
 </li>
 <li>print_int()
 : <a class="el" href="video_8c.html#a86da7095a49b1f8ac968d8c9982f0402">video.c</a>
@@ -438,20 +466,21 @@ $(document).ready(function(){initNavTree('globals_func.html','');});
 <h3><a class="anchor" id="index_v"></a>- v -</h3><ul>
 <li>vga_clear()
 : <a class="el" href="dev_2vga_2print_8c.html#a0a09bc3b0111af74c7aa94b6504c3e9b">print.c</a>
-, <a class="el" href="print_8h.html#a0a09bc3b0111af74c7aa94b6504c3e9b">print.h</a>
+, <a class="el" href="dev_2vga_2print_8h.html#a0a09bc3b0111af74c7aa94b6504c3e9b">print.h</a>
 , <a class="el" href="64_2dev_2vga_2print_8c.html#a0a09bc3b0111af74c7aa94b6504c3e9b">print.c</a>
 </li>
 <li>vga_print()
-: <a class="el" href="dev_2vga_2print_8c.html#a10efa90188a292b08f1fefa5a1715550">print.c</a>
-, <a class="el" href="print_8h.html#a10efa90188a292b08f1fefa5a1715550">print.h</a>
+: <a class="el" href="64_2dev_2vga_2print_8h.html#a10efa90188a292b08f1fefa5a1715550">print.h</a>
+, <a class="el" href="dev_2vga_2print_8c.html#a10efa90188a292b08f1fefa5a1715550">print.c</a>
+, <a class="el" href="dev_2vga_2print_8h.html#a10efa90188a292b08f1fefa5a1715550">print.h</a>
 , <a class="el" href="64_2dev_2vga_2print_8c.html#a10efa90188a292b08f1fefa5a1715550">print.c</a>
 </li>
 <li>vga_printnum()
-: <a class="el" href="64_2dev_2vga_2print_8c.html#ade6f3c444e9b2f6c32eb8e25e03bd18b">print.c</a>
+: <a class="el" href="dev_2vga_2print_8c.html#ade6f3c444e9b2f6c32eb8e25e03bd18b">print.c</a>
 </li>
 <li>vga_put()
 : <a class="el" href="64_2dev_2vga_2print_8c.html#a3f7e1edd8e3bcb023297e27d2fe8af20">print.c</a>
-, <a class="el" href="print_8h.html#a736a087bd4d8a71d195261774c83156c">print.h</a>
+, <a class="el" href="64_2dev_2vga_2print_8h.html#a736a087bd4d8a71d195261774c83156c">print.h</a>
 </li>
 </ul>
 
@@ -467,7 +496,7 @@ $(document).ready(function(){initNavTree('globals_func.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Tue Dec 17 2013 10:46:57 for Lambda OS by
+    <li class="footer">Generated on Sun Dec 22 2013 11:27:48 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

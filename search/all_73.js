@@ -24,7 +24,6 @@ var searchData=
   ['sprintf',['sprintf',['../video_8h.html#a3f1aefcf7ec1de49c20118ee9cbb02dc',1,'sprintf(char *out, char *format,...):&#160;video.c'],['../video_8c.html#a3f1aefcf7ec1de49c20118ee9cbb02dc',1,'sprintf(char *out, char *format,...):&#160;video.c']]],
   ['string_2ec',['string.c',['../string_8c.html',1,'']]],
   ['string_2eh',['string.h',['../string_8h.html',1,'']]],
-  ['string_5fspec',['STRING_SPEC',['../video_8h.html#a7957f0cbee507e677777c45af24f8305',1,'video.h']]],
   ['strlen',['strlen',['../string_8h.html#ae6c8de953239811a34eeeab09458e55e',1,'strlen(const char *str):&#160;string.c'],['../string_8c.html#ae6c8de953239811a34eeeab09458e55e',1,'strlen(const char *str):&#160;string.c']]],
   ['sub_5fpartition',['sub_partition',['../structmultiboot__boot__device__tag.html#adaeee4fe25aa5a348560c1616ba969d0',1,'multiboot_boot_device_tag']]]
 ];

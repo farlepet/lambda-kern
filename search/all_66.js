@@ -1,7 +1,6 @@
 var searchData=
 [
   ['false',['FALSE',['../types_8h.html#a3e5b8192e7d9ffaf3542f1210aec18ddaa1e095cc966dbecf6a0d8aad75348d1a',1,'types.h']]],
-  ['fdouble_5fspec',['FDOUBLE_SPEC',['../video_8h.html#a771f0f3d33a8b68ecc7dd95a664e1259',1,'video.h']]],
   ['fill_5fpagetable',['fill_pagetable',['../paging_8c.html#ac7992cc47468ac72eeb8f08f94f210d2',1,'fill_pagetable(u32 *table, u32 addr):&#160;paging.c'],['../paging_8h.html#ac7992cc47468ac72eeb8f08f94f210d2',1,'fill_pagetable(u32 *table, u32 addr):&#160;paging.c']]],
   ['find_5fmultiboot_5ftable',['find_multiboot_table',['../multiboot_8h.html#a93a0df7201080b93f585c3078a8460af',1,'find_multiboot_table(struct multiboot_header_tag *mboot_tag, u32 type):&#160;multiboot.c'],['../multiboot_8c.html#a93a0df7201080b93f585c3078a8460af',1,'find_multiboot_table(struct multiboot_header_tag *mboot_tag, u32 type):&#160;multiboot.c']]],
   ['first_5fpagedir',['FIRST_PAGEDIR',['../mem_8h.html#ac7f4e0245d6aa62f1605ec92e3f74e19',1,'mem.h']]],

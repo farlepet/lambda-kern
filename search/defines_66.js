@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['fdouble_5fspec',['FDOUBLE_SPEC',['../video_8h.html#a771f0f3d33a8b68ecc7dd95a664e1259',1,'video.h']]],
   ['first_5fpagedir',['FIRST_PAGEDIR',['../mem_8h.html#ac7f4e0245d6aa62f1605ec92e3f74e19',1,'mem.h']]],
   ['first_5fpagetbl',['FIRST_PAGETBL',['../mem_8h.html#ae42c6a4d28deda21c14313f92a2d9af5',1,'mem.h']]],
   ['fmt_5fspec',['FMT_SPEC',['../video_8h.html#ac4db7ed731de1ae9467a04824415afbd',1,'video.h']]],

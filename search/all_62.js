@@ -6,5 +6,6 @@ var searchData=
   ['basemid',['baseMid',['../structidt__entry__64.html#ad5641d618d4f9dab3d1611e2e502c78d',1,'idt_entry_64']]],
   ['biosdev',['biosdev',['../structmultiboot__boot__device__tag.html#a0e6ab19869529bb3f677b09dc74966ad',1,'multiboot_boot_device_tag']]],
   ['bkgc',['bkgc',['../dev_2vga_2print_8c.html#af10e603df005a65435ae052f38cfbb0b',1,'bkgc():&#160;print.c'],['../64_2dev_2vga_2print_8c.html#af10e603df005a65435ae052f38cfbb0b',1,'bkgc():&#160;print.c']]],
-  ['bool',['BOOL',['../types_8h.html#a3e5b8192e7d9ffaf3542f1210aec18dd',1,'BOOL():&#160;types.h'],['../types_8h.html#ac4cce8e299d11a2379dc423007f99147',1,'bool():&#160;types.h']]]
+  ['bool',['BOOL',['../types_8h.html#a3e5b8192e7d9ffaf3542f1210aec18dd',1,'BOOL():&#160;types.h'],['../types_8h.html#ac4cce8e299d11a2379dc423007f99147',1,'bool():&#160;types.h']]],
+  ['busy_5fwait',['busy_wait',['../intr_2int_8h.html#a9545bdecacf9a54e87040eed17d121e6',1,'busy_wait():&#160;int.h'],['../64_2intr_2int_8h.html#a9545bdecacf9a54e87040eed17d121e6',1,'busy_wait():&#160;int.h']]]
 ];

@@ -109,14 +109,15 @@ $(document).ready(function(){initNavTree('intr_8h.html','');});
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;<a class="el" href="types_8h_source.html">types.h</a>&gt;</code><br/>
+<code>#include &lt;intr/int.h&gt;</code><br/>
 </div>
 <p><a href="intr_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:a4942cc81f79a73b94b937b21cdcaf653"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="intr_8h.html#a4942cc81f79a73b94b937b21cdcaf653">TIMER_INT</a></td></tr>
+<tr class="memitem:a4942cc81f79a73b94b937b21cdcaf653"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="intr_8h.html#a4942cc81f79a73b94b937b21cdcaf653">TIMER_INT</a>&#160;&#160;&#160;0</td></tr>
 <tr class="separator:a4942cc81f79a73b94b937b21cdcaf653"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af293630e7d389d1cb0b293ac60ae0296"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="intr_8h.html#af293630e7d389d1cb0b293ac60ae0296">KEYBOARD_INT</a></td></tr>
+<tr class="memitem:af293630e7d389d1cb0b293ac60ae0296"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="intr_8h.html#af293630e7d389d1cb0b293ac60ae0296">KEYBOARD_INT</a>&#160;&#160;&#160;0</td></tr>
 <tr class="separator:af293630e7d389d1cb0b293ac60ae0296"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
@@ -137,12 +138,12 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define KEYBOARD_INT</td>
+          <td class="memname">#define KEYBOARD_INT&#160;&#160;&#160;0</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="intr_8h_source.html#l00014">14</a> of file <a class="el" href="intr_8h_source.html">intr.h</a>.</p>
+<p>Definition at line <a class="el" href="intr_8h_source.html#l00015">15</a> of file <a class="el" href="intr_8h_source.html">intr.h</a>.</p>
 
 </div>
 </div>
@@ -151,12 +152,12 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define TIMER_INT</td>
+          <td class="memname">#define TIMER_INT&#160;&#160;&#160;0</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="intr_8h_source.html#l00013">13</a> of file <a class="el" href="intr_8h_source.html">intr.h</a>.</p>
+<p>Definition at line <a class="el" href="intr_8h_source.html#l00014">14</a> of file <a class="el" href="intr_8h_source.html">intr.h</a>.</p>
 
 </div>
 </div>
@@ -174,22 +175,21 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="interrupts_8c_source.html#l00017">17</a> of file <a class="el" href="interrupts_8c_source.html">interrupts.c</a>.</p>
+<p>Definition at line <a class="el" href="interrupts_8c_source.html#l00022">22</a> of file <a class="el" href="interrupts_8c_source.html">interrupts.c</a>.</p>
 
-<p>References <a class="el" href="types_8h_source.html#l00069">__sti</a>, and <a class="el" href="intr_2idt_8c_source.html#l00050">idt_init()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;{</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#ifdef ARCH_X86</span></div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor"></span>    <a class="code" href="intr_2idt_8c.html#a88d4205d069421eb4f8e7577285f1180">idt_init</a>();</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    exceptions_init();</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<a class="code" href="types_8h.html#a22f5b50b8e582426daa2e9966aeb4a23">__sti</a>;</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#ifdef ARCH_X86_64</span></div>
+<p>References <a class="el" href="error_8h_source.html#l00008">ERR_BOOTINFO</a>, <a class="el" href="intr_2idt_8c_source.html#l00050">idt_init()</a>, and <a class="el" href="error_8c_source.html#l00020">kerror()</a>.</p>
+<div class="fragment"><div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;{</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor">#if  defined(ARCH_X86)</span></div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor"></span>    <a class="code" href="intr_2idt_8c.html#a88d4205d069421eb4f8e7577285f1180">idt_init</a>();</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<a class="code" href="types_8h.html#a22f5b50b8e582426daa2e9966aeb4a23">__sti</a>;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor"></span>}</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    exceptions_init();</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">#elif defined(ARCH_X86_64)</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor"></span>    <a class="code" href="intr_2idt_8c.html#a88d4205d069421eb4f8e7577285f1180">idt_init</a>();</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor"></span>    <a class="code" href="error_8h.html#adb8c10d984436f7239cc7cd12e77279f">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a>, 1, <span class="stringliteral">&quot;Interrupts enabled&quot;</span>);</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;}</div>
+<div class="ttc" id="error_8h_html_adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1"><div class="ttname"><a href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a></div><div class="ttdoc">Message containing information about the kernel&amp;#39;s boot process. </div><div class="ttdef"><b>Definition:</b> <a href="error_8h_source.html#l00008">error.h:8</a></div></div>
 <div class="ttc" id="intr_2idt_8c_html_a88d4205d069421eb4f8e7577285f1180"><div class="ttname"><a href="intr_2idt_8c.html#a88d4205d069421eb4f8e7577285f1180">idt_init</a></div><div class="ttdeci">void idt_init()</div><div class="ttdoc">Initializes the IDT Initializes the IDT by first setting every IDT entry to use the dummy interrupt t...</div><div class="ttdef"><b>Definition:</b> <a href="intr_2idt_8c_source.html#l00050">idt.c:50</a></div></div>
-<div class="ttc" id="types_8h_html_a22f5b50b8e582426daa2e9966aeb4a23"><div class="ttname"><a href="types_8h.html#a22f5b50b8e582426daa2e9966aeb4a23">__sti</a></div><div class="ttdeci">#define __sti</div><div class="ttdef"><b>Definition:</b> <a href="types_8h_source.html#l00069">types.h:69</a></div></div>
+<div class="ttc" id="error_8h_html_adb8c10d984436f7239cc7cd12e77279f"><div class="ttname"><a href="error_8h.html#adb8c10d984436f7239cc7cd12e77279f">kerror</a></div><div class="ttdeci">void kerror(error_level errlvl, int en_int, char *msg,...)</div><div class="ttdoc">Prints information about the kernel. Disables interrupts so it will not get interrupted, checks to see if the error level is &amp;gt;= the minimum level, and if so, prints the current clock tick, then prints the error message. Then, if en_int != 0, it enables interrupts again. </div><div class="ttdef"><b>Definition:</b> <a href="error_8c_source.html#l00020">error.c:20</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -224,18 +224,20 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="interrupts_8c_source.html#l00036">36</a> of file <a class="el" href="interrupts_8c_source.html">interrupts.c</a>.</p>
+<p>Definition at line <a class="el" href="interrupts_8c_source.html#l00039">39</a> of file <a class="el" href="interrupts_8c_source.html">interrupts.c</a>.</p>
 
-<p>References <a class="el" href="intr_2idt_8c_source.html#l00067">set_idt()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;{</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">#ifdef ARCH_X86</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor"></span>    <a class="code" href="intr_2idt_8c.html#af10270eb36bbdc1a3aa66dd31d529263">set_idt</a>(n, 0x08, 0x8E, handler);</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#ifdef ARCH_X86_64</span></div>
+<p>References <a class="el" href="error_8h_source.html#l00007">ERR_INFO</a>, <a class="el" href="error_8c_source.html#l00020">kerror()</a>, and <a class="el" href="intr_2idt_8c_source.html#l00067">set_idt()</a>.</p>
+<div class="fragment"><div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;{</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="preprocessor">#if   defined(ARCH_X86)</span></div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor"></span>    <a class="code" href="intr_2idt_8c.html#af10270eb36bbdc1a3aa66dd31d529263">set_idt</a>(n, 0x08, 0x8E, handler);</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor"></span>}</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor">#elif defined(ARCH_X86_64)</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor"></span>    <a class="code" href="intr_2idt_8c.html#af10270eb36bbdc1a3aa66dd31d529263">set_idt</a>(n, 0x08, 0x8E, handler);</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor"></span>    <a class="code" href="error_8h.html#adb8c10d984436f7239cc7cd12e77279f">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a09d65dd5a3222924ee07b66587ef071c">ERR_INFO</a>, 1, <span class="stringliteral">&quot;Interrupt vector 0x%X set&quot;</span>);</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;}</div>
 <div class="ttc" id="intr_2idt_8c_html_af10270eb36bbdc1a3aa66dd31d529263"><div class="ttname"><a href="intr_2idt_8c.html#af10270eb36bbdc1a3aa66dd31d529263">set_idt</a></div><div class="ttdeci">void set_idt(int intr, int sel, int flags, void *func)</div><div class="ttdoc">Set an entry in the IDT. Sets the information in an IDT entry. </div><div class="ttdef"><b>Definition:</b> <a href="intr_2idt_8c_source.html#l00067">idt.c:67</a></div></div>
+<div class="ttc" id="error_8h_html_adfccb88929c124c0313e7a14243a0389a09d65dd5a3222924ee07b66587ef071c"><div class="ttname"><a href="error_8h.html#adfccb88929c124c0313e7a14243a0389a09d65dd5a3222924ee07b66587ef071c">ERR_INFO</a></div><div class="ttdoc">Message containing kernel info. </div><div class="ttdef"><b>Definition:</b> <a href="error_8h_source.html#l00007">error.h:7</a></div></div>
+<div class="ttc" id="error_8h_html_adb8c10d984436f7239cc7cd12e77279f"><div class="ttname"><a href="error_8h.html#adb8c10d984436f7239cc7cd12e77279f">kerror</a></div><div class="ttdeci">void kerror(error_level errlvl, int en_int, char *msg,...)</div><div class="ttdoc">Prints information about the kernel. Disables interrupts so it will not get interrupted, checks to see if the error level is &amp;gt;= the minimum level, and if so, prints the current clock tick, then prints the error message. Then, if en_int != 0, it enables interrupts again. </div><div class="ttdef"><b>Definition:</b> <a href="error_8c_source.html#l00020">error.c:20</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -259,16 +261,19 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="interrupts_8c_source.html#l00051">51</a> of file <a class="el" href="interrupts_8c_source.html">interrupts.c</a>.</p>
+<p>Definition at line <a class="el" href="interrupts_8c_source.html#l00054">54</a> of file <a class="el" href="interrupts_8c_source.html">interrupts.c</a>.</p>
 
-<p>References <a class="el" href="pit_8c_source.html#l00044">pit_init()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;{</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor">#ifdef ARCH_X86</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="preprocessor"></span>    <a class="code" href="pit_8c.html#ad20c9c508d1ebe64498a4e8a2f0ce84d">pit_init</a>(quantum);</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="preprocessor"></span>    (void)quantum;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="preprocessor">#endif  </span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="preprocessor">}<div class="ttc" id="pit_8c_html_ad20c9c508d1ebe64498a4e8a2f0ce84d"><div class="ttname"><a href="pit_8c.html#ad20c9c508d1ebe64498a4e8a2f0ce84d">pit_init</a></div><div class="ttdeci">void pit_init(u32 freq)</div><div class="ttdoc">Initialize the PIT. Initialized the PIT using the supplied frequency if possible. ...</div><div class="ttdef"><b>Definition:</b> <a href="pit_8c_source.html#l00044">pit.c:44</a></div></div>
+<p>References <a class="el" href="error_8h_source.html#l00008">ERR_BOOTINFO</a>, <a class="el" href="error_8c_source.html#l00020">kerror()</a>, and <a class="el" href="pit_8c_source.html#l00043">pit_init()</a>.</p>
+<div class="fragment"><div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;{</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="preprocessor">#ifdef ARCH_X86</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="preprocessor"></span>    <a class="code" href="pit_8c.html#ad20c9c508d1ebe64498a4e8a2f0ce84d">pit_init</a>(quantum);</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="preprocessor"></span>    (void)quantum;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="preprocessor"></span>    <a class="code" href="error_8h.html#adb8c10d984436f7239cc7cd12e77279f">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a>, 1, <span class="stringliteral">&quot;Timer initialized&quot;</span>);</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;}<div class="ttc" id="error_8h_html_adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1"><div class="ttname"><a href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a></div><div class="ttdoc">Message containing information about the kernel&amp;#39;s boot process. </div><div class="ttdef"><b>Definition:</b> <a href="error_8h_source.html#l00008">error.h:8</a></div></div>
+<div class="ttc" id="pit_8c_html_ad20c9c508d1ebe64498a4e8a2f0ce84d"><div class="ttname"><a href="pit_8c.html#ad20c9c508d1ebe64498a4e8a2f0ce84d">pit_init</a></div><div class="ttdeci">void pit_init(u32 freq)</div><div class="ttdoc">Initialize the PIT. Initialized the PIT using the supplied frequency if possible. ...</div><div class="ttdef"><b>Definition:</b> <a href="pit_8c_source.html#l00043">pit.c:43</a></div></div>
+<div class="ttc" id="error_8h_html_adb8c10d984436f7239cc7cd12e77279f"><div class="ttname"><a href="error_8h.html#adb8c10d984436f7239cc7cd12e77279f">kerror</a></div><div class="ttdeci">void kerror(error_level errlvl, int en_int, char *msg,...)</div><div class="ttdoc">Prints information about the kernel. Disables interrupts so it will not get interrupted, checks to see if the error level is &amp;gt;= the minimum level, and if so, prints the current clock tick, then prints the error message. Then, if en_int != 0, it enables interrupts again. </div><div class="ttdef"><b>Definition:</b> <a href="error_8c_source.html#l00020">error.c:20</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -278,7 +283,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_25ecda1410e8adf967f2aaaca1260861.html">inc</a></li><li class="navelem"><a class="el" href="dir_f91cd87be93de027c13aa159d254b287.html">intr</a></li><li class="navelem"><a class="el" href="intr_8h.html">intr.h</a></li>
-    <li class="footer">Generated on Tue Dec 17 2013 10:46:57 for Lambda OS by
+    <li class="footer">Generated on Sun Dec 22 2013 11:27:48 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

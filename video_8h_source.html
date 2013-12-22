@@ -119,36 +119,33 @@ $(document).ready(function(){initNavTree('video_8h_source.html','');});
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;</div>
 <div class="line"><a name="l00030"></a><span class="lineno"><a class="line" href="video_8h.html#ac4db7ed731de1ae9467a04824415afbd">   30</a></span>&#160;<span class="preprocessor">#define FMT_SPEC &#39;%&#39; </span></div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00032"></a><span class="lineno"><a class="line" href="video_8h.html#afbadb81d506fc049cc303cde4b86fcdd">   32</a></span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DECIMAL_SPEC(c)  (c == &#39;d&#39; || c == &#39;i&#39;) </span></div>
-<div class="line"><a name="l00033"></a><span class="lineno"><a class="line" href="video_8h.html#a927f7ffb79ebd64be8212e84d8b68904">   33</a></span>&#160;<span class="preprocessor">#define UNSIGNED_SPEC(c) (c == &#39;u&#39;)             </span></div>
-<div class="line"><a name="l00034"></a><span class="lineno"><a class="line" href="video_8h.html#a771f0f3d33a8b68ecc7dd95a664e1259">   34</a></span>&#160;<span class="preprocessor">#define FDOUBLE_SPEC(c)  (c == &#39;f&#39; || c == &#39;F&#39;) </span></div>
-<div class="line"><a name="l00035"></a><span class="lineno"><a class="line" href="video_8h.html#a9cfb6b2f623967d3457ca769a85ba977">   35</a></span>&#160;<span class="preprocessor">#define EDOUBLE_SPEC(c)  (c == &#39;e&#39; || c == &#39;E&#39;) </span></div>
-<div class="line"><a name="l00036"></a><span class="lineno"><a class="line" href="video_8h.html#a5293c4eb9872625e1c0f188d23955e60">   36</a></span>&#160;<span class="preprocessor">#define GDOUBLE_SPEC(c)  (c == &#39;g&#39; || c == &#39;G&#39;) </span></div>
-<div class="line"><a name="l00037"></a><span class="lineno"><a class="line" href="video_8h.html#ac2141e455da1fb117e4e7fd500be136c">   37</a></span>&#160;<span class="preprocessor">#define HEX_SPEC(c)      (c == &#39;x&#39; || c == &#39;X&#39;) </span></div>
-<div class="line"><a name="l00038"></a><span class="lineno"><a class="line" href="video_8h.html#a422edf5a21cbada3ef82a4f74aaf5453">   38</a></span>&#160;<span class="preprocessor">#define OCTAL_SPEC(c)    (c == &#39;o&#39;)             </span></div>
-<div class="line"><a name="l00039"></a><span class="lineno"><a class="line" href="video_8h.html#a7957f0cbee507e677777c45af24f8305">   39</a></span>&#160;<span class="preprocessor">#define STRING_SPEC(c)   (c == &#39;s&#39;)             </span></div>
-<div class="line"><a name="l00040"></a><span class="lineno"><a class="line" href="video_8h.html#a5f3f068910b2bc980fb92c95b72dd7e5">   40</a></span>&#160;<span class="preprocessor">#define CHAR_SPEC(c)     (c == &#39;c&#39;)             </span></div>
-<div class="line"><a name="l00041"></a><span class="lineno"><a class="line" href="video_8h.html#a8f01a42f1ead4f7ca1fa4cc3d8a16385">   41</a></span>&#160;<span class="preprocessor">#define POINTER_SPEC(c)  (c == &#39;p&#39;)             </span></div>
-<div class="line"><a name="l00042"></a><span class="lineno"><a class="line" href="video_8h.html#acf96d6520d953f3d953cd6089b61cdcc">   42</a></span>&#160;<span class="preprocessor">#define HEXFLOAT_SPEC(c) (c == &#39;a&#39; || c == &#39;A&#39;) </span></div>
-<div class="line"><a name="l00043"></a><span class="lineno"><a class="line" href="video_8h.html#af2314ce7b854e1976b4dc750f68027cc">   43</a></span>&#160;<span class="preprocessor">#define INUM_SPEC(c)     (c == &#39;n&#39;)             </span></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00033"></a><span class="lineno"><a class="line" href="video_8h.html#a9096e5816e251332af78373126512fc5">   33</a></span>&#160;<span class="preprocessor">#define ZERO_ALL_VID()  \</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">    do {                \</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">        is_in_spec = 0; \</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">        size       = 0; \</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">        width      = 0; \</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">        precision  = 0; \</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor">        showsign   = 0; \</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor">        signspace  = 0; \</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="preprocessor">        leftalign  = 0; \</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">        padzeros   = 0; \</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor">    } while(0);</span></div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00045"></a><span class="lineno"><a class="line" href="video_8h.html#a888c079bdd9865ed001c8a0606de0c5f">   45</a></span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define IS_SPEC(c) \</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">    (DECIMAL_SPEC(c) || UNSIGNED_SPEC(c) || FDOUBLE_SPEC(c) || EDOUBLE_SPEC(c) || \</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor">    GDOUBLE_SPEC(c) || HEX_SPEC(c) || OCTAL_SPEC(c) || STRING_SPEC(c) ||          \</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor">    CHAR_SPEC(c) || POINTER_SPEC(c) || HEXFLOAT_SPEC(c) || INUM_SPEC(c))</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="keywordtype">int</span> <a class="code" href="video_8h.html#a3f1aefcf7ec1de49c20118ee9cbb02dc">sprintf</a>(<span class="keywordtype">char</span> *out, <span class="keywordtype">char</span> *format, ...);</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="keywordtype">int</span> <a class="code" href="video_8h.html#a4b25c75363a4f246991a45f8c2807210">kprintf</a>(<span class="keywordtype">char</span> *format, ...);</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="keywordtype">int</span> <a class="code" href="video_8h.html#a3f1aefcf7ec1de49c20118ee9cbb02dc">sprintf</a>(<span class="keywordtype">char</span> *out, <span class="keywordtype">char</span> *format, ...);</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="keywordtype">int</span> <a class="code" href="video_8h.html#a4b25c75363a4f246991a45f8c2807210">kprintf</a>(<span class="keywordtype">char</span> *format, ...);</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="keywordtype">int</span> <a class="code" href="video_8h.html#a697cb2a9ff013fda470d8aad7fd7eaaa">kprintv</a>(<span class="keywordtype">char</span> *format, ptr_t *varg);</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="video_8h_html_adaf7eb760749b489484d8c5a62932088"><div class="ttname"><a href="video_8h.html#adaf7eb760749b489484d8c5a62932088">kput</a></div><div class="ttdeci">void kput(char c)</div><div class="ttdoc">Prints a single character. Uses the current architecture&amp;#39;s put function. </div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00014">video.c:14</a></div></div>
 <div class="ttc" id="types_8h_html"><div class="ttname"><a href="types_8h.html">types.h</a></div><div class="ttdoc">Contains useful types and definitions. </div></div>
-<div class="ttc" id="video_8h_html_a3f1aefcf7ec1de49c20118ee9cbb02dc"><div class="ttname"><a href="video_8h.html#a3f1aefcf7ec1de49c20118ee9cbb02dc">sprintf</a></div><div class="ttdeci">int sprintf(char *out, char *format,...)</div><div class="ttdoc">Creates a string based on input format string and arguments. Uses print to convert the format string ...</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00397">video.c:397</a></div></div>
+<div class="ttc" id="video_8h_html_a3f1aefcf7ec1de49c20118ee9cbb02dc"><div class="ttname"><a href="video_8h.html#a3f1aefcf7ec1de49c20118ee9cbb02dc">sprintf</a></div><div class="ttdeci">int sprintf(char *out, char *format,...)</div><div class="ttdoc">Creates a string based on input format string and arguments. Uses print to convert the format string ...</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00368">video.c:368</a></div></div>
 <div class="ttc" id="video_8h_html_a6b51bed3a98ab61318794a831f95186f"><div class="ttname"><a href="video_8h.html#a6b51bed3a98ab61318794a831f95186f">kprintnum</a></div><div class="ttdeci">void kprintnum(u32 num, int base)</div><div class="ttdoc">Prints a number using the specified base. Prints a number using any base between 2 and 16...</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00062">video.c:62</a></div></div>
-<div class="ttc" id="video_8h_html_a4b25c75363a4f246991a45f8c2807210"><div class="ttname"><a href="video_8h.html#a4b25c75363a4f246991a45f8c2807210">kprintf</a></div><div class="ttdeci">int kprintf(char *format,...)</div><div class="ttdoc">Creates and prints a string based on input format string and arguments. Uses print to convert the for...</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00412">video.c:412</a></div></div>
+<div class="ttc" id="video_8h_html_a697cb2a9ff013fda470d8aad7fd7eaaa"><div class="ttname"><a href="video_8h.html#a697cb2a9ff013fda470d8aad7fd7eaaa">kprintv</a></div><div class="ttdeci">int kprintv(char *format, ptr_t *varg)</div><div class="ttdoc">Creates and prints a string based on input format string and arguments. Uses print to convert the for...</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00403">video.c:403</a></div></div>
+<div class="ttc" id="video_8h_html_a4b25c75363a4f246991a45f8c2807210"><div class="ttname"><a href="video_8h.html#a4b25c75363a4f246991a45f8c2807210">kprintf</a></div><div class="ttdeci">int kprintf(char *format,...)</div><div class="ttdoc">Creates and prints a string based on input format string and arguments. Uses print to convert the for...</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00383">video.c:383</a></div></div>
 <div class="ttc" id="video_8h_html_a9c163b4ca9a9bd7315ab683595dc5868"><div class="ttname"><a href="video_8h.html#a9c163b4ca9a9bd7315ab683595dc5868">kprint</a></div><div class="ttdeci">void kprint(char *str)</div><div class="ttdoc">Prints a string of characters. Uses the current architecture&amp;#39;s print function. </div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00039">video.c:39</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
@@ -156,7 +153,7 @@ $(document).ready(function(){initNavTree('video_8h_source.html','');});
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_25ecda1410e8adf967f2aaaca1260861.html">inc</a></li><li class="navelem"><a class="el" href="video_8h.html">video.h</a></li>
-    <li class="footer">Generated on Tue Dec 17 2013 10:46:57 for Lambda OS by
+    <li class="footer">Generated on Sun Dec 22 2013 11:27:48 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

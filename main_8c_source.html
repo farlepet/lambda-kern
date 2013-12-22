@@ -107,48 +107,56 @@ $(document).ready(function(){initNavTree('main_8c_source.html','');});
 <div class="contents">
 <a href="main_8c.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="multiboot_8h.html">multiboot.h</a>&gt;</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="intr_8h.html">intr/intr.h</a>&gt;</span></div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="io_2ioport_8h.html">kernel/arch/x86/io/ioport.h</a>&gt;</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="io_2serial_8h.html">kernel/arch/x86/io/serial.h</a>&gt;</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="panic_8h.html">err/panic.h</a>&gt;</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="error_8h.html">err/error.h</a>&gt;</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="mm_8h.html">mm/mm.h</a>&gt;</span></div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="video_8h.html">video.h</a>&gt;</span></div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;</div>
-<div class="line"><a name="l00014"></a><span class="lineno"><a class="line" href="main_8c.html#a6efa8ec9abc76ea5b6e3bd14db26afee">   14</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="main_8c.html#a6efa8ec9abc76ea5b6e3bd14db26afee">kmain</a>(<span class="keyword">struct</span> <a class="code" href="structmultiboot__header__tag.html">multiboot_header_tag</a> *mboot_tag, u32 magic)</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;{</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    <span class="keywordflow">if</span>(magic != 0x36d76289)</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    {</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;        <a class="code" href="video_8h.html#a4b25c75363a4f246991a45f8c2807210">kprintf</a>(<span class="stringliteral">&quot;Invalid magic number given by the bootloader: 0x%X&quot;</span>, magic);</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;        <span class="keywordflow">for</span>(;;);</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    }</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    </div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <a class="code" href="mm_8h.html#a71b6b31127095637741152869fffe3f1">mm_init</a>(mboot_tag);</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    </div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <a class="code" href="intr_8h.html#a5c99cba5ccc698fc7feb8902442176ea">interrupts_init</a>();</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <a class="code" href="intr_8h.html#a315282e15976b1078b869b347205c29a">timer_init</a>(100);</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <a class="code" href="video_8h.html#a4b25c75363a4f246991a45f8c2807210">kprintf</a>(<span class="stringliteral">&quot;Welcome to Lambda OS!&quot;</span>);</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    </div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <span class="keywordflow">for</span>(;;);</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;}</div>
-<div class="ttc" id="io_2ioport_8h_html"><div class="ttname"><a href="io_2ioport_8h.html">ioport.h</a></div></div>
-<div class="ttc" id="intr_8h_html_a315282e15976b1078b869b347205c29a"><div class="ttname"><a href="intr_8h.html#a315282e15976b1078b869b347205c29a">timer_init</a></div><div class="ttdeci">void timer_init(u32 quantum)</div><div class="ttdoc">Initializes the system timer. Initializes the timer used by the target architecture. </div><div class="ttdef"><b>Definition:</b> <a href="interrupts_8c_source.html#l00051">interrupts.c:51</a></div></div>
-<div class="ttc" id="main_8c_html_a6efa8ec9abc76ea5b6e3bd14db26afee"><div class="ttname"><a href="main_8c.html#a6efa8ec9abc76ea5b6e3bd14db26afee">kmain</a></div><div class="ttdeci">int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)</div><div class="ttdoc">Main kernel function. Initializes all devices, and sets up environment. </div><div class="ttdef"><b>Definition:</b> <a href="main_8c_source.html#l00014">main.c:14</a></div></div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="intr_2idt_8c.html#a88d4205d069421eb4f8e7577285f1180">idt_init</a>();</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;</div>
+<div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="main_8c.html#a6efa8ec9abc76ea5b6e3bd14db26afee">   16</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="main_8c.html#a6efa8ec9abc76ea5b6e3bd14db26afee">kmain</a>(<span class="keyword">struct</span> <a class="code" href="structmultiboot__header__tag.html">multiboot_header_tag</a> *mboot_tag, u32 magic)</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;{</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#if   defined(ARCH_X86) // This should NOT be required</span></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor"></span>    <span class="keywordflow">if</span>(magic != 0x36d76289)</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;        <a class="code" href="panic_8h.html#ad9596da66fc4b2244b44cd89d7097617">kpanic</a>(<span class="stringliteral">&quot;Invalid magic number given by the bootloader: 0x%08X&quot;</span>, magic);</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#elif defined(ARCH_X86_64)</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor"></span>    (void)magic;</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor"></span>    </div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <a class="code" href="mm_8h.html#a71b6b31127095637741152869fffe3f1">mm_init</a>(mboot_tag);</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    </div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <a class="code" href="intr_8h.html#a5c99cba5ccc698fc7feb8902442176ea">interrupts_init</a>();</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <a class="code" href="intr_8h.html#a315282e15976b1078b869b347205c29a">timer_init</a>(1000); <span class="comment">// At this speed, the counter will roll over after 5,997,302.87 centuries</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    </div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <a class="code" href="error_8h.html#adb8c10d984436f7239cc7cd12e77279f">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a>, 1, <span class="stringliteral">&quot;Lambda OS kernel finished initializing&quot;</span>);</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    </div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keywordflow">for</span>(;;);</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    </div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    (void)mboot_tag;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;}</div>
+<div class="ttc" id="error_8h_html_adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1"><div class="ttname"><a href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a></div><div class="ttdoc">Message containing information about the kernel&amp;#39;s boot process. </div><div class="ttdef"><b>Definition:</b> <a href="error_8h_source.html#l00008">error.h:8</a></div></div>
+<div class="ttc" id="intr_8h_html_a315282e15976b1078b869b347205c29a"><div class="ttname"><a href="intr_8h.html#a315282e15976b1078b869b347205c29a">timer_init</a></div><div class="ttdeci">void timer_init(u32 quantum)</div><div class="ttdoc">Initializes the system timer. Initializes the timer used by the target architecture. </div><div class="ttdef"><b>Definition:</b> <a href="interrupts_8c_source.html#l00054">interrupts.c:54</a></div></div>
+<div class="ttc" id="main_8c_html_a6efa8ec9abc76ea5b6e3bd14db26afee"><div class="ttname"><a href="main_8c.html#a6efa8ec9abc76ea5b6e3bd14db26afee">kmain</a></div><div class="ttdeci">int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)</div><div class="ttdoc">Main kernel function. Initializes all devices, and sets up environment. </div><div class="ttdef"><b>Definition:</b> <a href="main_8c_source.html#l00016">main.c:16</a></div></div>
 <div class="ttc" id="structmultiboot__header__tag_html"><div class="ttname"><a href="structmultiboot__header__tag.html">multiboot_header_tag</a></div><div class="ttdoc">Information about the multiboot tags. </div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00014">multiboot.h:14</a></div></div>
 <div class="ttc" id="video_8h_html"><div class="ttname"><a href="video_8h.html">video.h</a></div></div>
-<div class="ttc" id="io_2serial_8h_html"><div class="ttname"><a href="io_2serial_8h.html">serial.h</a></div></div>
-<div class="ttc" id="video_8h_html_a4b25c75363a4f246991a45f8c2807210"><div class="ttname"><a href="video_8h.html#a4b25c75363a4f246991a45f8c2807210">kprintf</a></div><div class="ttdeci">int kprintf(char *format,...)</div><div class="ttdoc">Creates and prints a string based on input format string and arguments. Uses print to convert the for...</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00412">video.c:412</a></div></div>
+<div class="ttc" id="error_8h_html"><div class="ttname"><a href="error_8h.html">error.h</a></div></div>
+<div class="ttc" id="intr_2idt_8c_html_a88d4205d069421eb4f8e7577285f1180"><div class="ttname"><a href="intr_2idt_8c.html#a88d4205d069421eb4f8e7577285f1180">idt_init</a></div><div class="ttdeci">void idt_init()</div><div class="ttdoc">Initializes the IDT Initializes the IDT by first setting every IDT entry to use the dummy interrupt t...</div><div class="ttdef"><b>Definition:</b> <a href="intr_2idt_8c_source.html#l00050">idt.c:50</a></div></div>
 <div class="ttc" id="mm_8h_html"><div class="ttname"><a href="mm_8h.html">mm.h</a></div></div>
-<div class="ttc" id="intr_8h_html_a5c99cba5ccc698fc7feb8902442176ea"><div class="ttname"><a href="intr_8h.html#a5c99cba5ccc698fc7feb8902442176ea">interrupts_init</a></div><div class="ttdeci">void interrupts_init()</div><div class="ttdoc">Initializes interrupts. Initializes based on the target architecture. </div><div class="ttdef"><b>Definition:</b> <a href="interrupts_8c_source.html#l00017">interrupts.c:17</a></div></div>
+<div class="ttc" id="intr_8h_html_a5c99cba5ccc698fc7feb8902442176ea"><div class="ttname"><a href="intr_8h.html#a5c99cba5ccc698fc7feb8902442176ea">interrupts_init</a></div><div class="ttdeci">void interrupts_init()</div><div class="ttdoc">Initializes interrupts. Initializes based on the target architecture. </div><div class="ttdef"><b>Definition:</b> <a href="interrupts_8c_source.html#l00022">interrupts.c:22</a></div></div>
 <div class="ttc" id="multiboot_8h_html"><div class="ttname"><a href="multiboot_8h.html">multiboot.h</a></div><div class="ttdoc">Contains structures related to multiboot-compatible bootloaders. </div></div>
 <div class="ttc" id="intr_8h_html"><div class="ttname"><a href="intr_8h.html">intr.h</a></div></div>
-<div class="ttc" id="mm_8h_html_a71b6b31127095637741152869fffe3f1"><div class="ttname"><a href="mm_8h.html#a71b6b31127095637741152869fffe3f1">mm_init</a></div><div class="ttdeci">void mm_init(struct multiboot_header_tag *mboot_tag)</div><div class="ttdoc">Initializes memory management. Initializes memory management for the target archetecture. </div><div class="ttdef"><b>Definition:</b> <a href="mm_8c_source.html#l00015">mm.c:15</a></div></div>
+<div class="ttc" id="panic_8h_html"><div class="ttname"><a href="panic_8h.html">panic.h</a></div></div>
+<div class="ttc" id="panic_8h_html_ad9596da66fc4b2244b44cd89d7097617"><div class="ttname"><a href="panic_8h.html#ad9596da66fc4b2244b44cd89d7097617">kpanic</a></div><div class="ttdeci">void kpanic(char *msg,...)</div><div class="ttdoc">Halts OS after printing error information. Disabled interrupts, prints the provided error message...</div><div class="ttdef"><b>Definition:</b> <a href="panic_8c_source.html#l00011">panic.c:11</a></div></div>
+<div class="ttc" id="mm_8h_html_a71b6b31127095637741152869fffe3f1"><div class="ttname"><a href="mm_8h.html#a71b6b31127095637741152869fffe3f1">mm_init</a></div><div class="ttdeci">void mm_init(struct multiboot_header_tag *mboot_tag)</div><div class="ttdoc">Initializes memory management. Initializes memory management for the target archetecture. </div><div class="ttdef"><b>Definition:</b> <a href="mm_8c_source.html#l00016">mm.c:16</a></div></div>
+<div class="ttc" id="error_8h_html_adb8c10d984436f7239cc7cd12e77279f"><div class="ttname"><a href="error_8h.html#adb8c10d984436f7239cc7cd12e77279f">kerror</a></div><div class="ttdeci">void kerror(error_level errlvl, int en_int, char *msg,...)</div><div class="ttdoc">Prints information about the kernel. Disables interrupts so it will not get interrupted, checks to see if the error level is &amp;gt;= the minimum level, and if so, prints the current clock tick, then prints the error message. Then, if en_int != 0, it enables interrupts again. </div><div class="ttdef"><b>Definition:</b> <a href="error_8c_source.html#l00020">error.c:20</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_3dd30a497388ee684638f120a124721c.html">src</a></li><li class="navelem"><a class="el" href="dir_f2d89d2b1d9c2db1a3c63568d0092ca4.html">main</a></li><li class="navelem"><a class="el" href="main_8c.html">main.c</a></li>
-    <li class="footer">Generated on Tue Dec 17 2013 10:46:57 for Lambda OS by
+    <li class="footer">Generated on Sun Dec 22 2013 11:27:48 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

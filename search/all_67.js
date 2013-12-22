@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['gdouble_5fspec',['GDOUBLE_SPEC',['../video_8h.html#a5293c4eb9872625e1c0f188d23955e60',1,'video.h']]],
   ['gdt',['GDT',['../gdt_8c.html#abf13a6d64056dff3d7be082e8d23e0d4',1,'gdt.c']]],
   ['gdt_2ec',['gdt.c',['../gdt_8c.html',1,'']]],
   ['gdt_2eh',['gdt.h',['../gdt_8h.html',1,'']]],

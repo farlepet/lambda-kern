@@ -130,7 +130,7 @@ $(document).ready(function(){initNavTree('64_2intr_2idt_8h_source.html','');});
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor">        ent.flags    = attr;                               \</span></div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">        ent.selector = sel;                                 \</span></div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">        ent.reserved = 0;                                    \</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">        ent.reservedIst = 0;                                  \</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">        ent.reservedIst = 1;                                  \</span></div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">    } while(0);</span></div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor"></span></div>
 <div class="line"><a name="l00043"></a><span class="lineno"><a class="line" href="64_2intr_2idt_8h.html#af8132f7edd90a6d09e511c2b36b1260b">   43</a></span>&#160;<span class="keyword">enum</span> <a class="code" href="intr_2idt_8h.html#af8132f7edd90a6d09e511c2b36b1260b">idt_int_type</a></div>
@@ -143,10 +143,10 @@ $(document).ready(function(){initNavTree('64_2intr_2idt_8h_source.html','');});
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;};</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
 <div class="line"><a name="l00061"></a><span class="lineno"><a class="line" href="64_2intr_2idt_8h.html#af20a1f358842c522fa78c3b6ab715785">   61</a></span>&#160;<span class="preprocessor">#define IDT_ATTR(present, dpl, storeseg, type) \</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="preprocessor">(((present &amp; 0x01) &lt;&lt; 7) | \</span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="preprocessor">((dpl      &amp; 0x03) &lt;&lt; 5) | \</span></div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="preprocessor">((storeseg &amp; 0x01) &lt;&lt; 4) | \</span></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="preprocessor">((type     &amp; 0x0F) &lt;&lt; 0))</span></div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="preprocessor">    (((present &amp; 0x01) &lt;&lt; 7) | \</span></div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="preprocessor">    ((dpl      &amp; 0x03) &lt;&lt; 5) | \</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="preprocessor">    ((storeseg &amp; 0x01) &lt;&lt; 4) | \</span></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="preprocessor">    ((type     &amp; 0x0F) &lt;&lt; 0))</span></div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="preprocessor"></span></div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="keywordtype">void</span> <a class="code" href="intr_2idt_8c.html#a88d4205d069421eb4f8e7577285f1180">idt_init</a>();</div>
@@ -178,7 +178,7 @@ $(document).ready(function(){initNavTree('64_2intr_2idt_8h_source.html','');});
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_4a04b9aac4eefdd334a78e565f4616f2.html">arch</a></li><li class="navelem"><a class="el" href="dir_688b298655e1996fca4be5778dd3b283.html">x86_64</a></li><li class="navelem"><a class="el" href="dir_3a640e9d20525c5417eedee548b83662.html">intr</a></li><li class="navelem"><a class="el" href="64_2intr_2idt_8h.html">idt.h</a></li>
-    <li class="footer">Generated on Tue Dec 17 2013 10:46:57 for Lambda OS by
+    <li class="footer">Generated on Sun Dec 22 2013 11:27:48 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>
