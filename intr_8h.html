@@ -233,7 +233,7 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor">#elif defined(ARCH_X86_64)</span></div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor"></span>    <a class="code" href="intr_2idt_8c.html#af10270eb36bbdc1a3aa66dd31d529263">set_idt</a>(n, 0x08, 0x8E, handler);</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor"></span>    <a class="code" href="error_8h.html#adb8c10d984436f7239cc7cd12e77279f">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a09d65dd5a3222924ee07b66587ef071c">ERR_INFO</a>, 1, <span class="stringliteral">&quot;Interrupt vector 0x%X set&quot;</span>);</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor"></span>    <a class="code" href="error_8h.html#adb8c10d984436f7239cc7cd12e77279f">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a09d65dd5a3222924ee07b66587ef071c">ERR_INFO</a>, 1, <span class="stringliteral">&quot;Interrupt vector 0x%02X set&quot;</span>);</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;}</div>
 <div class="ttc" id="intr_2idt_8c_html_af10270eb36bbdc1a3aa66dd31d529263"><div class="ttname"><a href="intr_2idt_8c.html#af10270eb36bbdc1a3aa66dd31d529263">set_idt</a></div><div class="ttdeci">void set_idt(int intr, int sel, int flags, void *func)</div><div class="ttdoc">Set an entry in the IDT. Sets the information in an IDT entry. </div><div class="ttdef"><b>Definition:</b> <a href="intr_2idt_8c_source.html#l00067">idt.c:67</a></div></div>
 <div class="ttc" id="error_8h_html_adfccb88929c124c0313e7a14243a0389a09d65dd5a3222924ee07b66587ef071c"><div class="ttname"><a href="error_8h.html#adfccb88929c124c0313e7a14243a0389a09d65dd5a3222924ee07b66587ef071c">ERR_INFO</a></div><div class="ttdoc">Message containing kernel info. </div><div class="ttdef"><b>Definition:</b> <a href="error_8h_source.html#l00007">error.h:7</a></div></div>
@@ -283,7 +283,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_25ecda1410e8adf967f2aaaca1260861.html">inc</a></li><li class="navelem"><a class="el" href="dir_f91cd87be93de027c13aa159d254b287.html">intr</a></li><li class="navelem"><a class="el" href="intr_8h.html">intr.h</a></li>
-    <li class="footer">Generated on Sun Dec 22 2013 11:27:48 for Lambda OS by
+    <li class="footer">Generated on Mon Dec 23 2013 08:29:34 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

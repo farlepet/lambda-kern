@@ -140,7 +140,7 @@ $(document).ready(function(){initNavTree('interrupts_8c_source.html','');});
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor">#elif defined(ARCH_X86_64)</span></div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor"></span>    <a class="code" href="intr_2idt_8c.html#af10270eb36bbdc1a3aa66dd31d529263">set_idt</a>(n, 0x08, 0x8E, handler);</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor"></span>    <a class="code" href="error_8h.html#adb8c10d984436f7239cc7cd12e77279f">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a09d65dd5a3222924ee07b66587ef071c">ERR_INFO</a>, 1, <span class="stringliteral">&quot;Interrupt vector 0x%X set&quot;</span>);</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor"></span>    <a class="code" href="error_8h.html#adb8c10d984436f7239cc7cd12e77279f">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a09d65dd5a3222924ee07b66587ef071c">ERR_INFO</a>, 1, <span class="stringliteral">&quot;Interrupt vector 0x%02X set&quot;</span>);</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;}</div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;</div>
 <div class="line"><a name="l00054"></a><span class="lineno"><a class="line" href="interrupts_8c.html#a315282e15976b1078b869b347205c29a">   54</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="intr_8h.html#a315282e15976b1078b869b347205c29a">timer_init</a>(u32 quantum)</div>
@@ -170,7 +170,7 @@ $(document).ready(function(){initNavTree('interrupts_8c_source.html','');});
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_3dd30a497388ee684638f120a124721c.html">src</a></li><li class="navelem"><a class="el" href="dir_9ce38d55e233c74df2c52c14942121ce.html">intr</a></li><li class="navelem"><a class="el" href="interrupts_8c.html">interrupts.c</a></li>
-    <li class="footer">Generated on Sun Dec 22 2013 11:27:48 for Lambda OS by
+    <li class="footer">Generated on Mon Dec 23 2013 08:29:34 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

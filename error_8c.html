@@ -183,7 +183,7 @@ Variables</h2></td></tr>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <span class="keywordflow">if</span>(errlvl &gt;= <a class="code" href="error_8c.html#a8549c7b2e1f521caf3513ec3aa4357b3">minlvl</a>)</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    {</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;        ptr_t *varg = (ptr_t *)&amp;msg;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        <a class="code" href="video_8h.html#a4b25c75363a4f246991a45f8c2807210">kprintf</a>(<span class="stringliteral">&quot;[%08X%08X] &quot;</span>, (u32)(<a class="code" href="time_8h.html#a2136c1b265c64af3e757a11f3a09548b">kerneltime</a> &gt;&gt; 32), (u32)<a class="code" href="time_8h.html#a2136c1b265c64af3e757a11f3a09548b">kerneltime</a>);</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        <a class="code" href="video_8h.html#a4b25c75363a4f246991a45f8c2807210">kprintf</a>(<span class="stringliteral">&quot;[%X%08X] &quot;</span>, (u32)(<a class="code" href="time_8h.html#a2136c1b265c64af3e757a11f3a09548b">kerneltime</a> &gt;&gt; 32), (u32)<a class="code" href="time_8h.html#a2136c1b265c64af3e757a11f3a09548b">kerneltime</a>);</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        <a class="code" href="video_8h.html#a697cb2a9ff013fda470d8aad7fd7eaaa">kprintv</a>(msg, ++varg);</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;        <a class="code" href="video_8h.html#adaf7eb760749b489484d8c5a62932088">kput</a>(<span class="charliteral">&#39;\n&#39;</span>);</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    }</div>
@@ -220,7 +220,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_3dd30a497388ee684638f120a124721c.html">src</a></li><li class="navelem"><a class="el" href="dir_869172d2937aa025c7f5e99e4263c86f.html">err</a></li><li class="navelem"><a class="el" href="error_8c.html">error.c</a></li>
-    <li class="footer">Generated on Sun Dec 22 2013 11:27:48 for Lambda OS by
+    <li class="footer">Generated on Mon Dec 23 2013 08:29:34 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

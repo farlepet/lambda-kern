@@ -184,7 +184,7 @@ Functions</h2></td></tr>
 
 <p>Definition at line <a class="el" href="pit_8c_source.html#l00015">15</a> of file <a class="el" href="pit_8c_source.html">pit.c</a>.</p>
 
-<p>References <a class="el" href="time_8c_source.html#l00015">do_time_block_timeup()</a>, <a class="el" href="time_8h_source.html#l00006">kerneltime</a>, <a class="el" href="time_8h_source.html#l00021">MAX_TIME_BLOCKS</a>, and <a class="el" href="time_8h_source.html#l00023">time_blocks</a>.</p>
+<p>References <a class="el" href="time_8c_source.html#l00025">do_time_block_timeup()</a>, <a class="el" href="time_8h_source.html#l00006">kerneltime</a>, <a class="el" href="time_8h_source.html#l00021">MAX_TIME_BLOCKS</a>, and <a class="el" href="time_8h_source.html#l00023">time_blocks</a>.</p>
 <div class="fragment"><div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;{</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    <a class="code" href="time_8h.html#a2136c1b265c64af3e757a11f3a09548b">kerneltime</a>++;</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    </div>
@@ -195,7 +195,7 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;                <a class="code" href="time_8h.html#ab53eb0474b8a81a7f1e897476c53a644">do_time_block_timeup</a>(i);</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;}</div>
 <div class="ttc" id="time_8h_html_a2136c1b265c64af3e757a11f3a09548b"><div class="ttname"><a href="time_8h.html#a2136c1b265c64af3e757a11f3a09548b">kerneltime</a></div><div class="ttdeci">u64 kerneltime</div><div class="ttdoc">Number of elapsed ticks since the PIT was initialized. </div><div class="ttdef"><b>Definition:</b> <a href="time_8h_source.html#l00006">time.h:6</a></div></div>
-<div class="ttc" id="time_8h_html_ab53eb0474b8a81a7f1e897476c53a644"><div class="ttname"><a href="time_8h.html#ab53eb0474b8a81a7f1e897476c53a644">do_time_block_timeup</a></div><div class="ttdeci">void do_time_block_timeup(u32 n)</div><div class="ttdoc">Called when count reaches 0. This makes it easier for the timer interrupt to call event()...</div><div class="ttdef"><b>Definition:</b> <a href="time_8c_source.html#l00015">time.c:15</a></div></div>
+<div class="ttc" id="time_8h_html_ab53eb0474b8a81a7f1e897476c53a644"><div class="ttname"><a href="time_8h.html#ab53eb0474b8a81a7f1e897476c53a644">do_time_block_timeup</a></div><div class="ttdeci">void do_time_block_timeup(u32 n)</div><div class="ttdoc">Called when count reaches 0. This makes it easier for the timer interrupt to call event()...</div><div class="ttdef"><b>Definition:</b> <a href="time_8c_source.html#l00025">time.c:25</a></div></div>
 <div class="ttc" id="time_8h_html_a26b76bef095d4761e26a12117ac8a6fb"><div class="ttname"><a href="time_8h.html#a26b76bef095d4761e26a12117ac8a6fb">time_blocks</a></div><div class="ttdeci">struct time_block time_blocks[MAX_TIME_BLOCKS]</div><div class="ttdoc">Array of timeblocks used by various processes. </div><div class="ttdef"><b>Definition:</b> <a href="time_8h_source.html#l00023">time.h:23</a></div></div>
 <div class="ttc" id="time_8h_html_aae75ec0c74d89a0c44dd3db5d5c32851"><div class="ttname"><a href="time_8h.html#aae75ec0c74d89a0c44dd3db5d5c32851">MAX_TIME_BLOCKS</a></div><div class="ttdeci">#define MAX_TIME_BLOCKS</div><div class="ttdoc">Maximum number of timer blocks able to be used. We cannot let this get too high, or we will experienc...</div><div class="ttdef"><b>Definition:</b> <a href="time_8h_source.html#l00021">time.h:21</a></div></div>
 </div><!-- fragment -->
@@ -261,7 +261,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_4a04b9aac4eefdd334a78e565f4616f2.html">arch</a></li><li class="navelem"><a class="el" href="dir_0ce8714634557e35558d1ff2ffab94d6.html">x86</a></li><li class="navelem"><a class="el" href="dir_0c7d054cbd0b863d3fd96f939fcc8e82.html">intr</a></li><li class="navelem"><a class="el" href="pit_8c.html">pit.c</a></li>
-    <li class="footer">Generated on Sun Dec 22 2013 11:27:48 for Lambda OS by
+    <li class="footer">Generated on Mon Dec 23 2013 08:29:34 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

@@ -161,8 +161,6 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Definition at line <a class="el" href="intr_2idt_8c_source.html#l00076">76</a> of file <a class="el" href="intr_2idt_8c_source.html">idt.c</a>.</p>
-
-<p>References <a class="el" href="io_2ioport_8h_source.html#l00056">inb()</a>, and <a class="el" href="io_2ioport_8h_source.html#l00020">outb()</a>.</p>
 <div class="fragment"><div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;{</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <span class="keywordflow">if</span>(irq &gt; 16) <span class="keywordflow">return</span> 1;</div>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <span class="keywordflow">if</span>(irq &lt; 8)  <a class="code" href="io_2ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(0x21, <a class="code" href="io_2ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a>(0x21) | (1 &gt;&gt; irq));</div>
@@ -204,8 +202,6 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Definition at line <a class="el" href="intr_2idt_8c_source.html#l00084">84</a> of file <a class="el" href="intr_2idt_8c_source.html">idt.c</a>.</p>
-
-<p>References <a class="el" href="io_2ioport_8h_source.html#l00056">inb()</a>, and <a class="el" href="io_2ioport_8h_source.html#l00020">outb()</a>.</p>
 <div class="fragment"><div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;{</div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordflow">if</span>(irq &gt; 16) <span class="keywordflow">return</span> 1;</div>
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordflow">if</span>(irq &lt; 8)  <a class="code" href="io_2ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(0x21, <a class="code" href="io_2ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a>(0x21) &amp; ~(1 &gt;&gt; irq));</div>
@@ -447,7 +443,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_4a04b9aac4eefdd334a78e565f4616f2.html">arch</a></li><li class="navelem"><a class="el" href="dir_0ce8714634557e35558d1ff2ffab94d6.html">x86</a></li><li class="navelem"><a class="el" href="dir_0c7d054cbd0b863d3fd96f939fcc8e82.html">intr</a></li><li class="navelem"><a class="el" href="intr_2idt_8c.html">idt.c</a></li>
-    <li class="footer">Generated on Sun Dec 22 2013 11:27:48 for Lambda OS by
+    <li class="footer">Generated on Mon Dec 23 2013 08:29:34 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

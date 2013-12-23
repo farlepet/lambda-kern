@@ -152,7 +152,7 @@ $(document).ready(function(){initNavTree('intr_2idt_8c_source.html','');});
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
-<div class="line"><a name="l00076"></a><span class="lineno"><a class="line" href="intr_2idt_8h.html#a8048d9b3854370b0eb935c3a30f81da4">   76</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="intr_2idt_8c.html#a8048d9b3854370b0eb935c3a30f81da4">disable_irq</a>(u8 irq)</div>
+<div class="line"><a name="l00076"></a><span class="lineno"><a class="line" href="64_2intr_2idt_8h.html#a8048d9b3854370b0eb935c3a30f81da4">   76</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="intr_2idt_8c.html#a8048d9b3854370b0eb935c3a30f81da4">disable_irq</a>(u8 irq)</div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;{</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <span class="keywordflow">if</span>(irq &gt; 16) <span class="keywordflow">return</span> 1;</div>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <span class="keywordflow">if</span>(irq &lt; 8)  <a class="code" href="io_2ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(0x21, <a class="code" href="io_2ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a>(0x21) | (1 &gt;&gt; irq));</div>
@@ -160,7 +160,7 @@ $(document).ready(function(){initNavTree('intr_2idt_8c_source.html','');});
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordflow">return</span> 0;</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;}</div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;</div>
-<div class="line"><a name="l00084"></a><span class="lineno"><a class="line" href="intr_2idt_8h.html#a9bba11dac050d594c7099b056e3249e5">   84</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="intr_2idt_8c.html#a9bba11dac050d594c7099b056e3249e5">enable_irq</a>(u8 irq)</div>
+<div class="line"><a name="l00084"></a><span class="lineno"><a class="line" href="64_2intr_2idt_8h.html#a9bba11dac050d594c7099b056e3249e5">   84</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="intr_2idt_8c.html#a9bba11dac050d594c7099b056e3249e5">enable_irq</a>(u8 irq)</div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;{</div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordflow">if</span>(irq &gt; 16) <span class="keywordflow">return</span> 1;</div>
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordflow">if</span>(irq &lt; 8)  <a class="code" href="io_2ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(0x21, <a class="code" href="io_2ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a>(0x21) &amp; ~(1 &gt;&gt; irq));</div>
@@ -187,7 +187,7 @@ $(document).ready(function(){initNavTree('intr_2idt_8c_source.html','');});
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_4a04b9aac4eefdd334a78e565f4616f2.html">arch</a></li><li class="navelem"><a class="el" href="dir_0ce8714634557e35558d1ff2ffab94d6.html">x86</a></li><li class="navelem"><a class="el" href="dir_0c7d054cbd0b863d3fd96f939fcc8e82.html">intr</a></li><li class="navelem"><a class="el" href="intr_2idt_8c.html">idt.c</a></li>
-    <li class="footer">Generated on Sun Dec 22 2013 11:27:48 for Lambda OS by
+    <li class="footer">Generated on Mon Dec 23 2013 08:29:33 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>
