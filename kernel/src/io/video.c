@@ -102,7 +102,7 @@ static int print_int(u32 num, int base, int u, int pad, int padzero, int possign
 	if(_case) nums = "0123456789ABCDEF";
 	else      nums = "0123456789abcdef";
 	
-	char ans[16] = { '0', 0, };
+	char ans[16] = { '0', };
 	int i = 0;
 	while(num)
 	{
@@ -132,12 +132,12 @@ static int print_int(u32 num, int base, int u, int pad, int padzero, int possign
 	if(p > 0)
 	{
 		while(p--) *out++ = (padzero ? '0' : ' ');
-		while(--i > -2) *out++ = ans[i];
-		return pad + ((((possign || posspace) && !u) && onum > 0) || ((onum < 0) && !u));
+		while(--i >= 0) *out++ = ans[i];
+		return ((pad > strlen(ans)) ? pad : strlen(ans)) + ((((possign || posspace) && !u) && onum > 0) || ((onum < 0) && !u)) + 1;
 	}
 	else
 	{
-		while(--i > -2) *out++ = ans[i];
+		while(--i >= 0) *out++ = ans[i];
 		return strlen(ans) + ((((possign || posspace) && !u) && onum > 0) || ((onum < 0) && !u));
 	}
 }

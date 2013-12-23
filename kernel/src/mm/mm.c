@@ -16,14 +16,13 @@
 void mm_init(struct multiboot_header_tag *mboot_tag)
 {
 	struct multiboot_basic_memory_tag *mem_tag = (struct multiboot_basic_memory_tag *)find_multiboot_table(mboot_tag, 4);
-#if   defined(ARCH_X86) // Shouldn't be required
+
 	if(!mem_tag)
 		kpanic("No memory information tag found in multiboot tags!");
-	
+
+#if defined(ARCH_X86)
 	gdt_init();
 	paging_init(mem_tag->mem_upper * 1024); // memory in mem_tag is in KiB
-#elif defined(ARCH_X86_64)
-	(void)mem_tag;
 #endif
 }
 

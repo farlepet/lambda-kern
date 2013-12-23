@@ -40,4 +40,12 @@ void do_time_block_timeup(u32 n);
  */
 void add_time_block(void (*func)(u32), u64 count, u32 pid);
 
+/**
+ * \brief Waits for a specified amount of time.
+ * Creates a time block to wait for `delay` clock ticks, then waits until the
+ * time has run out.
+ * @param delay number of ticks to wait for
+ */
+void delay(u64 delay);
+
 #endif

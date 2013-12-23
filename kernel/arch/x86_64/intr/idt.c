@@ -3,9 +3,15 @@
 #include "idt.h"
 
 extern void load_idt(u64 *, u32); //!< Use `lidt` to set the IDT pointer.
-extern void dummy_int(); //!< Dummy interrupt se all IRQ's can function, even if not setup.
+extern void dummy_int(); //!< Dummy interrupt so all IRQ's can function, even if not setup.
+extern void dummy_errcode(); //!< Dummy exception handler for exceptions that produce an errcode
 
 struct idt_entry_64 IDT[256]; //!< Interrupt Descriptor Table. Table of all interrupt handlers and settings.
+
+u8 errcode_excepts[] =
+{
+	0x08, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x11
+};
 
 /**
  * \brief Remap the IRQ's to fire interrupts after the offsets.
@@ -39,7 +45,7 @@ static void reload_idt()
 {
 	struct { u16 limit; u64 offset; } idtr;
 	idtr.limit = sizeof(IDT) - 1;
-	idtr.offset = (u64)&IDT[0];
+	idtr.offset = (u64)&IDT;
 	asm volatile("lidtq %0" :: "m"(idtr));
 	remap_pic(0x20, 0x28);
 }
@@ -52,13 +58,35 @@ static void reload_idt()
  */
 void idt_init()
 {
-	int i = 0;
+	u32 i = 0;
 	for(; i < 256; i++)
-		IDT_ENTRY(IDT[i], (u64)&dummy_int, 0x08, IDT_ATTR(0, 0, 0x0, int32)); //0x8E);
+		IDT_ENTRY(IDT[i], (u64)&dummy_int, 0x08, 0x8E);
+	
+	for(i = 0; i < sizeof(errcode_excepts); i++)
+		IDT_ENTRY(IDT[errcode_excepts[i]], (u64)&dummy_errcode, 0x08, 0x8E);
+		
+	for(i = 0; i < 16; i++) disable_irq(i);
 	
 	reload_idt();
 }
 
+
+
+int disable_irq(u8 irq)
+{
+	if(irq > 16) return 1;
+	if(irq < 8)  outb(0x21, inb(0x21) | (1 >> irq));
+	else         outb(0xA1, inb(0xA1) | (0x100 >> irq));
+	return 0;
+}
+
+int enable_irq(u8 irq)
+{
+	if(irq > 16) return 1;
+	if(irq < 8)  outb(0x21, inb(0x21) & ~(1 >> irq));
+	else         outb(0xA1, inb(0xA1) & ~(0x100 >> irq));
+	return 0;
+}
 /**
  * \brief Set an entry in the IDT.
  * Sets the information in an IDT entry.

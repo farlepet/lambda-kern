@@ -47,6 +47,7 @@ HdrEnd:
 [GLOBAL EntryPoint]
 [EXTERN Stack]
 EntryPoint:
+	
 	mov [mboot_tag], ebx
 	mov [mboot_magic], eax
 	
@@ -88,8 +89,8 @@ EntryPoint:
 	mov rax, Gdtr3
 	lgdt [rax]
 
-	push qword [mboot_magic]
-	push qword [mboot_tag]
+	mov rsi, [mboot_magic]
+	mov rdi, [mboot_tag]
 	
 	mov rax, kmain
 	call rax
@@ -169,3 +170,13 @@ Gdtr3:
 
 mboot_tag:   DQ 0
 mboot_magic: DQ 0
+
+
+
+
+
+global get_eip
+get_eip:
+	pop rax
+	push rax
+	ret

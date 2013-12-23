@@ -1,9 +1,19 @@
 #include <time/time.h>
+#include <err/error.h>
 #include <types.h>
 
-struct time_block time_blocks[MAX_TIME_BLOCKS] = { { NULL, 0, 0 }, }; //!< Array of timeblocks used by various processes
+void rollover(u32);
 
-u64 kerneltime; //!< Number of elapsed ticks since the PIT was initialized
+struct time_block time_blocks[MAX_TIME_BLOCKS] = { [MAX_TIME_BLOCKS-1] = {&rollover, 0xFFFFFFFFFFFFFFFF, 0 } }; //!< Array of timeblocks used by various processes
+
+u64 kerneltime = 0; //!< Number of elapsed ticks since the PIT was initialized
+
+void rollover(u32 pid) //!< Called every 5,997,302.87 centuries
+{
+	kerror(ERR_LGERR, 1, "Kernel time rolled over, a reboot is strongly suggested");
+	kerror(ERR_INFO, 1, "Congratulations, your computer stayed operational for 5,997,302.87 centuries!");
+	add_time_block(&rollover, 0xFFFFFFFFFFFFFFFF, pid);
+}
 
 /**
  * \brief Called when count reaches 0.
@@ -14,11 +24,14 @@ u64 kerneltime; //!< Number of elapsed ticks since the PIT was initialized
  */
 void do_time_block_timeup(u32 n)
 {
-	time_blocks[n].event(time_blocks[n].pid);
-
+	u32 pid = time_blocks[n].pid;
+	void (*event)(u32) = time_blocks[n].event;
+	
 	time_blocks[n].event = NULL;
 	time_blocks[n].count = 0;
 	time_blocks[n].pid   = 0;
+	
+	event(pid);
 }
 
 /**
@@ -39,5 +52,5 @@ void add_time_block(void (*func)(u32), u64 count, u32 pid)
 		time_blocks[i].pid   = pid;
 		return;
 	}
-	// Produce error here
+	kerror(ERR_SMERR, 1, "No free time blocks");
 }

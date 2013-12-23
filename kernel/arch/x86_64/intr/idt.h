@@ -33,7 +33,7 @@ struct  idt_entry_64 {
 		ent.flags    = attr;                               \
 		ent.selector = sel;                                 \
 		ent.reserved = 0;                                    \
-		ent.reservedIst = 1;                                  \
+		ent.reservedIst = 0;                                  \
 	} while(0);
 
 /**
@@ -83,5 +83,10 @@ void idt_init();
  * @see IDT_ATTR
  */
 void set_idt(int, int, int, void *);
+
+
+int disable_irq(u8 irq);
+
+int enable_irq(u8 irq);
 
 #endif

@@ -43,7 +43,7 @@ void set_interrupt(u32 n, void *handler)
 #elif defined(ARCH_X86_64)
 	set_idt(n, 0x08, 0x8E, handler);
 #endif
-	kerror(ERR_INFO, 1, "Interrupt vector 0x%X set");
+	kerror(ERR_INFO, 1, "Interrupt vector 0x%02X set");
 }
 
 /**

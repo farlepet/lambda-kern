@@ -2,6 +2,7 @@
 #include <intr/intr.h>
 #include <err/panic.h>
 #include <err/error.h>
+#include <time/time.h>
 #include <mm/mm.h>
 #include <video.h>
 
@@ -15,11 +16,11 @@ extern void idt_init();
  */
 int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 {
-#if   defined(ARCH_X86) // This should NOT be required
 	if(magic != 0x36d76289)
 		kpanic("Invalid magic number given by the bootloader: 0x%08X", magic);
-#elif defined(ARCH_X86_64)
-	(void)magic;
+	
+#if defined(ARCH_X86_64)
+	kpanic("x86_64 build is currently not operational");
 #endif
 	
 	mm_init(mboot_tag);

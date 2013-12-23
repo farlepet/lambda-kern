@@ -36,3 +36,12 @@ start:
 endloop:
 	hlt
 	jmp endloop
+
+
+
+
+.global get_eip
+get_eip:
+	pop %eax
+	push %eax
+	ret
