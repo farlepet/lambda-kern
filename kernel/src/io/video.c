@@ -165,6 +165,8 @@ static int get_dec(char *str, char **out)
 	return n;
 }
 
+
+#define va_arg __builtin_va_arg // Helps clean up the code a bit
 /**
  * \brief A helper function for sprintf/kprintf/etc...
  * Takes a format string and a list of arguments as input, and produces a
@@ -174,7 +176,7 @@ static int get_dec(char *str, char **out)
  * @param varg the list of arguments
  * @return the number of charactern placed in `out`
  */
-static int print(char *out, char *format, ptr_t *varg)
+static int print(char *out, char *format, __builtin_va_list varg)
 {
 	int is_in_spec = 0;
 	int size = 0;      // Size of the integer
@@ -257,7 +259,7 @@ static int print(char *out, char *format, ptr_t *varg)
 		// Numbers, strings, etc...
 			
 			case 'd':
-			case 'i': temp = *varg++;
+			case 'i': temp = va_arg(varg, int);
 					  if(size == -1) temp &= 0xFFFF;
 					  if(size == -2) temp &= 0xFF;
 					  if(size == 2){} // TODO: Handle this!
@@ -267,7 +269,7 @@ static int print(char *out, char *format, ptr_t *varg)
 					  ZERO_ALL_VID();
 					  break;
 					  
-			case 'u': temp = *varg++;
+			case 'u': temp = va_arg(varg, u32);
 					  if(size == -1) temp &= 0xFFFF;
 					  if(size == -2) temp &= 0xFF;
 					  if(size == 2){} // TODO: Handle this!
@@ -282,12 +284,12 @@ static int print(char *out, char *format, ptr_t *varg)
 			case 'e':
 			case 'E':
 			case 'g':
-			case 'G': varg++;
+			case 'G': (void)va_arg(varg, double);
 					  ZERO_ALL_VID();
 					  break;
 					  
 			case 'x':
-			case 'X': temp = *varg++;
+			case 'X': temp = va_arg(varg, u32);
 					  if(size == -1) temp &= 0xFFFF;
 					  if(size == -2) temp &= 0xFF;
 					  if(size == 2){} // TODO: Handle this!
@@ -297,7 +299,7 @@ static int print(char *out, char *format, ptr_t *varg)
 					  ZERO_ALL_VID();
 					  break;
 			
-			case 'o': temp = *varg++;
+			case 'o': temp = va_arg(varg, u32);
 					  if(size == -1) temp &= 0xFFFF;
 					  if(size == -2) temp &= 0xFF;
 					  if(size == 2){} // TODO: Handle this!
@@ -307,39 +309,40 @@ static int print(char *out, char *format, ptr_t *varg)
 					  ZERO_ALL_VID();
 					  break;
 					 
-			case 's': temp = *varg++;
-					  if(size > 0)
+			case 's': if(size > 0)
 					  {
-						 nchars += wcslen((s16 *)temp);
-						 while(*(s16 *)temp) *out++ = *(s16 *)temp++;
+						  temp = (int)va_arg(varg, s16 *);
+						  nchars += wcslen((s16 *)temp);
+						  while(*(s16 *)temp) *out++ = *(s16 *)temp++;
 					  }
 					  else
 					  {
+						  temp = (int)va_arg(varg, char *);
 						  nchars += strlen((char *)temp);
 						  while(*(char *)temp) *out++ = *(char *)temp++;
 					  }
 					  ZERO_ALL_VID();
 					  break;
 					
-			case 'c': temp = *varg++;
+			case 'c': temp = va_arg(varg, int);
 					  if(size > 0) *out++ = (char)temp;
 					  else         *out++ = (char)temp;
 					  nchars++;
 					  ZERO_ALL_VID();
 					  break;
 					
-			case 'p': temp = *varg++;
+			case 'p': temp = va_arg(varg, ptr_t);
 					  temp = print_int(temp, 16, 1, width, padzeros, showsign, signspace, 1 /* Should this be upper or lower case? */, out);
 					  nchars += temp;
 					  out += temp-1;
 					  break;
 					
 			case 'a':
-			case 'A': varg++;
+			case 'A': (void)va_arg(varg, double);
 					  ZERO_ALL_VID();
 					  break;
 					
-			case 'n': *varg++ = nchars;
+			case 'n': (void)va_arg(varg, int);
 					  ZERO_ALL_VID();
 					  break;
 		}
@@ -367,8 +370,11 @@ static int print(char *out, char *format, ptr_t *varg)
  */
 int sprintf(char *out, char *format, ...)
 {
-	ptr_t *varg = (ptr_t *)&format;
-	return print(out, format, varg);
+	__builtin_va_list varg;
+	__builtin_va_start(varg, format);
+	int ret = print(out, format, varg);
+	__builtin_va_end(varg);
+	return ret;
 }
 
 /**
@@ -382,12 +388,14 @@ int sprintf(char *out, char *format, ...)
  */
 int kprintf(char *format, ...)
 {
-	ptr_t *varg = (ptr_t *)&format;
+	__builtin_va_list varg;
+	__builtin_va_start(varg, format);
 	char temp[1024];
 	int i = 0;
 	while(i < 1024) temp[i++] = ' ';
 	int ret = print(temp, format, ++varg);
 	kprint(temp);
+	__builtin_va_end(varg);
 	return ret;
 }
 
@@ -400,12 +408,12 @@ int kprintf(char *format, ...)
  * @return the number of characters printed
  * @see print
  */
-int kprintv(char *format, ptr_t *varg)
+int kprintv(char *format, __builtin_va_list varg)
 {
 	char temp[1024];
 	int i = 0;
 	while(i < 1024) temp[i++] = ' ';
-	int ret = print(temp, format, ++varg);
+	int ret = print(temp, format, varg);
 	kprint(temp);
 	return ret;
 }

@@ -10,6 +10,8 @@
 
 #include <types.h>
 
+#pragma pack (push, 1)
+
 /// Information about the multiboot tags
 struct multiboot_header_tag
 {
@@ -129,8 +131,48 @@ struct multiboot_vbe_tag
 	u8  vbe_mode_info[256];    //!< VBE mode information
 };
 
+/// Framebuffer information
+struct multiboot_fb_tag
+{
+	u32 type;      //!< Always 8
+	u32 size;      //!< Size of tag
+	u64 fb_addr;   //!< Address of framebuffer
+	u32 fb_pitch;  //!< Number of bytes from one row to the next
+	u32 fb_width;  //!< Width of framebuffer in pixels (or characters if `fb_type` == 2)
+	u32 fb_height; //!< Height of framebuffer in pixels (of characters if `fb_type` == 2)
+	u8  fb_bpp;    //!< Bits per pixel
+	u8  fb_type;   //!< 0 = Palette, 1 = RGB, 2 = EGA text
+	u8  reserved;  //!< Reserved, always 0
+	// Color info continues from here
+};
 
+/// Follows `multiboot_fb_tag` if `fb_type` == 0
+struct multiboot_fb_type_pal
+{
+	u32 n_colors; //!< number of colors in the palette
+	// Palette continues from here
+};
 
+/// Palette entry for `multiboot_fb_type_pal`
+struct multiboot_fb_pal_ent
+{
+	u8 red;   //!< Red value of the palette entry
+	u8 green; //!< Green value of the palette entry
+	u8 blue;  //!< Blue value of the palette entry
+};
+
+/// Follows `multiboot_fb_tag` if `fb_type` == 1
+struct multiboot_fb_type_rgb
+{
+	u8 fb_red_field_pos;   //!< Position of the red field
+	u8 fb_red_mask_size;   //!< Size of the red field
+	u8 fb_green_field_pos; //!< Position of the green field
+	u8 fb_green_mask_size; //!< Size of the green field
+	u8 fb_blue_field_pos;  //!< Position of the blue field
+	u8 fb_blue_mask_size;  //!< Size of the blue field
+};
+
+#pragma pack (pop)
 
 /**
  * \brief Finds the first multiboot entry with a certain type value.

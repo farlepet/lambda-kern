@@ -39,3 +39,13 @@ pit_int:
 	popa
 	sti
 	iret
+
+
+
+global interrupts_enabled
+interrupts_enabled:
+	pushf
+	pop eax
+	and eax, (1 << 10) ; Get IF flag
+	shl eax, 9
+	ret

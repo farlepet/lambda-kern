@@ -10,12 +10,15 @@
  */
 void kpanic(char *msg, ...)
 {
-	ptr_t *varg = (ptr_t *)&msg;
-	
 	disable_interrupts();
 	
+	__builtin_va_list varg;
+	__builtin_va_start(varg, msg);
+	
 	kprintf("Kernel panic:\n    ");
-	kprintv(msg, ++varg);
+	kprintv(msg, varg);
+	
+	__builtin_va_end(varg);
 	
 	// Print regs here
 	

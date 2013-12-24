@@ -3,8 +3,9 @@
 #include <intr/intr.h>
 #include <time/time.h>
 #include <err/error.h>
+#include <intr/int.h>
 
-error_level minlvl = ERR_BOOTINFO; //!< Minimal level where messages are shown
+error_level minlvl = ERR_INFO; //!< Minimal level where messages are shown
 
 /**
  * \brief Prints information about the kernel.
@@ -13,20 +14,22 @@ error_level minlvl = ERR_BOOTINFO; //!< Minimal level where messages are shown
  * clock tick, then prints the error message. Then, if en_int != 0, it
  * enables interrupts again.
  * @param errlvl the severity of the message
- * @param en_int wether or not to enable interrupts when its done
  * @param msg the format string
  * @param ... the arguments to go along with the format string
  */
-void kerror(error_level errlvl, int en_int, char *msg, ...)
+void kerror(error_level errlvl, char *msg, ...)
 {
+	int en_int = interrupts_enabled();
 	disable_interrupts();
 	
 	if(errlvl >= minlvl)
 	{
-		ptr_t *varg = (ptr_t *)&msg;
+		__builtin_va_list varg;
+		__builtin_va_start(varg, msg);
 		kprintf("[%X%08X] ", (u32)(kerneltime >> 32), (u32)kerneltime);
-		kprintv(msg, ++varg);
+		kprintv(msg, varg);
 		kput('\n');
+		__builtin_va_end(varg);
 	}
 	
 	if(en_int) enable_interrupts();

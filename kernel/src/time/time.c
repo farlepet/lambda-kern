@@ -10,8 +10,8 @@ u64 kerneltime = 0; //!< Number of elapsed ticks since the PIT was initialized
 
 void rollover(u32 pid) //!< Called every 5,997,302.87 centuries
 {
-	kerror(ERR_LGERR, 1, "Kernel time rolled over, a reboot is strongly suggested");
-	kerror(ERR_INFO, 1, "Congratulations, your computer stayed operational for 5,997,302.87 centuries!");
+	kerror(ERR_LGERR, "Kernel time rolled over, a reboot is strongly suggested");
+	kerror(ERR_INFO, "Congratulations, your computer stayed operational for 5,997,302.87 centuries!");
 	add_time_block(&rollover, 0xFFFFFFFFFFFFFFFF, pid);
 }
 
@@ -52,5 +52,5 @@ void add_time_block(void (*func)(u32), u64 count, u32 pid)
 		time_blocks[i].pid   = pid;
 		return;
 	}
-	kerror(ERR_SMERR, 1, "No free time blocks");
+	kerror(ERR_SMERR, "No free time blocks");
 }

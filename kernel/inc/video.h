@@ -2,6 +2,11 @@
 #define VIDEO_H
 
 #include <types.h>
+#include <multiboot.h>
+
+void init_video(struct multiboot_header_tag* mboot_tag);
+
+
 
 /**
  * \brief Prints a single character.
@@ -75,6 +80,6 @@ int kprintf(char *format, ...);
  * @return the number of characters printed
  * @see print
  */
-int kprintv(char *format, ptr_t *varg);
+int kprintv(char *format, __builtin_va_list varg);
 
 #endif

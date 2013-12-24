@@ -23,13 +23,15 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 	kpanic("x86_64 build is currently not operational");
 #endif
 	
+	init_video(mboot_tag);
+	
 	mm_init(mboot_tag);
 	
 	interrupts_init();
 
 	timer_init(1000); // At this speed, the counter will roll over after 5,997,302.87 centuries
 	
-	kerror(ERR_BOOTINFO, 1, "Lambda OS kernel finished initializing");
+	kerror(ERR_BOOTINFO, "Lambda OS kernel finished initializing");
 	
 	for(;;);
 	

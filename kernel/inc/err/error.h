@@ -19,10 +19,9 @@ typedef enum  //!< Enumeration of error levels
  * clock tick, then prints the error message. Then, if en_int != 0, it
  * enables interrupts again.
  * @param errlvl the severity of the message
- * @param en_int wether or not to enable interrupts when its done
  * @param msg the format string
  * @param ... the arguments to go along with the format string
  */
-void kerror(error_level errlvl, int en_int, char *msg, ...);
+void kerror(error_level errlvl, char *msg, ...);
 
 #endif
