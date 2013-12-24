@@ -24,12 +24,12 @@ void kerror(error_level errlvl, char *msg, ...)
 	
 	if(errlvl >= minlvl)
 	{
+		kprintf("[%X%08X] ", (u32)(kerneltime >> 32), (u32)kerneltime);
 		__builtin_va_list varg;
 		__builtin_va_start(varg, msg);
-		kprintf("[%X%08X] ", (u32)(kerneltime >> 32), (u32)kerneltime);
 		kprintv(msg, varg);
-		kput('\n');
 		__builtin_va_end(varg);
+		kput('\n');
 	}
 	
 	if(en_int) enable_interrupts();

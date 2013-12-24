@@ -393,7 +393,7 @@ int kprintf(char *format, ...)
 	char temp[1024];
 	int i = 0;
 	while(i < 1024) temp[i++] = ' ';
-	int ret = print(temp, format, ++varg);
+	int ret = print(temp, format, varg);
 	kprint(temp);
 	__builtin_va_end(varg);
 	return ret;

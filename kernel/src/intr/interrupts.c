@@ -24,8 +24,10 @@ void interrupts_init()
 #if  defined(ARCH_X86)
 	idt_init();
 	exceptions_init();
+	enable_interrupts();
 #elif defined(ARCH_X86_64)
 	idt_init();
+	//enable_interrupts();
 #endif
 	kerror(ERR_BOOTINFO, "Interrupts enabled");
 }
