@@ -184,4 +184,17 @@ struct multiboot_fb_type_rgb
  */
 struct multiboot_tag *find_multiboot_table(struct multiboot_header_tag* mboot_tag, u32 type);
 
+
+
+
+u8 mboot_red;
+u8 mboot_green;
+u8 mboot_blue;
+
+void mbootvid_clear();
+
+void mboot_put(char c);
+
+void mboot_putxy(int x, int y, u8 c, u8 r, u8 g, u8 b);
+
 #endif

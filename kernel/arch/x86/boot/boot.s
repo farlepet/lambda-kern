@@ -17,8 +17,19 @@ mboot:
 	.long 4 # Basic memory tag
 	.long 6 # Memory map tag
   .mbi_end:
+  
+.align 8
+    
+# Framebuffer tag
+	.word 5
+	.word 0
+	.long 20
+	.long 800 # Width
+	.long 600 # Height
+	.long 24  # Depth
 
-	.quad 0 # No idea why this is required for it to boot, padding maybe?
+	.quad 0
+
 mbootEnd:
 
 

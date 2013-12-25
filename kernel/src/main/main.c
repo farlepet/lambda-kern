@@ -8,6 +8,8 @@
 
 extern void idt_init();
 
+extern void mboot_putxy(int x, int y, u8 c, u8 r, u8 g, u8 b);
+
 /**
  * \brief Main kernel function.
  * Initializes all devices, and sets up environment.
@@ -24,6 +26,7 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 #endif
 	
 	init_video(mboot_tag);
+	
 	
 	mm_init(mboot_tag);
 	

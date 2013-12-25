@@ -1,6 +1,7 @@
 #include <video.h>
 #include <string.h>
 #include <mm/mm.h>
+#include <multiboot.h>
 
 #if (defined(ARCH_X86) | defined(ARCH_X86_64))
 #include <dev/vga/print.h>
@@ -13,9 +14,7 @@
  */
 void kput(char c)
 {
-#if (defined(ARCH_X86) | defined(ARCH_X86_64))
-	vga_put((u8)c);
-#endif
+	mboot_put((u8)c);
 }
 
 /**
@@ -25,9 +24,7 @@ void kput(char c)
  */
 void kwput(int c)
 {
-#if (defined(ARCH_X86) | defined(ARCH_X86_64))
-	vga_put((u8)c);
-#endif
+	mboot_put((u8)c);
 }
 
 /**
