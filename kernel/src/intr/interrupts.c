@@ -25,9 +25,6 @@ void interrupts_init()
 	idt_init();
 	exceptions_init();
 	enable_interrupts();
-#elif defined(ARCH_X86_64)
-	idt_init();
-	//enable_interrupts();
 #endif
 	kerror(ERR_BOOTINFO, "Interrupts enabled");
 }
@@ -41,8 +38,6 @@ void interrupts_init()
 void set_interrupt(u32 n, void *handler)
 {
 #if   defined(ARCH_X86)
-	set_idt(n, 0x08, 0x8E, handler);
-#elif defined(ARCH_X86_64)
 	set_idt(n, 0x08, 0x8E, handler);
 #endif
 	kerror(ERR_INFO, "Interrupt vector 0x%02X set", n);

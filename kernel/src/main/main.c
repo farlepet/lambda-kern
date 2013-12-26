@@ -6,9 +6,11 @@
 #include <mm/mm.h>
 #include <video.h>
 
-extern void idt_init();
 
-extern void mboot_putxy(int x, int y, u8 c, u8 r, u8 g, u8 b);
+#include <io/pci.h>
+
+
+extern void idt_init();
 
 /**
  * \brief Main kernel function.
@@ -21,10 +23,6 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 	if(magic != 0x36d76289)
 		kpanic("Invalid magic number given by the bootloader: 0x%08X", magic);
 	
-#if defined(ARCH_X86_64)
-	kpanic("x86_64 build is currently not operational");
-#endif
-	
 	init_video(mboot_tag);
 	
 	mm_init(mboot_tag);
@@ -35,6 +33,10 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 	
 	kerror(ERR_BOOTINFO, "Lambda OS kernel finished initializing");
 	
+
+	pci_test();
+
+
 	for(;;);
 	
 	(void)mboot_tag;

@@ -37,8 +37,8 @@ void *alloc_page()
 {
 #if   defined(ARCH_X86)
 	return alloc_frame();
-#elif defined(ARCH_X86_64)
-	return 0;
+#else
+	return 0
 #endif
 }
 
@@ -52,7 +52,7 @@ void free_page(void *page)
 {
 #if   defined(ARCH_X86)
 	free_frame(page);
-#elif defined(ARCH_X86_64)
+#else
 	(void)page;
 #endif
 }

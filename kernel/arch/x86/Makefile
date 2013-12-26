@@ -4,13 +4,13 @@ SRC        = $(MAINDIR)
 
 
 SRCS       = $(wildcard $(SRC)/boot/*.c)   $(wildcard $(SRC)/dev/*.c)        $(wildcard $(SRC)/dev/vga/*.c)      $(wildcard $(SRC)/mm/*.c) \
-             $(wildcard $(SRC)/intr/*.c)   $(wildcard $(SRC)/dev/keyb/*.c)   $(wildcard $(SRC)/dev/serial/*.c)
+             $(wildcard $(SRC)/intr/*.c)   $(wildcard $(SRC)/dev/keyb/*.c)   $(wildcard $(SRC)/io/*.c)
 
 ASSRCS     = $(wildcard $(SRC)/boot/*.s)   $(wildcard $(SRC)/dev/*.s)        $(wildcard $(SRC)/dev/vga/*.s)      $(wildcard $(SRC)/mm/*.s) \
-             $(wildcard $(SRC)/intr/*.s)   $(wildcard $(SRC)/dev/keyb/*.s)   $(wildcard $(SRC)/dev/serial/*.s)
+             $(wildcard $(SRC)/intr/*.s)   $(wildcard $(SRC)/dev/keyb/*.s)   $(wildcard $(SRC)/io/*.s)
 
 ASMSRCS    = $(wildcard $(SRC)/boot/*.asm) $(wildcard $(SRC)/dev/*.asm)      $(wildcard $(SRC)/dev/vga/*.asm)    $(wildcard $(SRC)/mm/*.asm) \
-             $(wildcard $(SRC)/intr/*.asm) $(wildcard $(SRC)/dev/keyb/*.asm) $(wildcard $(SRC)/dev/serial/*.asm)
+             $(wildcard $(SRC)/intr/*.asm) $(wildcard $(SRC)/dev/keyb/*.asm) $(wildcard $(SRC)/io/*.asm)
 
 COBJS      = $(patsubst %.c,%.o,$(SRCS))
 ASOBJS     = $(patsubst %.s,%.o,$(ASSRCS))
