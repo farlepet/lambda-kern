@@ -32,6 +32,15 @@ MbHdr:
 	DW	3, 0
 	DD	12
 	DD	EntryPoint
+
+ALIGN 8
+	; Framebuffer tag
+	DW 5
+	DW 0
+	DD 20
+	DD 0 ; Width
+	DD 0 ; Height
+	DD 0 ; Depth
  
 	; End Of Tags
 	;DD	0
@@ -173,7 +182,7 @@ mboot_magic: DQ 0
 
 
 
-
+[BITS 64]
 
 global get_eip
 get_eip:

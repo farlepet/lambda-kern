@@ -16,3 +16,13 @@ dummy_errcode:
 	pop rax ; errorcode
 	popaq
 	iret
+
+
+
+global interrupts_enabled
+interrupts_enabled:
+	pushf
+	pop rax
+	and rax, (1 << 10) ; Get IF flag
+	shl rax, 9
+	ret

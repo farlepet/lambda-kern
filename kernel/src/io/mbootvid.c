@@ -30,12 +30,14 @@ u8 mboot_red   = 255;
 u8 mboot_green = 255;
 u8 mboot_blue  = 255;
 
+u8 mboot_char_color = 0x0F;
+
 
 static void store_vid_tag(struct multiboot_header_tag *mboot_tag)
 {
 	fb_tag = (struct multiboot_fb_tag *)find_multiboot_table(mboot_tag, 8);
 	if(!fb_tag)
-		kerror(ERR_MEDERR, "Mutiboot framebuffer tag not found, trying to use default video mode");
+		kerror(ERR_MEDERR, "Mutiboot framebuffi=er tag not found, trying to use default video mode");
 }
 
 static inline u32 bit_mask(u32 x)
@@ -78,12 +80,25 @@ void init_video(struct multiboot_header_tag* mboot_tag)
 
 void mboot_putpix(int x, int y, u8 r, u8 g, u8 b)
 {
-	//*(u16 *)(vid + ((x * 2) + (y * stride))) = (((r << red_pos) & red_mask) | ((g << green_pos) & green_mask) | ((b << blue_pos) & blue_mask));
-	if(bpp == 24)
+	if(bpp == 16)
+	{
+		r >>= 3;
+		g >>= 2;
+		b >>= 3;
+
+		*(u16 *)(vid + ((x * 2) + (y * stride))) = (((r << 10) & 0xF800) | ((g << 4) & 0x07E0) | ((b << 0) & 0x1F));
+	}
+	else if(bpp == 24)
 	{
 		*(u8 *)(vid + ((x * 3) + (y * stride)) + 0) = r;
 		*(u8 *)(vid + ((x * 3) + (y * stride)) + 1) = g;
 		*(u8 *)(vid + ((x * 3) + (y * stride)) + 2) = b;
+	}
+	else if(bpp == 32)
+	{
+		*(u8 *)(vid + ((x * 4) + (y * stride)) + 0) = r;
+		*(u8 *)(vid + ((x * 4) + (y * stride)) + 1) = g;
+		*(u8 *)(vid + ((x * 4) + (y * stride)) + 2) = b;
 	}
 }
 
@@ -123,17 +138,17 @@ void mboot_putxy(int x, int y, u8 c, u8 r, u8 g, u8 b)
 void mbootvid_clear()
 {
 	u32 i = 0;
-	for(; i < width*height*3; i++)
+	for(; i < width*height*(bpp/8); i++)
 		*(u8 *)(vid + i) = 0x00;
 }
 
 static void scrollup()
 {
 	u32 i = 0;
-	for(; i < (width * (height - 16) * 3); i++)
-		*(u8 *)(vid + i) = *(u8 *)(vid + i + width * 3);
+	for(; i < (width * (height - ((type == 2) ? (1) : (16))) * (bpp / 8)); i++)
+		*(u8 *)(vid + i) = *(u8 *)(vid + i + width * (bpp / 8));
 	
-	for(; i < (width * (height) * 3); i++)
+	for(; i < (width * (height) * (bpp / 8)); i++)
 		*(u8 *)(vid + i) = 0x00;
 }
 

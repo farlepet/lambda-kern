@@ -308,13 +308,13 @@ static int print(char *out, char *format, __builtin_va_list varg)
 					 
 			case 's': if(size > 0)
 					  {
-						  temp = (int)va_arg(varg, s16 *);
+						  temp = (int)(ptr_t)va_arg(varg, s16 *);
 						  nchars += wcslen((s16 *)temp);
 						  while(*(s16 *)temp) *out++ = *(s16 *)temp++;
 					  }
 					  else
 					  {
-						  temp = (int)va_arg(varg, char *);
+						  temp = (int)(ptr_t)va_arg(varg, char *);
 						  nchars += strlen((char *)temp);
 						  while(*(char *)temp) *out++ = *(char *)temp++;
 					  }
