@@ -201,9 +201,6 @@ void paging_init(u32 eom)
 	clear_pagedir(pagedir);
 	fill_pagetable(pagetbl1, 0x00000000);
 	pagedir[0] = (u32)pagetbl1 | 3; // supervisor, rw, present
-	
-	apic = APIC_VIRT;
-	map_page((void *)APIC_PHYS, (void *)APIC_VIRT, 3); // APIC
 
 	set_pagedir(pagedir);
 	enable_paging();
