@@ -1,9 +1,27 @@
 lambda-os
 =========
 
-Hobby operating system created in C
+Hobby x86 operating system created in C
 
 Documentation
 -------------
 
 Source code documentation can be found here: http://farlepet.github.io/lambda-os
+
+Building
+--------
+
+To build Lambda OS you need the following tools:
+ * x86 or x86_64 computer (unless using a cross compiler)
+ * `gcc` (or cross compiler)
+ * `nasm`
+ * `make`
+ * `grub`
+ * Ubuntu-based systems: `grub-pc-bin`
+ * `grub-mkrescue`
+ * `xorriso`
+
+Build process:
+ * Clone the git repository (If first time): `git clone https://github.com/farlepet/lambda-os.git`
+ * Pull updates (If not first time): `git pull origin master`
+ * Build: `make`
