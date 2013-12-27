@@ -4,8 +4,6 @@
 
 extern vga_print
 extern vga_printnum
-extern serial_print
-extern serial_printnum
 extern set_idt
 
 %macro setidt 4
@@ -22,8 +20,7 @@ extern set_idt
 %macro print 1
 	pusha
 	push %1
-	push 0x3F8
-	call serial_print
+	call vga_print
 	add esp, 8
 	popa
 %endmacro
@@ -34,8 +31,7 @@ extern set_idt
 	push 16
 	mov eax, %1 ; Incase its a control reg
 	push eax
-	push 0x3F8
-	call serial_printnum
+	call vga_printnum
 	add esp, 12
 	print m_num_white
 	popa
