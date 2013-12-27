@@ -14,7 +14,7 @@
  */
 void kput(char c)
 {
-	mboot_put((u8)c);
+	vga_put((u8)c);
 }
 
 /**
@@ -24,7 +24,7 @@ void kput(char c)
  */
 void kwput(int c)
 {
-	mboot_put((u8)c);
+	vga_put((u8)c);
 }
 
 /**

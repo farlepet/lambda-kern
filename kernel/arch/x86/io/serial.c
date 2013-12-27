@@ -62,3 +62,30 @@ void serial_write(u16 port, char a)
 	while (is_transmit_empty(port) == 0);
 	outb(port, a);
 }
+
+
+
+
+void serial_print(u16 port, char *str)
+{
+	int i = 0;
+	while(str[i] != 0)
+		serial_write(port, str[i++]);
+}
+
+void serial_printnum(u16 port, u32 n, int base)
+{
+	char nums[16] = "0123456789ABCDEF";
+	char ans[16] = { '0' };
+	int i = 0;
+	while(n)
+	{
+		ans[i++] = nums[n % base];
+		n /= base;
+	}
+	
+	if(!i) i = 1;
+
+	for(i--; i >= 0; i--)
+		serial_write(port, ans[i]);
+}

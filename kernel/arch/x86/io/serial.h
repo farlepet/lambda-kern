@@ -3,7 +3,7 @@
 
 #include <types.h>
 
-#define SERIAL_COM1 0x3f8
+#define SERIAL_COM1 0x3F8
 #define SERIAL_COM2 0x2F8
 #define SERIAL_COM3 0x3E8
 #define SERIAL_COM4 0x2E8
@@ -45,5 +45,13 @@ int is_transmit_empty(u16 port);
  * @see is_transmit_empty
  */
 void serial_write(u16 port, char a);
+
+
+
+
+
+void serial_print(u16 port, char *str);
+
+void serial_printnum(u16 port, u32 n, int base);
 
 #endif

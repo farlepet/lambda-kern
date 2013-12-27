@@ -7,10 +7,12 @@
 #include <video.h>
 
 
+
 #include <io/pci.h>
 
 
-extern void idt_init();
+#include <io/serial.h>
+
 
 /**
  * \brief Main kernel function.
@@ -23,18 +25,24 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 	if(magic != 0x36d76289)
 		kpanic("Invalid magic number given by the bootloader: 0x%08X", magic);
 	
-	init_video(mboot_tag);
-	
+	serial_init(SERIAL_COM1);
+
 	mm_init(mboot_tag);
-	
+
 	interrupts_init();
+
+	
 
 	timer_init(1000); // At this speed, the counter will roll over after 5,997,302.87 centuries
 	
-	kerror(ERR_BOOTINFO, "Lambda OS kernel finished initializing");
-	
+
+
+
 
 	pci_test();
+	
+	kerror(ERR_BOOTINFO, "Lambda OS kernel finished initializing");
+
 
 
 	for(;;);

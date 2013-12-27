@@ -4,6 +4,8 @@
 
 extern vga_print
 extern vga_printnum
+extern serial_print
+extern serial_printnum
 extern set_idt
 
 %macro setidt 4
@@ -20,8 +22,9 @@ extern set_idt
 %macro print 1
 	pusha
 	push %1
-	call vga_print
-	add esp, 4
+	push 0x3F8
+	call serial_print
+	add esp, 8
 	popa
 %endmacro
 
@@ -31,18 +34,11 @@ extern set_idt
 	push 16
 	mov eax, %1 ; Incase its a control reg
 	push eax
-	call vga_printnum
-	add esp, 8
+	push 0x3F8
+	call serial_printnum
+	add esp, 12
 	print m_num_white
 	popa
-%endmacro
-
-%macro push_saves 0
-	pop word  [oldcs]
-	pop dword [oldeip]
-	pop dword [oldeflags]
-	pop word  [oldss]
-	pop dword [oldesp]
 %endmacro
 
 global exceptions_init
@@ -81,7 +77,7 @@ e_div0:
 	pusha
 	print m_div0
 	popa
-	push_saves
+	
 	jmp hang
 
 e_debug:
@@ -89,7 +85,7 @@ e_debug:
 	pusha
 	print m_debug
 	popa
-	push_saves
+	
 	jmp hang
 
 e_nmi:
@@ -97,7 +93,7 @@ e_nmi:
 	pusha
 	print m_nmi
 	popa
-	push_saves
+	
 	jmp hang
 
 e_breakpoint:
@@ -105,7 +101,7 @@ e_breakpoint:
 	pusha
 	print m_breakpoint
 	popa
-	push_saves
+	
 	iret
 
 e_overflow:
@@ -113,7 +109,7 @@ e_overflow:
 	pusha
 	print m_overflow
 	popa
-	push_saves
+	
 	jmp hang
 
 e_boundr:
@@ -121,7 +117,7 @@ e_boundr:
 	pusha
 	print m_boundr
 	popa
-	push_saves
+	
 	jmp hang
 
 e_invalidop:
@@ -129,7 +125,7 @@ e_invalidop:
 	pusha
 	print m_invalidop
 	popa
-	push_saves
+	
 	jmp hang
 
 e_devavail:
@@ -137,7 +133,7 @@ e_devavail:
 	pusha
 	print m_devavail
 	popa
-	push_saves
+	
 	jmp hang
 
 e_doublefault:
@@ -146,7 +142,7 @@ e_doublefault:
 	print m_doublefault
 	popa
 	pop dword [errcode]
-	push_saves
+	
 	jmp hang
 
 e_coprocover:
@@ -154,7 +150,7 @@ e_coprocover:
 	pusha
 	print m_cprocover
 	popa
-	push_saves
+	
 	jmp hang
 
 e_invtss:
@@ -163,7 +159,7 @@ e_invtss:
 	print m_invtss
 	popa
 	pop dword [errcode]
-	push_saves
+	
 	jmp hang
 
 e_segnpres:
@@ -172,7 +168,7 @@ e_segnpres:
 	print m_segnpres
 	popa
 	pop dword [errcode]
-	push_saves
+	
 	jmp hang
 
 e_stacksegfault:
@@ -181,7 +177,7 @@ e_stacksegfault:
 	print m_stacksegfault
 	popa
 	pop dword [errcode]
-	push_saves
+	
 	jmp hang
 
 e_gpf:
@@ -199,24 +195,28 @@ e_gpf:
 	add esp, 8
 	popa
 	pop dword [errcode]
-	push_saves
+	
 	jmp hang
 
+extern handle_page_fault
 e_pagefault:
 	cli
 	pusha
 	print m_pagefault
 	popa
 	pop dword [errcode]
-	push_saves
-	jmp hang
+	pusha
+	call handle_page_fault
+	popa
+	iret
+	;jmp hang
 
 e_fpe:
 	cli
 	pusha
 	print m_fpe
 	popa
-	push_saves
+	
 	jmp hang
 
 e_alignchk:
@@ -225,7 +225,7 @@ e_alignchk:
 	print m_alignchk
 	popa
 	pop dword [errcode]
-	push_saves
+	
 	jmp hang
 
 e_machchk:
@@ -233,7 +233,7 @@ e_machchk:
 	pusha
 	print m_machchk
 	popa
-	push_saves
+	
 	jmp hang
 
 e_simdfpe:
@@ -241,7 +241,7 @@ e_simdfpe:
 	pusha
 	print m_simdfpe
 	popa
-	push_saves
+	
 	jmp hang
 
 e_virtexcep:
@@ -249,7 +249,7 @@ e_virtexcep:
 	pusha
 	print m_virtexcep
 	popa
-	push_saves
+	
 	jmp hang
 
 e_securexcep:
@@ -257,7 +257,7 @@ e_securexcep:
 	pusha
 	print m_securexcep
 	popa
-	push_saves
+	
 	jmp hang
 
 
@@ -269,9 +269,12 @@ hang:
 	jmp .halt
 
 
+extern serial_write
 
 reg_dump:
 	pusha
+
+
 	print m_num_newline
 	print m_regdump_head
 	
@@ -315,25 +318,6 @@ reg_dump:
 	
 	print m_err
 	printnum [errcode]
-	
-	print m_num_newline
-	
-	print m_oldcs
-	printnum [oldcs]
-	print m_oldss
-	printnum [oldss]
-	
-	print m_num_newline
-	
-	print m_oldeip
-	printnum [oldeip]
-	print m_oldesp
-	printnum [oldesp]
-	
-	print m_num_newline
-	
-	print m_oldeflags
-	printnum [oldeflags]
 	
 	print m_num_newline
 	
@@ -388,11 +372,6 @@ m_cs:            db "CS: ", 0
 m_ds:            db "DS: ", 0
 m_ss:            db "SS: ", 0
 m_err:           db "ERRORCODE: ", 0
-m_oldcs:         db "OLD CS: ", 0
-m_oldeip:        db "OLD EIP: ", 0
-m_oldeflags:     db "OLD EFLAGS: ", 0
-m_oldss:         db "OLD SS: ", 0
-m_oldesp:        db "OLD ESP: ", 0
 m_num_hex:       db "0x", 0
 m_num_white:     db ` \t`, 0
 m_num_newline:   db `\n`, 0

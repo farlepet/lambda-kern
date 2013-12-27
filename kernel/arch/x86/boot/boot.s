@@ -17,17 +17,6 @@ mboot:
 	.long 4 # Basic memory tag
 	.long 6 # Memory map tag
   .mbi_end:
-  
-.align 8
-    
-# Framebuffer tag
-
-	.word 5
-	.word 0
-	.long 20
-	.long 0 # Width
-	.long 0 # Height
-	.long 0 # Depth
 
 	.quad 0
 

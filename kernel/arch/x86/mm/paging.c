@@ -2,6 +2,7 @@
 #include <video.h>
 #include "paging.h"
 #include "mem.h"
+#include <multiboot.h>
 
 static u32 *pagedir;            //!< Main kernel pagedirectory
 static u32 *pagetbl1;           //!< First page table
@@ -53,6 +54,9 @@ static void *get_free_frame()
 		}
 
 		set_frame(i, 1);
+
+		map_page(firstframe + (i*0x1000), firstframe + (i*0x1000), 3); // Make sure it is mapped
+		
 		return (firstframe + (i*0x1000));
 }
 
@@ -86,17 +90,24 @@ void *alloc_frame()
  */
 void map_page(void *physaddr, void *virtualaddr, u32 flags)
 {
-	// Make sure that both addresses are page-aligned.
-	
+	virtualaddr = (void *)((u32)virtualaddr & 0xFFFFF000);
+	physaddr    = (void *)((u32)physaddr    & 0xFFFFF000);
+
 	u32 pdindex = (u32)virtualaddr >> 22;
 	u32 ptindex = (u32)virtualaddr >> 12 & 0x03FF;
-	
+
 	// Should I check if it is already present? I don't know...
 	if(pagedir[pdindex] & 0x01)
 		((u32 *)pagedir[pdindex])[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
+
 	else
 	{
 		pagedir[pdindex] = (u32)alloc_frame() | 0x03;
+
+		int i = 0;
+		for(; i < 1024; i++)
+			((u32 *)pagedir[pdindex])[i] = 0x00000000;
+
 		((u32 *)pagedir[pdindex])[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
 	}
 }
@@ -107,10 +118,7 @@ void map_page(void *physaddr, void *virtualaddr, u32 flags)
  */
 void free_frame(void *frame)
 {
-	u32 f = (u32)frame;
-	f -= (u32)firstframe;
-	f /= 0x1000;
-	set_frame(f, 0);
+	set_frame(((u32)frame - (u32)firstframe) / 0x1000, 0);
 }
 
 
@@ -173,7 +181,6 @@ void disable_paging()
 	asm volatile("mov %0, %%cr0":: "b"(cr0));
 }
 
-extern u32 apic;
 /**
  * \brief Initialize paging.
  * Creates a new page directory, and clears it. Thes creates a new page table,
@@ -201,6 +208,7 @@ void paging_init(u32 eom)
 	clear_pagedir(pagedir);
 	fill_pagetable(pagetbl1, 0x00000000);
 	pagedir[0] = (u32)pagetbl1 | 3; // supervisor, rw, present
+
 
 	set_pagedir(pagedir);
 	enable_paging();

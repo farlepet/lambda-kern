@@ -16,6 +16,7 @@ u16 pci_read_config_word(u32 bus, u32 slot, u32 func, u32 offset)
 
 void pci_test()
 {
+	kerror(ERR_INFO, "PCI info");
 	u16 tmp;
 
 	int bus = 0;
@@ -31,7 +32,23 @@ void pci_test()
 				u16 dev = pci_read_config_word(bus, slot, 0, 1);
 				u8  headt = pci_read_config_word(bus, slot, 0, 0x0E) & 0xFF;
 
-				kerror(ERR_INFO, "  -> V: 0x%04X D: 0x%04X Ht: 0x%02X", vend, dev, headt);
+				kerror(ERR_INFO, "  -> LOC: %02X:%02X V: 0x%04X D: 0x%04X Ht: 0x%02X", bus, slot, vend, dev, headt);
+
+				if(headt & 0x80)
+				{
+					int func = 1;
+					for(; func < 8; func++)
+					{
+						tmp = pci_read_config_word(bus, slot, func, 0); // Vendor ID
+						if(tmp != 0xFFFF)
+						{
+							u16 vend = tmp;
+							u16 dev = pci_read_config_word(bus, slot, func, 1);
+							u8  headt = pci_read_config_word(bus, slot, func, 0x0E) & 0xFF;
+							kerror(ERR_INFO, "    -> F: %d V: 0x%04X D: 0x%04X Ht: 0x%02X", func, vend, dev, headt);
+						}
+					}
+				}
 			}
 		}
 }
