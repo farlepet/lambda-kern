@@ -5,7 +5,7 @@
 #include <err/error.h>
 #include <intr/int.h>
 
-error_level minlvl = ERR_INFO; //!< Minimal level where messages are shown
+error_level minlvl = ERR_BOOTINFO; //!< Minimal level where messages are shown
 
 /**
  * \brief Prints information about the kernel.

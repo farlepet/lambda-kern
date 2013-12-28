@@ -3,8 +3,8 @@
 #include "ioport.h"
 #include <types.h>
 #include <err/error.h>
-#include <intr/idt.h>
 #include <video.h>
+#include <intr/intr.h>
 
 
 struct pci_device pci_devices[MAX_PCI_DEVICES];
@@ -50,7 +50,7 @@ void pci_write_config_word(u32 bus, u32 slot, u32 func, u32 offset, u16 data)
 
 void pci_enumerate()
 {
-	kerror(ERR_INFO, "PCI info");
+	kerror(ERR_BOOTINFO, "Initializing PCI devices");
 	u16 tmp;
 
 	int bus = 0;
@@ -95,7 +95,7 @@ void pci_enumerate()
 
 				devn++;
 
-				kerror(ERR_INFO, "  %02X:%02X -> V: %04X D: %04X Ht: %02X C: %02X SC: %02X IF: %02X INT: %02X", bus, slot, vend, dev, headt, class, sclass, progif, intln);
+				kerror(ERR_DETAIL, "  %02X:%02X -> V: %04X D: %04X Ht: %02X C: %02X SC: %02X IF: %02X INT: %02X", bus, slot, vend, dev, headt, class, sclass, progif, intln);
 
 				if(headt & 0x80)
 				{
@@ -127,7 +127,7 @@ void pci_enumerate()
 
 							devn++;
 
-							kerror(ERR_INFO, "    -> F: %d V: %04X D: %04X Ht: %02X C: %02X SC: %02X IF: %02X INT: %02X", func, vend, dev, headt, class, sclass, progif, intln);
+							kerror(ERR_DETAIL, "    -> F: %d V: %04X D: %04X Ht: %02X C: %02X SC: %02X IF: %02X INT: %02X", func, vend, dev, headt, class, sclass, progif, intln);
 						}
 					}
 				}
@@ -193,6 +193,14 @@ void pci_init()
 				pci_devices[i].class_idx = n;
 				break;
 			}
+
+		if(pci_devices[i].interrupt)
+		{
+			u16 val = pci_read_config_word(bus, slot, fn, 0x04);
+			val &= ~(0x400); // Clear the interrupt disable flag
+			pci_write_config_word(bus, slot, fn, 0x04, val);
+			set_interrupt(pci_devices[i].interrupt, &pci_interrupt);
+		}
 	}
 }
 
@@ -205,7 +213,12 @@ void pci_int_handle()
 	{
 		if(pci_devices[i].interrupt)
 		{
-			// Check if this device caused the interrupt
+			u16 status = pci_read_config_word(pci_devices[i].bus, pci_devices[i].slot, pci_devices[i].func, 0x06);
+			if(status & 0x08) // Check interrupt flag
+			{
+				// Do something
+				return;
+			}
 		}
 	}
 }
