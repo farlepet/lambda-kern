@@ -5,6 +5,7 @@
 #include <err/error.h>
 #include <video.h>
 #include <intr/intr.h>
+#include <intr/idt.h>
 
 
 struct pci_device pci_devices[MAX_PCI_DEVICES];
@@ -200,6 +201,7 @@ void pci_init()
 			val &= ~(0x400); // Clear the interrupt disable flag
 			pci_write_config_word(bus, slot, fn, 0x04, val);
 			set_interrupt(pci_devices[i].interrupt, &pci_interrupt);
+			enable_irq(pci_devices[i].interrupt);
 		}
 	}
 }

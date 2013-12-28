@@ -81,4 +81,10 @@ void disable_paging();
  */
 void paging_init(u32 eom);
 
+
+
+void *kmalloc(u32 size);
+
+void kfree(void *ptr);
+
 #endif

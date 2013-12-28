@@ -3,6 +3,8 @@
 #include "paging.h"
 #include "mem.h"
 #include <multiboot.h>
+#include <intr/int.h>
+#include <err/error.h>
 
 static u32 *pagedir;            //!< Main kernel pagedirectory
 static u32 *pagetbl1;           //!< First page table
@@ -11,22 +13,24 @@ static u32 prealloc_frames[20]; //!< 20 frames that are free, used by alloc_fram
 static u32 nframes;             //!< Number of frames in the table
 
 static u32 *firstframe;         //!< The location of the first page frame
+static u32 *lastframe;          //!< The location of the last page frame
 
 /**
- * \brief Makes the frame unavailable or available.
  * Sets the current frame to be used or unused, depending on `val`.
+ * 
  * @param frame the frame to be set
  * @param val wether the frame is used or unused
  */
 static void set_frame(u32 frame, u32 val)
 {
+	kprintf("set_frame(%d, %d)\n", frame, val);
 	if(val) frames[frame / 32] |=  (1 >> (frame % 32));
 	else    frames[frame / 32] &= ~(1 >> (frame % 32));
 }
 
 /**
- * \brief Checks if the frame is available
  * Checks if the frame is not being used.
+ * 
  * @param frame the frame to be tested
  */
 static u32 test_frame(u32 frame)
@@ -35,8 +39,7 @@ static u32 test_frame(u32 frame)
 }
 
 /**
- * \brief Get the first free frame.
- * Look through ass the pages, and see if any are available.
+ * Look through the pages, and see if any are available.
  */
 static void *get_free_frame()
 {
@@ -61,7 +64,6 @@ static void *get_free_frame()
 }
 
 /**
- * \brief Allocate a frame.
  * Allocates a page frame then returns its address
  */
 void *alloc_frame()
@@ -82,8 +84,8 @@ void *alloc_frame()
 }
 
 /**
- * \brief Map a virtual address to a physical one.
  * Map a virtual address to a physical one.
+ * 
  * @param physaddr physical address to be mapped to
  * @param virtualaddr virtual address to map
  * @param flags information about the page mapping
@@ -110,11 +112,16 @@ void map_page(void *physaddr, void *virtualaddr, u32 flags)
 
 		((u32 *)pagedir[pdindex])[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
 	}
+
+	// These pages must NOT be reused
+	if((((u32)virtualaddr / 0x1000) > (u32)firstframe) && (((u32)virtualaddr / 0x1000) < (u32)lastframe)) set_frame(((((u32)virtualaddr) - (u32)firstframe) / 0x1000), 1);
+	if((((u32)physaddr / 0x1000)    > (u32)firstframe) && (((u32)physaddr    / 0x1000) < (u32)lastframe)) set_frame(((((u32)physaddr)    - (u32)firstframe) / 0x1000), 1);
 }
 
 /**
- * \brief Free an allocated frame.
  * Free an allocated page frame, allowing it to be allocated again.
+ * 
+ * @param frame frame to free
  */
 void free_frame(void *frame)
 {
@@ -124,8 +131,9 @@ void free_frame(void *frame)
 
 
 /**
- * \brief Clear a page directory to it's default values.
  * Clear the page directory marking every page table as non-existant.
+ * 
+ * @dir Directory to clear
  */
 void clear_pagedir(u32 *dir)
 {
@@ -148,8 +156,8 @@ void fill_pagetable(u32 *table, u32 addr)
 }
 
 /**
- * \brief Set the current page directory
  * Sets the current page directory by setting cr3 to `dir`
+ * 
  * @param dir the page directory
  */
 void set_pagedir(u32 *dir)
@@ -158,7 +166,6 @@ void set_pagedir(u32 *dir)
 }
 
 /**
- * \brief Enable paging.
  * Enable the paging flag in cr0.
  */
 void enable_paging()
@@ -170,7 +177,6 @@ void enable_paging()
 }
 
 /**
- * \brief Disable paging.
  * Sets the paging flag in cr0.
  */
 void disable_paging()
@@ -182,11 +188,11 @@ void disable_paging()
 }
 
 /**
- * \brief Initialize paging.
  * Creates a new page directory, and clears it. Thes creates a new page table,
  * and fills it with addresses starting at 0. Then it sets the page tables
  * first page table as the newly created one. Then it sets the page directory,
  * and enables paging.
+ * 
  * @param eom end of memory
  * @see clear_pagedir
  * @see fill_pagetable
@@ -200,6 +206,8 @@ void paging_init(u32 eom)
 	frames     = (u32 *)FRAMES_TABLE;
 	firstframe = (u32 *)FRAMES_START;
 
+	lastframe  = (u32 *)(eom & 0xFFFFF000);
+
 	nframes = (u32)(eom - (u32)firstframe) / 0x1000;
 	
 	u32 i = 0;
@@ -212,4 +220,113 @@ void paging_init(u32 eom)
 
 	set_pagedir(pagedir);
 	enable_paging();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+static void *get_first_avail_hole(u32 size)
+{
+	int num_4k = 0;
+	int size4k = size / 0x1000;
+	if(size & 0x0FFF) size4k += 1;
+	u32 i = 0;
+	u32 base_i = 0;
+
+	for(; i < nframes; i++)
+	{
+		if(!test_frame(i))
+		{
+			if(!base_i) base_i = i;
+			num_4k++;
+			if(num_4k >= size4k) return (void *)((base_i * 0x1000) + firstframe);
+		}
+		else base_i = 0;
+	}
+	kerror(ERR_SMERR, "Could not find %d KiB block", size4k * 4);
+	return 0;
+}
+
+struct alloc_head //!< Header for allocated blocks
+{
+	u32 addr;  //!< Address of block
+	u32 size;  //!< Size of block, including this header, AND padding
+	u32 magic; //!< 0xA110CA1E
+} __packed;
+
+void *kmalloc(u32 size)
+{
+	kprintf("firstframe: %08X\n", firstframe);
+	int ints_en = interrupts_enabled();
+	disable_interrupts();
+
+	size += sizeof(struct alloc_head);
+	u32 rsize = ((size & 0x0FFF) ? (size + 0x1000) : (size)) & 0xFFFFF000;
+
+	void *base = get_first_avail_hole(rsize);
+	if(!base)
+	{
+		// Error already reported, just return
+		return NULL;
+	}
+
+	struct alloc_head *header = (struct alloc_head *)base;
+	header->addr  = (u32)base + sizeof(struct alloc_head);
+	header->size  = rsize;
+	header->magic = 0xA110CA1E;
+
+	u32 i = 0;
+	for(; i < rsize / 0x1000; i++)
+		set_frame(i + (((u32)base - (u32)firstframe) / 0x1000), 1);
+
+	if(ints_en) enable_interrupts();
+
+	return (void *)header->addr;
+}
+
+void kfree(void *ptr)
+{
+	if(!ptr)
+	{
+		kerror(ERR_SMERR, "Pointer given to `kfree` is null");
+		return;
+	}
+	struct alloc_head *header = (struct alloc_head *)(ptr - sizeof(struct alloc_head));
+	if((header->magic != 0xA110CA1E) || (header->addr != (u32)ptr))
+	{
+		kerror(ERR_SMERR, "Pointer given to `kfree` is invalid");
+		return;
+	}
+
+	u32 i = 0;
+	for(; i < header->size / 0x1000; i++)
+		set_frame(i + (((u32)header - (u32)firstframe) / 0x1000), 0);
+
+	// Invalidate header
+	header->magic = 0;
+	header->addr  = 0;
+	header->size  = 0;
 }

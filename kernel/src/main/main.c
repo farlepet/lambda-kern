@@ -39,7 +39,6 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 	
 	kerror(ERR_BOOTINFO, "Lambda OS kernel finished initializing");
 
-
 	for(;;);
 	
 	(void)mboot_tag;

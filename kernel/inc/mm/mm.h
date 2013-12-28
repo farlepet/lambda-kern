@@ -4,6 +4,10 @@
 #include <types.h>
 #include <multiboot.h>
 
+#if defined(ARCH_X86)
+#include <mm/paging.h>
+#endif
+
 /**
  * \brief Initializes memory management.
  * Initializes memory management for the target archetecture.
