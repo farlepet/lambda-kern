@@ -8,10 +8,9 @@ struct time_block time_blocks[MAX_TIME_BLOCKS] = { [MAX_TIME_BLOCKS-1] = {&rollo
 
 u64 kerneltime = 0; //!< Number of elapsed ticks since the PIT was initialized
 
-void rollover(u32 pid) //!< Called every 5,997,302.87 centuries
+void rollover(u32 pid) //!< Called when the timer rolls over
 {
 	kerror(ERR_LGERR, "Kernel time rolled over, a reboot is strongly suggested");
-	kerror(ERR_INFO, "Congratulations, your computer stayed operational for 5,997,302.87 centuries!");
 	add_time_block(&rollover, 0xFFFFFFFFFFFFFFFF, pid);
 }
 

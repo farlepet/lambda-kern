@@ -175,9 +175,9 @@ struct multiboot_fb_type_rgb
 #pragma pack (pop)
 
 /**
- * \brief Finds the first multiboot entry with a certain type value.
  * Finds the first multiboot entry with a certain type value, then returns it
  * as a multiboot_tag.
+ * 
  * @param mboot_tag the pointer to the multiboot tags header
  * @param type the type value to look for
  * @see multiboot_tag
@@ -185,16 +185,11 @@ struct multiboot_fb_type_rgb
 struct multiboot_tag *find_multiboot_table(struct multiboot_header_tag* mboot_tag, u32 type);
 
 
-
-
-u8 mboot_red;
-u8 mboot_green;
-u8 mboot_blue;
-
-void mbootvid_clear();
-
-void mboot_put(char c);
-
-void mboot_putxy(int x, int y, u8 c, u8 r, u8 g, u8 b);
+/**
+ * Checks the kernel commandline and does things accordingly.
+ *
+ * @param mboot_tag pointer to the multiboot tags header
+ */
+void check_commandline(struct multiboot_header_tag *mboot_tag);
 
 #endif
