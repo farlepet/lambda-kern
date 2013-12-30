@@ -12,6 +12,8 @@ static u32 *frames;             //!< Table stating which frames are available
 static u32 prealloc_frames[20]; //!< 20 frames that are free, used by alloc_frame
 static u32 nframes;             //!< Number of frames in the table
 
+u32 kernel_cr3;                 //!< Page directory used by the kernel
+
 static u32 *firstframe;         //!< The location of the first page frame
 static u32 *lastframe;          //!< The location of the last page frame
 
@@ -23,9 +25,8 @@ static u32 *lastframe;          //!< The location of the last page frame
  */
 static void set_frame(u32 frame, u32 val)
 {
-	kprintf("set_frame(%d, %d)\n", frame, val);
-	if(val) frames[frame / 32] |=  (1 >> (frame % 32));
-	else    frames[frame / 32] &= ~(1 >> (frame % 32));
+	if(val) frames[frame / 32] |=  (1 << (frame % 32));
+	else    frames[frame / 32] &= ~(1 << (frame % 32));
 }
 
 /**
@@ -35,7 +36,7 @@ static void set_frame(u32 frame, u32 val)
  */
 static u32 test_frame(u32 frame)
 {
-	return ((frames[frame / 32] & (1 >> (frame % 32))) != 0);
+	return ((frames[frame / 32] & (1 << (frame % 32))) != 0);
 }
 
 /**
@@ -217,7 +218,7 @@ void paging_init(u32 eom)
 	fill_pagetable(pagetbl1, 0x00000000);
 	pagedir[0] = (u32)pagetbl1 | 3; // supervisor, rw, present
 
-
+	kernel_cr3 = (u32)pagedir;
 	set_pagedir(pagedir);
 	enable_paging();
 }
@@ -260,11 +261,16 @@ static void *get_first_avail_hole(u32 size)
 	{
 		if(!test_frame(i))
 		{
-			if(!base_i) base_i = i;
+			if(base_i == 0xFFFFFFFF) base_i = i;
 			num_4k++;
-			if(num_4k >= size4k) return (void *)((base_i * 0x1000) + firstframe);
+			if(num_4k >= size4k)
+			{
+				u32 q = base_i;
+				for(; q <= i; q++) set_frame(q, 1);
+				return (void *)((base_i * 0x1000) + firstframe);
+			}
 		}
-		else base_i = 0;
+		else base_i = 0xFFFFFFFF;
 	}
 	kerror(ERR_SMERR, "Could not find %d KiB block", size4k * 4);
 	return 0;
@@ -279,7 +285,6 @@ struct alloc_head //!< Header for allocated blocks
 
 void *kmalloc(u32 size)
 {
-	kprintf("firstframe: %08X\n", firstframe);
 	int ints_en = interrupts_enabled();
 	disable_interrupts();
 
@@ -297,10 +302,6 @@ void *kmalloc(u32 size)
 	header->addr  = (u32)base + sizeof(struct alloc_head);
 	header->size  = rsize;
 	header->magic = 0xA110CA1E;
-
-	u32 i = 0;
-	for(; i < rsize / 0x1000; i++)
-		set_frame(i + (((u32)base - (u32)firstframe) / 0x1000), 1);
 
 	if(ints_en) enable_interrupts();
 

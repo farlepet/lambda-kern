@@ -22,7 +22,6 @@ dummy_int:
 	out 0x20, al
 	out 0xA0, al
 	popa
-	sti
 	iret
 
 
@@ -31,13 +30,15 @@ dummy_int:
 global pit_int
 extern pit_handler
 pit_int:
-	cli
+	;cli
 	pusha
-	call pit_handler
+
 	mov al, 0x20
 	out 0x20, al
+
+	call pit_handler
+	
 	popa
-	sti
 	iret
 
 
@@ -46,6 +47,6 @@ global interrupts_enabled
 interrupts_enabled:
 	pushf
 	pop eax
-	and eax, (1 << 10) ; Get IF flag
-	shl eax, 9
+	and eax, (1 << 9) ; Get IF flag
+	shr eax, 9
 	ret

@@ -25,4 +25,8 @@ int wcslen(const short *str);
  */
  int strcmp(const char *str1, const char *str2);
 
+ void *memcpy(void *dest, const void *src, u32 n);
+
+ void *memset(void *s, u8 c, u32 n);
+
 #endif

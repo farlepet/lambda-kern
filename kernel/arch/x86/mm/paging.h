@@ -11,8 +11,10 @@
 #include <types.h>
 
 
-extern u32 kern_start;          //!< Start address of the kernel
-extern u32 kern_end;            //!< End address of the kernel
+extern u32 kern_start; //!< Start address of the kernel
+extern u32 kern_end;   //!< End address of the kernel
+
+u32 kernel_cr3;        //!< Page directory used by the kernel
 
 /**
  * \brief Allocate a frame.

@@ -103,8 +103,8 @@ void kprintnum(u32 num, int base)
 static int print_int(u32 num, int base, int u, int pad, int padzero, int possign, int posspace, int _case, char *out)
 {
 	int onum = num;
+	if(onum < 0) if(!u) num = (~num) + 1;
 	char *nums;
-	if(!u) num &= ~(0x80000000); // Throw away the sign bit for now
 	if(_case) nums = "0123456789ABCDEF";
 	else      nums = "0123456789abcdef";
 	

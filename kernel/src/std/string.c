@@ -38,3 +38,22 @@ int wcslen(const short *str)
         str1++,str2++;
     return *(const u8*)str1-*(const u8*)str2;
  }
+
+
+void *memcpy(void *dest, const void *src, u32 n)
+{
+	u8 *dp = dest;
+	const u8 *sp = src;
+	while (n--)
+		*dp++ = *sp++;
+	return dest;
+}
+
+
+void *memset(void *s, u8 c, u32 n)
+{
+	u8* p=s;
+	while(n--)
+		*p++ = c;
+	return s;
+}

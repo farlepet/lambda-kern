@@ -8,7 +8,7 @@
  * @param msg format string
  * @param ... arguments to go along with format string
  */
-void kpanic(char *msg, ...)
+void __noreturn kpanic(char *msg, ...)
 {
 	disable_interrupts();
 	
@@ -22,5 +22,6 @@ void kpanic(char *msg, ...)
 	
 	// Print regs here
 	
-	interrupt_halt();
+	
+	for(;;) interrupt_halt();
 }

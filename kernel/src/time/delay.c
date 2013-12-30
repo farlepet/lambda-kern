@@ -2,7 +2,7 @@
 #include <proc/mtask.h>
 #include <intr/int.h>
 
-u8 timeup[256]; //!< Table of values corresponding to pid's telling if the timer is done yet
+u8 timeup[500]; //!< Table of values corresponding to pid's telling if the timer is done yet
 
 /**
  * \brief Tells `delay` it can return.
@@ -12,7 +12,7 @@ u8 timeup[256]; //!< Table of values corresponding to pid's telling if the timer
  */
 void time_over(u32 pid)
 {
-	timeup[pid] = 1;
+	timeup[pid + 250] = 1;
 }
 
 /**
@@ -24,8 +24,8 @@ void time_over(u32 pid)
 void delay(u64 delay)
 {
 	u32 pid = current_pid;
-	timeup[pid] = 0;
+	timeup[pid + 250] = 0;
 	add_time_block(&time_over, delay, pid);
-	while(!timeup[pid]) busy_wait();
+	while(!timeup[pid + 250]) busy_wait();
 }
 

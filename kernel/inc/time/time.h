@@ -15,7 +15,7 @@ struct time_block
 {
 	void (*event)(u32 pid); //!< Called when `count` = 0
 	u64  count;             //!< The number of ticks left
-	u32  pid;               //!< PID of the process using this block
+	int  pid;               //!< PID of the process using this block
 };
 
 #define MAX_TIME_BLOCKS 64 //!< Maximum number of timer blocks able to be used. We cannot let this get too high, or we will experience slowdown.

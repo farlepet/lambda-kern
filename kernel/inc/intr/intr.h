@@ -4,7 +4,7 @@
 #ifndef INTERRUPT_H
 #define INTERRUPT_H
 
-#if defined(ARCH_X86) | defined(ARCH_X86_64)
+#if defined(ARCH_X86)
 
 #define TIMER_INT    32
 #define KEYBOARD_INT 33
