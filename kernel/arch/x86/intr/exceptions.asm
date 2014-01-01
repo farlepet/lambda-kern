@@ -197,15 +197,16 @@ e_gpf:
 extern handle_page_fault
 e_pagefault:
 	cli
-	pusha
-	print m_pagefault
-	popa
 	pop dword [errcode]
 	pusha
+	mov eax, cr3
+	push eax
+	push dword [errcode]
 	call handle_page_fault
+	add esp, 8
 	popa
 	iret
-	;jmp hang
+
 
 e_fpe:
 	cli

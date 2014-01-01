@@ -27,6 +27,6 @@ int wcslen(const short *str);
 
  void *memcpy(void *dest, const void *src, u32 n);
 
- void *memset(void *s, u8 c, u32 n);
+ void *memset(void *s, int c, u32 n);
 
 #endif

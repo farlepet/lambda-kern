@@ -16,6 +16,8 @@ extern u32 kern_end;   //!< End address of the kernel
 
 u32 kernel_cr3;        //!< Page directory used by the kernel
 
+void block_page(u32 page);
+
 /**
  * \brief Allocate a frame.
  * Allocates a page frame then returns its address
@@ -26,7 +28,7 @@ void *alloc_frame();
  * \brief Free an allocated frame.
  * Free an allocated page frame, allowing it to be allocated again.
  */
-void free_frame(void *frane);
+void free_frame(void *frame);
 
 /**
  * \brief Map a virtual address to a physical one.

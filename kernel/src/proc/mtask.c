@@ -3,6 +3,7 @@
 #include <err/panic.h>
 #include <proc/proc.h>
 #include <string.h>
+#include <mm/mm.h>
 
 #if  defined(ARCH_X86)
 #include <mm/paging.h>
@@ -16,7 +17,15 @@ int tasking = 0; //!< Has multitasking started yet?
 int next_kernel_pid = -1;
 int next_user_pid   =  1;
 
-static struct kproc procs[MAX_PROCESSES]; //!< Processes
+int proc_by_pid(int pid)
+{
+	int i = 0;
+	for(; i < MAX_PROCESSES; i++)
+		if(procs[i].pid == pid) return i;
+	return -1;
+}
+
+struct kproc procs[MAX_PROCESSES]; //!< Processes
 
 static int get_next_open_proc()
 {
@@ -29,13 +38,29 @@ static int get_next_open_proc()
 	return p;
 }
 
-void add_kernel_task(void *process, char *name)
+void add_kernel_task(void *process, char *name, u32 stack_size)
 {
 	int ints_en = interrupts_enabled();
 	disable_interrupts();
 
+	int parent;
+	if(tasking) parent = proc_by_pid(current_pid);
+
 	int p = get_next_open_proc();
 	if(p == -1) kpanic("Could not add a kernel process to process list.");
+
+	if(tasking)
+	{
+		int i = 0;
+		for(; i < MAX_CHILDREN; i++)
+		{
+			if(procs[parent].children[i]) continue;
+			procs[parent].children[i] = p;
+			break;
+		}
+		if(i == MAX_CHILDREN) kerror(ERR_MEDERR, "Process %d has run out of child slots", procs[parent].pid);
+	}
+
 
 	memcpy(procs[p].name, name, strlen(name) + 1);
 	procs[p].pid  = next_kernel_pid--;
@@ -46,9 +71,34 @@ void add_kernel_task(void *process, char *name)
 #if  defined(ARCH_X86)
 	procs[p].eip = (u32)process;
 	procs[p].cr3 = kernel_cr3;
-	procs[p].ebp = (u32)kmalloc(STACK_SIZE) + STACK_SIZE;
+
+
+#ifdef STACK_PROTECTOR
+	procs[p].ebp = (u32)kmalloc((stack_size ? stack_size : STACK_SIZE) + 0x2000);
+	memset((void *)procs[p].ebp, 0, (stack_size ? stack_size : STACK_SIZE) + 0x2000);
+	procs[p].ebp +=            ((stack_size ? stack_size : STACK_SIZE) + 0x1000);
+#else // STACK_PROTECTOR
+	procs[p].ebp = (u32)kmalloc((stack_size ? stack_size : STACK_SIZE));
+	memset((void *)procs[p].ebp, 0, (stack_size ? stack_size : STACK_SIZE));
+	procs[p].ebp +=            ((stack_size ? stack_size : STACK_SIZE));
+#endif // !STACK_PROTECTOR
+
+	//procs[p].ebp += 0x10; procs[p].ebp &= 0xFFFFFFF0; // Small alignment
+
 	procs[p].esp = procs[p].ebp;
-#endif
+
+
+	
+	procs[p].stack_end = procs[p].ebp - STACK_SIZE;
+	procs[p].stack_beg = procs[p].ebp;
+
+#ifdef STACK_PROTECTOR
+// TODO: Fix stack gaurding:
+	//block_page(procs[p].stack_end - 0x1000); // <-- Problematic line
+	block_page(procs[p].stack_beg + 0x1000);
+#endif // STACK_PROTECTOR
+
+#endif // ARCH_X86
 
 	if(ints_en) enable_interrupts();
 	kerror(ERR_INFO, "Added process %s as pid %d to slot %d", name, procs[p].pid, p);
@@ -58,7 +108,7 @@ void init_multitasking(void *process, char *name)
 {
 	disable_interrupts();
 
-	add_kernel_task(process, name);
+	add_kernel_task(process, name, 0);
 
 	tasking = 1;
 	current_pid = -1;
@@ -68,20 +118,11 @@ void init_multitasking(void *process, char *name)
 }
 
 
-int proc_by_pid(int pid)
-{
-	int i = 0;
-	for(; i < MAX_PROCESSES; i++)
-		if(procs[i].pid == pid) return i;
-	return -1;
-}
-
 static int c_proc = 0;
 void do_task_switch()
 {
 	if(!tasking) return;
 
-	//kerror(ERR_BOOTINFO, "do_task_switch()");
 
 #if  defined(ARCH_X86)
 	u32 esp, ebp, eip, cr3;
@@ -89,7 +130,10 @@ void do_task_switch()
 	asm volatile ("mov %%ebp, %0" : "=r" (ebp));
 	eip = (u32)get_eip();
 
-	if(eip == 0xFFFFFFFF) return;
+	if(eip == 0xFFFFFFFF)
+	{
+		return;
+	}
 #endif
 
 
@@ -127,4 +171,25 @@ void do_task_switch()
 				 : : "r" (eip), "r" (esp), "r" (ebp), "r" (cr3)
 				 : "%ebx", "%esp", "%eax");
 #endif
+}
+
+
+void exit(int code)
+{
+	disable_interrupts();
+
+	int p = proc_by_pid(current_pid);
+	if(p == -1)
+	{
+		kerror(ERR_MEDERR, "Could not find process by pid (%d)", current_pid);
+		enable_interrupts();
+		return;
+	}
+	procs[p].type &= ~(TYPE_RUNNABLE);
+	procs[p].type |= TYPE_ZOMBIE; // It isn't removed unless it's paren't inquires on it
+	procs[p].exitcode = code;
+
+	enable_interrupts();
+
+	for(;;) busy_wait();
 }

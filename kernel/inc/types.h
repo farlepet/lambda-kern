@@ -30,7 +30,7 @@ typedef unsigned int ptr_t; //!< Pointer
 
 #define __pure        __attribute__((__pure__))                //!< Return value depends soely on arguments
 
-#define __align(A)    __attribute__((__aligned__(#A)))         //!< Aligns the data A bytes
+#define __align(A)    __attribute__((__aligned__(A)))         //!< Aligns the data A bytes
 #define __inline_flat __attribute__((__flatten__))             //!< Tries to inline ALL function calls
 
 #define __error(E)    __attribute__((__error__(#E)))           //!< Throws an error is this is reached in preprocessing

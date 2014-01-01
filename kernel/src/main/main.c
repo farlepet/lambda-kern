@@ -14,9 +14,7 @@
 #include <dev/keyb/input.h>
 #include <intr/int.h>
 
-void kloop1();
-void kloop2();
-void kloop3();
+void kernel_task();
 
 /**
  * \brief Main kernel function.
@@ -45,7 +43,7 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 
 	pci_init();
 	
-	init_multitasking(&kloop1, "Kernel Loop 1");
+	init_multitasking(&kernel_task, "Kernel Task");
 
 	kerror(ERR_BOOTINFO, "Lambda OS kernel finished initializing");
 
@@ -56,31 +54,36 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 
 
 
-void kloop1()
+
+void klooptest();
+
+void kernel_task()
 {
-	add_kernel_task(&kloop2, "Kernel Loop 2");
-	for(;;)
-	{
-		delay(1);
-		kput('A');
-	}
+	kerror(ERR_BOOTINFO, "Main kernel task started");
+
+#if MULTITASKING_TEST
+	add_kernel_task(&klooptest, "Kernel Test Loop", 0x100);
+#endif
+
+	for(;;) busy_wait();
 }
 
-void kloop2()
-{
-	add_kernel_task(&kloop3, "Kernel Loop 3");
-	for(;;)
-	{
-		delay(1);
-		kput('B');
-	}
-}
 
-void kloop3()
+int n_loops;
+
+void klooptest()
 {
+	int pid = current_pid;
+	if(n_loops++ < 24) add_kernel_task(&klooptest, "Kernel Test Loop", 0x100);
+
+	char ch;
+	if(pid < 0) ch = 'A' - (pid + 2); // Kernel task
+	else        ch = 'a' + (pid - 2); // User task
+
 	for(;;)
 	{
-		delay(1);
-		kput('C');
+		delay(5);
+		kput(ch);
+		busy_wait();
 	}
 }

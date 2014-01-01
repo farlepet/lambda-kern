@@ -1,13 +1,13 @@
+#include <multiboot.h>
+#include <err/error.h>
+#include <intr/int.h>
+#include <string.h>
+#include "paging.h"
 #include <types.h>
 #include <video.h>
-#include "paging.h"
 #include "mem.h"
-#include <multiboot.h>
-#include <intr/int.h>
-#include <err/error.h>
 
 static u32 *pagedir;            //!< Main kernel pagedirectory
-static u32 *pagetbl1;           //!< First page table
 static u32 *frames;             //!< Table stating which frames are available
 static u32 prealloc_frames[20]; //!< 20 frames that are free, used by alloc_frame
 static u32 nframes;             //!< Number of frames in the table
@@ -25,8 +25,25 @@ static u32 *lastframe;          //!< The location of the last page frame
  */
 static void set_frame(u32 frame, u32 val)
 {
-	if(val) frames[frame / 32] |=  (1 << (frame % 32));
-	else    frames[frame / 32] &= ~(1 << (frame % 32));
+	if(val == 1)
+	{
+		frames[frame / 32] |=  (1 << (frame % 32));
+	}
+	else if(val == 0) frames[frame / 32] &= ~(1 << (frame % 32));
+	else if(val == 0xFFFFFFFF) // BLOCK this page from use
+	{
+		frames[frame / 32] |= (1 << (frame % 32));
+		u32 addr = (((frame * 0x1000) + (u32)firstframe) & 0xFFFFF000);
+		u32 pdindex = addr >> 22;
+		u32 ptindex = addr >> 12 & 0x03FF;
+		((u32 *)pagedir[pdindex])[ptindex] = 0x00000000; // Invalidate the page
+	}
+	else kerror(ERR_MEDERR, "invalid value to set_frame: %d", val);
+}
+
+void block_page(u32 page)
+{
+	set_frame((page - (u32)firstframe) / 0x1000, 0xFFFFFFFF);
 }
 
 /**
@@ -202,10 +219,10 @@ void disable_paging()
 void paging_init(u32 eom)
 {
 	pagedir    = (u32 *)FIRST_PAGEDIR;
-	pagetbl1   = (u32 *)FIRST_PAGETBL;
 	
 	frames     = (u32 *)FRAMES_TABLE;
 	firstframe = (u32 *)FRAMES_START;
+	memset(frames, 0, FRAMES_TABLE_SIZE);
 
 	lastframe  = (u32 *)(eom & 0xFFFFF000);
 
@@ -215,8 +232,15 @@ void paging_init(u32 eom)
 	for(; i < nframes; i++, frames[i] = 0);
 
 	clear_pagedir(pagedir);
-	fill_pagetable(pagetbl1, 0x00000000);
-	pagedir[0] = (u32)pagetbl1 | 3; // supervisor, rw, present
+	fill_pagetable((void *)PAGETBL_0, 0x00000000);
+	fill_pagetable((void *)PAGETBL_1, 0x00400000);
+	fill_pagetable((void *)PAGETBL_2, 0x00800000);
+	fill_pagetable((void *)PAGETBL_3, 0x00C00000);
+
+	pagedir[0] = PAGETBL_0 | 3;
+	pagedir[1] = PAGETBL_1 | 3;
+	pagedir[2] = PAGETBL_2 | 3;
+	pagedir[3] = PAGETBL_3 | 3;
 
 	kernel_cr3 = (u32)pagedir;
 	set_pagedir(pagedir);
@@ -266,7 +290,16 @@ static void *get_first_avail_hole(u32 size)
 			if(num_4k >= size4k)
 			{
 				u32 q = base_i;
-				for(; q <= i; q++) set_frame(q, 1);
+				for(; q <= i; q++)
+				{
+					set_frame(q, 1);
+
+					// BUG: This crashes while using kmalloc at some points...
+					//
+					//
+					//
+					//map_page((void *)((q * 0x1000) + (u32)firstframe), (void *)((q * 0x1000) + (u32)firstframe), 3);
+				}
 				return (void *)((base_i * 0x1000) + firstframe);
 			}
 		}
@@ -281,7 +314,7 @@ struct alloc_head //!< Header for allocated blocks
 	u32 addr;  //!< Address of block
 	u32 size;  //!< Size of block, including this header, AND padding
 	u32 magic; //!< 0xA110CA1E
-} __packed;
+} __align(16);
 
 void *kmalloc(u32 size)
 {

@@ -35,7 +35,7 @@ int wcslen(const short *str)
  int strcmp(const char *str1, const char *str2)
  {
  	while(*str1 && (*str1==*str2))
-        str1++,str2++;
+        str1++, str2++;
     return *(const u8*)str1-*(const u8*)str2;
  }
 
@@ -50,10 +50,10 @@ void *memcpy(void *dest, const void *src, u32 n)
 }
 
 
-void *memset(void *s, u8 c, u32 n)
+void *memset(void *s, int c, u32 n)
 {
-	u8* p=s;
+	u8 *p = s;
 	while(n--)
-		*p++ = c;
+		*p++ = (u8)c;
 	return s;
 }
