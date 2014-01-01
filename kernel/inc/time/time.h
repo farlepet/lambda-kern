@@ -13,7 +13,7 @@ u64 kerneltime; //!< Number of elapsed ticks since the PIT was initialized
  */
 struct time_block
 {
-	void (*event)(u32 pid); //!< Called when `count` = 0
+	void (*event)(int pid); //!< Called when `count` = 0
 	u64  count;             //!< The number of ticks left
 	int  pid;               //!< PID of the process using this block
 };
@@ -38,7 +38,7 @@ void do_time_block_timeup(u32 n);
  * @param count the number of ticks to wait before calling func()
  * @param pid the pid of the process that is using this time_block
  */
-void add_time_block(void (*func)(u32), u64 count, u32 pid);
+void add_time_block(void (*func)(int), u64 count, int pid);
 
 /**
  * \brief Waits for a specified amount of time.

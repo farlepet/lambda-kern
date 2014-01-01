@@ -66,7 +66,7 @@ void add_kernel_task(void *process, char *name, u32 stack_size)
 	procs[p].pid  = next_kernel_pid--;
 	procs[p].uid  = 0;
 	procs[p].gid  = 0;
-	procs[p].type = TYPE_RUNNABLE | TYPE_KERNEL | TYPE_VALID;
+	procs[p].type = TYPE_RUNNABLE | TYPE_KERNEL | TYPE_VALID | TYPE_RANONCE;
 
 #if  defined(ARCH_X86)
 	procs[p].eip = (u32)process;
@@ -93,12 +93,19 @@ void add_kernel_task(void *process, char *name, u32 stack_size)
 	procs[p].stack_beg = procs[p].ebp;
 
 #ifdef STACK_PROTECTOR
-// TODO: Fix stack gaurding:
+// TODO: Fix stack guarding:
 	//block_page(procs[p].stack_end - 0x1000); // <-- Problematic line
 	block_page(procs[p].stack_beg + 0x1000);
 #endif // STACK_PROTECTOR
 
 #endif // ARCH_X86
+
+// Set up message buffer
+	procs[p].messages.head  = 0;
+	procs[p].messages.tail  = 0;
+	procs[p].messages.count = 0;
+	procs[p].messages.size  = MSG_BUFF_SIZE;
+	procs[p].messages.buff  = procs[p].msg_buff;
 
 	if(ints_en) enable_interrupts();
 	kerror(ERR_INFO, "Added process %s as pid %d to slot %d", name, procs[p].pid, p);
@@ -109,6 +116,8 @@ void init_multitasking(void *process, char *name)
 	disable_interrupts();
 
 	add_kernel_task(process, name, 0);
+
+	procs[0].type &= ~(TYPE_RANONCE); // Don't save registers right away for the first task
 
 	tasking = 1;
 	current_pid = -1;
@@ -150,7 +159,8 @@ void do_task_switch()
 
 	// Switch to next process here...
 	c_proc++;
-	while(!(procs[c_proc].type & TYPE_RUNNABLE)) { c_proc++; if(c_proc >= MAX_PROCESSES) c_proc = 0; }
+	while(!(procs[c_proc].type & TYPE_RUNNABLE) || procs[c_proc].blocked)
+		{ c_proc++; if(c_proc >= MAX_PROCESSES) c_proc = 0; }
 	current_pid = procs[c_proc].pid;
 
 
@@ -159,7 +169,6 @@ void do_task_switch()
 	ebp = procs[c_proc].ebp;
 	eip = procs[c_proc].eip;
 	cr3 = procs[c_proc].cr3;
-
 
 	asm volatile("mov %0, %%ebx\n"
 				 "mov %1, %%esp\n"
@@ -186,7 +195,7 @@ void exit(int code)
 		return;
 	}
 	procs[p].type &= ~(TYPE_RUNNABLE);
-	procs[p].type |= TYPE_ZOMBIE; // It isn't removed unless it's paren't inquires on it
+	procs[p].type |= TYPE_ZOMBIE; // It isn't removed unless it's parent inquires on it
 	procs[p].exitcode = code;
 
 	enable_interrupts();

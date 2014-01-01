@@ -7,7 +7,6 @@
 
 extern void pit_int(); //!< The PIT interrupt handler
 
-u32 dts = 0;
 /**
  * \brief PIT interrupt handler.
  * The main part of the PIT interrupt handler, called from pit_int().
@@ -22,12 +21,10 @@ void pit_handler()
 		if(time_blocks[i].event)
 			if(--time_blocks[i].count == 0x00000000)
 				do_time_block_timeup(i);
-	dts++;
-	if(dts & 0x08)
-	{
-		dts = 0;
-		do_task_switch();
-	}
+	
+	outb(0x20, 0x20);
+	
+	do_task_switch();
 }
 
 /**

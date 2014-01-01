@@ -1,5 +1,5 @@
-#include <time/time.h>
 #include <proc/mtask.h>
+#include <time/time.h>
 #include <intr/int.h>
 
 u8 timeup[500]; //!< Table of values corresponding to pid's telling if the timer is done yet
@@ -10,9 +10,11 @@ u8 timeup[500]; //!< Table of values corresponding to pid's telling if the timer
  * corresponding to the callers pid to 1.
  * @param pid the pid of the caller to `delay`
  */
-void time_over(u32 pid)
+void time_over(int pid)
 {
-	timeup[pid + 250] = 1;
+	int idx = proc_by_pid(pid);
+
+	procs[idx].blocked &= ~BLOCK_DELAY;
 }
 
 /**
@@ -23,9 +25,10 @@ void time_over(u32 pid)
  */
 void delay(u64 delay)
 {
-	u32 pid = current_pid;
-	timeup[pid + 250] = 0;
+	int pid = current_pid;
+	int idx = proc_by_pid(pid);
 	add_time_block(&time_over, delay, pid);
-	while(!timeup[pid + 250]) busy_wait();
+	procs[idx].blocked |= BLOCK_DELAY;
+	interrupt_halt(); // Halt until multitasking comes in
 }
 

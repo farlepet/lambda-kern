@@ -4,6 +4,7 @@
 #include <err/panic.h>
 #include <err/error.h>
 #include <time/time.h>
+#include <proc/ipc.h>
 #include <mm/mm.h>
 #include <video.h>
 
@@ -12,7 +13,6 @@
 #include <io/pci.h>
 #include <io/serial.h>
 #include <dev/keyb/input.h>
-#include <intr/int.h>
 
 void kernel_task();
 
@@ -54,36 +54,44 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 
 
 
-
+void idle_task();
 void klooptest();
 
+u8 kbuff[17] = "ERROR";
 void kernel_task()
 {
 	kerror(ERR_BOOTINFO, "Main kernel task started");
 
+
+	kerror(ERR_BOOTINFO, "Starting idle task");
+	add_kernel_task(&idle_task, "Idle Task", 0);
 #if MULTITASKING_TEST
-	add_kernel_task(&klooptest, "Kernel Test Loop", 0x100);
+	add_kernel_task(&klooptest, "Kernel Message Test Loop", 0);
 #endif
 
-	for(;;) busy_wait();
+	for(;;)
+	{
+		recv_message(kbuff, 16);
+		kerror(ERR_BOOTINFO, "kernel_task: received message: %s", kbuff);
+	}
 }
 
+void idle_task()
+{
+	for(;;) busy_wait();
+}
 
 int n_loops;
 
 void klooptest()
 {
 	int pid = current_pid;
-	if(n_loops++ < 24) add_kernel_task(&klooptest, "Kernel Test Loop", 0x100);
+	if(n_loops++ < 5) add_kernel_task(&klooptest, "Kernel Test Loop", 0);
 
-	char ch;
-	if(pid < 0) ch = 'A' - (pid + 2); // Kernel task
-	else        ch = 'a' + (pid - 2); // User task
+	char buff[17];
+	sprintf(buff, "Hello, from %d!", pid);
 
-	for(;;)
-	{
-		delay(5);
-		kput(ch);
-		busy_wait();
-	}
+	send_message(-1, (u8 *)buff, 16);
+
+	for(;;) busy_wait();
 }

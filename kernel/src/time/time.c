@@ -2,13 +2,13 @@
 #include <err/error.h>
 #include <types.h>
 
-void rollover(u32);
+void rollover(int);
 
 struct time_block time_blocks[MAX_TIME_BLOCKS] = { [MAX_TIME_BLOCKS-1] = {&rollover, 0xFFFFFFFFFFFFFFFF, 0 } }; //!< Array of timeblocks used by various processes
 
 u64 kerneltime = 0; //!< Number of elapsed ticks since the PIT was initialized
 
-void rollover(u32 pid) //!< Called when the timer rolls over
+void rollover(int pid) //!< Called when the timer rolls over
 {
 	kerror(ERR_LGERR, "Kernel time rolled over, a reboot is strongly suggested");
 	add_time_block(&rollover, 0xFFFFFFFFFFFFFFFF, pid);
@@ -24,7 +24,7 @@ void rollover(u32 pid) //!< Called when the timer rolls over
 void do_time_block_timeup(u32 n)
 {
 	u32 pid = time_blocks[n].pid;
-	void (*event)(u32) = time_blocks[n].event;
+	void (*event)(int) = time_blocks[n].event;
 	
 	time_blocks[n].event = NULL;
 	time_blocks[n].count = 0;
@@ -40,7 +40,7 @@ void do_time_block_timeup(u32 n)
  * @param count the number of ticks to wait before calling func()
  * @param pid the pid of the process that is using this time_block
  */
-void add_time_block(void (*func)(u32), u64 count, u32 pid)
+void add_time_block(void (*func)(int), u64 count, int pid)
 {
 	int i = 0;
 	for(; i < MAX_TIME_BLOCKS; i++)

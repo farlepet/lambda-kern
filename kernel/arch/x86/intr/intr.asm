@@ -30,14 +30,11 @@ dummy_int:
 global pit_int
 extern pit_handler
 pit_int:
-	;cli
+	cli
 	pusha
 
-	mov al, 0x20
-	out 0x20, al
-
 	call pit_handler
-	
+
 	popa
 	iret
 
