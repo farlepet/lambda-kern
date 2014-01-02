@@ -9,5 +9,6 @@ var error_8h =
       [ "ERR_LGERR", "error_8h.html#adfccb88929c124c0313e7a14243a0389a8552b4cddc7e7cf206e2cba30a3da93d", null ],
       [ "ERR_HALTING", "error_8h.html#adfccb88929c124c0313e7a14243a0389a4f593167e8f4c5be133ec6d415f7276e", null ]
     ] ],
-    [ "kerror", "error_8h.html#adb8c10d984436f7239cc7cd12e77279f", null ]
+    [ "kerror", "error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8", null ],
+    [ "__align", "error_8h.html#a98a483e640f97643f912309f96cc81a7", null ]
 ];

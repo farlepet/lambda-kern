@@ -9,6 +9,8 @@ var idt_8h =
       [ "int32", "idt_8h.html#af8132f7edd90a6d09e511c2b36b1260bae972a1e345b1f14e384cf97c034258bf", null ],
       [ "trap32", "idt_8h.html#af8132f7edd90a6d09e511c2b36b1260ba70befd88b0ca844ccc27a2195a3793e4", null ]
     ] ],
+    [ "disable_irq", "idt_8h.html#a8048d9b3854370b0eb935c3a30f81da4", null ],
+    [ "enable_irq", "idt_8h.html#a9bba11dac050d594c7099b056e3249e5", null ],
     [ "idt_init", "idt_8h.html#a88d4205d069421eb4f8e7577285f1180", null ],
     [ "set_idt", "idt_8h.html#af0624103b831428526e435be5d8b959c", null ]
 ];

@@ -26,9 +26,9 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"64_2dev_2keyb_2input_8c.html",
-"intr_2int_8h.html",
-"types_8h.html#af4689d6a54aa1e22d9fcdb5a4ee1e00c"
+"annotated.html",
+"mtask_8c.html",
+"structkvid__kerror__msg.html#a1372b4f3fc39890b0c7e5906e2ded842"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
@@ -141,7 +141,7 @@ function createIndent(o,domNode,node,level)
     span.style.display = 'inline-block';
     span.style.width   = 16*(level+1)+'px';
     span.style.height  = '22px';
-    span.innerHTML = '&nbsp;';
+    span.innerHTML = '&#160;';
     domNode.appendChild(span);
   } 
 }
