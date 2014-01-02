@@ -17,6 +17,7 @@
 #define TYPE_KERNEL   0x80000000 //!< Does this process run in kernel land?
 
 #define BLOCK_DELAY   0x00000001 //!< Process is blocked waiting for a delay
+#define BLOCK_MESSAGE 0x00000002 //!< Process is blocked waiting for a message
 
 
 struct kproc //!< Structure of a process as seen by the kernel

@@ -3,9 +3,9 @@
 
 #include <types.h>
 
-int send_message(int dest, u8 *msg, int size);
+int send_message(int dest, void *msg, int size);
 
-int recv_message(u8 *msg, int size);
+int recv_message(void *msg, int size);
 
 
 #endif

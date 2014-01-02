@@ -4,7 +4,7 @@
 #include <proc/ipc.h>
 #include <intr/int.h>
 
-int send_message(int dest, u8 *msg, int size)
+int send_message(int dest, void *msg, int size)
 {
 	// We don't want to be cut off doing this
 	int en_ints = interrupts_enabled();
@@ -14,7 +14,9 @@ int send_message(int dest, u8 *msg, int size)
 
 	struct cbuff *buff = &(procs[idx].messages);
 
-	int err = write_cbuff(msg, size, buff);
+	int err = write_cbuff((u8 *)msg, size, buff);
+
+	procs[idx].blocked &= ~BLOCK_MESSAGE;
 
 	if(en_ints) enable_interrupts();
 
@@ -27,15 +29,16 @@ int send_message(int dest, u8 *msg, int size)
 	return 0;
 }
 
-int recv_message(u8 *msg, int size)
+int recv_message(void *msg, int size)
 {
 	int idx = proc_by_pid(current_pid);
 
 	struct cbuff *buff = &(procs[idx].messages);
 
 	int err;
-	while((err = read_cbuff(msg, size, buff)) & (CBUFF_EMPTY | CBUFF_NENOD))
+	while((err = read_cbuff((u8 *)msg, size, buff)) & (CBUFF_EMPTY | CBUFF_NENOD))
 	{
+		procs[idx].blocked |= BLOCK_MESSAGE;
 		busy_wait();
 	}
 

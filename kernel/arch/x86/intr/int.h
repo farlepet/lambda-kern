@@ -20,8 +20,7 @@ static inline void interrupt_halt() //!< Halt until next interrupt
 
 static inline void busy_wait() //!< Preform lower-power wait
 {
-	enable_interrupts(); // If interrupts are disables, it will just hang
-	asm volatile("rep; nop");
+	asm volatile("hlt");
 }
 
 int interrupts_enabled(); //!< in intr.asm

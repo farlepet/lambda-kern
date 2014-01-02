@@ -1,3 +1,4 @@
+#include <proc/ktasks.h>
 #include <proc/mtask.h>
 #include <multiboot.h>
 #include <intr/intr.h>
@@ -37,7 +38,7 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 	
 	keyb_init();
 
-	timer_init(1000);
+	timer_init(500);
 	
 	pci_enumerate();
 
@@ -47,51 +48,27 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 
 	kerror(ERR_BOOTINFO, "Lambda OS kernel finished initializing");
 
-	for(;;);
+	for(;;) busy_wait();
 	
 	(void)mboot_tag;
 }
 
 
-
-void idle_task();
-void klooptest();
-
-u8 kbuff[17] = "ERROR";
-void kernel_task()
+__noreturn void kernel_task()
 {
 	kerror(ERR_BOOTINFO, "Main kernel task started");
 
+	init_ktasks();
 
-	kerror(ERR_BOOTINFO, "Starting idle task");
-	add_kernel_task(&idle_task, "Idle Task", 0);
-#if MULTITASKING_TEST
-	add_kernel_task(&klooptest, "Kernel Message Test Loop", 0);
-#endif
 
-	for(;;)
-	{
-		recv_message(kbuff, 16);
-		kerror(ERR_BOOTINFO, "kernel_task: received message: %s", kbuff);
-	}
-}
-
-void idle_task()
-{
-	for(;;) busy_wait();
-}
-
-int n_loops;
-
-void klooptest()
-{
-	int pid = current_pid;
-	if(n_loops++ < 5) add_kernel_task(&klooptest, "Kernel Test Loop", 0);
-
-	char buff[17];
-	sprintf(buff, "Hello, from %d!", pid);
-
-	send_message(-1, (u8 *)buff, 16);
+	struct kvid_type_msg ktm;
+	ktm.pid  = current_pid;
+	ktm.type = KVID_PRINT;
+	struct kvid_print_msg kpm;
+	kpm.string = "Hello, kvid!";
+	while(!ktask_pids[KVID_TASK_SLOT]) busy_wait(); // Wait for kvid task to start
+	send_message(ktask_pids[KVID_TASK_SLOT], &ktm, sizeof(struct kvid_type_msg));
+	send_message(ktask_pids[KVID_TASK_SLOT], &kpm, sizeof(struct kvid_print_msg));
 
 	for(;;) busy_wait();
 }
