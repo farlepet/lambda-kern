@@ -8,7 +8,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-
+#include <config.h>
 
 #ifdef ARCH_X86
 typedef char      s8;  //!< Signed 8 bit value

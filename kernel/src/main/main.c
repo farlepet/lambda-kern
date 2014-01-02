@@ -44,7 +44,7 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 
 	pci_init();
 	
-	init_multitasking(&kernel_task, "Kernel Task");
+	init_multitasking(&kernel_task, "kern");
 
 	kerror(ERR_BOOTINFO, "Lambda OS kernel finished initializing");
 
@@ -52,7 +52,6 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 	
 	(void)mboot_tag;
 }
-
 
 __noreturn void kernel_task()
 {
@@ -65,10 +64,26 @@ __noreturn void kernel_task()
 	ktm.pid  = current_pid;
 	ktm.type = KVID_PRINT;
 	struct kvid_print_msg kpm;
-	kpm.string = "Hello, kvid!";
+	kpm.string = "Hello, kvid!\n";
 	while(!ktask_pids[KVID_TASK_SLOT]) busy_wait(); // Wait for kvid task to start
 	send_message(ktask_pids[KVID_TASK_SLOT], &ktm, sizeof(struct kvid_type_msg));
 	send_message(ktask_pids[KVID_TASK_SLOT], &kpm, sizeof(struct kvid_print_msg));
+
+#ifdef DEBUGGER
+	struct kbug_type_msg kbtm;
+	kbtm.pid  = current_pid;
+	kbtm.type = KBUG_PROCINFO;
+	struct kbug_proc_msg kbpm;
+	kbpm.pid  = 0;
+	kbpm.type =	KBUG_PROC_NPROCS;
+	kbpm.info = 0;
+	while(!ktask_pids[KBUG_TASK_SLOT]) busy_wait(); // Wait for kbug task to start
+	send_message(ktask_pids[KBUG_TASK_SLOT], &kbtm, sizeof(struct kbug_type_msg));
+	send_message(ktask_pids[KBUG_TASK_SLOT], &kbpm, sizeof(struct kbug_proc_msg));
+	int nprocs;
+	recv_message(&nprocs, sizeof(int));
+	kerror(ERR_BOOTINFO, "Kbug reports %d running processes", nprocs);
+#endif 
 
 	for(;;) busy_wait();
 }

@@ -24,8 +24,6 @@ void exit(int code);
 
 #define STACK_SIZE 0x8000 //!< Size of user stack or if kernel task has a unspecified stack size
 
-//#define STACK_PROTECTOR //!< Whether or not to enable stack protectors
-
-#define MULTITASKING_TEST 1 //!< Whether or not to spawn the multitasking testing processes
+//#define STACK_PROTECTOR //!< Whether or not to enable stack protectors (currently broken)
 
 #endif
