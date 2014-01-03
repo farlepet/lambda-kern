@@ -4,11 +4,12 @@
 #include <proc/mtask.h>
 #include <types.h>
 
-#define IDLE_TASK_SLOT 0
-#define KVID_TASK_SLOT 1
-#define KBUG_TASK_SLOT 2
+#define IDLE_TASK_SLOT   0
+#define KVID_TASK_SLOT   1
+#define KBUG_TASK_SLOT   2
+#define KINPUT_TASK_SLOT 3
 
-#define KTASK_SLOTS    3
+#define KTASK_SLOTS    4
 
 int ktask_pids[KTASK_SLOTS];
 

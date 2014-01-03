@@ -1,6 +1,8 @@
+#include <proc/ktasks.h>
 #include <intr/intr.h>
 #include <io/ioport.h>
 #include <err/error.h>
+#include <proc/ipc.h>
 #include <intr/idt.h>
 #include <video.h>
 #include "input.h"
@@ -41,7 +43,14 @@ void keyb_handle(u32 keycode)
 {
 	// Doesn't do a whole lot... YET...
 	char ch = key_table[keycode];
-	if(ch) kprintf("%c", ch);
+	if(ch)
+	{
+		//kprintf("%c", ch);
+		if(ktask_pids[KINPUT_TASK_SLOT])
+		{
+			send_message(ktask_pids[KINPUT_TASK_SLOT], &ch, sizeof(char)); // TODO: Use actual structure instead of 8-bit character
+		}
+	}
 }
 
 

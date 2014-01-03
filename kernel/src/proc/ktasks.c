@@ -94,6 +94,18 @@ __noreturn static void kbug_task()
 }
 #endif // Debugger
 
+
+__noreturn static void kinput_task()
+{
+	ktask_pids[KINPUT_TASK_SLOT] = current_pid;
+	for(;;)
+	{
+		char ch;
+		recv_message(&ch, sizeof(char)); // TODO: Use an actual message structure instead of simple 8-bit characters
+		kprintf("%c", ch);
+	}
+}
+
 void init_ktasks()
 {
 	kerror(ERR_BOOTINFO, "Starting kernel tasks");
@@ -108,4 +120,7 @@ void init_ktasks()
 	kerror(ERR_BOOTINFO, "Starting kernel debug task");
 	add_kernel_task(&kbug_task, "kbug", 0x2000, PRIO_KERNEL);
 #endif // DEBUGGER
+
+	kerror(ERR_BOOTINFO, "Starting kernel input task");
+	add_kernel_task(&kinput_task, "kinput", 0x1000, PRIO_DRIVER);
 }
