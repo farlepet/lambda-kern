@@ -77,6 +77,13 @@ __noreturn static void kbug_task()
 
 																	send_message(ktm.pid, &pid, sizeof(int));
 																} break;
+
+										case KBUG_PROC_UPROC: {	struct uproc proc;
+																int idx = proc_by_pid(kpm.pid);
+																kproc_to_uproc(&procs[idx], &proc);
+
+																send_message(ktm.pid, &proc, sizeof(struct uproc));
+															  } break;
 									}
 								} break;
 

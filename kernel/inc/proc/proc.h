@@ -1,7 +1,6 @@
 #ifndef PROC_H
 #define PROC_H
 
-#include "mtask.h"
 #include <mm/cbuff.h>
 
 #define MAX_PROCESSES 64 //!< Maximum amount of running processes
@@ -49,7 +48,8 @@ struct kproc //!< Structure of a process as seen by the kernel
 	int exitcode;  //!< Exit code
 };
 
-struct uproc //!< Structure of a process as seen by a user
+
+struct uproc //!< Structure of a process as seen by a user process
 {
 	char name[64]; //!< Name of the process
 	int pid;       //!< Process ID
@@ -66,5 +66,8 @@ struct uproc //!< Structure of a process as seen by a user
 
 	int exitcode;  //!< Exit code
 };
+
+
+void kproc_to_uproc(struct kproc *kp, struct uproc *up);
 
 #endif

@@ -48,8 +48,9 @@ enum kbug_types
 
 enum kbug_proc_type
 {
-	KBUG_PROC_NPROCS, //!< Number of currently running processes
-	KBUG_PROC_PROCPID //!< The PID of the selected process
+	KBUG_PROC_NPROCS,  //!< Number of currently running processes
+	KBUG_PROC_PROCPID, //!< The PID of the selected process
+	KBUG_PROC_UPROC    //!< Request a user version of the task structure
 };
 
 struct kbug_type_msg //!< Message containing type of next message
