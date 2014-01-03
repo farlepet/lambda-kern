@@ -38,7 +38,7 @@ static int get_next_open_proc()
 	return p;
 }
 
-void add_kernel_task(void *process, char *name, u32 stack_size)
+void add_kernel_task(void *process, char *name, u32 stack_size, int pri)
 {
 	int ints_en = interrupts_enabled();
 	disable_interrupts();
@@ -67,6 +67,8 @@ void add_kernel_task(void *process, char *name, u32 stack_size)
 	procs[p].uid  = 0;
 	procs[p].gid  = 0;
 	procs[p].type = TYPE_RUNNABLE | TYPE_KERNEL | TYPE_VALID | TYPE_RANONCE;
+
+	procs[p].prio = pri;
 
 #if  defined(ARCH_X86)
 	procs[p].eip = (u32)process;
@@ -115,7 +117,7 @@ void init_multitasking(void *process, char *name)
 {
 	disable_interrupts();
 
-	add_kernel_task(process, name, 0);
+	add_kernel_task(process, name, 0, PRIO_KERNEL);
 
 	procs[0].type &= ~(TYPE_RANONCE); // Don't save registers right away for the first task
 
@@ -128,7 +130,7 @@ void init_multitasking(void *process, char *name)
 
 
 static int c_proc = 0;
-void do_task_switch()
+__hot void do_task_switch()
 {
 	if(!tasking) return;
 
@@ -141,6 +143,7 @@ void do_task_switch()
 
 	if(eip == 0xFFFFFFFF)
 	{
+		sched_processes();
 		return;
 	}
 #endif
@@ -158,11 +161,7 @@ void do_task_switch()
 
 
 	// Switch to next process here...
-	c_proc++;
-	while(!(procs[c_proc].type & TYPE_RUNNABLE) || procs[c_proc].blocked)
-		{ c_proc++; if(c_proc >= MAX_PROCESSES) c_proc = 0; }
-	current_pid = procs[c_proc].pid;
-
+	c_proc = sched_next_process();
 
 #if  defined(ARCH_X86)
 	esp = procs[c_proc].esp;

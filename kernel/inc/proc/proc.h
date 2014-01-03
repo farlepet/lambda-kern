@@ -18,6 +18,12 @@
 #define BLOCK_DELAY   0x00000001 //!< Process is blocked waiting for a delay
 #define BLOCK_MESSAGE 0x00000002 //!< Process is blocked waiting for a message
 
+#define PRIO_IDLE       0 //!< Only idle processes use this priority
+#define PRIO_USERPROG   1 //!< Priority for user programs
+#define PRIO_KERNELPROG 2 //!< Priority for kernel programs
+#define PRIO_DRIVER     3 //!< Priority for kernel drivers
+#define PRIO_KERNEL     4 //!< Priority for main kernel tasks
+
 
 struct kproc //!< Structure of a process as seen by the kernel
 {
@@ -46,6 +52,10 @@ struct kproc //!< Structure of a process as seen by the kernel
 	u32 blocked;   //!< Contains flags telling whether or not this process is blocked, and by what
 
 	int exitcode;  //!< Exit code
+
+	int prio;      //!< Task priority
+
+	int runtime;   //!< Amount of time this process has run
 };
 
 
@@ -65,9 +75,15 @@ struct uproc //!< Structure of a process as seen by a user process
 	u32 blocked;   //!< Contains flags telling whether or not this process is blocked, and by what
 
 	int exitcode;  //!< Exit code
+
+	int prio;      //!< Task priority
 };
 
 
 void kproc_to_uproc(struct kproc *kp, struct uproc *up);
+
+void sched_processes();
+
+int sched_next_process();
 
 #endif

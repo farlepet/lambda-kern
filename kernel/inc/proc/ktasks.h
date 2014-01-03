@@ -55,8 +55,8 @@ enum kbug_proc_type
 
 struct kbug_type_msg //!< Message containing type of next message
 {
-	int pid;
-	u8 type;
+	int pid; //!< PID of the process who sent this message, so messages can be sent back
+	u8 type; //!< Type of request
 };
 
 struct kbug_proc_msg //!< Message containing type of process info it requests

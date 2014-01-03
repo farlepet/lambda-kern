@@ -19,7 +19,7 @@ __noreturn static void idle_task()
 }
 
 /**
- * Handles VGA I/O
+ * Handles video I/O
  */
 __noreturn static void kvid_task()
 {
@@ -99,13 +99,13 @@ void init_ktasks()
 	kerror(ERR_BOOTINFO, "Starting kernel tasks");
 
 	kerror(ERR_BOOTINFO, "Starting kernel idle task");
-	add_kernel_task(&idle_task, "_idle_", 0x100);
+	add_kernel_task(&idle_task, "_idle_", 0x100, PRIO_IDLE);
 
 	kerror(ERR_BOOTINFO, "Starting kernel video task");
-	add_kernel_task(&kvid_task, "kvid", 0x1000);
+	add_kernel_task(&kvid_task, "kvid", 0x1000, PRIO_DRIVER);
 
 #ifdef DEBUGGER
 	kerror(ERR_BOOTINFO, "Starting kernel debug task");
-	add_kernel_task(&kbug_task, "kbug", 0x2000);
+	add_kernel_task(&kbug_task, "kbug", 0x2000, PRIO_KERNEL);
 #endif // DEBUGGER
 }
