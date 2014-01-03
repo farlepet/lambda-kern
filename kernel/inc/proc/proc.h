@@ -49,4 +49,22 @@ struct kproc //!< Structure of a process as seen by the kernel
 	int exitcode;  //!< Exit code
 };
 
+struct uproc //!< Structure of a process as seen by a user
+{
+	char name[64]; //!< Name of the process
+	int pid;       //!< Process ID
+	int uid;       //!< User who `owns` the process
+	int gid;       //!< Group who `owns` the process
+
+	u32 type;      //!< Type of process
+
+	int children[MAX_CHILDREN]; //!< Indexes of direct child processes (ex: NOT children's children)
+
+	u32 ip;        //!< Instruction pointer
+
+	u32 blocked;   //!< Contains flags telling whether or not this process is blocked, and by what
+
+	int exitcode;  //!< Exit code
+};
+
 #endif
