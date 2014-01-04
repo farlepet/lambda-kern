@@ -27,13 +27,15 @@ link:   $(OBJS)
 	@cd $(MAINDIR)/kernel/arch/x86; make
 	@echo -e "\033[33m  \033[1mLinking sources\033[0m"
 	@ld -melf_i386 -T link_x86.ld -o lambda.kern $(ASOBJS) $(ASMOBJS) $(COBJS) kernel/arch/x86/arch.a
-	@echo -e "\033[33m  \033[1mCreating ISO\033[0m"
 	@cp lambda.kern CD/lambda.kern
+	@echo -e "\033[33m  \033[1mGenerating InitCPIO\033[0m"
+	@cd initrd; find . | cpio -o -v -O../CD/initrd.cpio >& /dev/null
+	@echo -e "\033[33m  \033[1mCreating ISO\033[0m"
 	@grub-mkrescue -o lambda-os.iso CD
 endif
 
 
-all: printinfo link iso
+all: printinfo link
 	
 
 
@@ -62,6 +64,8 @@ clean:
 	@rm -f $(OBJS)
 	@rm -f lambda.kern
 	@rm -r -f doc
+	@rm -f CD/lambda.kern
+	@rm -f CD/initrd.cpio
 	@cd $(MAINDIR)/kernel/arch/x86; make clean
 
 docs:

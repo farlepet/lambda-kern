@@ -16,7 +16,18 @@ extern u32 kern_end;   //!< End address of the kernel
 
 u32 kernel_cr3;        //!< Page directory used by the kernel
 
+u32 *firstframe;       //!< The location of the first page frame
+
 void block_page(u32 page);
+
+
+/**
+ * Sets the current frame to be used or unused, depending on `val`.
+ * 
+ * @param frame the frame to be set
+ * @param val wether the frame is used or unused
+ */
+void set_frame(u32 frame, u32 val);
 
 /**
  * \brief Allocate a frame.

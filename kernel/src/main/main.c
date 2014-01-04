@@ -5,6 +5,7 @@
 #include <err/panic.h>
 #include <err/error.h>
 #include <time/time.h>
+#include <fs/initrd.h>
 #include <proc/ipc.h>
 #include <mm/mm.h>
 #include <video.h>
@@ -32,9 +33,16 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 
 	check_commandline(mboot_tag);
 
-	mm_init(mboot_tag);
 
+
+	mm_init(mboot_tag);
+	
 	interrupts_init();
+
+	initrd_init(mboot_tag, "initrd");
+
+
+
 	
 	keyb_init();
 

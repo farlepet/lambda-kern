@@ -22,7 +22,7 @@ struct multiboot_tag *find_multiboot_table(struct multiboot_header_tag* mboot_ta
 	while(i < size)
 	{
 		struct multiboot_tag *tag = (struct multiboot_tag *)(i + (ptr_t)mboot_tag);
-		
+
 		if(tag->type == type) return tag;
 		i += tag->size;
 		if(i & 0x07) i = (i & ~0x07) + 8; // Entries are aways padded

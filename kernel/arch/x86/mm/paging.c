@@ -7,15 +7,16 @@
 #include <video.h>
 #include "mem.h"
 
-static u32 *pagedir;            //!< Main kernel pagedirectory
-static u32 *frames;             //!< Table stating which frames are available
-static u32 prealloc_frames[20]; //!< 20 frames that are free, used by alloc_frame
-static u32 nframes;             //!< Number of frames in the table
+static u32 pagedir[1024]      __align(0x1000); //!< Main kernel pagedirectory
+static u32 init_tbls[4][1024] __align(0x1000); //!< First 4 page tables
+static u32 frames[0x10000];                    //!< Table stating which frames are available, takes up 256KiB
+static u32 prealloc_frames[20];                //!< 20 frames that are free, used by alloc_frame
+static u32 nframes;                            //!< Number of frames in the table
 
-u32 kernel_cr3;                 //!< Page directory used by the kernel
+u32 kernel_cr3;        //!< Page directory used by the kernel
 
-static u32 *firstframe;         //!< The location of the first page frame
-static u32 *lastframe;          //!< The location of the last page frame
+u32 *firstframe;       //!< The location of the first page frame
+static u32 *lastframe; //!< The location of the last page frame
 
 /**
  * Sets the current frame to be used or unused, depending on `val`.
@@ -23,7 +24,7 @@ static u32 *lastframe;          //!< The location of the last page frame
  * @param frame the frame to be set
  * @param val wether the frame is used or unused
  */
-static void set_frame(u32 frame, u32 val)
+void set_frame(u32 frame, u32 val)
 {
 	if(val == 1)
 	{
@@ -205,6 +206,7 @@ void disable_paging()
 	asm volatile("mov %0, %%cr0":: "b"(cr0));
 }
 
+extern struct multiboot_module_tag *initrd;
 /**
  * Creates a new page directory, and clears it. Thes creates a new page table,
  * and fills it with addresses starting at 0. Then it sets the page tables
@@ -218,11 +220,7 @@ void disable_paging()
  */
 void paging_init(u32 eom)
 {
-	pagedir    = (u32 *)FIRST_PAGEDIR;
-	
-	frames     = (u32 *)FRAMES_TABLE;
 	firstframe = (u32 *)FRAMES_START;
-	memset(frames, 0, FRAMES_TABLE_SIZE);
 
 	lastframe  = (u32 *)(eom & 0xFFFFF000);
 
@@ -232,15 +230,15 @@ void paging_init(u32 eom)
 	for(; i < nframes; i++, frames[i] = 0);
 
 	clear_pagedir(pagedir);
-	fill_pagetable((void *)PAGETBL_0, 0x00000000);
-	fill_pagetable((void *)PAGETBL_1, 0x00400000);
-	fill_pagetable((void *)PAGETBL_2, 0x00800000);
-	fill_pagetable((void *)PAGETBL_3, 0x00C00000);
+	fill_pagetable((void *)init_tbls[0], 0x00000000);
+	fill_pagetable((void *)init_tbls[1], 0x00400000);
+	fill_pagetable((void *)init_tbls[2], 0x00800000);
+	fill_pagetable((void *)init_tbls[3], 0x00C00000);
 
-	pagedir[0] = PAGETBL_0 | 3;
-	pagedir[1] = PAGETBL_1 | 3;
-	pagedir[2] = PAGETBL_2 | 3;
-	pagedir[3] = PAGETBL_3 | 3;
+	pagedir[0] = (u32)init_tbls[0] | 3;
+	pagedir[1] = (u32)init_tbls[1] | 3;
+	pagedir[2] = (u32)init_tbls[2] | 3;
+	pagedir[3] = (u32)init_tbls[3] | 3;
 
 	kernel_cr3 = (u32)pagedir;
 	set_pagedir(pagedir);

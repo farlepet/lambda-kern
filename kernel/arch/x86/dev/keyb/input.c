@@ -45,8 +45,7 @@ void keyb_handle(u32 keycode)
 	char ch = key_table[keycode];
 	if(ch)
 	{
-		//kprintf("%c", ch);
-		if(ktask_pids[KINPUT_TASK_SLOT])
+		if(ktask_pids[KINPUT_TASK_SLOT]) // Only send the message if the input task has started
 		{
 			send_message(ktask_pids[KINPUT_TASK_SLOT], &ch, sizeof(char)); // TODO: Use actual structure instead of 8-bit character
 		}
