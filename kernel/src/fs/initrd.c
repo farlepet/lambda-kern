@@ -34,14 +34,14 @@ void initrd_init(struct multiboot_header_tag* mboot_tag, char *name)
 		{
 			struct multiboot_module_tag *mod = (struct multiboot_module_tag *)tag;
 
-#if defined(ARCH_X86)
+	#if defined(ARCH_X86)
 			ptr_t mod_start = (u32)mod->mod_start;
 			ptr_t mod_end   = (u32)mod->mod_end;
 
 			u32 b = ((mod_start - (u32)firstframe) / 0x1000);
 			for(; b < ((mod_end - (u32)firstframe) / 0x1000); b++)
 				set_frame(b, 1); // Make sure that the module is not overwritten
-#endif
+	#endif
 
 
 			if(!strcmp((char *)mod->name, name)) initrd = mod;

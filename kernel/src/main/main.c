@@ -36,7 +36,7 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 
 
 	mm_init(mboot_tag);
-	
+
 	interrupts_init();
 
 	initrd_init(mboot_tag, "initrd");
@@ -90,7 +90,7 @@ __noreturn void kernel_task()
 	send_message(ktask_pids[KBUG_TASK_SLOT], &kbpm, sizeof(struct kbug_proc_msg));
 	int nprocs;
 	recv_message(&nprocs, sizeof(int));
-	kerror(ERR_BOOTINFO, "Kbug reports %d running processes", nprocs);
+	kerror(ERR_BOOTINFO, "\e[33mKbug\e[39m reports %d running processes", nprocs);
 #endif 
 
 	for(;;) busy_wait();

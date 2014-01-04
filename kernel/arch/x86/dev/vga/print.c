@@ -1,3 +1,5 @@
+#include <dev/vga/print.h>
+#include <err/error.h>
 #include <types.h>
 
 static u8 bkgc = 0x00; //!< Background color to use in vga_put
@@ -10,6 +12,7 @@ static int xpos = 0; //!< X position of the cursor
 static int ypos = 0; //!< Y position of the cursor
 
 static u8 *vidmem = (u8 *)0xB8000; //!< Pointer to default VGA memory location
+
 
 /**
  * \brief Clears VGA text.
@@ -38,6 +41,10 @@ static void scrollup()
 		vidmem[i] = 0x00;
 }
 
+static char buff[256];
+static int is_esc = 0;   //!< Whether or not we are in an escape sequence
+static int buff_loc = 0; //!< Where in the ANSI escape buffer we are
+void ansi_escape();
 /**
  * \brief Prints a single character to the VGA screen.
  * Checks if character is printable, if so it places it in VGA memory,
@@ -47,25 +54,53 @@ static void scrollup()
  */
 void vga_put(char c)
 {
+	if(is_esc)
+	{
+		if(is_esc == 3)
+		{
+			if(c == '[') is_esc = 1;
+			else
+			{
+				is_esc = 0;
+				goto __print;
+			}
+			return;
+		}
+		buff[buff_loc++] = c;
+		if(is_esc == 2)
+		{
+			if(c == ';') is_esc = 1;
+			else goto __print;
+
+		}
+		else if(is_ansi(c))
+		{
+			ansi_escape();
+			return;
+		}
+		else
+			return;
+	}
+__print:
 	switch(c)
 	{
-		case 0x00:
-			return;
+		case 0x00:	return;
 
-		case '\t':
-			xpos = (xpos + 8) & ~(8);
-			break;
+		case '\t':	xpos = (xpos + 8) & ~(8);
+					break;
 
-		case '\n':
-			xpos = 0;
-			ypos++;
-			break;
+		case '\n':	xpos = 0;
+					ypos++;
+					break;
 
-		default:
-			*(vidmem + (xpos+ypos*xres)*2)     = (u8)c;
-			*(vidmem + (xpos+ypos*xres)*2 + 1) = ((bkgc << 4) | forc);
-			xpos++;
-			break;
+		case '\e':	is_esc = 3;
+					buff_loc = 0;
+					return;
+
+		default:	*(vidmem + (xpos+ypos*xres)*2)     = (u8)c;
+					*(vidmem + (xpos+ypos*xres)*2 + 1) = ((bkgc << 4) | forc);
+					xpos++;
+					break;
 	}
 	if(xpos >= xres) { xpos = 0; ypos++; }
 	if(ypos >= yres) { ypos = yres - 1; scrollup(); }
@@ -107,4 +142,112 @@ void vga_printnum(u32 n, int base)
 
 	for(i--; i >= 0; i--)
 		vga_put(ans[i]);
+}
+
+
+
+
+
+
+
+
+
+
+
+static int get_dec(char *str, char **out)
+{
+	int n = 0;
+	while(*str >= '0' && *str <= '9')
+	{
+		n *= 10;
+		n += (int)(*str - '0');
+		str++;
+	}
+	if(out) *out = str;
+	
+	return n;
+}
+
+static u8 ansi_to_vga[16] = //!< Convert an ansi color to a VGA color
+{
+	0, 4,  2,  6,  1, 5,  3,  7,
+	8, 12, 10, 14, 9, 13, 11, 15
+};
+
+static void m_escape()
+{
+	int n = get_dec(buff, NULL);
+
+	switch(n)
+	{
+		case  0:	bkgc = 0;
+					forc = 7;
+					break;
+
+		case  1:	forc |= 8;
+					break;
+
+		case  2:	forc &= ~8;
+					break;
+
+		case  3:	// En Italic
+		case  4:	// En Underline
+		case  5:	// En Blink
+		case  6:	// En Fast Blink
+					break;
+
+		case  7:	n = forc;
+					forc = bkgc;
+					bkgc = n;
+					break;
+
+		case  8:	// En Hidden
+		case  9:	// En Strike-through
+		case 20:	// En Fraktur
+					break;
+
+		case 21:	forc &= ~8;
+					break;
+
+		case 22:	bkgc = 0;
+					forc = 7;
+					break;
+
+		case 23:	// Dis Italic & Fraktur
+		case 24:	// Dis Underline
+		case 25:	// Dis Blink
+		case 26:	// Reserved
+					break;
+
+		case 27:	n = forc;
+					forc = bkgc;
+					bkgc = forc;
+					break;
+
+		case 28:	// Dis Hide
+		case 29:	// Dis Strike-through
+					break;
+
+		case 39:	forc = 7;
+					break;
+
+		case 49:	bkgc = 0;
+					break;
+
+		default:	if(n >= 30  && n <= 37)  forc = ansi_to_vga[n - 30];
+					if(n >= 40  && n <= 47)  bkgc = ansi_to_vga[n - 40];
+					if(n >= 90  && n <= 97)  forc = ansi_to_vga[n - 90  + 8];
+					if(n >= 100 && n <= 107) bkgc = ansi_to_vga[n - 100 + 8];
+					break;
+	}
+}
+
+void ansi_escape()
+{
+	is_esc = 2;
+	switch(buff[buff_loc - 1])
+	{
+		case 'm':	m_escape();
+					break;
+	}
 }

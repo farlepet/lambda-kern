@@ -9,6 +9,8 @@
 
 #include <types.h>
 
+void set_color(u8 c);
+
 /**
  * \brief Clears VGA text.
  * Clears the first plane of VGA memory, effectively clearing all text from
@@ -23,7 +25,7 @@ void vga_clear();
  * with it accordingly
  * @param c the input character
  */
-void vga_put(u8 c);
+void vga_put(char c);
 
 
 /**
@@ -34,5 +36,10 @@ void vga_put(u8 c);
  * @see vga_put
  */
 void vga_print(char *str);
+
+
+
+
+#define is_ansi(x) ((x == 'A') || (x == 'B') || (x == 'C') || (x == 'D') || (x == 's') || (x == 'u') || (x == 'H') || (x == 'J') || (x == 'K') || (x == 'm'))
 
 #endif
