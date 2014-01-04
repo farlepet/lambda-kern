@@ -6,6 +6,7 @@
 #include <err/error.h>
 #include <time/time.h>
 #include <fs/initrd.h>
+#include <proc/elf.h>
 #include <proc/ipc.h>
 #include <mm/mm.h>
 #include <video.h>
@@ -81,7 +82,7 @@ __noreturn void kernel_task()
 	struct kbug_type_msg kbtm;
 	kbtm.pid  = current_pid;
 	kbtm.type = KBUG_PROCINFO;
-	struct kbug_proc_msg kbpm;
+	struct kbug_proc_msg kb••••••••pm;
 	kbpm.pid  = 0;
 	kbpm.type =	KBUG_PROC_NPROCS;
 	kbpm.info = 0;
@@ -91,7 +92,7 @@ __noreturn void kernel_task()
 	int nprocs;
 	recv_message(&nprocs, sizeof(int));
 	kerror(ERR_BOOTINFO, "\e[33mKbug\e[39m reports %d running processes", nprocs);
-#endif 
+#endif
 
 	for(;;) busy_wait();
 }

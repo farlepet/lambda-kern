@@ -9,7 +9,7 @@
 
 static u32 pagedir[1024]      __align(0x1000); //!< Main kernel pagedirectory
 static u32 init_tbls[4][1024] __align(0x1000); //!< First 4 page tables
-static u32 frames[0x10000];                    //!< Table stating which frames are available, takes up 256KiB
+static u32 frames[0x10000]    __align(0x1000); //!< Table stating which frames are available, takes up 256KiB
 static u32 prealloc_frames[20];                //!< 20 frames that are free, used by alloc_frame
 static u32 nframes;                            //!< Number of frames in the table
 
@@ -227,7 +227,7 @@ void paging_init(u32 eom)
 	nframes = (u32)(eom - (u32)firstframe) / 0x1000;
 	
 	u32 i = 0;
-	for(; i < nframes; i++, frames[i] = 0);
+	for(; i < nframes; i += 32, frames[i] = 0);
 
 	clear_pagedir(pagedir);
 	fill_pagetable((void *)init_tbls[0], 0x00000000);
