@@ -35,6 +35,8 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 	check_commandline(mboot_tag);
 
 
+	kerror(ERR_BOOTINFO, "Kernel occupies this memory space: %08X - %08X", &kern_start, &kern_end);
+
 
 	mm_init(mboot_tag);
 
@@ -52,7 +54,8 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 	pci_enumerate();
 
 	pci_init();
-	
+
+
 	init_multitasking(&kernel_task, "kern");
 
 	kerror(ERR_BOOTINFO, "Lambda OS kernel finished initializing");
@@ -93,6 +96,10 @@ __noreturn void kernel_task()
 	recv_message(&nprocs, sizeof(int));
 	kerror(ERR_BOOTINFO, "\e[33mKbug\e[39m reports %d running processes", nprocs);
 #endif
+
+	u32 elf_size;
+	void *elf = initrd_find_file("test.elf", &elf_size);
+	load_elf(elf, elf_size);
 
 	for(;;) busy_wait();
 }

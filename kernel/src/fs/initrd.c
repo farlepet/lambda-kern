@@ -13,7 +13,7 @@ struct multiboot_module_tag *initrd = 0;
 static struct header_old_cpio *cpio = 0;
 
 static int n_files = 0;
-static struct header_old_cpio files[0x1000]; // Table of initrd file locations
+static struct header_old_cpio *files[0x1000]; // Table of initrd file locations
 static char filenames[0x1000][128];           // Table of initrd filenames
 static u32 filedata[0x1000];                  // Table of initrd data locations
 
@@ -39,7 +39,7 @@ void initrd_init(struct multiboot_header_tag* mboot_tag, char *name)
 			ptr_t mod_end   = (u32)mod->mod_end;
 
 			u32 b = ((mod_start - (u32)firstframe) / 0x1000);
-			for(; b < ((mod_end - (u32)firstframe) / 0x1000); b++)
+			for(; b < ((mod_end - (u32)firstframe) / 0x1000) + 1; b++)
 			{
 				set_frame(b, 1); // Make sure that the module is not overwritten
 				map_page((b * 0x1000) + firstframe, (b * 0x1000) + firstframe, 3);
@@ -78,12 +78,10 @@ void initrd_init(struct multiboot_header_tag* mboot_tag, char *name)
 			return;
 		}
 
-		//files[cidx] = cfile;
+		files[cidx] = cfile;
 
 		cfile->c_mtime    = n(cfile->c_mtime);
 		cfile->c_filesize = n(cfile->c_filesize);
-
-		memcpy(&files[cidx], cfile, sizeof(struct header_old_cpio));
 
 		memcpy(filenames[cidx], (void *)((u32)cfile + sizeof(struct header_old_cpio)), cfile->c_namesize);
 
@@ -97,7 +95,7 @@ void initrd_init(struct multiboot_header_tag* mboot_tag, char *name)
 
 		filedata[cidx] = data;
 
-		//kerror(ERR_BOOTINFO, "Found %s @ %08x w/ size %d w/ data @ %08x [%d]", filenames[cidx], cfile, files[cidx].c_filesize, data, files[cidx].c_namesize);
+		//kerror(ERR_BOOTINFO, "Found %s @ %08x w/ size %d w/ data @ %08x [%d]", filenames[cidx], cfile, files[cidx]->c_filesize, data, files[cidx].c_namesize);
 
 		cfile = (struct header_old_cpio *)(data + cfile->c_filesize + (cfile->c_filesize & 1));
 
@@ -108,16 +106,16 @@ void initrd_init(struct multiboot_header_tag* mboot_tag, char *name)
 
 
 
-void *initrd_find_file(char *name, int *size)
+void *initrd_find_file(char *name, u32 *size)
 {
 	int cidx = 0;
 	while(cidx <= n_files)
 	{
-		kerror(ERR_BOOTINFO, ":Testing %s:%d", filenames[cidx], files[cidx].c_filesize);
+		kerror(ERR_BOOTINFO, ":Testing %s:%d", filenames[cidx], files[cidx]->c_filesize);
 		if(!strcmp(name, filenames[cidx]))
 		{
-			if(size) *size = files[cidx].c_filesize;
-			kerror(ERR_BOOTINFO, "files[%d]: %08X", cidx, files[cidx].c_magic);
+			if(size) *size = files[cidx]->c_filesize;
+			kerror(ERR_BOOTINFO, "files[%d]: %08X", cidx, files[cidx]->c_magic);
 			return (void *)filedata[cidx];
 		}
 		cidx++;

@@ -26,6 +26,7 @@ static u32 *lastframe; //!< The location of the last page frame
  */
 void set_frame(u32 frame, u32 val)
 {
+	//kerror(ERR_BOOTINFO, "  set_frame(%08X, %08X)", frame, val);
 	if(val == 1)
 	{
 		frames[frame / 32] |=  (1 << (frame % 32));

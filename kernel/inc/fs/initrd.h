@@ -5,7 +5,7 @@
 #include <types.h>
 
 void initrd_init(struct multiboot_header_tag* mboot_tag, char *name);
-void *initrd_find_file(char *name, int *size);
+void *initrd_find_file(char *name, u32 *size);
 
 struct header_old_cpio
 {

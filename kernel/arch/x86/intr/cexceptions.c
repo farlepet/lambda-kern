@@ -13,6 +13,13 @@ void handle_page_fault(u32 errcode, u32 cr3)
 				((errcode & 0x08) ? ", modified reserved field" : ""),
 				((errcode & 0x10) ? ", instruction fetch"       : ""));
 
+	if(cr3 >= (u32)firstframe)
+	{
+		int frame = (cr3 - (u32)firstframe) / 0x1000;
+		kerror(ERR_MEDERR, "  -> On frame %08X(%d)", frame, frame);
+	}
+	else kerror(ERR_MEDERR, "  -> Occurred in kernel-space, not in the page frames");
+
 	if(tasking)
 	{
 		u32 pid = current_pid;

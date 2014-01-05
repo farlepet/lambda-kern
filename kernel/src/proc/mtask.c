@@ -77,18 +77,15 @@ void add_kernel_task(void *process, char *name, u32 stack_size, int pri)
 
 #ifdef STACK_PROTECTOR
 	procs[p].ebp = (u32)kmalloc((stack_size ? stack_size : STACK_SIZE) + 0x2000);
-	memset((void *)procs[p].ebp, 0, (stack_size ? stack_size : STACK_SIZE) + 0x2000);
 	procs[p].ebp +=            ((stack_size ? stack_size : STACK_SIZE) + 0x1000);
 #else // STACK_PROTECTOR
 	procs[p].ebp = (u32)kmalloc((stack_size ? stack_size : STACK_SIZE));
-	memset((void *)procs[p].ebp, 0, (stack_size ? stack_size : STACK_SIZE));
 	procs[p].ebp +=            ((stack_size ? stack_size : STACK_SIZE));
 #endif // !STACK_PROTECTOR
 
 	//procs[p].ebp += 0x10; procs[p].ebp &= 0xFFFFFFF0; // Small alignment
 
 	procs[p].esp = procs[p].ebp;
-
 
 	
 	procs[p].stack_end = procs[p].ebp - STACK_SIZE;
@@ -116,8 +113,11 @@ void add_kernel_task(void *process, char *name, u32 stack_size, int pri)
 void init_multitasking(void *process, char *name)
 {
 	disable_interrupts();
+	kerror(ERR_BOOTINFO, "Initializing multitasking");
 
 	add_kernel_task(process, name, 0, PRIO_KERNEL);
+
+	kerror(ERR_BOOTINFO, "--");
 
 	procs[0].type &= ~(TYPE_RANONCE); // Don't save registers right away for the first task
 
