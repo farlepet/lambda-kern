@@ -95,11 +95,9 @@ void initrd_init(struct multiboot_header_tag* mboot_tag, char *name)
 
 		u32 data = ((u32)cfile + sizeof(struct header_old_cpio) + cfile->c_namesize + (cfile->c_namesize & 1));
 
-		kerror(ERR_BOOTINFO, "%08x %08x %08x %08x", *(u32 *)(data), *(u32 *)(data + 4), *(u32 *)(data + 8), *(u32 *)(data + 12));
-
 		filedata[cidx] = data;
 
-		kerror(ERR_BOOTINFO, "Found %s @ %08x w/ size %d w/ data @ %08x [%d]", filenames[cidx], cfile, files[cidx].c_filesize, data, files[cidx].c_namesize);
+		//kerror(ERR_BOOTINFO, "Found %s @ %08x w/ size %d w/ data @ %08x [%d]", filenames[cidx], cfile, files[cidx].c_filesize, data, files[cidx].c_namesize);
 
 		cfile = (struct header_old_cpio *)(data + cfile->c_filesize + (cfile->c_filesize & 1));
 

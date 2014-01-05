@@ -89,6 +89,14 @@ __noreturn static void kbug_task()
 
 			case KBUG_CPUINFO: {	// To be implemented
 							   } break;
+
+			case KBUG_MEMINFO: {	// TODO: Check that the requesting process is root or a kernel process
+									struct kbug_mem_msg kmm;
+									recv_message(&kmm, sizeof(struct kbug_mem_msg));
+
+									// TODO: Check that this won't cause a page fault
+									send_message(ktm.pid, (void *)kmm.mem_addr, kmm.mem_len);
+							   } break;
 		}
 	}
 }

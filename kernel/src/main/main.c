@@ -82,7 +82,7 @@ __noreturn void kernel_task()
 	struct kbug_type_msg kbtm;
 	kbtm.pid  = current_pid;
 	kbtm.type = KBUG_PROCINFO;
-	struct kbug_proc_msg kb••••••••pm;
+	struct kbug_proc_msg kbpm;
 	kbpm.pid  = 0;
 	kbpm.type =	KBUG_PROC_NPROCS;
 	kbpm.info = 0;
