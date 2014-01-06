@@ -15,14 +15,14 @@ OBJS       = $(ASOBJS) $(COBJS) $(ASMOBJS)
 
 CC         = clang
 AS         = clang
-CFLAGS     = -m32 -I$(KERNDIR)/inc -I$(MAINDIR) -nostdlib -nostdinc -Wall -Wextra -Werror -DARCH_X86
+CFLAGS     = -m32 -I$(KERNDIR)/inc -I$(MAINDIR) -nostdlib -nostdinc -Wall -Wextra -Werror -DARCH_X86 -O2
 ASFLAGS    = -m32
 NASMFLAGS  = -f elf
 
 all:     link
 
 link:   $(OBJS)
-	@ar rvs --target=elf32-i386 arch.a $(OBJS) > /dev/null
+	@ar rvs --target=elf32-i386 arch.a $(OBJS) &> /dev/null
 
 
 %.o: %.c

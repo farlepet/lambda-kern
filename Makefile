@@ -12,7 +12,8 @@ CC         = clang
 
 
 ifeq ($(ARCH), X86)
-CFLAGS     = -emit-llvm -m32 -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/x86/ -nostdlib -nostdinc -ffreestanding -Wall -Wextra -Werror -DARCH_X86
+CFLAGS     = -emit-llvm -m32 -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/x86/ \
+			 -nostdlib -nostdinc -ffreestanding -Wall -Wextra -Werror -DARCH_X86 -O2
 LDFLAGS    = -melf_i386 -T link_x86.ld
 link:   $(OBJS)
 	@echo -e "\033[33m  \033[1mBuilding x86-specific bits\033[0m"
@@ -27,7 +28,7 @@ link:   $(OBJS)
 	@cp lambda.kern CD/lambda.kern
 
 	@echo -e "\033[33m  \033[1mGenerating InitCPIO\033[0m"
-	@cd initrd; find . | cpio -o -v -O../CD/initrd.cpio >& /dev/null
+	@cd initrd; find . | cpio -o -v -O../CD/initrd.cpio &> /dev/null
 	@echo -e "\033[33m  \033[1mCreating ISO\033[0m"
 	@grub-mkrescue -o lambda-os.iso CD
 endif
