@@ -14,9 +14,9 @@ ASMOBJS    = $(patsubst %.asm,%.o,$(ASMSRCS))
 OBJS       = $(ASOBJS) $(COBJS) $(ASMOBJS)
 
 CC         = clang
-AS         = gcc
+AS         = clang
 CFLAGS     = -m32 -I$(KERNDIR)/inc -I$(MAINDIR) -nostdlib -nostdinc -Wall -Wextra -Werror -DARCH_X86
-ASFLAGS    = -m32 -I$(KERNDIR)/inc -I$(MAINDIR) -nostdlib -nostdinc -Wall -Wextra -Werror -DARCH_X86
+ASFLAGS    = -m32
 NASMFLAGS  = -f elf
 
 all:     link
@@ -25,14 +25,13 @@ link:   $(OBJS)
 	@ar rvs --target=elf32-i386 arch.a $(OBJS) > /dev/null
 
 
-
 %.o: %.c
 	@echo -e "\033[32m    \033[1mCC\033[21m    \033[34m$<\033[0m"
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
 %.o: %.s
 	@echo -e "\033[32m    \033[1mAS\033[21m    \033[34m$<\033[0m"
-	@$(AS) $(CFLAGS) -c -o $@ $<
+	@$(AS) $(ASFLAGS) -c -o $@ $<
 
 %.o: %.asm
 	@echo -e "\033[32m    \033[1mNASM\033[21m  \033[34m$<\033[0m"
