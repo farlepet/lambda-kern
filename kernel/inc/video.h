@@ -58,7 +58,7 @@ void kprintnum(u32 num, int base);
 	* @return the number of characters placed in `out`
 	* @see print
 	*/
-int sprintf(char *out, char *format, ...);
+int sprintf(char *out, const char *format, ...);
 
 /**
  * \brief Creates and prints a string based on input format string and arguments.
@@ -69,7 +69,7 @@ int sprintf(char *out, char *format, ...);
  * @return the number of characters printed
  * @see print
  */
-int kprintf(char *format, ...);
+int kprintf(const char *format, ...);
 
 /**
  * \brief Creates and prints a string based on input format string and arguments.

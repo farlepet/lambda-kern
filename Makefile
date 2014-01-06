@@ -14,13 +14,11 @@ ASMOBJS    = $(patsubst %.asm,%.o,$(ASMSRCS))
 
 OBJS       = $(COBJS) $(ASMOBJS) $(ASOBJS)
 
-CC         = gcc
-AS         = gcc
+CC         = clang
 
 
 ifeq ($(ARCH), X86)
 CFLAGS     = -m32 -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/x86/ -nostdlib -nostdinc -ffreestanding -Wall -Wextra -Werror -DARCH_X86
-ASFLAGS    = -m32 -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/x86/ -nostdlib -nostdinc -ffreestanding -Wall -Wextra -Werror -DARCH_X86
 
 link:   $(OBJS)
 	@echo -e "\033[33m  \033[1mBuilding x86-specific bits\033[0m"

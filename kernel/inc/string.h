@@ -7,7 +7,7 @@
  * @param str the string to calculate the length of
  * @return the length of the string
  */
-int strlen(const char *str);
+u32 strlen(const char *str);
 
 /**
  * Calculates the length of a wide string.
@@ -15,7 +15,7 @@ int strlen(const char *str);
  * @param str the wide string to calculate the length of
  * @return the length of the wide string
  */
-int wcslen(const short *str);
+u32 wcslen(const short *str);
 
 /**
  * Checks to see if two strings are identical

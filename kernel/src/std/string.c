@@ -6,9 +6,9 @@
  * @param str the string to calculate the length of
  * @return the length of the string
  */
-int strlen(const char *str)
+u32 strlen(const char *str)
 {
-	register int i = 0;
+	register u32 i = 0;
 	while(str[i++]);
 	return i;
 }
@@ -19,9 +19,9 @@ int strlen(const char *str)
  * @param str the wide string to calculate the length of
  * @return the length of the wide string
  */
-int wcslen(const short *str)
+u32 wcslen(const short *str)
 {
-	register int i = 0;
+	register u32 i = 0;
 	while(str[i++]);
 	return i;
 }

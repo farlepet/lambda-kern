@@ -100,7 +100,7 @@ void kprintnum(u32 num, int base)
  * @return the number of characters that have been put in `out`
  * @see print
  */
-static int print_int(u32 num, int base, int u, int pad, int padzero, int possign, int posspace, int _case, char *out)
+static int print_int(u32 num, int base, int u, u32 pad, int padzero, int possign, int posspace, int _case, char *out)
 {
 	int onum = num;
 	if(onum < 0) if(!u) num = (~num) + 1;
@@ -157,7 +157,7 @@ static int print_int(u32 num, int base, int u, int pad, int padzero, int possign
  * @return the number found
  * @see print
  */
-static int get_dec(char *str, char **out)
+static int get_dec(const char *str, ptr_t *out)
 {
 	int n = 0;
 	while(*str >= '0' && *str <= '9')
@@ -166,7 +166,7 @@ static int get_dec(char *str, char **out)
 		n += (int)(*str - '0');
 		str++;
 	}
-	*out = str;
+	*out = (ptr_t)str;
 	
 	return n;
 }
@@ -182,7 +182,7 @@ static int get_dec(char *str, char **out)
  * @param varg the list of arguments
  * @return the number of charactern placed in `out`
  */
-static int print(char *out, char *format, __builtin_va_list varg)
+static int print(char *out, const char *format, __builtin_va_list varg)
 {
 	int is_in_spec = 0;
 	int size = 0;      // Size of the integer
@@ -252,13 +252,13 @@ static int print(char *out, char *format, __builtin_va_list varg)
 			case '6':
 			case '7':
 			case '8':
-			case '9': width = get_dec(format, &format);
-					  format--;
+			case '9': width = get_dec(format, &temp);
+					  format = (char *)(temp - 1);
 					  break;
 			
 			case '.': format++;
-					  precision = get_dec(format, &format);
-					  format--;
+					  precision = get_dec(format, &temp);
+					  format = (char *)(temp - 1);
 					  break;
 			
 			
@@ -374,7 +374,7 @@ static int print(char *out, char *format, __builtin_va_list varg)
  * @return the number of characters placed in `out`
  * @see print
  */
-int sprintf(char *out, char *format, ...)
+int sprintf(char *out, const char *format, ...)
 {
 	__builtin_va_list varg;
 	__builtin_va_start(varg, format);
@@ -392,7 +392,7 @@ int sprintf(char *out, char *format, ...)
  * @return the number of characters printed
  * @see print
  */
-int kprintf(char *format, ...)
+int kprintf(const char *format, ...)
 {
 	__builtin_va_list varg;
 	__builtin_va_start(varg, format);

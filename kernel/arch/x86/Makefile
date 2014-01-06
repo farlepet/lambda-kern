@@ -13,7 +13,7 @@ ASMOBJS    = $(patsubst %.asm,%.o,$(ASMSRCS))
 
 OBJS       = $(ASOBJS) $(COBJS) $(ASMOBJS)
 
-CC         = gcc
+CC         = clang
 AS         = gcc
 CFLAGS     = -m32 -I$(KERNDIR)/inc -I$(MAINDIR) -nostdlib -nostdinc -Wall -Wextra -Werror -DARCH_X86
 ASFLAGS    = -m32 -I$(KERNDIR)/inc -I$(MAINDIR) -nostdlib -nostdinc -Wall -Wextra -Werror -DARCH_X86
@@ -32,7 +32,7 @@ link:   $(OBJS)
 
 %.o: %.s
 	@echo -e "\033[32m    \033[1mAS\033[21m    \033[34m$<\033[0m"
-	@$(CC) $(CFLAGS) -c -o $@ $<
+	@$(AS) $(CFLAGS) -c -o $@ $<
 
 %.o: %.asm
 	@echo -e "\033[32m    \033[1mNASM\033[21m  \033[34m$<\033[0m"
