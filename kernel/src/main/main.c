@@ -34,6 +34,10 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 
 	check_commandline(mboot_tag);
 
+#ifdef __clang__
+	kerror(ERR_BOOTINFO, "Built with clang " __clang_version__);
+	kerror(ERR_BOOTINFO, "  -> On " __TIMESTAMP__);
+#endif
 
 	kerror(ERR_BOOTINFO, "Kernel occupies this memory space: %08X - %08X", &kern_start, &kern_end);
 
