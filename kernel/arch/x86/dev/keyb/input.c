@@ -50,6 +50,7 @@ void keyb_handle(u32 keycode)
 			send_message(ktask_pids[KINPUT_TASK_SLOT], &ch, sizeof(char)); // TODO: Use actual structure instead of 8-bit character
 		}
 	}
+	krng_add_entropy((u8)keycode);
 }
 
 
@@ -84,6 +85,6 @@ void keyb_init()
 		}
 	}
 
-	set_interrupt(KEYBOARD_INT, &keyb_int);
+	set_interrupt(KEYBOARD_INT, (void *)&keyb_int);
 	enable_irq(1);
 }

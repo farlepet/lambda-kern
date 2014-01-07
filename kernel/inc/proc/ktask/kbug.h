@@ -40,6 +40,6 @@ struct kbug_mem_msg //!< Message containing memory request
 
 void kbug_task(void);
 
-#endif
+#endif // DEBUGGER
 
 #endif // KTASK_KBUG_H
