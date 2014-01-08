@@ -98,7 +98,7 @@ __print:
 					return;
 
 		default:	*(vidmem + (xpos+ypos*xres)*2)     = (u8)c;
-					*(vidmem + (xpos+ypos*xres)*2 + 1) = ((bkgc << 4) | forc);
+					*(vidmem + (xpos+ypos*xres)*2 + 1) = (u8)((bkgc << 4) | forc);
 					xpos++;
 					break;
 	}
@@ -117,7 +117,7 @@ void vga_print(char *str)
 {
 	int i = 0;
 	while(str[i] != 0)
-		vga_put((u8)str[i++]);
+		vga_put(str[i++]);
 }
 
 /**
@@ -127,7 +127,7 @@ void vga_print(char *str)
  * @param base base to use when printing the number
  * @see vga_print
  */
-void vga_printnum(u32 n, int base)
+void vga_printnum(u32 n, u32 base)
 {
 	char nums[16] = "0123456789ABCDEF";
 	char ans[16] = { '0' };
@@ -198,7 +198,7 @@ static void m_escape()
 
 		case  7:	n = forc;
 					forc = bkgc;
-					bkgc = n;
+					bkgc = (u8)n;
 					break;
 
 		case  8:	// En Hidden

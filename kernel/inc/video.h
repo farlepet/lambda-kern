@@ -22,15 +22,6 @@ void kput(char c);
  */
 void kprint(char *str);
 
-/**
- * \brief Prints a number using the specified base.
- * Prints a number using any base between 2 and 16, inclusive.
- * @param n number to be printed
- * @param base base to use when printing the number
- * @see kput
- */
-void kprintnum(u32 num, int base);
-
 
 #define FMT_SPEC '%' //!< Format specifier character
 

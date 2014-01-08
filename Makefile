@@ -13,7 +13,8 @@ CC         = clang
 
 ifeq ($(ARCH), X86)
 CFLAGS     = -emit-llvm -m32 -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/x86/ \
-			 -nostdlib -nostdinc -ffreestanding -Wall -Wextra -Werror -DARCH_X86 -O2 -fdiagnostics-show-category=name
+			 -nostdlib -nostdinc -ffreestanding -Wall -Wextra -Werror -DARCH_X86 -O2 -fdiagnostics-show-category=name \
+			 -Wconversion
 LDFLAGS    = -melf_i386 -T link_x86.ld
 link:   $(OBJS)
 	@echo -e "\033[33m  \033[1mBuilding x86-specific bits\033[0m"

@@ -24,7 +24,7 @@ typedef unsigned long long u64; //!< Unsigned 64 bit value
 typedef unsigned int ptr_t; //!< Pointer
 #endif // ARCH_X86
 
-typedef unsigned int max_ptr_t; //!< Maximum pointer size that can be used by an architecture
+typedef unsigned long long int max_ptr_t; //!< Maximum pointer size that can be used by an architecture
 
 
 #define __alias(N)       __attribute__((__weak__, __alias__(#N))) //!< Create an alias to another object

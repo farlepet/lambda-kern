@@ -38,7 +38,7 @@ void interrupts_init()
 void set_interrupt(u32 n, void *handler)
 {
 #if   defined(ARCH_X86)
-	set_idt(n, 0x08, 0x8E, handler);
+	set_idt((u8)n, 0x08, 0x8E, handler);
 #endif
 	kerror(ERR_INFO, "Interrupt vector 0x%02X set", n);
 }

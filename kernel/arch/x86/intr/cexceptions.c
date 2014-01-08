@@ -22,7 +22,7 @@ void handle_page_fault(u32 errcode, u32 cr3)
 
 	if(tasking)
 	{
-		u32 pid = current_pid;
+		int pid = current_pid;
 		int p = proc_by_pid(pid);
 		if(p == -1)
 		{

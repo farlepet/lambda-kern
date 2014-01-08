@@ -50,7 +50,7 @@ void initrd_init(struct multiboot_header_tag* mboot_tag, char *name)
 			if(!strcmp((char *)mod->name, name)) initrd = mod;
 		}
 		i += tag->size;
-		if(i & 0x07) i = (i & ~0x07) + 8; // Entries are aways padded
+		if(i & 0x07) i = (i & (u32)~0x07) + 8; // Entries are aways padded
 	}
 	
 	if(!initrd)

@@ -66,7 +66,7 @@ int read_cbuff(u8 *data, int size, struct cbuff *buff)
 	while(size--)
 	{
 		int err = get_cbuff(buff);
-		if(err & 0xFFFFFF00) return err;
+		if((u32)err & 0xFFFFFF00) return err;
 		data[i++] = (u8)err;
 	}
 

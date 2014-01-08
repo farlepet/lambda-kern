@@ -35,7 +35,7 @@ void pci_write_config_word(u32 bus, u32 slot, u32 func, u32 offset, u16 data)
 
 		outl(0xCF8, address);
 
-		outl(0xCFC, other_side | (data << 16));
+		outl(0xCFC, other_side | (u32)(data << 16));
 	}
 	else
 	{
@@ -43,7 +43,7 @@ void pci_write_config_word(u32 bus, u32 slot, u32 func, u32 offset, u16 data)
 
 		outl(0xCF8, address);
 
-		outl(0xCFC, data | (other_side << 16));
+		outl(0xCFC, data | ((u32)other_side << 16));
 	}
 }
 
@@ -54,8 +54,8 @@ void pci_enumerate()
 	kerror(ERR_BOOTINFO, "Initializing PCI devices");
 	u16 tmp;
 
-	int bus = 0;
-	int slot = 0;
+	u32 bus = 0;
+	u32 slot = 0;
 
 	int devn = 0;
 
@@ -70,8 +70,8 @@ void pci_enumerate()
 					kerror(ERR_SMERR, "Maximum PCI entries reached");
 					break;
 				}
-				pci_devices[devn].bus  = bus;
-				pci_devices[devn].slot = slot;
+				pci_devices[devn].bus  = (u8)bus;
+				pci_devices[devn].slot = (u8)slot;
 
 				u16 vend   = tmp;
 				u16 dev    = pci_read_config_word(bus, slot, 0, 0x01);
@@ -100,7 +100,7 @@ void pci_enumerate()
 
 				if(headt & 0x80)
 				{
-					int func = 1;
+					u8 func = 1;
 					for(; func < 8; func++)
 					{
 						tmp = pci_read_config_word(bus, slot, func, 0); // Vendor ID
@@ -171,7 +171,7 @@ void pci_init()
 		for(; n < PCI_VENTABLE_LEN; n++)
 			if(PciVenTable[n].VenId == vend)
 			{
-				pci_devices[i].vend_idx = n;
+				pci_devices[i].vend_idx = (int)n;
 				break;
 			}
 		
@@ -180,7 +180,7 @@ void pci_init()
 		for(n = 0; n < PCI_DEVTABLE_LEN; n++)
 			if((PciDevTable[n].VenId == vend) && (PciDevTable[n].DevId == dev))
 			{
-				pci_devices[i].dev_idx = n;
+				pci_devices[i].dev_idx = (int)n;
 				break;
 			}
 
@@ -191,7 +191,7 @@ void pci_init()
 		for(n = 0; n < PCI_CLASSCODETABLE_LEN; n++)
 			if((PciClassCodeTable[n].BaseClass == class) && (PciClassCodeTable[n].SubClass == sclass) && (PciClassCodeTable[n].ProgIf == prog_if))
 			{
-				pci_devices[i].class_idx = n;
+				pci_devices[i].class_idx = (int)n;
 				break;
 			}
 

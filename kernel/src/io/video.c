@@ -18,8 +18,8 @@ int output_serial = 0; //!< If 0, write to VGA, else, write to serial port point
 void kput(char c)
 {
 #if defined(ARCH_X86)
-	if(output_serial) serial_write(output_serial, c);
-	else vga_put((u8)c);
+	if(output_serial) serial_write((u16)output_serial, c);
+	else vga_put(c);
 #endif
 }
 
@@ -31,8 +31,8 @@ void kput(char c)
 void kwput(int c)
 {
 #if defined(ARCH_X86)
-	if(output_serial) serial_write(output_serial, (char)c);
-	else vga_put((u8)c);
+	if(output_serial) serial_write((u16)output_serial, (char)c);
+	else vga_put((char)c);
 #endif
 }
 
@@ -58,29 +58,6 @@ void kwprint(u16 *str)
 	while(*str) kwput(*str++);
 }
 
-/**
- * Prints a number using the specified base.
- * 
- * @param n number to be printed
- * @param base base to use when printing the number
- * @see kput
- */
-void kprintnum(u32 num, int base)
-{
-	char nums[16] = "0123456789ABCDEF";
-	char ans[16] = { '0' };
-	int i = 0;
-	while(num)
-	{
-		ans[i++] = nums[num % base];
-		num /= base;
-	}
-	if(i == 0) i++;
-	
-	for(i--; i >= 0; i--)
-		kput(ans[i]);
-}
-
 
 
 
@@ -100,9 +77,9 @@ void kprintnum(u32 num, int base)
  * @return the number of characters that have been put in `out`
  * @see print
  */
-static int print_int(u32 num, int base, int u, u32 pad, int padzero, int possign, int posspace, int _case, char *out)
+static int print_int(u32 num, u8 base, u8 u, u8 pad, u8 padzero, u8 possign, u8 posspace, u8 _case, char *out)
 {
-	int onum = num;
+	int onum = (int)num;
 	if(onum < 0) if(!u) num = (~num) + 1;
 	char *nums;
 	if(_case) nums = "0123456789ABCDEF";
@@ -139,12 +116,12 @@ static int print_int(u32 num, int base, int u, u32 pad, int padzero, int possign
 	{
 		while(p--) *out++ = (padzero ? '0' : ' ');
 		while(--i >= 0) *out++ = ans[i];
-		return ((pad > strlen(ans)) ? pad : strlen(ans)) + ((((possign || posspace) && !u) && onum > 0) || ((onum < 0) && !u)) + 1;
+		return (int)((pad > strlen(ans)) ? pad : strlen(ans)) + ((((possign || posspace) && !u) && onum > 0) || ((onum < 0) && !u)) + 1;
 	}
 	else
 	{
 		while(--i >= 0) *out++ = ans[i];
-		return strlen(ans) + ((((possign || posspace) && !u) && onum > 0) || ((onum < 0) && !u));
+		return (int)(strlen(ans) + ((((possign || posspace) && !u) && onum > 0) || ((onum < 0) && !u)));
 	}
 }
 
@@ -184,14 +161,14 @@ static int get_dec(const char *str, ptr_t *out)
  */
 static int print(char *out, const char *format, __builtin_va_list varg)
 {
-	int is_in_spec = 0;
-	int size = 0;      // Size of the integer
-	int width = 0;     // Width of the number at minimum
-	int precision = 0; // Precision
-	int showsign = 0;  // Show the sign on positive numbers
-	int signspace = 0; // Place a space before positive numbers
-	int leftalign = 0; // Align to the left
-	int padzeros = 0;  // Use zeros instead of spaces for padding
+	u8 is_in_spec = 0;
+	s8 size = 0;      // Size of the integer
+	u8 width = 0;     // Width of the number at minimum
+	u8 precision = 0; // Precision
+	u8 showsign = 0;  // Show the sign on positive numbers
+	u8 signspace = 0; // Place a space before positive numbers
+	u8 leftalign = 0; // Align to the left
+	u8 padzeros = 0;  // Use zeros instead of spaces for padding
 	
 	int nchars = 0;    // Number of chars printed so far
 	
@@ -252,12 +229,12 @@ static int print(char *out, const char *format, __builtin_va_list varg)
 			case '6':
 			case '7':
 			case '8':
-			case '9': width = get_dec(format, &temp);
+			case '9': width = (u8)get_dec(format, &temp);
 					  format = (char *)(temp - 1);
 					  break;
 			
 			case '.': format++;
-					  precision = get_dec(format, &temp);
+					  precision = (u8)get_dec(format, &temp);
 					  format = (char *)(temp - 1);
 					  break;
 			
@@ -265,21 +242,21 @@ static int print(char *out, const char *format, __builtin_va_list varg)
 		// Numbers, strings, etc...
 			
 			case 'd':
-			case 'i': temp = va_arg(varg, int);
+			case 'i': temp = (ptr_t)va_arg(varg, int);
 					  if(size == -1) temp &= 0xFFFF;
 					  if(size == -2) temp &= 0xFF;
 					  if(size == 2){} // TODO: Handle this!
-					  temp = print_int(temp, 10, 0, width, padzeros, showsign, signspace, 0, out);
+					  temp = (ptr_t)print_int(temp, 10, 0, width, padzeros, showsign, signspace, 0, out);
 					  nchars += temp;
 					  out += temp-1;
 					  ZERO_ALL_VID();
 					  break;
 					  
-			case 'u': temp = va_arg(varg, u32);
+			case 'u': temp = (ptr_t)va_arg(varg, u32);
 					  if(size == -1) temp &= 0xFFFF;
 					  if(size == -2) temp &= 0xFF;
 					  if(size == 2){} // TODO: Handle this!
-					  temp = print_int(temp, 10, 1, width, padzeros, showsign, signspace, 0, out);
+					  temp = (ptr_t)print_int(temp, 10, 1, width, padzeros, showsign, signspace, 0, out);
 					  nchars += temp;
 					  out += temp-1;
 					  ZERO_ALL_VID();
@@ -295,21 +272,21 @@ static int print(char *out, const char *format, __builtin_va_list varg)
 					  break;
 					  
 			case 'x':
-			case 'X': temp = va_arg(varg, u32);
+			case 'X': temp = (ptr_t)va_arg(varg, u32);
 					  if(size == -1) temp &= 0xFFFF;
 					  if(size == -2) temp &= 0xFF;
 					  if(size == 2){} // TODO: Handle this!
-					  temp = print_int(temp, 16, 1, width, padzeros, showsign, signspace, (*format == 'X'), out);
+					  temp = (ptr_t)print_int(temp, 16, 1, width, padzeros, showsign, signspace, (*format == 'X'), out);
 					  nchars += temp;
 					  out += temp-1;
 					  ZERO_ALL_VID();
 					  break;
 			
-			case 'o': temp = va_arg(varg, u32);
+			case 'o': temp = (ptr_t)va_arg(varg, u32);
 					  if(size == -1) temp &= 0xFFFF;
 					  if(size == -2) temp &= 0xFF;
 					  if(size == 2){} // TODO: Handle this!
-					  temp = print_int(temp, 8, 1, width, padzeros, showsign, signspace, 0, out);
+					  temp = (ptr_t)print_int(temp, 8, 1, width, padzeros, showsign, signspace, 0, out);
 					  nchars += temp;
 					  out += temp-1;
 					  ZERO_ALL_VID();
@@ -317,28 +294,28 @@ static int print(char *out, const char *format, __builtin_va_list varg)
 					 
 			case 's': if(size > 0)
 					  {
-						  temp = (int)(ptr_t)va_arg(varg, s16 *);
+						  temp = (ptr_t)va_arg(varg, s16 *);
 						  nchars += wcslen((s16 *)temp);
-						  while(*(s16 *)temp) *out++ = *(s16 *)temp++;
+						  while(*(s16 *)temp) *out++ = (char)*(s16 *)temp++;
 					  }
 					  else
 					  {
-						  temp = (int)(ptr_t)va_arg(varg, char *);
+						  temp = (ptr_t)va_arg(varg, char *);
 						  nchars += strlen((char *)temp);
 						  while(*(char *)temp) *out++ = *(char *)temp++;
 					  }
 					  ZERO_ALL_VID();
 					  break;
 					
-			case 'c': temp = va_arg(varg, int);
+			case 'c': temp = (ptr_t)va_arg(varg, int);
 					  if(size > 0) *out++ = (char)temp;
 					  else         *out++ = (char)temp;
 					  nchars++;
 					  ZERO_ALL_VID();
 					  break;
 					
-			case 'p': temp = va_arg(varg, ptr_t);
-					  temp = print_int(temp, 16, 1, width, padzeros, showsign, signspace, 1 /* Should this be upper or lower case? */, out);
+			case 'p': temp = (ptr_t)va_arg(varg, ptr_t);
+					  temp = (ptr_t)print_int(temp, 16, 1, width, padzeros, showsign, signspace, 1 /* Should this be upper or lower case? */, out);
 					  nchars += temp;
 					  out += temp-1;
 					  break;

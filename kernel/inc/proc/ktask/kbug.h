@@ -35,7 +35,7 @@ struct kbug_proc_msg //!< Message containing type of process info it requests
 struct kbug_mem_msg //!< Message containing memory request
 {
 	max_ptr_t mem_addr; //!< Address of memory to request
-	max_ptr_t mem_len;  //!< Length of memory request
+	u32       mem_len;  //!< Length of memory request
 };
 
 void kbug_task(void);

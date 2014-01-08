@@ -14,16 +14,16 @@ int send_message(int dest, void *msg, int size)
 
 	struct cbuff *buff = &(procs[idx].messages);
 
-	int err = write_cbuff((u8 *)msg, size, buff);
+	u32 err = (u32)write_cbuff((u8 *)msg, size, buff);
 
-	procs[idx].blocked &= ~BLOCK_MESSAGE;
+	procs[idx].blocked &= (u32)~BLOCK_MESSAGE;
 
 	if(en_ints) enable_interrupts();
 
 	if(err & 0xFF000000)
 	{
 		kerror(ERR_SMERR, "send_message: couldn't send message to pid %d due to error", dest);
-		return err;
+		return (int)err;
 	}
 
 	return 0;
@@ -35,8 +35,8 @@ int recv_message(void *msg, int size)
 
 	struct cbuff *buff = &(procs[idx].messages);
 
-	int err;
-	while((err = read_cbuff((u8 *)msg, size, buff)) & (CBUFF_EMPTY | CBUFF_NENOD))
+	u32 err;
+	while((err = (u32)read_cbuff((u8 *)msg, size, buff)) & (CBUFF_EMPTY | CBUFF_NENOD))
 	{
 		procs[idx].blocked |= BLOCK_MESSAGE;
 		busy_wait();
@@ -45,7 +45,7 @@ int recv_message(void *msg, int size)
 	if(err & 0xFF000000)
 	{
 		kerror(ERR_SMERR, "recv_message: couldn't receive message due to error");
-		return err;
+		return (int)err;
 	}
 
 	return 0;

@@ -23,7 +23,7 @@ void rollover(int pid) //!< Called when the timer rolls over
  */
 void do_time_block_timeup(u32 n)
 {
-	u32 pid = time_blocks[n].pid;
+	int pid = time_blocks[n].pid;
 	void (*event)(int) = time_blocks[n].event;
 	
 	time_blocks[n].event = NULL;

@@ -119,7 +119,7 @@ void init_multitasking(void *process, char *name)
 
 	kerror(ERR_BOOTINFO, "--");
 
-	procs[0].type &= ~(TYPE_RANONCE); // Don't save registers right away for the first task
+	procs[0].type &= (u32)~(TYPE_RANONCE); // Don't save registers right away for the first task
 
 	tasking = 1;
 	current_pid = -1;
@@ -193,7 +193,7 @@ void exit(int code)
 		enable_interrupts();
 		return;
 	}
-	procs[p].type &= ~(TYPE_RUNNABLE);
+	procs[p].type &= (u32)~(TYPE_RUNNABLE);
 	procs[p].type |= TYPE_ZOMBIE; // It isn't removed unless it's parent inquires on it
 	procs[p].exitcode = code;
 

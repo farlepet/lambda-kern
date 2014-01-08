@@ -16,10 +16,10 @@
  * @param attr the IDT entry's attribute byte
  */
 #define IDT_ENTRY(off, sel, attr)    \
-	(((off  & 0xFFFF0000ULL) << 32) | \
-	 ((attr & 0x000000FFULL) << 40) |  \
-	 ((sel  & 0x0000FFFFULL) << 16) |   \
-	 ((off  & 0x0000FFFFULL) << 0))
+	((((u64)off  & 0xFFFF0000ULL) << 32) | \
+	 (((u64)attr & 0x000000FFULL) << 40) |  \
+	 (((u64)sel  & 0x0000FFFFULL) << 16) |   \
+	 (((u64)off  & 0x0000FFFFULL) << 0))
 
 /**
  * \brief Different IDT entry types.
@@ -67,7 +67,7 @@ void idt_init();
  * @param func the interrupt handler function
  * @see IDT_ATTR
  */
-void set_idt(int, int, int, void *);
+void set_idt(u8, int, int, void *);
 
 
 int disable_irq(u8 irq);

@@ -51,7 +51,7 @@ __noreturn void kbug_task()
 									recv_message(&kmm, sizeof(struct kbug_mem_msg));
 
 									// TODO: Check that this won't cause a page fault
-									send_message(ktm.pid, (void *)kmm.mem_addr, kmm.mem_len);
+									send_message(ktm.pid, (void *)kmm.mem_addr, (int)kmm.mem_len);
 							   } break;
 		}
 	}

@@ -37,7 +37,7 @@ char serial_read(u16 port)
 {
 	while (serial_received(port) == 0);
 	
-	return inb(port);
+	return (char)inb(port);
 }
 
 /**
@@ -60,5 +60,5 @@ int is_transmit_empty(u16 port)
 void serial_write(u16 port, char a)
 {
 	while (is_transmit_empty(port) == 0);
-	outb(port, a);
+	outb(port, (u8)a);
 }

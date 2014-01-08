@@ -25,7 +25,7 @@ struct multiboot_tag *find_multiboot_table(struct multiboot_header_tag* mboot_ta
 
 		if(tag->type == type) return tag;
 		i += tag->size;
-		if(i & 0x07) i = (i & ~0x07) + 8; // Entries are aways padded
+		if(i & 0x07) i = (i & (u32)~0x07) + 8; // Entries are aways padded
 	}
 	return 0; // Couldn't find an appropiate tag
 }

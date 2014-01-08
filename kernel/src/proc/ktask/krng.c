@@ -50,12 +50,12 @@ void rot_seed(int a, int b, int c, int d)
 
 void krng_add_entropy(u8 ent)
 {
-	u32 entropy = ent | ((ent << 8) ^ seed[3]) | ((ent << 16) ^ seed[0]) | ((ent << 24) ^ seed[2]);
-	entropy *= seed[2];
+	u32 entropy = (u32)(ent | ((ent << 8) ^ seed[3]) | ((ent << 16) ^ seed[0]) | ((ent << 24) ^ seed[2]));
+	entropy *= (u32)seed[2];
 	rot_seed(0, 3, 2, 1);
 
 #if __has_builtin(__builtin_readcyclecounter) // Add a bit extra
-		seed[3] = __builtin_readcyclecounter();
+		seed[3] = (int)__builtin_readcyclecounter();
 #endif
 
 	ent = (entropy & 0x03) | (entropy >> 8 & 0x0C) | (entropy >> 16 & 0x30) | (entropy >> 24 & 0xC0); // Shuffle their values about

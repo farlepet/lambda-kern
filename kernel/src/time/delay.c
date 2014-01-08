@@ -14,7 +14,7 @@ void time_over(int pid)
 {
 	int idx = proc_by_pid(pid);
 
-	procs[idx].blocked &= ~BLOCK_DELAY;
+	procs[idx].blocked &= (u32)~BLOCK_DELAY;
 }
 
 /**

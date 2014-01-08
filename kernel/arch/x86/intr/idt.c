@@ -15,7 +15,7 @@ u64 IDT[256]; //!< Interrupt Descriptor Table. Table of all interrupt handlers a
  * @param off1 the offset for the master PIC
  * @param off2 the offset for the slave PIC
  */
-static void remap_pic(int off1, int off2)
+static void remap_pic(u8 off1, u8 off2)
 {
 	outb(0x20, 0x11);
   	outb(0xA0, 0x11);
@@ -64,7 +64,7 @@ void idt_init()
  * @param flags the entrys flags (@see IDT_ATTR)
  * @param func the interrupt handler function
  */
-void set_idt(int intr, int sel, int flags, void *func)
+void set_idt(u8 intr, int sel, int flags, void *func)
 {
 	IDT[intr] = IDT_ENTRY((u32)func, sel, flags);
 }
@@ -77,7 +77,7 @@ int disable_irq(u8 irq)
 {
 	if(irq > 16) return 1;
 	if(irq < 8)  outb(0x21, inb(0x21) | (1 >> irq));
-	else         outb(0xA1, inb(0xA1) | (0x100 >> irq));
+	else         outb(0xA1, inb(0xA1) | (u8)(0x100 >> irq));
 	return 0;
 }
 
