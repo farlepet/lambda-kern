@@ -16,11 +16,26 @@ void init_video(struct multiboot_header_tag* mboot_tag);
 void kput(char c);
 
 /**
+ * Prints a single wide character.
+ * 
+ * @param c the input character
+ */
+void kwput(int c);
+
+/**
  * \brief Prints a string of characters.
  * Uses the current architecture's print function
  * @param str the input string
  */
 void kprint(char *str);
+
+/**
+ * Prints a string of wide characters.
+ * 
+ * @param str the input string
+ * @see kwput
+ */
+void kwprint(u16 *str);
 
 
 #define FMT_SPEC '%' //!< Format specifier character

@@ -16,7 +16,9 @@ OBJS       = $(ASOBJS) $(COBJS) $(ASMOBJS)
 CC         = clang
 AS         = clang
 CFLAGS     = -m32 -I$(KERNDIR)/inc -I$(MAINDIR) -nostdlib -nostdinc -Wall -Wextra -Werror \
-				 -DARCH_X86 -O2 -fdiagnostics-show-category=name -Wconversion
+				 -DARCH_X86 -O2 -fdiagnostics-show-category=name -Wconversion -Waddress \
+				 -fdiagnostics-show-category=name -Wmissing-prototypes \
+				 -Wmissing-declarations -Woverlength-strings -Wunreachable-code
 ASFLAGS    = -m32
 NASMFLAGS  = -f elf
 

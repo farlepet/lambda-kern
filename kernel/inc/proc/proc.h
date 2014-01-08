@@ -82,8 +82,8 @@ struct uproc //!< Structure of a process as seen by a user process
 
 void kproc_to_uproc(struct kproc *kp, struct uproc *up);
 
-void sched_processes();
+void sched_processes(void);
 
-int sched_next_process();
+int sched_next_process(void);
 
 #endif

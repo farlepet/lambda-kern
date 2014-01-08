@@ -20,7 +20,7 @@
  * \brief Initializes interrupts.
  * Initializes based on the target architecture.
  */
-void interrupts_init();
+void interrupts_init(void);
 
 /**
  * \brief Attaches an interrupt handler to an interrupt.

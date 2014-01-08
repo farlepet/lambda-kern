@@ -10,7 +10,7 @@ u8 timeup[500]; //!< Table of values corresponding to pid's telling if the timer
  * corresponding to the callers pid to 1.
  * @param pid the pid of the caller to `delay`
  */
-void time_over(int pid)
+static void time_over(int pid)
 {
 	int idx = proc_by_pid(pid);
 

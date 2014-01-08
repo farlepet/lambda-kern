@@ -1,5 +1,6 @@
-#include <types.h>
+#include <intr/intr.h>
 #include <err/error.h>
+#include <types.h>
 
 #if  defined(ARCH_X86)
 

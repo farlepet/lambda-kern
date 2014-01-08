@@ -36,7 +36,7 @@ __noreturn void krng_task()
 	}
 }
 
-void rot_seed(int a, int b, int c, int d)
+static void rot_seed(int a, int b, int c, int d)
 {
 	int _a = seed[0];
 	int _b = seed[1];

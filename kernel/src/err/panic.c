@@ -1,6 +1,7 @@
+#include <intr/intr.h>
+#include <err/panic.h>
 #include <types.h>
 #include <video.h>
-#include <intr/intr.h>
 
 /**
  * \brief Halts OS after printing error information.

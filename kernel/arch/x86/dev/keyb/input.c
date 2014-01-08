@@ -8,6 +8,7 @@
 #include "input.h"
 
 extern void keyb_int(); //!< Assembly interrupt handler
+void keyb_handle(u32);
 
 static const char key_table[256] = //!< Corresponds certain keys to certain characters
 {

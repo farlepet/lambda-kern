@@ -20,7 +20,7 @@
 int ktask_pids[KTASK_SLOTS];
 
 
-void init_ktasks();
+void init_ktasks(void);
 
 
 #endif

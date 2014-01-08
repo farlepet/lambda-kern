@@ -32,6 +32,6 @@
  * \brief Initialize the GDT
  * Initializes the GDT then the TSS.
  */
-void gdt_init();
+void gdt_init(void);
 
 #endif

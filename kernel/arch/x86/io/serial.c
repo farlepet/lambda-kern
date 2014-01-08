@@ -1,5 +1,6 @@
-#include <types.h>
 #include <io/ioport.h>
+#include <io/serial.h>
+#include <types.h>
 
 /**
  * \brief Initialize the serial port.

@@ -33,7 +33,7 @@ void set_frame(u32 frame, u32 val);
  * \brief Allocate a frame.
  * Allocates a page frame then returns its address
  */
-void *alloc_frame();
+void *alloc_frame(void);
 
 /**
  * \brief Free an allocated frame.
@@ -75,13 +75,13 @@ void set_pagedir(u32 *dir);
  * \brief Enable paging.
  * Enable the paging flag in cr0.
  */
-void enable_paging();
+void enable_paging(void);
 
 /**
  * \brief Disable paging.
  * Sets the paging flag in cr0.
  */
-void disable_paging();
+void disable_paging(void);
 
 /**
  * \brief Initialize paging.

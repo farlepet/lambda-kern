@@ -6,6 +6,7 @@
 #include "pit.h"
 
 extern void pit_int(); //!< The PIT interrupt handler
+void pit_handler(void);
 
 /**
  * \brief PIT interrupt handler.

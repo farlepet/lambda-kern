@@ -29,10 +29,8 @@ struct pci_device
 
 struct pci_device pci_devices[MAX_PCI_DEVICES];
 
-u16 pci_read_config_word(u32 bus, u32 slot, u32 func, u32 offset);
+void pci_enumerate(void);
 
-void pci_enumerate();
-
-void pci_init();
+void pci_init(void);
 
 #endif

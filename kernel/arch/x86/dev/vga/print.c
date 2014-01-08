@@ -44,7 +44,7 @@ static void scrollup()
 static char buff[256];
 static int is_esc = 0;   //!< Whether or not we are in an escape sequence
 static int buff_loc = 0; //!< Where in the ANSI escape buffer we are
-void ansi_escape();
+void ansi_escape(void);
 /**
  * \brief Prints a single character to the VGA screen.
  * Checks if character is printable, if so it places it in VGA memory,

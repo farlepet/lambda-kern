@@ -56,7 +56,7 @@ enum idt_int_type
  * interrupt then loads the IDT pointer and remaps the PIC.
  * @see reload_idt
  */
-void idt_init();
+void idt_init(void);
 
 /**
  * \brief Set an entry in the IDT.

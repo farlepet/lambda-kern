@@ -12,7 +12,7 @@ struct pci_device pci_devices[MAX_PCI_DEVICES];
 
 int n_pci_devices;
 
-u16 pci_read_config_word(u32 bus, u32 slot, u32 func, u32 offset)
+static u16 pci_read_config_word(u32 bus, u32 slot, u32 func, u32 offset)
 {
 	u32 address;
  
@@ -23,7 +23,7 @@ u16 pci_read_config_word(u32 bus, u32 slot, u32 func, u32 offset)
 	return ((inl(0xCFC) >> ((offset & 2) * 8)) & 0xffff);
 }
 
-void pci_write_config_word(u32 bus, u32 slot, u32 func, u32 offset, u16 data)
+static void pci_write_config_word(u32 bus, u32 slot, u32 func, u32 offset, u16 data)
 {
 	u32 address;
  
@@ -137,7 +137,7 @@ void pci_enumerate()
 	n_pci_devices = devn;
 }
 
-int bist_test(u8 bus, u8 slot, u8 func)
+static int bist_test(u8 bus, u8 slot, u8 func)
 {
 	u16 infoE = pci_read_config_word(bus, slot, func, 0x0E);
 
@@ -151,6 +151,7 @@ int bist_test(u8 bus, u8 slot, u8 func)
 }
 
 extern void pci_interrupt();
+void pci_int_handle(void);
 
 void pci_init()
 {

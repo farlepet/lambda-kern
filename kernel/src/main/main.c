@@ -17,7 +17,8 @@
 #include <io/serial.h>
 #include <dev/keyb/input.h>
 
-void kernel_task();
+void kernel_task(void);
+int kmain(struct multiboot_header_tag *, u32);
 
 /**
  * \brief Main kernel function.
@@ -65,8 +66,6 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 	kerror(ERR_BOOTINFO, "Lambda OS kernel finished initializing");
 
 	for(;;) busy_wait();
-	
-	(void)mboot_tag;
 }
 
 __noreturn void kernel_task()

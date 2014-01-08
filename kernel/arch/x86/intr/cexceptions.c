@@ -4,6 +4,9 @@
 #include <intr/int.h>
 #include <types.h>
 
+void handle_page_fault(u32, u32);
+
+
 void handle_page_fault(u32 errcode, u32 cr3)
 {
 	kerror(ERR_MEDERR, "Page fault at 0x%08X (%s%s%s%s%s)", cr3,
@@ -37,7 +40,6 @@ void handle_page_fault(u32 errcode, u32 cr3)
 		{
 			kerror(ERR_MEDERR, "       -> Caused a stack overflow and is being dealt with", pid);
 			exit(0);
-			for(;;);
 		}
 	}
 
