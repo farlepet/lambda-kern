@@ -12,7 +12,7 @@
 #include <video.h>
 
 
-
+// TODO: Move these to another file:
 #include <io/pci.h>
 #include <io/serial.h>
 #include <dev/keyb/input.h>
@@ -21,8 +21,7 @@ void kernel_task(void);
 int kmain(struct multiboot_header_tag *, u32);
 
 /**
- * \brief Main kernel function.
- * Initializes all devices, and sets up environment.
+ * Main kernel functions, initializes all devices, and sets up environment.
  * @param mboot_ptr pointer to multiboot structure
  * @param initial_stack location of the initial stack
  */

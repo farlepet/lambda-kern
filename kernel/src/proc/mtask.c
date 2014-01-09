@@ -18,7 +18,7 @@ int tasking = 0; //!< Has multitasking started yet?
 int next_kernel_pid = -1;
 int next_user_pid   =  1;
 
-lock_t creat_task; //!< Lock used when creating tasks
+lock_t creat_task = 0; //!< Lock used when creating tasks
 
 int proc_by_pid(int pid)
 {
@@ -44,9 +44,6 @@ static int get_next_open_proc()
 void add_kernel_task(void *process, char *name, u32 stack_size, int pri)
 {
 	lock(&creat_task);
-
-	//int ints_en = interrupts_enabled();
-	//disable_interrupts();
 
 	int parent;
 	if(tasking) parent = proc_by_pid(current_pid);
@@ -118,7 +115,6 @@ void add_kernel_task(void *process, char *name, u32 stack_size, int pri)
 
 	unlock(&creat_task);
 
-	//if(ints_en) enable_interrupts();
 	kerror(ERR_INFO, "Added process %s as pid %d to slot %d", name, procs[p].pid, p);
 }
 
@@ -196,8 +192,6 @@ __hot void do_task_switch()
 
 void exit(int code)
 {
-	disable_interrupts();
-
 	int p = proc_by_pid(current_pid);
 	if(p == -1)
 	{
@@ -208,8 +202,6 @@ void exit(int code)
 	procs[p].type &= (u32)~(TYPE_RUNNABLE);
 	procs[p].type |= TYPE_ZOMBIE; // It isn't removed unless it's parent inquires on it
 	procs[p].exitcode = code;
-
-	enable_interrupts();
-
+	
 	for(;;) busy_wait();
 }

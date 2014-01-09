@@ -1,12 +1,14 @@
-#include <types.h>
-#include <video.h>
+#include <proc/atomic.h>
 #include <intr/intr.h>
 #include <time/time.h>
 #include <err/error.h>
 #include <intr/int.h>
+#include <types.h>
+#include <video.h>
 
 error_level minlvl = ERR_BOOTINFO; //!< Minimal level where messages are shown
 
+lock_t kerror_lock = 0; //!< Only 1 message can be printed at a time
 /**
  * \brief Prints information about the kernel.
  * Disables interrupts so it will not get interrupted, checks to see if the 
@@ -19,9 +21,8 @@ error_level minlvl = ERR_BOOTINFO; //!< Minimal level where messages are shown
  */
 void kerror(error_level errlvl, char *msg, ...)
 {
-	int en_int = interrupts_enabled();
-	disable_interrupts();
-	
+	lock(&kerror_lock);
+
 	if(errlvl >= minlvl)
 	{
 		kprintf("[%X%08X] ", (u32)(kerneltime >> 32), (u32)kerneltime);
@@ -32,5 +33,5 @@ void kerror(error_level errlvl, char *msg, ...)
 		kput('\n');
 	}
 	
-	if(en_int) enable_interrupts();
+	unlock(&kerror_lock);
 }

@@ -4,7 +4,11 @@
 #include <intr/int.h>
 #include <types.h>
 
-typedef _Atomic(int) lock_t;
+#ifdef __clang__
+	typedef _Atomic(int) lock_t;
+#else
+	typedef int lock_t;
+#endif
 
 // Compatibility between clang and GCC
 #if __has_builtin(__c11_atomic_store)
