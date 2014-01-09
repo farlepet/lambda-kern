@@ -1,3 +1,4 @@
+#include <proc/atomic.h>
 #include <proc/mtask.h>
 #include <err/error.h>
 #include <err/panic.h>
@@ -16,6 +17,8 @@ int tasking = 0; //!< Has multitasking started yet?
 
 int next_kernel_pid = -1;
 int next_user_pid   =  1;
+
+lock_t creat_task; //!< Lock used when creating tasks
 
 int proc_by_pid(int pid)
 {
@@ -40,8 +43,10 @@ static int get_next_open_proc()
 
 void add_kernel_task(void *process, char *name, u32 stack_size, int pri)
 {
-	int ints_en = interrupts_enabled();
-	disable_interrupts();
+	lock(&creat_task);
+
+	//int ints_en = interrupts_enabled();
+	//disable_interrupts();
 
 	int parent;
 	if(tasking) parent = proc_by_pid(current_pid);
@@ -58,7 +63,12 @@ void add_kernel_task(void *process, char *name, u32 stack_size, int pri)
 			procs[parent].children[i] = p;
 			break;
 		}
-		if(i == MAX_CHILDREN) kerror(ERR_MEDERR, "Process %d has run out of child slots", procs[parent].pid);
+		if(i == MAX_CHILDREN)
+		{
+			kerror(ERR_MEDERR, "Process %d has run out of child slots", procs[parent].pid);
+			unlock(&creat_task);
+			return;
+		}
 	}
 
 
@@ -106,7 +116,9 @@ void add_kernel_task(void *process, char *name, u32 stack_size, int pri)
 	procs[p].messages.size  = MSG_BUFF_SIZE;
 	procs[p].messages.buff  = procs[p].msg_buff;
 
-	if(ints_en) enable_interrupts();
+	unlock(&creat_task);
+
+	//if(ints_en) enable_interrupts();
 	kerror(ERR_INFO, "Added process %s as pid %d to slot %d", name, procs[p].pid, p);
 }
 
