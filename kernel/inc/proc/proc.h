@@ -24,6 +24,14 @@
 #define PRIO_DRIVER     3 //!< Priority for kernel drivers
 #define PRIO_KERNEL     4 //!< Priority for main kernel tasks
 
+struct proc_book //!< Structure for process `book-keeping`
+{
+	u32 sent_msgs;   //!< Number of sent messages
+	u32 sent_bytes;  //!< Number of sent bytes
+
+	u32 recvd_msgs;  //!< Number of received messages
+	u32 recvd_bytes; //!< Number of received bytes
+};
 
 struct kproc //!< Structure of a process as seen by the kernel
 {
@@ -55,7 +63,7 @@ struct kproc //!< Structure of a process as seen by the kernel
 
 	int prio;      //!< Task priority
 
-	int runtime;   //!< Amount of time this process has run
+	struct proc_book book; //!< Bookkeeping stuff
 };
 
 
