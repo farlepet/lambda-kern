@@ -1,7 +1,12 @@
 #include <proc/ktasks.h>
+#include <err/error.h>
 #include <proc/ipc.h>
+#include <video.h>
 
 #ifdef DEBUGGER
+
+static void idebug();
+
 /**
  * Kernel debugger task
  */
@@ -53,7 +58,26 @@ __noreturn void kbug_task()
 									// TODO: Check that this won't cause a page fault
 									send_message(ktm.pid, (void *)kmm.mem_addr, (int)kmm.mem_len);
 							   } break;
+
+			case KBUG_IDEBUG: {	idebug();
+							  } break;
 		}
 	}
 }
+
+static void idebug()
+{
+	kerror(ERR_INFO, "IDEBUG started");
+	
+	kprintf("\e[41mPID UID GID SENT     RECEIVED\e[0m\n");
+	int i = 0;
+	for(; i < MAX_PROCESSES; i++)
+		if(procs[i].type & TYPE_VALID)
+		{
+			kprintf("% 02d % 02d % 02d %8d %8d\n", procs[i].pid, procs[i].uid, procs[i].gid, procs[i].book.sent_msgs, procs[i].book.recvd_msgs);
+		}
+
+	kerror(ERR_INFO, "IDEBUG finished");
+}
+
 #endif // Debugger

@@ -3,13 +3,16 @@
 
 #include <types.h>
 
+#define KBUG_IDEBUG_SUCCESS 0x00000DEB //!< IDEBUG successfully started
+
 #ifdef DEBUGGER
 
 enum kbug_types
 {
 	KBUG_PROCINFO, //!< Request info about a process
 	KBUG_CPUINFO,  //!< Request info about the CPU
-	KBUG_MEMINFO   //!< Request info about memory
+	KBUG_MEMINFO,  //!< Request info about memory
+	KBUG_IDEBUG    //!< Start the interactive debugger
 };
 
 enum kbug_proc_type
@@ -36,6 +39,21 @@ struct kbug_mem_msg //!< Message containing memory request
 {
 	max_ptr_t mem_addr; //!< Address of memory to request
 	u32       mem_len;  //!< Length of memory request
+};
+
+
+
+// All-in-one structures, use these:
+struct kbug_type_proc_msg
+{
+	struct kbug_type_msg;
+	struct kbug_proc_msg;
+};
+
+struct kbug_type_mem_msg
+{
+	struct kbug_type_msg;
+	struct kbug_mem_msg;
 };
 
 void kbug_task(void);
