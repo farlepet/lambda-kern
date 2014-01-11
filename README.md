@@ -13,11 +13,11 @@ Building
 
 To build Lambda OS you need the following tools:
  * x86 or x86_64 computer (unless using a cross compiler)
- * `gcc` (or cross compiler)
+ * `clang` and `llvm` or `gcc` (Makefile configuration required for latter)
  * `nasm`
  * `make`
  * `grub`
- * Ubuntu-based systems: `grub-pc-bin`
+ * Ubuntu/apt-get based systems: `grub-pc-bin`
  * `grub-mkrescue`
  * `xorriso`
 
