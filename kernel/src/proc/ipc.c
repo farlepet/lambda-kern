@@ -5,12 +5,13 @@
 #include <proc/ipc.h>
 #include <intr/int.h>
 
-lock_t msg_lock = 0; //!< Make sure only 1 message is processed at a time
+lock_t send_lock = 0; //!< Make sure only 1 message is sent at a time
+lock_t read_lock = 0;
 
 int send_message(int dest, void *msg, int size)
 {
 	// We don't want to be cut off doing this
-	lock(&msg_lock);
+	lock(&send_lock);
 
 	int idx = proc_by_pid(dest);
 
@@ -20,7 +21,7 @@ int send_message(int dest, void *msg, int size)
 
 	procs[idx].blocked &= (u32)~BLOCK_MESSAGE;
 
-	unlock(&msg_lock);
+	unlock(&send_lock);
 
 	if(err & 0xFF000000)
 	{

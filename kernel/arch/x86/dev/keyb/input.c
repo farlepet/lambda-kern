@@ -2,6 +2,7 @@
 #include <intr/intr.h>
 #include <io/ioport.h>
 #include <err/error.h>
+#include <io/input.h>
 #include <proc/ipc.h>
 #include <intr/idt.h>
 #include <video.h>
@@ -10,27 +11,33 @@
 extern void keyb_int(); //!< Assembly interrupt handler
 void keyb_handle(u32);
 
-static const char key_table[256] = //!< Corresponds certain keys to certain characters
-{
-//    0     1   2    3    4    5    6    7    8    9    A    B    C    D     E     F
-      0 ,0x1B, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b', '\t',     //0
-	 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n', 0,   'a',  's',    //1
-	 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'','`',  0 ,'\\', 'z', 'x',  'c',  'v',   //2
-	 'b', 'n', 'm', ',', '.', '/',  0,   0,   0,  ' ',  0,   0,   0,   0,    0,    0,   //3
-	  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0 ,  0,    0,    0,  //4
-	  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,                                 //5
-};
+struct input_dev *keyb_dev;
 
-static const char key_shift_table[256] = //!< Corresponds certain keys to certain characters, when shift or capslock in enabled
+static void process_code(u32 keycode)
 {
-//    0     1   2    3    4    5    6    7    8    9    A    B    C    D     E     F
-      0, 0x1B, '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '\b', '\t',     //0
-	 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', '\n', 0,   'A',  'S',    //1
-	 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', '~',  0,  '|', 'Z', 'X',  'C',  'V',   //2
-	 'B', 'N', 'M', '<', '>', '?',  0,   0,   0,  ' ',  0,   0,   0,   0,    0,    0,   //3
-	  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,    0,    0,  //4
-	  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,                                 //5
-};
+	switch(keycode)
+	{
+		case 0x2A:
+		case 0x36:	keyb_dev->state |= KEYB_STATE_SHIFT;
+					break;
+
+		case 0xAA:
+		case 0xB6:	keyb_dev->state &= (u32)~KEYB_STATE_SHIFT;
+					break;
+
+		case 0x1D:	keyb_dev->state |= KEYB_STATE_CTRL;
+					break;
+
+		case 0x9D:	keyb_dev->state &= (u32)~KEYB_STATE_CTRL;
+					break;
+
+		case 0x38:	keyb_dev->state |= KEYB_STATE_ALT;
+					break;
+
+		case 0xB8:	keyb_dev->state &= (u32)~KEYB_STATE_ALT;
+					break;
+	}
+}
 
 /**
  * Takes the scancode from the buffer, and converts it into another code
@@ -43,13 +50,15 @@ static const char key_shift_table[256] = //!< Corresponds certain keys to certai
 void keyb_handle(u32 keycode)
 {
 	// Doesn't do a whole lot... YET...
-	char ch = key_table[keycode];
-	if(ch)
+	process_code(keycode);
+	if(ktask_pids[KINPUT_TASK_SLOT]) // Only send the message if the input task has started
 	{
-		if(ktask_pids[KINPUT_TASK_SLOT]) // Only send the message if the input task has started
-		{
-			send_message(ktask_pids[KINPUT_TASK_SLOT], &ch, sizeof(char)); // TODO: Use actual structure instead of 8-bit character
-		}
+		struct input_event iev;
+		iev.origin.s.driver = IDRIVER_KEYBOARD;
+		iev.origin.s.device = keyb_dev->id.s.device;
+		iev.type = EVENT_KEYPRESS;
+		iev.data = keycode;
+		send_message(ktask_pids[KINPUT_TASK_SLOT], &iev, sizeof(struct input_event));
 	}
 	krng_add_entropy((u8)keycode);
 }
@@ -88,4 +97,10 @@ void keyb_init()
 
 	set_interrupt(KEYBOARD_INT, (void *)&keyb_int);
 	enable_irq(1);
+
+	keyb_dev = add_input_dev(IDRIVER_KEYBOARD, "keyb", 0, 0);
+	if(!keyb_dev)
+	{
+		kerror(ERR_MEDERR, "Could not set up keyboard input device");
+	}
 }

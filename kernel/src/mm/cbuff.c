@@ -1,12 +1,6 @@
 #include <err/error.h>
 #include <mm/cbuff.h>
 
-
-
-
-
-#include <video.h>
-
 int put_cbuff(u8 data, struct cbuff *buff)
 {
 	if(!buff->buff | !buff) return CBUFF_INVAL; // Invalid buffer
@@ -14,8 +8,8 @@ int put_cbuff(u8 data, struct cbuff *buff)
 
 	buff->buff[buff->head] = data;
 
+	buff->head++;
 	if(buff->head == buff->size) buff->head = 0;
-	else                         buff->head++;
 
 	buff->count++;
 
@@ -29,8 +23,8 @@ int get_cbuff(struct cbuff *buff)
 
 	u8 d = buff->buff[buff->tail];
 
+	buff->tail++;
 	if(buff->tail == buff->size) buff->tail = 0;
-	else                         buff->tail++;
 
 	buff->count--;
 
@@ -40,6 +34,7 @@ int get_cbuff(struct cbuff *buff)
 
 int write_cbuff(u8 *data, int size, struct cbuff *buff)
 {
+	kerror(ERR_INFO, "write_cbuff: count = %d size = %d", buff->count, size);
 	if(!data) return CBUFF_INVLD; // Invalid data
 	if(!buff->buff | !buff) return CBUFF_INVAL; // Invalid buffer
 	if(size > buff->size) return CBUFF_FULL; // Not enough room in buffer
@@ -57,6 +52,7 @@ int write_cbuff(u8 *data, int size, struct cbuff *buff)
 
 int read_cbuff(u8 *data, int size, struct cbuff *buff)
 {
+	kerror(ERR_INFO, "read_cbuff: count = %d size = %d", buff->count, size);
 	if(!data) return CBUFF_INVLD; // Invalid data
 	if(!buff->buff | !buff) return CBUFF_INVAL; // Invalid buffer
 	if(size > buff->size) return CBUFF_NENOD; // Not enough readable data

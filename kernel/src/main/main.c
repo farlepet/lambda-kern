@@ -83,22 +83,6 @@ __noreturn void kernel_task()
 	send_message(ktask_pids[KVID_TASK_SLOT], &ktm, sizeof(struct kvid_type_msg));
 	send_message(ktask_pids[KVID_TASK_SLOT], &kpm, sizeof(struct kvid_print_msg));
 
-#ifdef DEBUGGER
-	struct kbug_type_msg kbtm;
-	kbtm.pid  = current_pid;
-	kbtm.type = KBUG_PROCINFO;
-	struct kbug_proc_msg kbpm;
-	kbpm.pid  = 0;
-	kbpm.type =	KBUG_PROC_NPROCS;
-	kbpm.info = 0;
-	while(!ktask_pids[KBUG_TASK_SLOT]) busy_wait(); // Wait for kbug task to start
-	send_message(ktask_pids[KBUG_TASK_SLOT], &kbtm, sizeof(struct kbug_type_msg));
-	send_message(ktask_pids[KBUG_TASK_SLOT], &kbpm, sizeof(struct kbug_proc_msg));
-	int nprocs;
-	recv_message(&nprocs, sizeof(int));
-	kerror(ERR_BOOTINFO, "\e[33mKbug\e[39m reports %d running processes", nprocs);
-#endif
-
 	u32 elf_size;
 	void *elf = initrd_find_file("test.elf", &elf_size);
 	load_elf(elf, elf_size);
