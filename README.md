@@ -13,7 +13,7 @@ Building
 
 To build Lambda OS you need the following tools:
  * x86 or x86_64 computer (unless using a cross compiler)
- * `clang` and `llvm` or `gcc` (Makefile configuration required for latter)
+ * `clang` and `llvm` or `gcc`
  * `nasm`
  * `make`
  * `grub`
@@ -24,4 +24,5 @@ To build Lambda OS you need the following tools:
 Build process:
  * Clone the git repository (If first time): `git clone https://github.com/farlepet/lambda-os.git`
  * Pull updates (If not first time): `git pull origin master`
- * Build: `make`
+ * Build (llvm/clang): `make`
+ * Build (gcc) `make CC=gcc`
