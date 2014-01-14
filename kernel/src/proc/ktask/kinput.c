@@ -28,7 +28,7 @@ static char keycode_to_char(struct input_event *iev)
 
 	if(iev->origin.s.driver == IDRIVER_KEYBOARD)
 	{
-		// TODO: Keep a cache or something se we don't have to do this EVERY time
+		// TODO: Keep a cache or something so we don't have to do this EVERY time
 		struct input_dev *idev = get_idevice(IDRIVER_KEYBOARD, iev->origin.s.device);
 		if(!idev)
 		{
@@ -51,7 +51,7 @@ __noreturn void kinput_task()
 	for(;;)
 	{
 		struct input_event iev;
-		recv_message(&iev, sizeof(struct input_event)); // TODO: Use an actual message structure instead of simple 8-bit characters
+		recv_message(&iev, sizeof(struct input_event));
 		if(iev.type == EVENT_KEYPRESS)
 		{
 			if(iev.data == 0x01) // ESC -> DEBUG for now

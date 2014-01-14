@@ -12,7 +12,7 @@ struct cbuff //!< A FIFO circular buffer
 	int count; //!< Number of readable bytes in the buffer
 	int size;  //!< Size of the buffer
 	u8 *buff;  //!< The buffer
-} __align(__BIGGEST_ALIGNMENT__); // For faster access times
+} __align(8); // For faster access times
 
 // Errors returned by cbuff functions
 #define CBUFF_FULL  0x70000000 // Buffer is full

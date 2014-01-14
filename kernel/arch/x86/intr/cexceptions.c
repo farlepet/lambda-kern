@@ -6,7 +6,12 @@
 
 void handle_page_fault(u32, u32);
 
-
+/**
+ * C side of page fault handler.
+ * 
+ * @param errcode errorcode pushed on stack by the fault
+ * @param cr3 value of cr3 register (location of fault)
+ */
 void handle_page_fault(u32 errcode, u32 cr3)
 {
 	kerror(ERR_MEDERR, "Page fault at 0x%08X (%s%s%s%s%s)", cr3,

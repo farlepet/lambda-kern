@@ -45,7 +45,7 @@ void add_kernel_task(void *process, char *name, u32 stack_size, int pri)
 {
 	lock(&creat_task);
 
-	int parent;
+	int parent = 0;
 	if(tasking) parent = proc_by_pid(current_pid);
 
 	int p = get_next_open_proc();

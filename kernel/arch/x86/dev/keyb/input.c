@@ -11,8 +11,13 @@
 extern void keyb_int(); //!< Assembly interrupt handler
 void keyb_handle(u32);
 
-struct input_dev *keyb_dev;
+struct input_dev *keyb_dev; //!< Device struct for the keyboard input handler
 
+/**
+ * Called every time a keyboard IRQ occurs. Checks to see if shift, ctrl, or alt are pressed or released
+ *
+ * @param keycode code that the keyboard has given us
+ */
 static void process_code(u32 keycode)
 {
 	switch(keycode)
@@ -63,7 +68,9 @@ void keyb_handle(u32 keycode)
 	krng_add_entropy((u8)keycode);
 }
 
-
+/**
+ * Waits so writing to keyboard I/O ports too fast doesn't cause a problem
+ */
 static inline void kbd_wait(void)
 {
 	asm("1:   inb   $0x64,%al\n"
@@ -71,6 +78,13 @@ static inline void kbd_wait(void)
 		"jne   1b");
 }
 
+/**
+ * Initializes the keyboard.
+ *  * Checks that the keyboard is in working condition
+ *  * Sets the keyboard interrupt handler
+ *  * Enables the keyboard IRQ
+ *  * Creates and adds an input device driver entry corresponding to this keyboard
+ */
 void keyb_init()
 {
 	inb(0x60);

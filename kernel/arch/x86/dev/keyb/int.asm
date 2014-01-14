@@ -7,13 +7,16 @@ keyb_int:
 	; Do stuff here
 	pusha
 
+	; Clear eax and get keycode
 	xor eax, eax
 	in al, 0x60
 
+	; Call C handler
 	push eax
 	call keyb_handle
 	add esp, 4
 
+	; Notify the PIC we are done
 	mov al, 0x20
 	out 0x20, al
 

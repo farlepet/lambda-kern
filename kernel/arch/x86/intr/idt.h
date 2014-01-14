@@ -69,9 +69,20 @@ void idt_init(void);
  */
 void set_idt(u8, int, int, void *);
 
-
+/**
+ * Disable an IRQ line
+ * 
+ * @param irq the IRQ to be disabled
+ * @return returns 0 if success
+ */
 int disable_irq(u8 irq);
 
+/**
+ * Enable an IRQ line
+ * 
+ * @param irq the IRQ to be enabled
+ * @return returns 0 if success
+ */
 int enable_irq(u8 irq);
 
 #endif

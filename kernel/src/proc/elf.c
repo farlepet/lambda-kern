@@ -9,9 +9,12 @@ int load_elf(void *file, u32 length)
 
 	Elf32_Ehdr *head = file;
 
-	if(*(u32 *)&head->e_ident[0] != ELF_IDENT)
+	if( (head->e_ident[0] != ELF_IDENT0) ||
+		(head->e_ident[1] != ELF_IDENT1) ||
+		(head->e_ident[2] != ELF_IDENT2) ||
+		(head->e_ident[3] != ELF_IDENT3))
 	{
-		kerror(ERR_SMERR, "Tried to load an ELF with incorrect header: %08X %08x %08x", *(u32 *)&head->e_ident[0], *(u32 *)&head->e_ident[4], *(u32 *)&head->e_ident[8]);
+		kerror(ERR_SMERR, "Tried to load an ELF with incorrect header");
 		return 1;
 	}
 

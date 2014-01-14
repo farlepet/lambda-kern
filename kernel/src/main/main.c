@@ -67,6 +67,9 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 	for(;;) busy_wait();
 }
 
+/**
+ * The main kernel task, spawns a few other tasks, then busy-waits.
+ */
 __noreturn void kernel_task()
 {
 	kerror(ERR_BOOTINFO, "Main kernel task started");

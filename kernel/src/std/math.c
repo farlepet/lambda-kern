@@ -7,6 +7,7 @@
  * @param add addend
  * @param sum sum
  * @param size size of number in 4 byte blocks
+ * @return 1 if implemented
  */
 int u_arbi_add(u32 *aug, u32 *add, u32 *sum, int size)
 #if __has_builtin(__builtin_addc) // This makes our life a LOT easier
@@ -19,10 +20,15 @@ int u_arbi_add(u32 *aug, u32 *add, u32 *sum, int size)
 		carry_in = carry_out;
 		sum[i] = __builtin_addc(aug[i], add[i], carry_in, &carry_out);
 	}
-	return (int)carry_out;
+	return 1;
 }
 #else
 {
+	// TODO: Implement for GCC / other compilers
+	(void)aug;
+	(void)add;
+	(void)sum;
+	(void)size;
 	return 0;
 }
 #endif
@@ -35,6 +41,7 @@ int u_arbi_add(u32 *aug, u32 *add, u32 *sum, int size)
  * @param sub subtrahend
  * @param diff difference
  * @param size size of number in 4 byte blocks
+ * @return 1 if implemented
  */
 int u_arbi_sub(u32 *min, u32 *sub, u32 *diff, int size)
 #if __has_builtin(__builtin_subc) // This makes our life a LOT easier
@@ -51,6 +58,10 @@ int u_arbi_sub(u32 *min, u32 *sub, u32 *diff, int size)
 }
 #else
 {
+	(void)min;
+	(void)sub;
+	(void)diff;
+	(void)size;
 	return 0;
 }
 #endif

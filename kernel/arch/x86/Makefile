@@ -14,6 +14,8 @@ ASMOBJS    = $(patsubst %.asm,%.o,$(ASMSRCS))
 OBJS       = $(ASOBJS) $(COBJS) $(ASMOBJS)
 
 CC         = clang
+
+ifeq ($(CC), clang)
 AS         = clang
 CFLAGS     = -m32 -I$(KERNDIR)/inc -I$(MAINDIR) -nostdlib -nostdinc -Wall -Wextra -Werror \
 				 -DARCH_X86 -O2 -fdiagnostics-show-category=name -Wconversion -Waddress \
@@ -21,6 +23,15 @@ CFLAGS     = -m32 -I$(KERNDIR)/inc -I$(MAINDIR) -nostdlib -nostdinc -Wall -Wextr
 				 -Wmissing-declarations -Woverlength-strings -Wunreachable-code
 ASFLAGS    = -m32
 NASMFLAGS  = -f elf
+endif
+
+ifeq ($(CC), gcc)
+AS         = gcc
+CFLAGS     = -m32 -I$(KERNDIR)/inc -I$(MAINDIR) -nostdlib -nostdinc -Wall -Wextra -Werror \
+				 -DARCH_X86 -O2
+ASFLAGS    = -m32
+NASMFLAGS  = -f elf
+endif
 
 all:     link
 

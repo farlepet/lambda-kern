@@ -271,7 +271,12 @@ void paging_init(u32 eom)
 
 
 
-
+/**
+ * Get the first available memory hole of a certain size
+ *
+ * @param size the minimum size of the hole
+ * @return the location of the memory hole
+ */
 static void *get_first_avail_hole(u32 size)
 {
 	int num_4k = 0;
@@ -315,6 +320,12 @@ struct alloc_head //!< Header for allocated blocks
 	u32 magic; //!< 0xA110CA1E
 } __align(16);
 
+/**
+ * Allocate a region of memory to be used later.
+ *
+ * @param size size of the memory region
+ * @return address of the memory region
+ */
 void *kmalloc(u32 size)
 {
 	int ints_en = interrupts_enabled();
@@ -340,6 +351,12 @@ void *kmalloc(u32 size)
 	return (void *)header->addr;
 }
 
+/**
+ * Free a region of memory that was allocated by malloc earlier.
+ *
+ * @param ptr pointer to memory region
+ * @see malloc
+ */
 void kfree(void *ptr)
 {
 	if(!ptr)

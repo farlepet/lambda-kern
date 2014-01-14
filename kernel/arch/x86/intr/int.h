@@ -25,6 +25,4 @@ static inline void busy_wait() //!< Preform lower-power wait
 
 int interrupts_enabled(); //!< in intr.asm
 
-void run_usr(void *loc) __noreturn; //!< Jump to usermode code
-
 #endif

@@ -97,9 +97,20 @@ void disable_paging(void);
 void paging_init(u32 eom);
 
 
-
+/**
+ * Allocate a region of memory to be used later.
+ *
+ * @param size size of the memory region
+ * @return address of the memory region
+ */
 void *kmalloc(u32 size);
 
+/**
+ * Free a region of memory that was allocated by malloc earlier.
+ *
+ * @param ptr pointer to memory region
+ * @see malloc
+ */
 void kfree(void *ptr);
 
 #endif

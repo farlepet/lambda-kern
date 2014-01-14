@@ -27,10 +27,16 @@ struct pci_device
 
 #define MAX_PCI_DEVICES 64
 
-struct pci_device pci_devices[MAX_PCI_DEVICES];
+extern struct pci_device pci_devices[MAX_PCI_DEVICES]; //!< Structure defining all connected PCI devices
 
+/**
+ * Enumerate all PCI devices and functions and store them into `pci_devices`
+ */
 void pci_enumerate(void);
 
+/**
+ * Initializes the PCI device driver
+ */
 void pci_init(void);
 
 #endif

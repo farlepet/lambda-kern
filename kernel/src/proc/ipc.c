@@ -6,7 +6,6 @@
 #include <intr/int.h>
 
 lock_t send_lock = 0; //!< Make sure only 1 message is sent at a time
-lock_t read_lock = 0;
 
 int send_message(int dest, void *msg, int size)
 {

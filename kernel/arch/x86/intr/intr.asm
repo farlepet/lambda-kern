@@ -6,6 +6,7 @@ global dummy_int
 idtr DW 0 ; For limit storage
 	 DD 0 ; For base storage
 
+; Set the interrupt descriptor table
 load_idt:
 	mov  eax, [esp + 4]
 	mov  [idtr + 2], eax
@@ -14,7 +15,7 @@ load_idt:
 	lidt [idtr]        ; Load the IDT pointer.
 	ret
 
-
+; Dummy interrupt, so all interrupts can be enables, with no immediate problems
 dummy_int:
 	cli
 	pusha
@@ -29,6 +30,7 @@ dummy_int:
 
 global pit_int
 extern pit_handler
+; Interrupt handler called by the PIT
 pit_int:
 	cli
 	pusha
@@ -41,6 +43,7 @@ pit_int:
 
 
 global interrupts_enabled
+; Checks to see if interrupts are currently enabled
 interrupts_enabled:
 	pushf
 	pop eax

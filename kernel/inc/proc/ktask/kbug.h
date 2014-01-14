@@ -46,14 +46,14 @@ struct kbug_mem_msg //!< Message containing memory request
 // All-in-one structures, use these:
 struct kbug_type_proc_msg
 {
-	struct kbug_type_msg;
-	struct kbug_proc_msg;
+	struct kbug_type_msg ktm;
+	struct kbug_proc_msg kpm;
 };
 
 struct kbug_type_mem_msg
 {
-	struct kbug_type_msg;
-	struct kbug_mem_msg;
+	struct kbug_type_msg ktm;
+	struct kbug_mem_msg kmm;
 };
 
 void kbug_task(void);
