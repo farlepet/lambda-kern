@@ -108,29 +108,33 @@ $(document).ready(function(){initNavTree('string_8h_source.html','');});
 <a href="string_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#ifndef STRING_H</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define STRING_H</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="keywordtype">int</span> <a class="code" href="string_8h.html#ae6c8de953239811a34eeeab09458e55e">strlen</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *str);</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="keywordtype">int</span> <a class="code" href="string_8h.html#a71239845b4a0d31eec158f1b71cfa690">wcslen</a>(<span class="keyword">const</span> <span class="keywordtype">short</span> *str);</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160; <span class="keywordtype">int</span> <a class="code" href="string_8h.html#a6f3dcb20ff11ff9db5904c3cfb61a38c">strcmp</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *str1, <span class="keyword">const</span> <span class="keywordtype">char</span> *str2);</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160; <span class="keywordtype">void</span> *<a class="code" href="string_8h.html#aa6848604daeb507b2d0b9b1ed6fbb213">memcpy</a>(<span class="keywordtype">void</span> *dest, <span class="keyword">const</span> <span class="keywordtype">void</span> *src, u32 n);</div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="types_8h.html">types.h</a>&gt;</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;u32 <a class="code" href="string_8h.html#adbbf4d6ec8d6b708c64bd6a4a18065dd">strlen</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *str);</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;u32 <a class="code" href="string_8h.html#a07eb4eed6ebf9be7878554ecad58110f">wcslen</a>(<span class="keyword">const</span> <span class="keywordtype">short</span> *str);</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160; <span class="keywordtype">int</span> <a class="code" href="string_8h.html#a6f3dcb20ff11ff9db5904c3cfb61a38c">strcmp</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *str1, <span class="keyword">const</span> <span class="keywordtype">char</span> *str2);</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; <span class="keywordtype">void</span> *<a class="code" href="string_8h.html#a68e227ec11a9aebf782ce5f65a1be845">memset</a>(<span class="keywordtype">void</span> *s, <span class="keywordtype">int</span> c, u32 n);</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; <span class="keywordtype">void</span> *<a class="code" href="string_8h.html#aa6848604daeb507b2d0b9b1ed6fbb213">memcpy</a>(<span class="keywordtype">void</span> *dest, <span class="keyword">const</span> <span class="keywordtype">void</span> *src, u32 <a class="code" href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a>);</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="ttc" id="string_8h_html_ae6c8de953239811a34eeeab09458e55e"><div class="ttname"><a href="string_8h.html#ae6c8de953239811a34eeeab09458e55e">strlen</a></div><div class="ttdeci">int strlen(const char *str)</div><div class="ttdef"><b>Definition:</b> <a href="string_8c_source.html#l00009">string.c:9</a></div></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160; <span class="keywordtype">void</span> *<a class="code" href="string_8h.html#a68e227ec11a9aebf782ce5f65a1be845">memset</a>(<span class="keywordtype">void</span> *s, <span class="keywordtype">int</span> c, u32 <a class="code" href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a>);</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="string_8h_html_a6f3dcb20ff11ff9db5904c3cfb61a38c"><div class="ttname"><a href="string_8h.html#a6f3dcb20ff11ff9db5904c3cfb61a38c">strcmp</a></div><div class="ttdeci">int strcmp(const char *str1, const char *str2)</div><div class="ttdef"><b>Definition:</b> <a href="string_8c_source.html#l00035">string.c:35</a></div></div>
+<div class="ttc" id="types_8h_html"><div class="ttname"><a href="types_8h.html">types.h</a></div><div class="ttdoc">Contains useful types and definitions. </div></div>
+<div class="ttc" id="string_8h_html_a07eb4eed6ebf9be7878554ecad58110f"><div class="ttname"><a href="string_8h.html#a07eb4eed6ebf9be7878554ecad58110f">wcslen</a></div><div class="ttdeci">u32 wcslen(const short *str)</div><div class="ttdef"><b>Definition:</b> <a href="string_8c_source.html#l00022">string.c:22</a></div></div>
 <div class="ttc" id="string_8h_html_aa6848604daeb507b2d0b9b1ed6fbb213"><div class="ttname"><a href="string_8h.html#aa6848604daeb507b2d0b9b1ed6fbb213">memcpy</a></div><div class="ttdeci">void * memcpy(void *dest, const void *src, u32 n)</div><div class="ttdef"><b>Definition:</b> <a href="string_8c_source.html#l00043">string.c:43</a></div></div>
+<div class="ttc" id="string_8h_html_adbbf4d6ec8d6b708c64bd6a4a18065dd"><div class="ttname"><a href="string_8h.html#adbbf4d6ec8d6b708c64bd6a4a18065dd">strlen</a></div><div class="ttdeci">u32 strlen(const char *str)</div><div class="ttdef"><b>Definition:</b> <a href="string_8c_source.html#l00009">string.c:9</a></div></div>
+<div class="ttc" id="initrd_8c_html_aeeaadee5bc43f82500dbe49fdf7516f5"><div class="ttname"><a href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a></div><div class="ttdeci">#define n(x)</div><div class="ttdef"><b>Definition:</b> <a href="initrd_8c_source.html#l00021">initrd.c:21</a></div></div>
 <div class="ttc" id="string_8h_html_a68e227ec11a9aebf782ce5f65a1be845"><div class="ttname"><a href="string_8h.html#a68e227ec11a9aebf782ce5f65a1be845">memset</a></div><div class="ttdeci">void * memset(void *s, int c, u32 n)</div><div class="ttdef"><b>Definition:</b> <a href="string_8c_source.html#l00053">string.c:53</a></div></div>
-<div class="ttc" id="string_8h_html_a71239845b4a0d31eec158f1b71cfa690"><div class="ttname"><a href="string_8h.html#a71239845b4a0d31eec158f1b71cfa690">wcslen</a></div><div class="ttdeci">int wcslen(const short *str)</div><div class="ttdef"><b>Definition:</b> <a href="string_8c_source.html#l00022">string.c:22</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_25ecda1410e8adf967f2aaaca1260861.html">inc</a></li><li class="navelem"><a class="el" href="string_8h.html">string.h</a></li>
-    <li class="footer">Generated on Thu Jan 2 2014 10:46:45 for Lambda OS by
+    <li class="footer">Generated on Mon Jan 13 2014 21:41:56 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

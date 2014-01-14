@@ -1,5 +1,6 @@
 var proc_8h =
 [
+    [ "proc_book", "structproc__book.html", "structproc__book" ],
     [ "kproc", "structkproc.html", "structkproc" ],
     [ "uproc", "structuproc.html", "structuproc" ],
     [ "BLOCK_DELAY", "proc_8h.html#a9044b9fd08939494b8fdbf1afc87fb04", null ],
@@ -7,10 +8,18 @@ var proc_8h =
     [ "MAX_CHILDREN", "proc_8h.html#ac760eaf4b19dd6359a2b1e52091ae919", null ],
     [ "MAX_PROCESSES", "proc_8h.html#a92fd8bb5807bf6abb640686f51e5df3e", null ],
     [ "MSG_BUFF_SIZE", "proc_8h.html#a5530c5385255403be548ddc1ce9df5a6", null ],
+    [ "PRIO_DRIVER", "proc_8h.html#a19c3d4b903970baad9da390bb87dc88c", null ],
+    [ "PRIO_IDLE", "proc_8h.html#a81ea189bb01a0d3df10e590165d625fc", null ],
+    [ "PRIO_KERNEL", "proc_8h.html#a859fe539536b9859fb71e7b124eeb9e3", null ],
+    [ "PRIO_KERNELPROG", "proc_8h.html#a908c00589d3e620671f8ad4a049c7342", null ],
+    [ "PRIO_USERPROG", "proc_8h.html#a481b48c843d0f4bc06674bae7157cba9", null ],
     [ "TYPE_KERNEL", "proc_8h.html#ae20aa6311a6a8dc754334afa27b65958", null ],
     [ "TYPE_RANONCE", "proc_8h.html#a6c51aeafddde87d2d27c8d8967b8371c", null ],
     [ "TYPE_REAP", "proc_8h.html#a8ac05cba5106e9dd51c78a4b429d2715", null ],
     [ "TYPE_RUNNABLE", "proc_8h.html#aea97b3123a60daf6ab7086548db31948", null ],
     [ "TYPE_VALID", "proc_8h.html#ade4b9a0ef7c3991c687c1f7e72e9b435", null ],
-    [ "TYPE_ZOMBIE", "proc_8h.html#a29489abc09d4cdc98e9c5327b720bada", null ]
+    [ "TYPE_ZOMBIE", "proc_8h.html#a29489abc09d4cdc98e9c5327b720bada", null ],
+    [ "kproc_to_uproc", "proc_8h.html#a0b74d27d5bee6bf7752511bfd6c15330", null ],
+    [ "sched_next_process", "proc_8h.html#a94a26be1f478676b524a66ae8e3959a3", null ],
+    [ "sched_processes", "proc_8h.html#abe2e84d13c7035bae99d478ee3fe02ce", null ]
 ];

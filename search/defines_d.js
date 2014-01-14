@@ -1,4 +1,26 @@
 var searchData=
 [
-  ['va_5farg',['va_arg',['../video_8c.html#a1c295ecce41e71a2ba213e32e7a5c346',1,'video.c']]]
+  ['serial_5fcom1',['SERIAL_COM1',['../serial_8h.html#a7dba27fd7950f6e40269808bd9238aca',1,'serial.h']]],
+  ['serial_5fcom2',['SERIAL_COM2',['../serial_8h.html#ae9710beee223d2d90244af5114386be5',1,'serial.h']]],
+  ['serial_5fcom3',['SERIAL_COM3',['../serial_8h.html#a43e0f7440b85cfbd0ac3e94ee7e8a5e1',1,'serial.h']]],
+  ['serial_5fcom4',['SERIAL_COM4',['../serial_8h.html#a16ecbbe0f2c0076c10b8b2e84739609c',1,'serial.h']]],
+  ['sht_5fnobits',['SHT_NOBITS',['../elf_8h.html#a820ff00317949be2ea1fd634a17dc13e',1,'elf.h']]],
+  ['sht_5fnone',['SHT_NONE',['../elf_8h.html#a5e95fc382a755070a63561ce4337d112',1,'elf.h']]],
+  ['sht_5fnote',['SHT_NOTE',['../elf_8h.html#a65506a79f0e972c851851af7b1008d94',1,'elf.h']]],
+  ['sht_5fprogbits',['SHT_PROGBITS',['../elf_8h.html#a4bff22edbae51353ba9b3572d424b91a',1,'elf.h']]],
+  ['sht_5fstrtab',['SHT_STRTAB',['../elf_8h.html#af4b916dc4ca5016fb5c374068002a532',1,'elf.h']]],
+  ['sht_5fsymtab',['SHT_SYMTAB',['../elf_8h.html#a4add7784e43ec3d3b9c09d3ffc476a81',1,'elf.h']]],
+  ['stack_5fsize',['STACK_SIZE',['../mtask_8h.html#a6423a880df59733d2d9b509c7718d3a9',1,'mtask.h']]],
+  ['stb_5fglobal',['STB_GLOBAL',['../elf_8h.html#a8091960a6799bf71a7494551dac1a2e8',1,'elf.h']]],
+  ['stb_5fhiproc',['STB_HIPROC',['../elf_8h.html#a5fa61266452365ab0e2d2ad32b87043e',1,'elf.h']]],
+  ['stb_5flocal',['STB_LOCAL',['../elf_8h.html#a72c40de459931e6f1d041201dc7398b1',1,'elf.h']]],
+  ['stb_5floproc',['STB_LOPROC',['../elf_8h.html#a4f4d0360fcb960e31e119973a472010e',1,'elf.h']]],
+  ['stb_5fweak',['STB_WEAK',['../elf_8h.html#ad4247ded90f9371e3c4d2f7dda260c93',1,'elf.h']]],
+  ['stt_5ffile',['STT_FILE',['../elf_8h.html#a983395f99446fa4d398c4e902bec34c6',1,'elf.h']]],
+  ['stt_5ffunc',['STT_FUNC',['../elf_8h.html#a9cdfedf900935f23f6e409ce378dc1d2',1,'elf.h']]],
+  ['stt_5fhiproc',['STT_HIPROC',['../elf_8h.html#a5bf951d9b37f10dfe17a1bd6b4489599',1,'elf.h']]],
+  ['stt_5floproc',['STT_LOPROC',['../elf_8h.html#aeb49b6a738078d32e5979885e26c4ddf',1,'elf.h']]],
+  ['stt_5fnotype',['STT_NOTYPE',['../elf_8h.html#aa15a54cc9c881e4d54daedc9d984c2fc',1,'elf.h']]],
+  ['stt_5fobject',['STT_OBJECT',['../elf_8h.html#ac236cc313291ed38ecb346a8b4bde6b2',1,'elf.h']]],
+  ['stt_5fsection',['STT_SECTION',['../elf_8h.html#a9e9a3c0fa59c3fc896f8e4c1872c6af1',1,'elf.h']]]
 ];

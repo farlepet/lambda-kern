@@ -103,6 +103,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="globals_r.html#index_r"><span>r</span></a></li>
       <li class="current"><a href="globals_s.html#index_s"><span>s</span></a></li>
       <li><a href="globals_t.html#index_t"><span>t</span></a></li>
+      <li><a href="globals_u.html#index_u"><span>u</span></a></li>
       <li><a href="globals_v.html#index_v"><span>v</span></a></li>
       <li><a href="globals_w.html#index_w"><span>w</span></a></li>
       <li><a href="globals_x.html#index_x"><span>x</span></a></li>
@@ -143,15 +144,29 @@ $(document).ready(function(){initNavTree('globals_s.html','');});
 <div class="textblock">Here is a list of all functions, variables, defines, enums, and typedefs with links to the files they belong to:</div>
 
 <h3><a class="anchor" id="index_s"></a>- s -</h3><ul>
+<li>sched_next_process()
+: <a class="el" href="proc_8h.html#a94a26be1f478676b524a66ae8e3959a3">proc.h</a>
+, <a class="el" href="proc_8c.html#a1193027be2b303f0e86f9b44ca8b1472">proc.c</a>
+</li>
+<li>sched_processes()
+: <a class="el" href="proc_8c.html#acebaebbb52d7f829fd1e8893d70e6b6d">proc.c</a>
+, <a class="el" href="proc_8h.html#abe2e84d13c7035bae99d478ee3fe02ce">proc.h</a>
+</li>
 <li>scrollup()
 : <a class="el" href="print_8c.html#aa181fde17108dc717d58c85791205224">print.c</a>
+</li>
+<li>seed
+: <a class="el" href="krng_8c.html#afb5c29b8c0888893bdc4e26bc60550f1">krng.c</a>
 </li>
 <li>seg_reload()
 : <a class="el" href="gdt_8c.html#a05de93b96abf57915887ef30434c31dc">gdt.c</a>
 </li>
+<li>send_lock
+: <a class="el" href="ipc_8c.html#a7c5728ae6439bf63cee7946c2d24466a">ipc.c</a>
+</li>
 <li>send_message()
-: <a class="el" href="ipc_8c.html#a82e56b3fca07f4f9a31157b24c495655">ipc.c</a>
-, <a class="el" href="ipc_8h.html#a82e56b3fca07f4f9a31157b24c495655">ipc.h</a>
+: <a class="el" href="ipc_8h.html#a82e56b3fca07f4f9a31157b24c495655">ipc.h</a>
+, <a class="el" href="ipc_8c.html#a82e56b3fca07f4f9a31157b24c495655">ipc.c</a>
 </li>
 <li>SERIAL_COM1
 : <a class="el" href="serial_8h.html#a7dba27fd7950f6e40269808bd9238aca">serial.h</a>
@@ -166,8 +181,8 @@ $(document).ready(function(){initNavTree('globals_s.html','');});
 : <a class="el" href="serial_8h.html#a16ecbbe0f2c0076c10b8b2e84739609c">serial.h</a>
 </li>
 <li>serial_init()
-: <a class="el" href="serial_8c.html#acda97a4fdc62bda9bed03c8e571390a2">serial.c</a>
-, <a class="el" href="serial_8h.html#acda97a4fdc62bda9bed03c8e571390a2">serial.h</a>
+: <a class="el" href="serial_8h.html#acda97a4fdc62bda9bed03c8e571390a2">serial.h</a>
+, <a class="el" href="serial_8c.html#acda97a4fdc62bda9bed03c8e571390a2">serial.c</a>
 </li>
 <li>serial_print()
 : <a class="el" href="serial_8h.html#a17db58618a6b2b6ee0af78ed369469fc">serial.h</a>
@@ -180,19 +195,20 @@ $(document).ready(function(){initNavTree('globals_s.html','');});
 , <a class="el" href="serial_8h.html#a457f3b658142bc5fa254481bdb5088f9">serial.h</a>
 </li>
 <li>serial_received()
-: <a class="el" href="serial_8h.html#a7223f4775e13a33d4f7cf6f8e3bdec8b">serial.h</a>
-, <a class="el" href="serial_8c.html#a7223f4775e13a33d4f7cf6f8e3bdec8b">serial.c</a>
+: <a class="el" href="serial_8c.html#a7223f4775e13a33d4f7cf6f8e3bdec8b">serial.c</a>
+, <a class="el" href="serial_8h.html#a7223f4775e13a33d4f7cf6f8e3bdec8b">serial.h</a>
 </li>
 <li>serial_write()
 : <a class="el" href="serial_8c.html#a0dd56845fd0ce137a7f81c28d9036d60">serial.c</a>
 , <a class="el" href="serial_8h.html#a0dd56845fd0ce137a7f81c28d9036d60">serial.h</a>
 </li>
 <li>set_frame()
-: <a class="el" href="paging_8c.html#a6ce6be4831ec09237b26ea3a826c6ebc">paging.c</a>
+: <a class="el" href="paging_8c.html#a65d86d5522174b72c52f3c08c848e770">paging.c</a>
+, <a class="el" href="paging_8h.html#a65d86d5522174b72c52f3c08c848e770">paging.h</a>
 </li>
 <li>set_idt()
-: <a class="el" href="idt_8c.html#af10270eb36bbdc1a3aa66dd31d529263">idt.c</a>
-, <a class="el" href="idt_8h.html#af0624103b831428526e435be5d8b959c">idt.h</a>
+: <a class="el" href="idt_8c.html#a5ecc6f2ab0fd5640e7aacf33a640f53e">idt.c</a>
+, <a class="el" href="idt_8h.html#aff168b198d128d4718212c2951d9f4a9">idt.h</a>
 </li>
 <li>set_interrupt()
 : <a class="el" href="intr_8h.html#aefa0ab9f48fa8c7cfa0b4cd1e2d1b8c9">intr.h</a>
@@ -202,24 +218,78 @@ $(document).ready(function(){initNavTree('globals_s.html','');});
 : <a class="el" href="paging_8h.html#a44844a86a2d9dfe3c92936bbe16d2d0d">paging.h</a>
 , <a class="el" href="paging_8c.html#a44844a86a2d9dfe3c92936bbe16d2d0d">paging.c</a>
 </li>
+<li>SHT_NOBITS
+: <a class="el" href="elf_8h.html#a820ff00317949be2ea1fd634a17dc13e">elf.h</a>
+</li>
+<li>SHT_NONE
+: <a class="el" href="elf_8h.html#a5e95fc382a755070a63561ce4337d112">elf.h</a>
+</li>
+<li>SHT_NOTE
+: <a class="el" href="elf_8h.html#a65506a79f0e972c851851af7b1008d94">elf.h</a>
+</li>
+<li>SHT_PROGBITS
+: <a class="el" href="elf_8h.html#a4bff22edbae51353ba9b3572d424b91a">elf.h</a>
+</li>
+<li>SHT_STRTAB
+: <a class="el" href="elf_8h.html#af4b916dc4ca5016fb5c374068002a532">elf.h</a>
+</li>
+<li>SHT_SYMTAB
+: <a class="el" href="elf_8h.html#a4add7784e43ec3d3b9c09d3ffc476a81">elf.h</a>
+</li>
 <li>size
 : <a class="el" href="paging_8c.html#acfd6273064c5acdcfc39a23a69dd4343">paging.c</a>
 , <a class="el" href="cbuff_8h.html#a439227feff9d7f55384e8780cfc2eb82">cbuff.h</a>
 </li>
 <li>sprintf()
-: <a class="el" href="video_8h.html#a3f1aefcf7ec1de49c20118ee9cbb02dc">video.h</a>
-, <a class="el" href="video_8c.html#a3f1aefcf7ec1de49c20118ee9cbb02dc">video.c</a>
+: <a class="el" href="video_8h.html#aa0649118bc3728b2a62af0b47606ff51">video.h</a>
+, <a class="el" href="video_8c.html#aa0649118bc3728b2a62af0b47606ff51">video.c</a>
 </li>
 <li>STACK_SIZE
 : <a class="el" href="mtask_8h.html#a6423a880df59733d2d9b509c7718d3a9">mtask.h</a>
+</li>
+<li>STB_GLOBAL
+: <a class="el" href="elf_8h.html#a8091960a6799bf71a7494551dac1a2e8">elf.h</a>
+</li>
+<li>STB_HIPROC
+: <a class="el" href="elf_8h.html#a5fa61266452365ab0e2d2ad32b87043e">elf.h</a>
+</li>
+<li>STB_LOCAL
+: <a class="el" href="elf_8h.html#a72c40de459931e6f1d041201dc7398b1">elf.h</a>
+</li>
+<li>STB_LOPROC
+: <a class="el" href="elf_8h.html#a4f4d0360fcb960e31e119973a472010e">elf.h</a>
+</li>
+<li>STB_WEAK
+: <a class="el" href="elf_8h.html#ad4247ded90f9371e3c4d2f7dda260c93">elf.h</a>
 </li>
 <li>strcmp()
 : <a class="el" href="string_8h.html#a6f3dcb20ff11ff9db5904c3cfb61a38c">string.h</a>
 , <a class="el" href="string_8c.html#a6f3dcb20ff11ff9db5904c3cfb61a38c">string.c</a>
 </li>
 <li>strlen()
-: <a class="el" href="string_8h.html#ae6c8de953239811a34eeeab09458e55e">string.h</a>
-, <a class="el" href="string_8c.html#ae6c8de953239811a34eeeab09458e55e">string.c</a>
+: <a class="el" href="string_8h.html#adbbf4d6ec8d6b708c64bd6a4a18065dd">string.h</a>
+, <a class="el" href="string_8c.html#adbbf4d6ec8d6b708c64bd6a4a18065dd">string.c</a>
+</li>
+<li>STT_FILE
+: <a class="el" href="elf_8h.html#a983395f99446fa4d398c4e902bec34c6">elf.h</a>
+</li>
+<li>STT_FUNC
+: <a class="el" href="elf_8h.html#a9cdfedf900935f23f6e409ce378dc1d2">elf.h</a>
+</li>
+<li>STT_HIPROC
+: <a class="el" href="elf_8h.html#a5bf951d9b37f10dfe17a1bd6b4489599">elf.h</a>
+</li>
+<li>STT_LOPROC
+: <a class="el" href="elf_8h.html#aeb49b6a738078d32e5979885e26c4ddf">elf.h</a>
+</li>
+<li>STT_NOTYPE
+: <a class="el" href="elf_8h.html#aa15a54cc9c881e4d54daedc9d984c2fc">elf.h</a>
+</li>
+<li>STT_OBJECT
+: <a class="el" href="elf_8h.html#ac236cc313291ed38ecb346a8b4bde6b2">elf.h</a>
+</li>
+<li>STT_SECTION
+: <a class="el" href="elf_8h.html#a9e9a3c0fa59c3fc896f8e4c1872c6af1">elf.h</a>
 </li>
 </ul>
 </div><!-- contents -->
@@ -227,7 +297,7 @@ $(document).ready(function(){initNavTree('globals_s.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Thu Jan 2 2014 10:46:45 for Lambda OS by
+    <li class="footer">Generated on Mon Jan 13 2014 21:41:56 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

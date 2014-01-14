@@ -7,7 +7,7 @@ var cbuff_8h =
     [ "CBUFF_INVLD", "cbuff_8h.html#ae65ba16a9b4991c964321224e40ce4ed", null ],
     [ "CBUFF_NENOD", "cbuff_8h.html#a01ba65b797990d12d14e5241ecf97700", null ],
     [ "CBUFF_SIZE", "cbuff_8h.html#aeb5e129be92622eb07254b702ecd8451", null ],
-    [ "__align", "cbuff_8h.html#ae27b07a9fba469b793141bc603c5d5cf", null ],
+    [ "__align", "cbuff_8h.html#a6f46bc43bc3ad84bcb2be20226498bce", null ],
     [ "get_cbuff", "cbuff_8h.html#a63cd14d6728d247a66109aba749c58a6", null ],
     [ "put_cbuff", "cbuff_8h.html#a0b4b658c98402c4327c349b96a455e34", null ],
     [ "read_cbuff", "cbuff_8h.html#ada1cf06c836ca281e53f4b12e889df9d", null ],

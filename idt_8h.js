@@ -11,6 +11,6 @@ var idt_8h =
     ] ],
     [ "disable_irq", "idt_8h.html#a8048d9b3854370b0eb935c3a30f81da4", null ],
     [ "enable_irq", "idt_8h.html#a9bba11dac050d594c7099b056e3249e5", null ],
-    [ "idt_init", "idt_8h.html#a88d4205d069421eb4f8e7577285f1180", null ],
-    [ "set_idt", "idt_8h.html#af0624103b831428526e435be5d8b959c", null ]
+    [ "idt_init", "idt_8h.html#a164d38a0163ec2c36993b803b8c7fdcb", null ],
+    [ "set_idt", "idt_8h.html#aff168b198d128d4718212c2951d9f4a9", null ]
 ];

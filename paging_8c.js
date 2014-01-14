@@ -1,6 +1,7 @@
 var paging_8c =
 [
     [ "alloc_head", "structalloc__head.html", "structalloc__head" ],
+    [ "__align", "paging_8c.html#acaa325523bd17bffb8ee5a2681b0a0b3", null ],
     [ "__align", "paging_8c.html#a5bfcea7443c827f97f03d696c8ea08c0", null ],
     [ "alloc_frame", "paging_8c.html#a0692bf8dce3ee5883abdba6625491437", null ],
     [ "block_page", "paging_8c.html#aef6922a09d5cc385e2f616ea32259fba", null ],
@@ -15,17 +16,16 @@ var paging_8c =
     [ "kmalloc", "paging_8c.html#a81b30532dcebcbdcf8f9159e959fb091", null ],
     [ "map_page", "paging_8c.html#ae46f6fc37cc817eba111627d8966d49d", null ],
     [ "paging_init", "paging_8c.html#ab45e6fbcdd413040eb68d48da756d3f9", null ],
-    [ "set_frame", "paging_8c.html#a6ce6be4831ec09237b26ea3a826c6ebc", null ],
+    [ "set_frame", "paging_8c.html#a65d86d5522174b72c52f3c08c848e770", null ],
     [ "set_pagedir", "paging_8c.html#a44844a86a2d9dfe3c92936bbe16d2d0d", null ],
     [ "test_frame", "paging_8c.html#aec230565edc62c3911800334ba8357bb", null ],
     [ "addr", "paging_8c.html#a9ac6ce0ce824ca84feafe5837fc9aa9a", null ],
     [ "firstframe", "paging_8c.html#addbce032f1a6b8fed9b601bbaa43d7be", null ],
-    [ "frames", "paging_8c.html#a247734b0af2e71834b2ddc3523ffa0fa", null ],
+    [ "initrd", "paging_8c.html#a0f0d06c75bc107cce1b9d47b4100701d", null ],
     [ "kernel_cr3", "paging_8c.html#aaf004ccbfa52ec6245409d7c02fba581", null ],
     [ "lastframe", "paging_8c.html#ad3a1b5c1752b2939c1d76eed0b11d2c0", null ],
     [ "magic", "paging_8c.html#a1c2f2992893a71ac0ee3f43477000176", null ],
     [ "nframes", "paging_8c.html#a3337b35daceb6ab9c5edf3bf526e469a", null ],
-    [ "pagedir", "paging_8c.html#a01d74d2dec403b67edcbc35310419b54", null ],
     [ "prealloc_frames", "paging_8c.html#a3664686d7e92f0bca2061d088362f3d8", null ],
     [ "size", "paging_8c.html#acfd6273064c5acdcfc39a23a69dd4343", null ]
 ];

@@ -103,23 +103,26 @@ $(document).ready(function(){initNavTree('proc_8h.html','');});
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
-<a href="#define-members">Macros</a>  </div>
+<a href="#define-members">Macros</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">proc.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &quot;<a class="el" href="mtask_8h_source.html">mtask.h</a>&quot;</code><br/>
-<code>#include &lt;<a class="el" href="cbuff_8h_source.html">mm/cbuff.h</a>&gt;</code><br/>
+<div class="textblock"><code>#include &lt;<a class="el" href="cbuff_8h_source.html">mm/cbuff.h</a>&gt;</code><br/>
 </div>
 <p><a href="proc_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Data Structures</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structproc__book.html">proc_book</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">&lt; Structure for process <code>book-keeping</code>  <a href="structproc__book.html#details">More...</a><br/></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structkproc.html">kproc</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">&lt; Structure of a process as seen by the kernel  <a href="structkproc.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structuproc.html">uproc</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">&lt; Structure of a process as seen by a user  <a href="structuproc.html#details">More...</a><br/></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">&lt; Structure of a process as seen by a user process  <a href="structuproc.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
@@ -157,6 +160,30 @@ Macros</h2></td></tr>
 <tr class="memitem:af7ed61bdcb0b6972c20f31fa27b91f1f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc_8h.html#af7ed61bdcb0b6972c20f31fa27b91f1f">BLOCK_MESSAGE</a>&#160;&#160;&#160;0x00000002</td></tr>
 <tr class="memdesc:af7ed61bdcb0b6972c20f31fa27b91f1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process is blocked waiting for a message.  <a href="#af7ed61bdcb0b6972c20f31fa27b91f1f">More...</a><br/></td></tr>
 <tr class="separator:af7ed61bdcb0b6972c20f31fa27b91f1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81ea189bb01a0d3df10e590165d625fc"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc_8h.html#a81ea189bb01a0d3df10e590165d625fc">PRIO_IDLE</a>&#160;&#160;&#160;0</td></tr>
+<tr class="memdesc:a81ea189bb01a0d3df10e590165d625fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Only idle processes use this priority.  <a href="#a81ea189bb01a0d3df10e590165d625fc">More...</a><br/></td></tr>
+<tr class="separator:a81ea189bb01a0d3df10e590165d625fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a481b48c843d0f4bc06674bae7157cba9"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc_8h.html#a481b48c843d0f4bc06674bae7157cba9">PRIO_USERPROG</a>&#160;&#160;&#160;1</td></tr>
+<tr class="memdesc:a481b48c843d0f4bc06674bae7157cba9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Priority for user programs.  <a href="#a481b48c843d0f4bc06674bae7157cba9">More...</a><br/></td></tr>
+<tr class="separator:a481b48c843d0f4bc06674bae7157cba9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a908c00589d3e620671f8ad4a049c7342"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc_8h.html#a908c00589d3e620671f8ad4a049c7342">PRIO_KERNELPROG</a>&#160;&#160;&#160;2</td></tr>
+<tr class="memdesc:a908c00589d3e620671f8ad4a049c7342"><td class="mdescLeft">&#160;</td><td class="mdescRight">Priority for kernel programs.  <a href="#a908c00589d3e620671f8ad4a049c7342">More...</a><br/></td></tr>
+<tr class="separator:a908c00589d3e620671f8ad4a049c7342"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19c3d4b903970baad9da390bb87dc88c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc_8h.html#a19c3d4b903970baad9da390bb87dc88c">PRIO_DRIVER</a>&#160;&#160;&#160;3</td></tr>
+<tr class="memdesc:a19c3d4b903970baad9da390bb87dc88c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Priority for kernel drivers.  <a href="#a19c3d4b903970baad9da390bb87dc88c">More...</a><br/></td></tr>
+<tr class="separator:a19c3d4b903970baad9da390bb87dc88c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a859fe539536b9859fb71e7b124eeb9e3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc_8h.html#a859fe539536b9859fb71e7b124eeb9e3">PRIO_KERNEL</a>&#160;&#160;&#160;4</td></tr>
+<tr class="memdesc:a859fe539536b9859fb71e7b124eeb9e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Priority for main kernel tasks.  <a href="#a859fe539536b9859fb71e7b124eeb9e3">More...</a><br/></td></tr>
+<tr class="separator:a859fe539536b9859fb71e7b124eeb9e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a0b74d27d5bee6bf7752511bfd6c15330"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc_8h.html#a0b74d27d5bee6bf7752511bfd6c15330">kproc_to_uproc</a> (struct <a class="el" href="structkproc.html">kproc</a> *kp, struct <a class="el" href="structuproc.html">uproc</a> *up)</td></tr>
+<tr class="separator:a0b74d27d5bee6bf7752511bfd6c15330"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe2e84d13c7035bae99d478ee3fe02ce"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc_8h.html#abe2e84d13c7035bae99d478ee3fe02ce">sched_processes</a> (void)</td></tr>
+<tr class="separator:abe2e84d13c7035bae99d478ee3fe02ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a94a26be1f478676b524a66ae8e3959a3"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="proc_8h.html#a94a26be1f478676b524a66ae8e3959a3">sched_next_process</a> (void)</td></tr>
+<tr class="separator:a94a26be1f478676b524a66ae8e3959a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a class="anchor" id="a9044b9fd08939494b8fdbf1afc87fb04"></a>
@@ -169,7 +196,7 @@ Macros</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="proc_8h_source.html#l00019">19</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
+<p>Definition at line <a class="el" href="proc_8h_source.html#l00018">18</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
 
 </div>
 </div>
@@ -183,7 +210,7 @@ Macros</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="proc_8h_source.html#l00020">20</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
+<p>Definition at line <a class="el" href="proc_8h_source.html#l00019">19</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
 
 </div>
 </div>
@@ -197,7 +224,7 @@ Macros</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="proc_8h_source.html#l00008">8</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
+<p>Definition at line <a class="el" href="proc_8h_source.html#l00007">7</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
 
 </div>
 </div>
@@ -211,7 +238,7 @@ Macros</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="proc_8h_source.html#l00007">7</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
+<p>Definition at line <a class="el" href="proc_8h_source.html#l00006">6</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
 
 </div>
 </div>
@@ -225,7 +252,77 @@ Macros</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="proc_8h_source.html#l00010">10</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
+<p>Definition at line <a class="el" href="proc_8h_source.html#l00009">9</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a19c3d4b903970baad9da390bb87dc88c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PRIO_DRIVER&#160;&#160;&#160;3</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="proc_8h_source.html#l00024">24</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a81ea189bb01a0d3df10e590165d625fc"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PRIO_IDLE&#160;&#160;&#160;0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="proc_8h_source.html#l00021">21</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a859fe539536b9859fb71e7b124eeb9e3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PRIO_KERNEL&#160;&#160;&#160;4</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="proc_8h_source.html#l00025">25</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a908c00589d3e620671f8ad4a049c7342"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PRIO_KERNELPROG&#160;&#160;&#160;2</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="proc_8h_source.html#l00023">23</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a481b48c843d0f4bc06674bae7157cba9"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PRIO_USERPROG&#160;&#160;&#160;1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="proc_8h_source.html#l00022">22</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
 
 </div>
 </div>
@@ -239,7 +336,7 @@ Macros</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="proc_8h_source.html#l00017">17</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
+<p>Definition at line <a class="el" href="proc_8h_source.html#l00016">16</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
 
 </div>
 </div>
@@ -253,7 +350,7 @@ Macros</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="proc_8h_source.html#l00013">13</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
+<p>Definition at line <a class="el" href="proc_8h_source.html#l00012">12</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
 
 </div>
 </div>
@@ -267,7 +364,7 @@ Macros</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="proc_8h_source.html#l00016">16</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
+<p>Definition at line <a class="el" href="proc_8h_source.html#l00015">15</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
 
 </div>
 </div>
@@ -281,7 +378,7 @@ Macros</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="proc_8h_source.html#l00012">12</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
+<p>Definition at line <a class="el" href="proc_8h_source.html#l00011">11</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
 
 </div>
 </div>
@@ -295,7 +392,7 @@ Macros</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="proc_8h_source.html#l00014">14</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
+<p>Definition at line <a class="el" href="proc_8h_source.html#l00013">13</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
 
 </div>
 </div>
@@ -309,8 +406,133 @@ Macros</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="proc_8h_source.html#l00015">15</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
+<p>Definition at line <a class="el" href="proc_8h_source.html#l00014">14</a> of file <a class="el" href="proc_8h_source.html">proc.h</a>.</p>
 
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
+<a class="anchor" id="a0b74d27d5bee6bf7752511bfd6c15330"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void kproc_to_uproc </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structkproc.html">kproc</a> *&#160;</td>
+          <td class="paramname"><em>kp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structuproc.html">uproc</a> *&#160;</td>
+          <td class="paramname"><em>up</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="proc_8c_source.html#l00005">5</a> of file <a class="el" href="proc_8c_source.html">proc.c</a>.</p>
+
+<p>References <a class="el" href="proc_8h_source.html#l00060">kproc::blocked</a>, <a class="el" href="proc_8h_source.html#l00083">uproc::blocked</a>, <a class="el" href="proc_8h_source.html#l00045">kproc::children</a>, <a class="el" href="proc_8h_source.html#l00079">uproc::children</a>, <a class="el" href="proc_8h_source.html#l00062">kproc::exitcode</a>, <a class="el" href="proc_8h_source.html#l00085">uproc::exitcode</a>, <a class="el" href="proc_8h_source.html#l00041">kproc::gid</a>, <a class="el" href="proc_8h_source.html#l00075">uproc::gid</a>, <a class="el" href="proc_8h_source.html#l00081">uproc::ip</a>, <a class="el" href="proc_8h_source.html#l00007">MAX_CHILDREN</a>, <a class="el" href="string_8c_source.html#l00043">memcpy()</a>, <a class="el" href="proc_8h_source.html#l00038">kproc::name</a>, <a class="el" href="proc_8h_source.html#l00072">uproc::name</a>, <a class="el" href="proc_8h_source.html#l00039">kproc::pid</a>, <a class="el" href="proc_8h_source.html#l00073">uproc::pid</a>, <a class="el" href="proc_8h_source.html#l00064">kproc::prio</a>, <a class="el" href="proc_8h_source.html#l00087">uproc::prio</a>, <a class="el" href="proc_8h_source.html#l00043">kproc::type</a>, <a class="el" href="proc_8h_source.html#l00077">uproc::type</a>, <a class="el" href="proc_8h_source.html#l00040">kproc::uid</a>, and <a class="el" href="proc_8h_source.html#l00074">uproc::uid</a>.</p>
+<div class="fragment"><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;{</div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;    <a class="code" href="string_8h.html#aa6848604daeb507b2d0b9b1ed6fbb213">memcpy</a>(up-&gt;<a class="code" href="structuproc.html#ac38fd6a982b2a3474608222755f50464">name</a>, kp-&gt;<a class="code" href="structkproc.html#a786d4a583a081780196c522d6ce84519">name</a>, 64);</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;    up-&gt;<a class="code" href="structuproc.html#a179010a9b3cc6e4dfd1dfd8fc1a7dcb8">pid</a>      = kp-&gt;<a class="code" href="structkproc.html#a563b46e8deaba8b7e63b9589a1ed9138">pid</a>;</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    up-&gt;<a class="code" href="structuproc.html#a217f73b9ed9f1aafd22accfc4d0b3144">uid</a>      = kp-&gt;<a class="code" href="structkproc.html#aaf66d09dca99fe86f7e38b101ba2cd10">uid</a>;</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    up-&gt;<a class="code" href="structuproc.html#a2f98b162e7230cfcc44fcb5197e8535e">gid</a>      = kp-&gt;<a class="code" href="structkproc.html#ada4597471fc47c8f3e106e2c5d05bf6f">gid</a>;</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    up-&gt;<a class="code" href="structuproc.html#ac5fd08073b24e38d0c1c465c9aefc238">type</a>     = kp-&gt;<a class="code" href="structkproc.html#a82c126ddae7356d863ce87198ed09ed9">type</a>;</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    up-&gt;<a class="code" href="structuproc.html#a213007d029d1e5ca05bc71c408b090bd">blocked</a>  = kp-&gt;<a class="code" href="structkproc.html#aa49316a502fdb7d9f2122e05d27e4eea">blocked</a>;</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    up-&gt;<a class="code" href="structuproc.html#ae61fcc9b3698b9e6ab0b41d9cb209cf9">exitcode</a> = kp-&gt;<a class="code" href="structkproc.html#a8fe73c2ceeddfd6ad029eb51c2c942d8">exitcode</a>;</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    up-&gt;<a class="code" href="structuproc.html#abef43d0014a3186ce2d732ca6f4f51b4">prio</a>     = kp-&gt;<a class="code" href="structkproc.html#a1a34405b903125a611f95c9c7cd8f05e">prio</a>;</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    <a class="code" href="string_8h.html#aa6848604daeb507b2d0b9b1ed6fbb213">memcpy</a>(up-&gt;<a class="code" href="structuproc.html#ad1c7e8ee25217c56e4de7b025d83e7f2">children</a>, kp-&gt;<a class="code" href="structkproc.html#ae4d5fa08f4d606200d95b81ede70d695">children</a>, <a class="code" href="proc_8h.html#ac760eaf4b19dd6359a2b1e52091ae919">MAX_CHILDREN</a> * <span class="keyword">sizeof</span>(<span class="keywordtype">int</span>));</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#ifdef ARCH_X86</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor"></span>    up-&gt;<a class="code" href="structuproc.html#a29a23d86fe1052ea821b436560a163e9">ip</a> = kp-&gt;eip;</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor"></span>}</div>
+<div class="ttc" id="structkproc_html_a82c126ddae7356d863ce87198ed09ed9"><div class="ttname"><a href="structkproc.html#a82c126ddae7356d863ce87198ed09ed9">kproc::type</a></div><div class="ttdeci">u32 type</div><div class="ttdoc">Type of process. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00043">proc.h:43</a></div></div>
+<div class="ttc" id="structuproc_html_a179010a9b3cc6e4dfd1dfd8fc1a7dcb8"><div class="ttname"><a href="structuproc.html#a179010a9b3cc6e4dfd1dfd8fc1a7dcb8">uproc::pid</a></div><div class="ttdeci">int pid</div><div class="ttdoc">Process ID. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00073">proc.h:73</a></div></div>
+<div class="ttc" id="structkproc_html_a1a34405b903125a611f95c9c7cd8f05e"><div class="ttname"><a href="structkproc.html#a1a34405b903125a611f95c9c7cd8f05e">kproc::prio</a></div><div class="ttdeci">int prio</div><div class="ttdoc">Task priority. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00064">proc.h:64</a></div></div>
+<div class="ttc" id="structkproc_html_ae4d5fa08f4d606200d95b81ede70d695"><div class="ttname"><a href="structkproc.html#ae4d5fa08f4d606200d95b81ede70d695">kproc::children</a></div><div class="ttdeci">int children[MAX_CHILDREN]</div><div class="ttdoc">Indexes of direct child processes (ex: NOT children&#39;s children) </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00045">proc.h:45</a></div></div>
+<div class="ttc" id="structuproc_html_ac38fd6a982b2a3474608222755f50464"><div class="ttname"><a href="structuproc.html#ac38fd6a982b2a3474608222755f50464">uproc::name</a></div><div class="ttdeci">char name[64]</div><div class="ttdoc">Name of the process. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00072">proc.h:72</a></div></div>
+<div class="ttc" id="structkproc_html_aa49316a502fdb7d9f2122e05d27e4eea"><div class="ttname"><a href="structkproc.html#aa49316a502fdb7d9f2122e05d27e4eea">kproc::blocked</a></div><div class="ttdeci">u32 blocked</div><div class="ttdoc">Contains flags telling whether or not this process is blocked, and by what. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00060">proc.h:60</a></div></div>
+<div class="ttc" id="proc_8h_html_ac760eaf4b19dd6359a2b1e52091ae919"><div class="ttname"><a href="proc_8h.html#ac760eaf4b19dd6359a2b1e52091ae919">MAX_CHILDREN</a></div><div class="ttdeci">#define MAX_CHILDREN</div><div class="ttdoc">Maximum number of children a parent can take care of. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00007">proc.h:7</a></div></div>
+<div class="ttc" id="structuproc_html_a2f98b162e7230cfcc44fcb5197e8535e"><div class="ttname"><a href="structuproc.html#a2f98b162e7230cfcc44fcb5197e8535e">uproc::gid</a></div><div class="ttdeci">int gid</div><div class="ttdoc">Group who owns the process. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00075">proc.h:75</a></div></div>
+<div class="ttc" id="string_8h_html_aa6848604daeb507b2d0b9b1ed6fbb213"><div class="ttname"><a href="string_8h.html#aa6848604daeb507b2d0b9b1ed6fbb213">memcpy</a></div><div class="ttdeci">void * memcpy(void *dest, const void *src, u32 n)</div><div class="ttdef"><b>Definition:</b> <a href="string_8c_source.html#l00043">string.c:43</a></div></div>
+<div class="ttc" id="structuproc_html_ac5fd08073b24e38d0c1c465c9aefc238"><div class="ttname"><a href="structuproc.html#ac5fd08073b24e38d0c1c465c9aefc238">uproc::type</a></div><div class="ttdeci">u32 type</div><div class="ttdoc">Type of process. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00077">proc.h:77</a></div></div>
+<div class="ttc" id="structkproc_html_ada4597471fc47c8f3e106e2c5d05bf6f"><div class="ttname"><a href="structkproc.html#ada4597471fc47c8f3e106e2c5d05bf6f">kproc::gid</a></div><div class="ttdeci">int gid</div><div class="ttdoc">Group who owns the process. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00041">proc.h:41</a></div></div>
+<div class="ttc" id="structuproc_html_abef43d0014a3186ce2d732ca6f4f51b4"><div class="ttname"><a href="structuproc.html#abef43d0014a3186ce2d732ca6f4f51b4">uproc::prio</a></div><div class="ttdeci">int prio</div><div class="ttdoc">Task priority. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00087">proc.h:87</a></div></div>
+<div class="ttc" id="structkproc_html_aaf66d09dca99fe86f7e38b101ba2cd10"><div class="ttname"><a href="structkproc.html#aaf66d09dca99fe86f7e38b101ba2cd10">kproc::uid</a></div><div class="ttdeci">int uid</div><div class="ttdoc">User who owns the process. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00040">proc.h:40</a></div></div>
+<div class="ttc" id="structkproc_html_a563b46e8deaba8b7e63b9589a1ed9138"><div class="ttname"><a href="structkproc.html#a563b46e8deaba8b7e63b9589a1ed9138">kproc::pid</a></div><div class="ttdeci">int pid</div><div class="ttdoc">Process ID. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00039">proc.h:39</a></div></div>
+<div class="ttc" id="structuproc_html_ae61fcc9b3698b9e6ab0b41d9cb209cf9"><div class="ttname"><a href="structuproc.html#ae61fcc9b3698b9e6ab0b41d9cb209cf9">uproc::exitcode</a></div><div class="ttdeci">int exitcode</div><div class="ttdoc">Exit code. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00085">proc.h:85</a></div></div>
+<div class="ttc" id="structkproc_html_a786d4a583a081780196c522d6ce84519"><div class="ttname"><a href="structkproc.html#a786d4a583a081780196c522d6ce84519">kproc::name</a></div><div class="ttdeci">char name[64]</div><div class="ttdoc">Name of the process. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00038">proc.h:38</a></div></div>
+<div class="ttc" id="structuproc_html_ad1c7e8ee25217c56e4de7b025d83e7f2"><div class="ttname"><a href="structuproc.html#ad1c7e8ee25217c56e4de7b025d83e7f2">uproc::children</a></div><div class="ttdeci">int children[MAX_CHILDREN]</div><div class="ttdoc">Indexes of direct child processes (ex: NOT children&#39;s children) </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00079">proc.h:79</a></div></div>
+<div class="ttc" id="structuproc_html_a213007d029d1e5ca05bc71c408b090bd"><div class="ttname"><a href="structuproc.html#a213007d029d1e5ca05bc71c408b090bd">uproc::blocked</a></div><div class="ttdeci">u32 blocked</div><div class="ttdoc">Contains flags telling whether or not this process is blocked, and by what. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00083">proc.h:83</a></div></div>
+<div class="ttc" id="structkproc_html_a8fe73c2ceeddfd6ad029eb51c2c942d8"><div class="ttname"><a href="structkproc.html#a8fe73c2ceeddfd6ad029eb51c2c942d8">kproc::exitcode</a></div><div class="ttdeci">int exitcode</div><div class="ttdoc">Exit code. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00062">proc.h:62</a></div></div>
+<div class="ttc" id="structuproc_html_a217f73b9ed9f1aafd22accfc4d0b3144"><div class="ttname"><a href="structuproc.html#a217f73b9ed9f1aafd22accfc4d0b3144">uproc::uid</a></div><div class="ttdeci">int uid</div><div class="ttdoc">User who owns the process. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00074">proc.h:74</a></div></div>
+<div class="ttc" id="structuproc_html_a29a23d86fe1052ea821b436560a163e9"><div class="ttname"><a href="structuproc.html#a29a23d86fe1052ea821b436560a163e9">uproc::ip</a></div><div class="ttdeci">u32 ip</div><div class="ttdoc">Instruction pointer. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00081">proc.h:81</a></div></div>
+</div><!-- fragment -->
+</div>
+</div>
+<a class="anchor" id="a94a26be1f478676b524a66ae8e3959a3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int sched_next_process </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="proc_8c_source.html#l00032">32</a> of file <a class="el" href="proc_8c_source.html">proc.c</a>.</p>
+
+<p>References <a class="el" href="proc_8h_source.html#l00060">kproc::blocked</a>, <a class="el" href="mtask_8c_source.html#l00140">c_proc</a>, <a class="el" href="mtask_8h_source.html#l00009">current_pid</a>, <a class="el" href="proc_8h_source.html#l00006">MAX_PROCESSES</a>, <a class="el" href="proc_8h_source.html#l00039">kproc::pid</a>, <a class="el" href="mtask_8h_source.html#l00007">procs</a>, <a class="el" href="proc_8h_source.html#l00043">kproc::type</a>, and <a class="el" href="proc_8h_source.html#l00011">TYPE_RUNNABLE</a>.</p>
+<div class="fragment"><div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;{</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">int</span> <a class="code" href="mtask_8c.html#ac5d2846cf721766486d3f6bd03734e43">c_proc</a>;</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    c_proc++;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="keywordflow">while</span>(!(<a class="code" href="mtask_8h.html#a9c534bb57476c3b6c00e7b2d6f48b498">procs</a>[c_proc].type &amp; <a class="code" href="proc_8h.html#aea97b3123a60daf6ab7086548db31948">TYPE_RUNNABLE</a>) || <a class="code" href="mtask_8h.html#a9c534bb57476c3b6c00e7b2d6f48b498">procs</a>[c_proc].blocked)</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;        { c_proc++; <span class="keywordflow">if</span>(c_proc &gt;= <a class="code" href="proc_8h.html#a92fd8bb5807bf6abb640686f51e5df3e">MAX_PROCESSES</a>) c_proc = 0; }</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <a class="code" href="mtask_8h.html#a094c35e28eaea5860385357011a6abfa">current_pid</a> = <a class="code" href="mtask_8h.html#a9c534bb57476c3b6c00e7b2d6f48b498">procs</a>[<a class="code" href="mtask_8c.html#ac5d2846cf721766486d3f6bd03734e43">c_proc</a>].<a class="code" href="structkproc.html#a563b46e8deaba8b7e63b9589a1ed9138">pid</a>;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="mtask_8c.html#ac5d2846cf721766486d3f6bd03734e43">c_proc</a>;</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;}<div class="ttc" id="mtask_8c_html_ac5d2846cf721766486d3f6bd03734e43"><div class="ttname"><a href="mtask_8c.html#ac5d2846cf721766486d3f6bd03734e43">c_proc</a></div><div class="ttdeci">static int c_proc</div><div class="ttdef"><b>Definition:</b> <a href="mtask_8c_source.html#l00140">mtask.c:140</a></div></div>
+<div class="ttc" id="proc_8h_html_a92fd8bb5807bf6abb640686f51e5df3e"><div class="ttname"><a href="proc_8h.html#a92fd8bb5807bf6abb640686f51e5df3e">MAX_PROCESSES</a></div><div class="ttdeci">#define MAX_PROCESSES</div><div class="ttdoc">Maximum amount of running processes. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00006">proc.h:6</a></div></div>
+<div class="ttc" id="mtask_8h_html_a094c35e28eaea5860385357011a6abfa"><div class="ttname"><a href="mtask_8h.html#a094c35e28eaea5860385357011a6abfa">current_pid</a></div><div class="ttdeci">int current_pid</div><div class="ttdoc">The PID of the currently running process. </div><div class="ttdef"><b>Definition:</b> <a href="mtask_8h_source.html#l00009">mtask.h:9</a></div></div>
+<div class="ttc" id="proc_8h_html_aea97b3123a60daf6ab7086548db31948"><div class="ttname"><a href="proc_8h.html#aea97b3123a60daf6ab7086548db31948">TYPE_RUNNABLE</a></div><div class="ttdeci">#define TYPE_RUNNABLE</div><div class="ttdoc">Is this process runnable? </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00011">proc.h:11</a></div></div>
+<div class="ttc" id="mtask_8h_html_a9c534bb57476c3b6c00e7b2d6f48b498"><div class="ttname"><a href="mtask_8h.html#a9c534bb57476c3b6c00e7b2d6f48b498">procs</a></div><div class="ttdeci">struct kproc procs[MAX_PROCESSES]</div><div class="ttdef"><b>Definition:</b> <a href="mtask_8h_source.html#l00007">mtask.h:7</a></div></div>
+<div class="ttc" id="structkproc_html_a563b46e8deaba8b7e63b9589a1ed9138"><div class="ttname"><a href="structkproc.html#a563b46e8deaba8b7e63b9589a1ed9138">kproc::pid</a></div><div class="ttdeci">int pid</div><div class="ttdoc">Process ID. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00039">proc.h:39</a></div></div>
+</div><!-- fragment -->
+</div>
+</div>
+<a class="anchor" id="abe2e84d13c7035bae99d478ee3fe02ce"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void sched_processes </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="proc_8c_source.html#l00027">27</a> of file <a class="el" href="proc_8c_source.html">proc.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;{</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <span class="comment">// Nothing to do with  current state of the scheduler</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;}</div>
+</div><!-- fragment -->
 </div>
 </div>
 </div><!-- contents -->
@@ -319,7 +541,7 @@ Macros</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_25ecda1410e8adf967f2aaaca1260861.html">inc</a></li><li class="navelem"><a class="el" href="dir_edc1f7041b83362b574058d4932cc899.html">proc</a></li><li class="navelem"><a class="el" href="proc_8h.html">proc.h</a></li>
-    <li class="footer">Generated on Thu Jan 2 2014 10:46:45 for Lambda OS by
+    <li class="footer">Generated on Mon Jan 13 2014 21:41:56 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

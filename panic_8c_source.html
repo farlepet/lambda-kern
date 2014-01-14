@@ -105,35 +105,37 @@ $(document).ready(function(){initNavTree('panic_8c_source.html','');});
 <div class="title">panic.c</div>  </div>
 </div><!--header-->
 <div class="contents">
-<a href="panic_8c.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="types_8h.html">types.h</a>&gt;</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="video_8h.html">video.h</a>&gt;</span></div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="intr_8h.html">intr/intr.h</a>&gt;</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;</div>
-<div class="line"><a name="l00011"></a><span class="lineno"><a class="line" href="panic_8c.html#a55968d43811b0a6a6161b11a68757fb9">   11</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="types_8h.html#a5b6df4fe38493e14648842364a76075f">__noreturn</a> <a class="code" href="panic_8c.html#a55968d43811b0a6a6161b11a68757fb9">kpanic</a>(<span class="keywordtype">char</span> *msg, ...)</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;{</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    <a class="code" href="int_8h.html#a581446e0a9841a0535fd2a35ae9b67f2">disable_interrupts</a>();</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    </div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    __builtin_va_list varg;</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    __builtin_va_start(varg, msg);</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    </div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <a class="code" href="video_8h.html#a4b25c75363a4f246991a45f8c2807210">kprintf</a>(<span class="stringliteral">&quot;Kernel panic:\n    &quot;</span>);</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    <a class="code" href="video_8h.html#a177ccd0d6d720b4876e2836ec4eab5be">kprintv</a>(msg, varg);</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    </div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    __builtin_va_end(varg);</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    </div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="comment">// Print regs here</span></div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    </div>
+<a href="panic_8c.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="intr_8h.html">intr/intr.h</a>&gt;</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="panic_8h.html">err/panic.h</a>&gt;</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="types_8h.html">types.h</a>&gt;</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="video_8h.html">video.h</a>&gt;</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;</div>
+<div class="line"><a name="l00012"></a><span class="lineno"><a class="line" href="panic_8c.html#a55968d43811b0a6a6161b11a68757fb9">   12</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="types_8h.html#a5b6df4fe38493e14648842364a76075f">__noreturn</a> <a class="code" href="panic_8c.html#a55968d43811b0a6a6161b11a68757fb9">kpanic</a>(<span class="keywordtype">char</span> *msg, ...)</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;{</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    <a class="code" href="int_8h.html#a581446e0a9841a0535fd2a35ae9b67f2">disable_interrupts</a>();</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    </div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    __builtin_va_list varg;</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    __builtin_va_start(varg, msg);</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    </div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    <a class="code" href="video_8h.html#a75d539c3cb1f92afa0150b5816a5a372">kprintf</a>(<span class="stringliteral">&quot;Kernel panic:\n    &quot;</span>);</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    <a class="code" href="video_8h.html#a177ccd0d6d720b4876e2836ec4eab5be">kprintv</a>(msg, varg);</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    </div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    __builtin_va_end(varg);</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    </div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <span class="comment">// Print regs here</span></div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    </div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="keywordflow">for</span>(;;) <a class="code" href="int_8h.html#a8f0cee2662994d427d4287d0975028f1">interrupt_halt</a>();</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;}</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    </div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keywordflow">for</span>(;;) <a class="code" href="int_8h.html#a8f0cee2662994d427d4287d0975028f1">interrupt_halt</a>();</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;}</div>
 <div class="ttc" id="types_8h_html"><div class="ttname"><a href="types_8h.html">types.h</a></div><div class="ttdoc">Contains useful types and definitions. </div></div>
 <div class="ttc" id="int_8h_html_a581446e0a9841a0535fd2a35ae9b67f2"><div class="ttname"><a href="int_8h.html#a581446e0a9841a0535fd2a35ae9b67f2">disable_interrupts</a></div><div class="ttdeci">static void disable_interrupts()</div><div class="ttdef"><b>Definition:</b> <a href="int_8h_source.html#l00011">int.h:11</a></div></div>
-<div class="ttc" id="video_8h_html_a177ccd0d6d720b4876e2836ec4eab5be"><div class="ttname"><a href="video_8h.html#a177ccd0d6d720b4876e2836ec4eab5be">kprintv</a></div><div class="ttdeci">int kprintv(char *format, __builtin_va_list varg)</div><div class="ttdoc">Creates and prints a string based on input format string and arguments. Uses print to convert the for...</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00417">video.c:417</a></div></div>
-<div class="ttc" id="types_8h_html_a5b6df4fe38493e14648842364a76075f"><div class="ttname"><a href="types_8h.html#a5b6df4fe38493e14648842364a76075f">__noreturn</a></div><div class="ttdeci">#define __noreturn</div><div class="ttdoc">The function doesn&#39;t return. </div><div class="ttdef"><b>Definition:</b> <a href="types_8h_source.html#l00043">types.h:43</a></div></div>
+<div class="ttc" id="video_8h_html_a177ccd0d6d720b4876e2836ec4eab5be"><div class="ttname"><a href="video_8h.html#a177ccd0d6d720b4876e2836ec4eab5be">kprintv</a></div><div class="ttdeci">int kprintv(char *format, __builtin_va_list varg)</div><div class="ttdoc">Creates and prints a string based on input format string and arguments. Uses print to convert the for...</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00392">video.c:392</a></div></div>
+<div class="ttc" id="types_8h_html_a5b6df4fe38493e14648842364a76075f"><div class="ttname"><a href="types_8h.html#a5b6df4fe38493e14648842364a76075f">__noreturn</a></div><div class="ttdeci">#define __noreturn</div><div class="ttdoc">The function doesn&#39;t return. </div><div class="ttdef"><b>Definition:</b> <a href="types_8h_source.html#l00044">types.h:44</a></div></div>
 <div class="ttc" id="video_8h_html"><div class="ttname"><a href="video_8h.html">video.h</a></div></div>
-<div class="ttc" id="video_8h_html_a4b25c75363a4f246991a45f8c2807210"><div class="ttname"><a href="video_8h.html#a4b25c75363a4f246991a45f8c2807210">kprintf</a></div><div class="ttdeci">int kprintf(char *format,...)</div><div class="ttdoc">Creates and prints a string based on input format string and arguments. Uses print to convert the for...</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00395">video.c:395</a></div></div>
+<div class="ttc" id="video_8h_html_a75d539c3cb1f92afa0150b5816a5a372"><div class="ttname"><a href="video_8h.html#a75d539c3cb1f92afa0150b5816a5a372">kprintf</a></div><div class="ttdeci">int kprintf(const char *format,...)</div><div class="ttdoc">Creates and prints a string based on input format string and arguments. Uses print to convert the for...</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00370">video.c:370</a></div></div>
 <div class="ttc" id="intr_8h_html"><div class="ttname"><a href="intr_8h.html">intr.h</a></div></div>
-<div class="ttc" id="panic_8c_html_a55968d43811b0a6a6161b11a68757fb9"><div class="ttname"><a href="panic_8c.html#a55968d43811b0a6a6161b11a68757fb9">kpanic</a></div><div class="ttdeci">void __noreturn kpanic(char *msg,...)</div><div class="ttdoc">Halts OS after printing error information. Disabled interrupts, prints the provided error message...</div><div class="ttdef"><b>Definition:</b> <a href="panic_8c_source.html#l00011">panic.c:11</a></div></div>
+<div class="ttc" id="panic_8c_html_a55968d43811b0a6a6161b11a68757fb9"><div class="ttname"><a href="panic_8c.html#a55968d43811b0a6a6161b11a68757fb9">kpanic</a></div><div class="ttdeci">void __noreturn kpanic(char *msg,...)</div><div class="ttdoc">Halts OS after printing error information. Disabled interrupts, prints the provided error message...</div><div class="ttdef"><b>Definition:</b> <a href="panic_8c_source.html#l00012">panic.c:12</a></div></div>
+<div class="ttc" id="panic_8h_html"><div class="ttname"><a href="panic_8h.html">panic.h</a></div></div>
 <div class="ttc" id="int_8h_html_a8f0cee2662994d427d4287d0975028f1"><div class="ttname"><a href="int_8h.html#a8f0cee2662994d427d4287d0975028f1">interrupt_halt</a></div><div class="ttdeci">static void interrupt_halt()</div><div class="ttdef"><b>Definition:</b> <a href="int_8h_source.html#l00016">int.h:16</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
@@ -141,7 +143,7 @@ $(document).ready(function(){initNavTree('panic_8c_source.html','');});
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_3dd30a497388ee684638f120a124721c.html">src</a></li><li class="navelem"><a class="el" href="dir_869172d2937aa025c7f5e99e4263c86f.html">err</a></li><li class="navelem"><a class="el" href="panic_8c.html">panic.c</a></li>
-    <li class="footer">Generated on Thu Jan 2 2014 10:46:45 for Lambda OS by
+    <li class="footer">Generated on Mon Jan 13 2014 21:41:56 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

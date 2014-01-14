@@ -108,12 +108,13 @@ $(document).ready(function(){initNavTree('error_8c.html','');});
 <div class="title">error.c File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;<a class="el" href="types_8h_source.html">types.h</a>&gt;</code><br/>
-<code>#include &lt;<a class="el" href="video_8h_source.html">video.h</a>&gt;</code><br/>
+<div class="textblock"><code>#include &lt;<a class="el" href="atomic_8h_source.html">proc/atomic.h</a>&gt;</code><br/>
 <code>#include &lt;<a class="el" href="intr_8h_source.html">intr/intr.h</a>&gt;</code><br/>
 <code>#include &lt;<a class="el" href="time_8h_source.html">time/time.h</a>&gt;</code><br/>
 <code>#include &lt;<a class="el" href="error_8h_source.html">err/error.h</a>&gt;</code><br/>
 <code>#include &lt;<a class="el" href="int_8h_source.html">intr/int.h</a>&gt;</code><br/>
+<code>#include &lt;<a class="el" href="types_8h_source.html">types.h</a>&gt;</code><br/>
+<code>#include &lt;<a class="el" href="video_8h_source.html">video.h</a>&gt;</code><br/>
 </div>
 <p><a href="error_8c_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -128,6 +129,9 @@ Variables</h2></td></tr>
 <tr class="memitem:a8549c7b2e1f521caf3513ec3aa4357b3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="error_8h.html#adfccb88929c124c0313e7a14243a0389">error_level</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="error_8c.html#a8549c7b2e1f521caf3513ec3aa4357b3">minlvl</a> = <a class="el" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a></td></tr>
 <tr class="memdesc:a8549c7b2e1f521caf3513ec3aa4357b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimal level where messages are shown.  <a href="#a8549c7b2e1f521caf3513ec3aa4357b3">More...</a><br/></td></tr>
 <tr class="separator:a8549c7b2e1f521caf3513ec3aa4357b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc25465439dca9199750cba5c774d61c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="atomic_8h.html#ad9f9c33e867de624a6e2eea0555be217">lock_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="error_8c.html#acc25465439dca9199750cba5c774d61c">kerror_lock</a> = 0</td></tr>
+<tr class="memdesc:acc25465439dca9199750cba5c774d61c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Only 1 message can be printed at a time.  <a href="#acc25465439dca9199750cba5c774d61c">More...</a><br/></td></tr>
+<tr class="separator:acc25465439dca9199750cba5c774d61c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a class="anchor" id="a2e9b2c29084c4a3193a6c1c1f39e36f8"></a>
@@ -168,36 +172,49 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="error_8c_source.html#l00020">20</a> of file <a class="el" href="error_8c_source.html">error.c</a>.</p>
+<p>Definition at line <a class="el" href="error_8c_source.html#l00022">22</a> of file <a class="el" href="error_8c_source.html">error.c</a>.</p>
 
-<p>References <a class="el" href="int_8h_source.html#l00011">disable_interrupts()</a>, <a class="el" href="int_8h_source.html#l00006">enable_interrupts()</a>, <a class="el" href="int_8h.html#ac25439f2967903295b4fc450a6f7eb84">interrupts_enabled()</a>, <a class="el" href="time_8h_source.html#l00006">kerneltime</a>, <a class="el" href="video_8c_source.html#l00395">kprintf()</a>, <a class="el" href="video_8c_source.html#l00417">kprintv()</a>, <a class="el" href="video_8c_source.html#l00018">kput()</a>, and <a class="el" href="error_8c_source.html#l00008">minlvl</a>.</p>
-<div class="fragment"><div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;{</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <span class="keywordtype">int</span> en_int = <a class="code" href="int_8h.html#ac25439f2967903295b4fc450a6f7eb84">interrupts_enabled</a>();</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <a class="code" href="int_8h.html#a581446e0a9841a0535fd2a35ae9b67f2">disable_interrupts</a>();</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    </div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keywordflow">if</span>(errlvl &gt;= <a class="code" href="error_8c.html#a8549c7b2e1f521caf3513ec3aa4357b3">minlvl</a>)</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    {</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        <a class="code" href="video_8h.html#a4b25c75363a4f246991a45f8c2807210">kprintf</a>(<span class="stringliteral">&quot;[%X%08X] &quot;</span>, (u32)(<a class="code" href="time_8h.html#a2136c1b265c64af3e757a11f3a09548b">kerneltime</a> &gt;&gt; 32), (u32)<a class="code" href="time_8h.html#a2136c1b265c64af3e757a11f3a09548b">kerneltime</a>);</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        __builtin_va_list varg;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;        __builtin_va_start(varg, msg);</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;        <a class="code" href="video_8h.html#a177ccd0d6d720b4876e2836ec4eab5be">kprintv</a>(msg, varg);</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;        __builtin_va_end(varg);</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;        <a class="code" href="video_8h.html#adaf7eb760749b489484d8c5a62932088">kput</a>(<span class="charliteral">&#39;\n&#39;</span>);</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    }</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    </div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <span class="keywordflow">if</span>(en_int) <a class="code" href="int_8h.html#a04895df25c408c90d3f11fe3149c51b2">enable_interrupts</a>();</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;}<div class="ttc" id="video_8h_html_adaf7eb760749b489484d8c5a62932088"><div class="ttname"><a href="video_8h.html#adaf7eb760749b489484d8c5a62932088">kput</a></div><div class="ttdeci">void kput(char c)</div><div class="ttdoc">Prints a single character. Uses the current architecture&#39;s put function. </div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00018">video.c:18</a></div></div>
-<div class="ttc" id="error_8c_html_a8549c7b2e1f521caf3513ec3aa4357b3"><div class="ttname"><a href="error_8c.html#a8549c7b2e1f521caf3513ec3aa4357b3">minlvl</a></div><div class="ttdeci">error_level minlvl</div><div class="ttdoc">Minimal level where messages are shown. </div><div class="ttdef"><b>Definition:</b> <a href="error_8c_source.html#l00008">error.c:8</a></div></div>
+<p>References <a class="el" href="time_8h_source.html#l00006">kerneltime</a>, <a class="el" href="error_8c_source.html#l00011">kerror_lock</a>, <a class="el" href="video_8c_source.html#l00370">kprintf()</a>, <a class="el" href="video_8c_source.html#l00392">kprintv()</a>, <a class="el" href="video_8c_source.html#l00018">kput()</a>, <a class="el" href="atomic_8h_source.html#l00034">lock()</a>, <a class="el" href="error_8c_source.html#l00009">minlvl</a>, and <a class="el" href="atomic_8h_source.html#l00029">unlock()</a>.</p>
+<div class="fragment"><div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;{</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <a class="code" href="atomic_8h.html#a4ff0d6c964f25a738f7ac402f36b85e9">lock</a>(&amp;<a class="code" href="error_8c.html#acc25465439dca9199750cba5c774d61c">kerror_lock</a>);</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="keywordflow">if</span>(errlvl &gt;= <a class="code" href="error_8c.html#a8549c7b2e1f521caf3513ec3aa4357b3">minlvl</a>)</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    {</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        <a class="code" href="video_8h.html#a75d539c3cb1f92afa0150b5816a5a372">kprintf</a>(<span class="stringliteral">&quot;[%X%08X] &quot;</span>, (u32)(<a class="code" href="time_8h.html#a2136c1b265c64af3e757a11f3a09548b">kerneltime</a> &gt;&gt; 32), (u32)<a class="code" href="time_8h.html#a2136c1b265c64af3e757a11f3a09548b">kerneltime</a>);</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;        __builtin_va_list varg;</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;        __builtin_va_start(varg, msg);</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;        <a class="code" href="video_8h.html#a177ccd0d6d720b4876e2836ec4eab5be">kprintv</a>(msg, varg);</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;        __builtin_va_end(varg);</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;        <a class="code" href="video_8h.html#adaf7eb760749b489484d8c5a62932088">kput</a>(<span class="charliteral">&#39;\n&#39;</span>);</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    }</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    </div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <a class="code" href="atomic_8h.html#ade143514c775cee0c1544bac4f9672e4">unlock</a>(&amp;<a class="code" href="error_8c.html#acc25465439dca9199750cba5c774d61c">kerror_lock</a>);</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;}<div class="ttc" id="video_8h_html_adaf7eb760749b489484d8c5a62932088"><div class="ttname"><a href="video_8h.html#adaf7eb760749b489484d8c5a62932088">kput</a></div><div class="ttdeci">void kput(char c)</div><div class="ttdoc">Prints a single character. Uses the current architecture&#39;s put function. </div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00018">video.c:18</a></div></div>
+<div class="ttc" id="error_8c_html_a8549c7b2e1f521caf3513ec3aa4357b3"><div class="ttname"><a href="error_8c.html#a8549c7b2e1f521caf3513ec3aa4357b3">minlvl</a></div><div class="ttdeci">error_level minlvl</div><div class="ttdoc">Minimal level where messages are shown. </div><div class="ttdef"><b>Definition:</b> <a href="error_8c_source.html#l00009">error.c:9</a></div></div>
 <div class="ttc" id="time_8h_html_a2136c1b265c64af3e757a11f3a09548b"><div class="ttname"><a href="time_8h.html#a2136c1b265c64af3e757a11f3a09548b">kerneltime</a></div><div class="ttdeci">u64 kerneltime</div><div class="ttdoc">Number of elapsed ticks since the PIT was initialized. </div><div class="ttdef"><b>Definition:</b> <a href="time_8h_source.html#l00006">time.h:6</a></div></div>
-<div class="ttc" id="int_8h_html_a04895df25c408c90d3f11fe3149c51b2"><div class="ttname"><a href="int_8h.html#a04895df25c408c90d3f11fe3149c51b2">enable_interrupts</a></div><div class="ttdeci">static void enable_interrupts()</div><div class="ttdef"><b>Definition:</b> <a href="int_8h_source.html#l00006">int.h:6</a></div></div>
-<div class="ttc" id="int_8h_html_a581446e0a9841a0535fd2a35ae9b67f2"><div class="ttname"><a href="int_8h.html#a581446e0a9841a0535fd2a35ae9b67f2">disable_interrupts</a></div><div class="ttdeci">static void disable_interrupts()</div><div class="ttdef"><b>Definition:</b> <a href="int_8h_source.html#l00011">int.h:11</a></div></div>
-<div class="ttc" id="video_8h_html_a177ccd0d6d720b4876e2836ec4eab5be"><div class="ttname"><a href="video_8h.html#a177ccd0d6d720b4876e2836ec4eab5be">kprintv</a></div><div class="ttdeci">int kprintv(char *format, __builtin_va_list varg)</div><div class="ttdoc">Creates and prints a string based on input format string and arguments. Uses print to convert the for...</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00417">video.c:417</a></div></div>
-<div class="ttc" id="video_8h_html_a4b25c75363a4f246991a45f8c2807210"><div class="ttname"><a href="video_8h.html#a4b25c75363a4f246991a45f8c2807210">kprintf</a></div><div class="ttdeci">int kprintf(char *format,...)</div><div class="ttdoc">Creates and prints a string based on input format string and arguments. Uses print to convert the for...</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00395">video.c:395</a></div></div>
-<div class="ttc" id="int_8h_html_ac25439f2967903295b4fc450a6f7eb84"><div class="ttname"><a href="int_8h.html#ac25439f2967903295b4fc450a6f7eb84">interrupts_enabled</a></div><div class="ttdeci">int interrupts_enabled()</div><div class="ttdoc">in intr.asm </div></div>
+<div class="ttc" id="atomic_8h_html_a4ff0d6c964f25a738f7ac402f36b85e9"><div class="ttname"><a href="atomic_8h.html#a4ff0d6c964f25a738f7ac402f36b85e9">lock</a></div><div class="ttdeci">static void lock(lock_t *lock)</div><div class="ttdef"><b>Definition:</b> <a href="atomic_8h_source.html#l00034">atomic.h:34</a></div></div>
+<div class="ttc" id="video_8h_html_a177ccd0d6d720b4876e2836ec4eab5be"><div class="ttname"><a href="video_8h.html#a177ccd0d6d720b4876e2836ec4eab5be">kprintv</a></div><div class="ttdeci">int kprintv(char *format, __builtin_va_list varg)</div><div class="ttdoc">Creates and prints a string based on input format string and arguments. Uses print to convert the for...</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00392">video.c:392</a></div></div>
+<div class="ttc" id="video_8h_html_a75d539c3cb1f92afa0150b5816a5a372"><div class="ttname"><a href="video_8h.html#a75d539c3cb1f92afa0150b5816a5a372">kprintf</a></div><div class="ttdeci">int kprintf(const char *format,...)</div><div class="ttdoc">Creates and prints a string based on input format string and arguments. Uses print to convert the for...</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00370">video.c:370</a></div></div>
+<div class="ttc" id="atomic_8h_html_ade143514c775cee0c1544bac4f9672e4"><div class="ttname"><a href="atomic_8h.html#ade143514c775cee0c1544bac4f9672e4">unlock</a></div><div class="ttdeci">static void unlock(lock_t *lock)</div><div class="ttdef"><b>Definition:</b> <a href="atomic_8h_source.html#l00029">atomic.h:29</a></div></div>
+<div class="ttc" id="error_8c_html_acc25465439dca9199750cba5c774d61c"><div class="ttname"><a href="error_8c.html#acc25465439dca9199750cba5c774d61c">kerror_lock</a></div><div class="ttdeci">lock_t kerror_lock</div><div class="ttdoc">Only 1 message can be printed at a time. </div><div class="ttdef"><b>Definition:</b> <a href="error_8c_source.html#l00011">error.c:11</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
+<a class="anchor" id="acc25465439dca9199750cba5c774d61c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="atomic_8h.html#ad9f9c33e867de624a6e2eea0555be217">lock_t</a> kerror_lock = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="error_8c_source.html#l00011">11</a> of file <a class="el" href="error_8c_source.html">error.c</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="a8549c7b2e1f521caf3513ec3aa4357b3"></a>
 <div class="memitem">
 <div class="memproto">
@@ -208,7 +225,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="error_8c_source.html#l00008">8</a> of file <a class="el" href="error_8c_source.html">error.c</a>.</p>
+<p>Definition at line <a class="el" href="error_8c_source.html#l00009">9</a> of file <a class="el" href="error_8c_source.html">error.c</a>.</p>
 
 </div>
 </div>
@@ -218,7 +235,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_3dd30a497388ee684638f120a124721c.html">src</a></li><li class="navelem"><a class="el" href="dir_869172d2937aa025c7f5e99e4263c86f.html">err</a></li><li class="navelem"><a class="el" href="error_8c.html">error.c</a></li>
-    <li class="footer">Generated on Thu Jan 2 2014 10:46:45 for Lambda OS by
+    <li class="footer">Generated on Mon Jan 13 2014 21:41:56 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

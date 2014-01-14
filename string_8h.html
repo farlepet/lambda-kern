@@ -107,20 +107,21 @@ $(document).ready(function(){initNavTree('string_8h.html','');});
 <div class="title">string.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-
+<div class="textblock"><code>#include &lt;<a class="el" href="types_8h_source.html">types.h</a>&gt;</code><br/>
+</div>
 <p><a href="string_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ae6c8de953239811a34eeeab09458e55e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="string_8h.html#ae6c8de953239811a34eeeab09458e55e">strlen</a> (const char *str)</td></tr>
-<tr class="separator:ae6c8de953239811a34eeeab09458e55e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a71239845b4a0d31eec158f1b71cfa690"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="string_8h.html#a71239845b4a0d31eec158f1b71cfa690">wcslen</a> (const short *str)</td></tr>
-<tr class="separator:a71239845b4a0d31eec158f1b71cfa690"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adbbf4d6ec8d6b708c64bd6a4a18065dd"><td class="memItemLeft" align="right" valign="top">u32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="string_8h.html#adbbf4d6ec8d6b708c64bd6a4a18065dd">strlen</a> (const char *str)</td></tr>
+<tr class="separator:adbbf4d6ec8d6b708c64bd6a4a18065dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a07eb4eed6ebf9be7878554ecad58110f"><td class="memItemLeft" align="right" valign="top">u32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="string_8h.html#a07eb4eed6ebf9be7878554ecad58110f">wcslen</a> (const short *str)</td></tr>
+<tr class="separator:a07eb4eed6ebf9be7878554ecad58110f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f3dcb20ff11ff9db5904c3cfb61a38c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="string_8h.html#a6f3dcb20ff11ff9db5904c3cfb61a38c">strcmp</a> (const char *str1, const char *str2)</td></tr>
 <tr class="separator:a6f3dcb20ff11ff9db5904c3cfb61a38c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa6848604daeb507b2d0b9b1ed6fbb213"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="string_8h.html#aa6848604daeb507b2d0b9b1ed6fbb213">memcpy</a> (void *dest, const void *src, u32 n)</td></tr>
+<tr class="memitem:aa6848604daeb507b2d0b9b1ed6fbb213"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="string_8h.html#aa6848604daeb507b2d0b9b1ed6fbb213">memcpy</a> (void *dest, const void *src, u32 <a class="el" href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a>)</td></tr>
 <tr class="separator:aa6848604daeb507b2d0b9b1ed6fbb213"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a68e227ec11a9aebf782ce5f65a1be845"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="string_8h.html#a68e227ec11a9aebf782ce5f65a1be845">memset</a> (void *s, int c, u32 n)</td></tr>
+<tr class="memitem:a68e227ec11a9aebf782ce5f65a1be845"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="string_8h.html#a68e227ec11a9aebf782ce5f65a1be845">memset</a> (void *s, int c, u32 <a class="el" href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a>)</td></tr>
 <tr class="separator:a68e227ec11a9aebf782ce5f65a1be845"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
@@ -158,10 +159,11 @@ Functions</h2></td></tr>
 <div class="fragment"><div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;{</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    u8 *dp = dest;</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keyword">const</span> u8 *sp = src;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keywordflow">while</span> (n--)</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keywordflow">while</span> (<a class="code" href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a>--)</div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;        *dp++ = *sp++;</div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keywordflow">return</span> dest;</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;}</div>
+<div class="ttc" id="initrd_8c_html_aeeaadee5bc43f82500dbe49fdf7516f5"><div class="ttname"><a href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a></div><div class="ttdeci">#define n(x)</div><div class="ttdef"><b>Definition:</b> <a href="initrd_8c_source.html#l00021">initrd.c:21</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -198,10 +200,11 @@ Functions</h2></td></tr>
 <p>Definition at line <a class="el" href="string_8c_source.html#l00053">53</a> of file <a class="el" href="string_8c_source.html">string.c</a>.</p>
 <div class="fragment"><div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;{</div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    u8 *p = s;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordflow">while</span>(n--)</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordflow">while</span>(<a class="code" href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a>--)</div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;        *p++ = (u8)c;</div>
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keywordflow">return</span> s;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;}</div><!-- fragment -->
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;}<div class="ttc" id="initrd_8c_html_aeeaadee5bc43f82500dbe49fdf7516f5"><div class="ttname"><a href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a></div><div class="ttdeci">#define n(x)</div><div class="ttdef"><b>Definition:</b> <a href="initrd_8c_source.html#l00021">initrd.c:21</a></div></div>
+</div><!-- fragment -->
 </div>
 </div>
 <a class="anchor" id="a6f3dcb20ff11ff9db5904c3cfb61a38c"></a>
@@ -245,12 +248,12 @@ Functions</h2></td></tr>
 </div><!-- fragment -->
 </div>
 </div>
-<a class="anchor" id="ae6c8de953239811a34eeeab09458e55e"></a>
+<a class="anchor" id="adbbf4d6ec8d6b708c64bd6a4a18065dd"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int strlen </td>
+          <td class="memname">u32 strlen </td>
           <td>(</td>
           <td class="paramtype">const char *&#160;</td>
           <td class="paramname"><em>str</em></td><td>)</td>
@@ -269,19 +272,19 @@ Functions</h2></td></tr>
 
 <p>Definition at line <a class="el" href="string_8c_source.html#l00009">9</a> of file <a class="el" href="string_8c_source.html">string.c</a>.</p>
 <div class="fragment"><div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;{</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    <span class="keyword">register</span> <span class="keywordtype">int</span> i = 0;</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    <span class="keyword">register</span> u32 i = 0;</div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    <span class="keywordflow">while</span>(str[i++]);</div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    <span class="keywordflow">return</span> i;</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
-<a class="anchor" id="a71239845b4a0d31eec158f1b71cfa690"></a>
+<a class="anchor" id="a07eb4eed6ebf9be7878554ecad58110f"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int wcslen </td>
+          <td class="memname">u32 wcslen </td>
           <td>(</td>
           <td class="paramtype">const short *&#160;</td>
           <td class="paramname"><em>str</em></td><td>)</td>
@@ -300,7 +303,7 @@ Functions</h2></td></tr>
 
 <p>Definition at line <a class="el" href="string_8c_source.html#l00022">22</a> of file <a class="el" href="string_8c_source.html">string.c</a>.</p>
 <div class="fragment"><div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;{</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <span class="keyword">register</span> <span class="keywordtype">int</span> i = 0;</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <span class="keyword">register</span> u32 i = 0;</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keywordflow">while</span>(str[i++]);</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="keywordflow">return</span> i;</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;}</div>
@@ -313,7 +316,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_25ecda1410e8adf967f2aaaca1260861.html">inc</a></li><li class="navelem"><a class="el" href="string_8h.html">string.h</a></li>
-    <li class="footer">Generated on Thu Jan 2 2014 10:46:45 for Lambda OS by
+    <li class="footer">Generated on Mon Jan 13 2014 21:41:56 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

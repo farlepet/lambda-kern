@@ -111,25 +111,32 @@ $(document).ready(function(){initNavTree('print_8h_source.html','');});
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor"></span></div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="types_8h.html">types.h</a>&gt;</span></div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keywordtype">void</span> <a class="code" href="print_8h.html#a0a09bc3b0111af74c7aa94b6504c3e9b">vga_clear</a>();</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="keywordtype">void</span> <a class="code" href="print_8h.html#a736a087bd4d8a71d195261774c83156c">vga_put</a>(u8 c);</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="keywordtype">void</span> <a class="code" href="print_8h.html#a9e8b3d19aaf523f469d637064e3a92cb">vga_clear</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keywordtype">void</span> <a class="code" href="print_8h.html#a3f7e1edd8e3bcb023297e27d2fe8af20">vga_put</a>(<span class="keywordtype">char</span> c);</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="keywordtype">void</span> <a class="code" href="print_8h.html#a10efa90188a292b08f1fefa5a1715550">vga_print</a>(<span class="keywordtype">char</span> *str);</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="keywordtype">void</span> <a class="code" href="print_8h.html#a10efa90188a292b08f1fefa5a1715550">vga_print</a>(<span class="keywordtype">char</span> *str);</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="keywordtype">void</span> <a class="code" href="print_8h.html#a95a8ac64ede5a05bba0c85904ff2279a">vga_printnum</a>(u32 <a class="code" href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a>, u32 base);</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;</div>
+<div class="line"><a name="l00047"></a><span class="lineno"><a class="line" href="print_8h.html#af3fe2160969807c27fc0c3f2b1205fff">   47</a></span>&#160;<span class="preprocessor">#define is_ansi(x) ((x == &#39;A&#39;) || (x == &#39;B&#39;) || (x == &#39;C&#39;) || (x == &#39;D&#39;) || (x == &#39;s&#39;) || (x == &#39;u&#39;) || (x == &#39;H&#39;) || (x == &#39;J&#39;) || (x == &#39;K&#39;) || (x == &#39;m&#39;))</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="types_8h_html"><div class="ttname"><a href="types_8h.html">types.h</a></div><div class="ttdoc">Contains useful types and definitions. </div></div>
-<div class="ttc" id="print_8h_html_a0a09bc3b0111af74c7aa94b6504c3e9b"><div class="ttname"><a href="print_8h.html#a0a09bc3b0111af74c7aa94b6504c3e9b">vga_clear</a></div><div class="ttdeci">void vga_clear()</div><div class="ttdoc">Clears VGA text. Clears the first plane of VGA memory, effectively clearing all text from the screen...</div><div class="ttdef"><b>Definition:</b> <a href="print_8c_source.html#l00019">print.c:19</a></div></div>
-<div class="ttc" id="print_8h_html_a736a087bd4d8a71d195261774c83156c"><div class="ttname"><a href="print_8h.html#a736a087bd4d8a71d195261774c83156c">vga_put</a></div><div class="ttdeci">void vga_put(u8 c)</div><div class="ttdoc">Prints a single character to the VGA screen. Checks if character is printable, if so it places it in ...</div></div>
-<div class="ttc" id="print_8h_html_a10efa90188a292b08f1fefa5a1715550"><div class="ttname"><a href="print_8h.html#a10efa90188a292b08f1fefa5a1715550">vga_print</a></div><div class="ttdeci">void vga_print(char *str)</div><div class="ttdoc">Prints a string of characters. Prints every character in a character array , until it reaches a NULL ...</div><div class="ttdef"><b>Definition:</b> <a href="print_8c_source.html#l00081">print.c:81</a></div></div>
+<div class="ttc" id="print_8h_html_a3f7e1edd8e3bcb023297e27d2fe8af20"><div class="ttname"><a href="print_8h.html#a3f7e1edd8e3bcb023297e27d2fe8af20">vga_put</a></div><div class="ttdeci">void vga_put(char c)</div><div class="ttdef"><b>Definition:</b> <a href="print_8c_source.html#l00053">print.c:53</a></div></div>
+<div class="ttc" id="print_8h_html_a9e8b3d19aaf523f469d637064e3a92cb"><div class="ttname"><a href="print_8h.html#a9e8b3d19aaf523f469d637064e3a92cb">vga_clear</a></div><div class="ttdeci">void vga_clear(void)</div><div class="ttdef"><b>Definition:</b> <a href="print_8c_source.html#l00021">print.c:21</a></div></div>
+<div class="ttc" id="initrd_8c_html_aeeaadee5bc43f82500dbe49fdf7516f5"><div class="ttname"><a href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a></div><div class="ttdeci">#define n(x)</div><div class="ttdef"><b>Definition:</b> <a href="initrd_8c_source.html#l00021">initrd.c:21</a></div></div>
+<div class="ttc" id="print_8h_html_a95a8ac64ede5a05bba0c85904ff2279a"><div class="ttname"><a href="print_8h.html#a95a8ac64ede5a05bba0c85904ff2279a">vga_printnum</a></div><div class="ttdeci">void vga_printnum(u32 n, u32 base)</div><div class="ttdef"><b>Definition:</b> <a href="print_8c_source.html#l00128">print.c:128</a></div></div>
+<div class="ttc" id="print_8h_html_a10efa90188a292b08f1fefa5a1715550"><div class="ttname"><a href="print_8h.html#a10efa90188a292b08f1fefa5a1715550">vga_print</a></div><div class="ttdeci">void vga_print(char *str)</div><div class="ttdef"><b>Definition:</b> <a href="print_8c_source.html#l00114">print.c:114</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_4a04b9aac4eefdd334a78e565f4616f2.html">arch</a></li><li class="navelem"><a class="el" href="dir_0ce8714634557e35558d1ff2ffab94d6.html">x86</a></li><li class="navelem"><a class="el" href="dir_deed9d899a1178442b05b262dad42ece.html">dev</a></li><li class="navelem"><a class="el" href="dir_370853c617da681ab4d4decb448c9a80.html">vga</a></li><li class="navelem"><a class="el" href="print_8h.html">print.h</a></li>
-    <li class="footer">Generated on Thu Jan 2 2014 10:46:44 for Lambda OS by
+    <li class="footer">Generated on Mon Jan 13 2014 21:41:56 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

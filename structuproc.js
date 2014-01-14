@@ -7,6 +7,7 @@ var structuproc =
     [ "ip", "structuproc.html#a29a23d86fe1052ea821b436560a163e9", null ],
     [ "name", "structuproc.html#ac38fd6a982b2a3474608222755f50464", null ],
     [ "pid", "structuproc.html#a179010a9b3cc6e4dfd1dfd8fc1a7dcb8", null ],
+    [ "prio", "structuproc.html#abef43d0014a3186ce2d732ca6f4f51b4", null ],
     [ "type", "structuproc.html#ac5fd08073b24e38d0c1c465c9aefc238", null ],
     [ "uid", "structuproc.html#a217f73b9ed9f1aafd22accfc4d0b3144", null ]
 ];

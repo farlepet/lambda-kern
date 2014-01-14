@@ -103,6 +103,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="globals_r.html#index_r"><span>r</span></a></li>
       <li><a href="globals_s.html#index_s"><span>s</span></a></li>
       <li><a href="globals_t.html#index_t"><span>t</span></a></li>
+      <li><a href="globals_u.html#index_u"><span>u</span></a></li>
       <li><a href="globals_v.html#index_v"><span>v</span></a></li>
       <li><a href="globals_w.html#index_w"><span>w</span></a></li>
       <li><a href="globals_x.html#index_x"><span>x</span></a></li>
@@ -144,31 +145,44 @@ $(document).ready(function(){initNavTree('globals_k.html','');});
 
 <h3><a class="anchor" id="index_k"></a>- k -</h3><ul>
 <li>kbd_wait()
-: <a class="el" href="input_8c.html#a57090e9be7f0778f8fc22fb75462b6a1">input.c</a>
+: <a class="el" href="arch_2x86_2dev_2keyb_2input_8c.html#a57090e9be7f0778f8fc22fb75462b6a1">input.c</a>
 </li>
 <li>KBUG_CPUINFO
-: <a class="el" href="ktasks_8h.html#aaaf80b9be89af256ff85fea13beee8e7aca727dd83a28d45430a8af6ee177bb93">ktasks.h</a>
+: <a class="el" href="kbug_8h.html#aaaf80b9be89af256ff85fea13beee8e7aca727dd83a28d45430a8af6ee177bb93">kbug.h</a>
+</li>
+<li>KBUG_IDEBUG
+: <a class="el" href="kbug_8h.html#aaaf80b9be89af256ff85fea13beee8e7aa695b48af0f7c9758029e3698c11e0b6">kbug.h</a>
+</li>
+<li>KBUG_IDEBUG_SUCCESS
+: <a class="el" href="kbug_8h.html#ac69c57ce3894032852d8d40a2dd47542">kbug.h</a>
+</li>
+<li>KBUG_MEMINFO
+: <a class="el" href="kbug_8h.html#aaaf80b9be89af256ff85fea13beee8e7ac6a675a8e90b1780d2677b45663498d7">kbug.h</a>
 </li>
 <li>KBUG_PROC_NPROCS
-: <a class="el" href="ktasks_8h.html#add98a98b77e7ba97cec985b131d86e69a08a1638792b0b1d9bc425f5d65d49bd7">ktasks.h</a>
+: <a class="el" href="kbug_8h.html#add98a98b77e7ba97cec985b131d86e69a08a1638792b0b1d9bc425f5d65d49bd7">kbug.h</a>
 </li>
 <li>KBUG_PROC_PROCPID
-: <a class="el" href="ktasks_8h.html#add98a98b77e7ba97cec985b131d86e69aab04edd1474a47155d99a989d02ee3c1">ktasks.h</a>
+: <a class="el" href="kbug_8h.html#add98a98b77e7ba97cec985b131d86e69aab04edd1474a47155d99a989d02ee3c1">kbug.h</a>
 </li>
 <li>kbug_proc_type
-: <a class="el" href="ktasks_8h.html#add98a98b77e7ba97cec985b131d86e69">ktasks.h</a>
+: <a class="el" href="kbug_8h.html#add98a98b77e7ba97cec985b131d86e69">kbug.h</a>
+</li>
+<li>KBUG_PROC_UPROC
+: <a class="el" href="kbug_8h.html#add98a98b77e7ba97cec985b131d86e69a55ad46b0e4a1d1992ef5da844f3b0354">kbug.h</a>
 </li>
 <li>KBUG_PROCINFO
-: <a class="el" href="ktasks_8h.html#aaaf80b9be89af256ff85fea13beee8e7a5543a84a6ab55629772bc37cdb429d15">ktasks.h</a>
+: <a class="el" href="kbug_8h.html#aaaf80b9be89af256ff85fea13beee8e7a5543a84a6ab55629772bc37cdb429d15">kbug.h</a>
 </li>
 <li>kbug_task()
-: <a class="el" href="ktasks_8c.html#ac33d611b36ccd7945b8e06318d6d9e32">ktasks.c</a>
+: <a class="el" href="kbug_8h.html#ab8a5644d2f4b5d893ccb8932438fa72d">kbug.h</a>
+, <a class="el" href="kbug_8c.html#ad7aae6d9e661bd3492c2a86653ab7f65">kbug.c</a>
 </li>
 <li>KBUG_TASK_SLOT
 : <a class="el" href="ktasks_8h.html#a5efca9e1de7de7f4c00bc064df3891b6">ktasks.h</a>
 </li>
 <li>kbug_types
-: <a class="el" href="ktasks_8h.html#aaaf80b9be89af256ff85fea13beee8e7">ktasks.h</a>
+: <a class="el" href="kbug_8h.html#aaaf80b9be89af256ff85fea13beee8e7">kbug.h</a>
 </li>
 <li>kern_end
 : <a class="el" href="paging_8h.html#a95f05feb6b1c576f3d83a427f5cd082d">paging.h</a>
@@ -181,41 +195,69 @@ $(document).ready(function(){initNavTree('globals_k.html','');});
 , <a class="el" href="paging_8h.html#aaf004ccbfa52ec6245409d7c02fba581">paging.h</a>
 </li>
 <li>kernel_task()
-: <a class="el" href="main_8c.html#ac70ea19f69be6183acf865fe196afde2">main.c</a>
+: <a class="el" href="main_8c.html#ac50391ecead7d563982940883d6ee92f">main.c</a>
 </li>
 <li>kerneltime
-: <a class="el" href="time_8c.html#a2136c1b265c64af3e757a11f3a09548b">time.c</a>
-, <a class="el" href="time_8h.html#a2136c1b265c64af3e757a11f3a09548b">time.h</a>
+: <a class="el" href="time_8h.html#a2136c1b265c64af3e757a11f3a09548b">time.h</a>
+, <a class="el" href="time_8c.html#a2136c1b265c64af3e757a11f3a09548b">time.c</a>
 </li>
 <li>kerror()
 : <a class="el" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">error.h</a>
 , <a class="el" href="error_8c.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">error.c</a>
 </li>
-<li>key_shift_table
-: <a class="el" href="input_8c.html#adc2ea260480777de57e8e8132de1a800">input.c</a>
+<li>kerror_lock
+: <a class="el" href="error_8c.html#acc25465439dca9199750cba5c774d61c">error.c</a>
 </li>
-<li>key_table
-: <a class="el" href="input_8c.html#a83adfa7b89be0c1792a57126e6cc9c6f">input.c</a>
+<li>keyb_dev
+: <a class="el" href="arch_2x86_2dev_2keyb_2input_8c.html#a1f7ca3990fc3dc484985d0b37ae6f36d">input.c</a>
 </li>
 <li>keyb_handle()
-: <a class="el" href="input_8c.html#a1aeb64c190be3ce6e74cee48de705b2c">input.c</a>
+: <a class="el" href="arch_2x86_2dev_2keyb_2input_8c.html#ac2717d9914498dbe040c17d5ea6345f7">input.c</a>
+</li>
+<li>keyb_idrv_state
+: <a class="el" href="inc_2io_2input_8h.html#a225ddd6c834589d8ee1f9b6e72a456df">input.h</a>
 </li>
 <li>keyb_init()
-: <a class="el" href="input_8c.html#aafdd73d61328d1a18bd2eb4bf1d1495b">input.c</a>
-, <a class="el" href="input_8h.html#aafdd73d61328d1a18bd2eb4bf1d1495b">input.h</a>
+: <a class="el" href="arch_2x86_2dev_2keyb_2input_8c.html#aafdd73d61328d1a18bd2eb4bf1d1495b">input.c</a>
+, <a class="el" href="arch_2x86_2dev_2keyb_2input_8h.html#a6619d370ae441f3ebf2ad257db22caab">input.h</a>
 </li>
 <li>keyb_int()
-: <a class="el" href="input_8c.html#a151c7daa574e8ec283df4fef082c772f">input.c</a>
+: <a class="el" href="arch_2x86_2dev_2keyb_2input_8c.html#a151c7daa574e8ec283df4fef082c772f">input.c</a>
+</li>
+<li>KEYB_STATE_ALT
+: <a class="el" href="inc_2io_2input_8h.html#a225ddd6c834589d8ee1f9b6e72a456dfa176e1924203876b19e9265af9ce55502">input.h</a>
+</li>
+<li>KEYB_STATE_CTRL
+: <a class="el" href="inc_2io_2input_8h.html#a225ddd6c834589d8ee1f9b6e72a456dfa05ff16a998c05607555f8a9f78b3b38a">input.h</a>
+</li>
+<li>KEYB_STATE_SHIFT
+: <a class="el" href="inc_2io_2input_8h.html#a225ddd6c834589d8ee1f9b6e72a456dfa4dd951f4e43a761596f6bb4b41badeb5">input.h</a>
+</li>
+<li>KEYB_STATE_SUPER
+: <a class="el" href="inc_2io_2input_8h.html#a225ddd6c834589d8ee1f9b6e72a456dfad6958c2ba60f9e0b5e57b36ffa05d1a6">input.h</a>
 </li>
 <li>KEYBOARD_INT
 : <a class="el" href="intr_8h.html#af293630e7d389d1cb0b293ac60ae0296">intr.h</a>
+</li>
+<li>keycode_to_char()
+: <a class="el" href="kinput_8c.html#abb482122c88c2c607e811ba6e6a7a66c">kinput.c</a>
+</li>
+<li>keytab_x86_a
+: <a class="el" href="kinput_8c.html#a024af6938fc8ac2dda7c767981d5d0ca">kinput.c</a>
 </li>
 <li>kfree()
 : <a class="el" href="paging_8c.html#a069f85a5001d71bc44d8be6532a4e432">paging.c</a>
 , <a class="el" href="paging_8h.html#a069f85a5001d71bc44d8be6532a4e432">paging.h</a>
 </li>
+<li>kinput_task()
+: <a class="el" href="kinput_8h.html#a33da48b9c873a48a35318117b1f6f234">kinput.h</a>
+, <a class="el" href="kinput_8c.html#a9987c2683d6c78702b8fc2934eadda28">kinput.c</a>
+</li>
+<li>KINPUT_TASK_SLOT
+: <a class="el" href="ktasks_8h.html#aadcbc43948d51af110b7983af34e06f0">ktasks.h</a>
+</li>
 <li>kmain()
-: <a class="el" href="main_8c.html#a6efa8ec9abc76ea5b6e3bd14db26afee">main.c</a>
+: <a class="el" href="main_8c.html#a5c6590a4f55eaa98b4ddf44ae8490799">main.c</a>
 </li>
 <li>kmalloc()
 : <a class="el" href="paging_8c.html#a81b30532dcebcbdcf8f9159e959fb091">paging.c</a>
@@ -230,48 +272,62 @@ $(document).ready(function(){initNavTree('globals_k.html','');});
 , <a class="el" href="video_8c.html#a9c163b4ca9a9bd7315ab683595dc5868">video.c</a>
 </li>
 <li>kprintf()
-: <a class="el" href="video_8c.html#a4b25c75363a4f246991a45f8c2807210">video.c</a>
-, <a class="el" href="video_8h.html#a4b25c75363a4f246991a45f8c2807210">video.h</a>
-</li>
-<li>kprintnum()
-: <a class="el" href="video_8h.html#a6b51bed3a98ab61318794a831f95186f">video.h</a>
-, <a class="el" href="video_8c.html#a6b51bed3a98ab61318794a831f95186f">video.c</a>
+: <a class="el" href="video_8c.html#a75d539c3cb1f92afa0150b5816a5a372">video.c</a>
+, <a class="el" href="video_8h.html#a75d539c3cb1f92afa0150b5816a5a372">video.h</a>
 </li>
 <li>kprintv()
 : <a class="el" href="video_8c.html#a177ccd0d6d720b4876e2836ec4eab5be">video.c</a>
 , <a class="el" href="video_8h.html#a177ccd0d6d720b4876e2836ec4eab5be">video.h</a>
 </li>
+<li>kproc_to_uproc()
+: <a class="el" href="proc_8h.html#a0b74d27d5bee6bf7752511bfd6c15330">proc.h</a>
+, <a class="el" href="proc_8c.html#a0b74d27d5bee6bf7752511bfd6c15330">proc.c</a>
+</li>
 <li>kput()
 : <a class="el" href="video_8c.html#adaf7eb760749b489484d8c5a62932088">video.c</a>
 , <a class="el" href="video_8h.html#adaf7eb760749b489484d8c5a62932088">video.h</a>
 </li>
+<li>krng_add_entropy()
+: <a class="el" href="krng_8c.html#a61fbf3a4628fdf5d7e465ed95aa03d1d">krng.c</a>
+, <a class="el" href="krng_8h.html#a61fbf3a4628fdf5d7e465ed95aa03d1d">krng.h</a>
+</li>
+<li>krng_task()
+: <a class="el" href="krng_8c.html#add445213349a893b48eba7896ee5ab52">krng.c</a>
+, <a class="el" href="krng_8h.html#ae65aae3660a818afee97c189969bc6c8">krng.h</a>
+</li>
+<li>KRNG_TASK_SLOT
+: <a class="el" href="ktasks_8h.html#a59642053e6fb128ff92d2685cc99db68">ktasks.h</a>
+</li>
 <li>ktask_pids
-: <a class="el" href="ktasks_8h.html#a451e2165b96bdd220da63dbca8441bdb">ktasks.h</a>
-, <a class="el" href="ktasks_8c.html#a451e2165b96bdd220da63dbca8441bdb">ktasks.c</a>
+: <a class="el" href="ktasks_8c.html#a451e2165b96bdd220da63dbca8441bdb">ktasks.c</a>
+, <a class="el" href="ktasks_8h.html#a451e2165b96bdd220da63dbca8441bdb">ktasks.h</a>
 </li>
 <li>KTASK_SLOTS
 : <a class="el" href="ktasks_8h.html#a11af705257675d532b25476c498b5e64">ktasks.h</a>
 </li>
 <li>KVID_KERROR
-: <a class="el" href="ktasks_8h.html#ae5808224331b5d652ae05c80e3225f93a06c58846c4fe6a355a44d59e28da40db">ktasks.h</a>
+: <a class="el" href="kvid_8h.html#ae5808224331b5d652ae05c80e3225f93a06c58846c4fe6a355a44d59e28da40db">kvid.h</a>
 </li>
 <li>KVID_PRINT
-: <a class="el" href="ktasks_8h.html#ae5808224331b5d652ae05c80e3225f93a0c1d29bf456c003a6a321e50cb29ec68">ktasks.h</a>
+: <a class="el" href="kvid_8h.html#ae5808224331b5d652ae05c80e3225f93a0c1d29bf456c003a6a321e50cb29ec68">kvid.h</a>
 </li>
 <li>kvid_task()
-: <a class="el" href="ktasks_8c.html#a149383d7d79d242009b4e328e7f2e6e6">ktasks.c</a>
+: <a class="el" href="kvid_8h.html#aed1c8676b730c75eb4d6032cf848a835">kvid.h</a>
+, <a class="el" href="kvid_8c.html#a89082a2398c1f37efde843eecfdc917f">kvid.c</a>
 </li>
 <li>KVID_TASK_SLOT
 : <a class="el" href="ktasks_8h.html#a6aa2f364a698b78440f4fd3f5787458d">ktasks.h</a>
 </li>
 <li>kvid_types
-: <a class="el" href="ktasks_8h.html#ae5808224331b5d652ae05c80e3225f93">ktasks.h</a>
+: <a class="el" href="kvid_8h.html#ae5808224331b5d652ae05c80e3225f93">kvid.h</a>
 </li>
 <li>kwprint()
 : <a class="el" href="video_8c.html#a8777a3137a89016c5748e3a2a4d7c147">video.c</a>
+, <a class="el" href="video_8h.html#a8777a3137a89016c5748e3a2a4d7c147">video.h</a>
 </li>
 <li>kwput()
 : <a class="el" href="video_8c.html#afcd2b10a34bb5913417312f00e6f3661">video.c</a>
+, <a class="el" href="video_8h.html#afcd2b10a34bb5913417312f00e6f3661">video.h</a>
 </li>
 </ul>
 </div><!-- contents -->
@@ -279,7 +335,7 @@ $(document).ready(function(){initNavTree('globals_k.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Thu Jan 2 2014 10:46:45 for Lambda OS by
+    <li class="footer">Generated on Mon Jan 13 2014 21:41:56 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

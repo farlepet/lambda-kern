@@ -113,133 +113,22 @@ $(document).ready(function(){initNavTree('mem_8h.html','');});
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:ac7f4e0245d6aa62f1605ec92e3f74e19"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem_8h.html#ac7f4e0245d6aa62f1605ec92e3f74e19">FIRST_PAGEDIR</a>&#160;&#160;&#160;(((u32)&amp;<a class="el" href="paging_8h.html#a95f05feb6b1c576f3d83a427f5cd082d">kern_end</a> &amp; 0xFFFFF000) + 0x1000)</td></tr>
-<tr class="separator:ac7f4e0245d6aa62f1605ec92e3f74e19"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9afc856859decfe58d8db3362c10956e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem_8h.html#a9afc856859decfe58d8db3362c10956e">PAGETBL_0</a>&#160;&#160;&#160;(<a class="el" href="mem_8h.html#ac7f4e0245d6aa62f1605ec92e3f74e19">FIRST_PAGEDIR</a> + 0x1000)</td></tr>
-<tr class="separator:a9afc856859decfe58d8db3362c10956e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a58de786613e888707086a37a1ea3a678"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem_8h.html#a58de786613e888707086a37a1ea3a678">PAGETBL_1</a>&#160;&#160;&#160;(<a class="el" href="mem_8h.html#a9afc856859decfe58d8db3362c10956e">PAGETBL_0</a> + 0x1000)</td></tr>
-<tr class="separator:a58de786613e888707086a37a1ea3a678"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa5ee5e12576d5780839e646187d85623"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem_8h.html#aa5ee5e12576d5780839e646187d85623">PAGETBL_2</a>&#160;&#160;&#160;(<a class="el" href="mem_8h.html#a58de786613e888707086a37a1ea3a678">PAGETBL_1</a> + 0x1000)</td></tr>
-<tr class="separator:aa5ee5e12576d5780839e646187d85623"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a51462e4a7a0582f4cdb61c330aa849b0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem_8h.html#a51462e4a7a0582f4cdb61c330aa849b0">PAGETBL_3</a>&#160;&#160;&#160;(<a class="el" href="mem_8h.html#aa5ee5e12576d5780839e646187d85623">PAGETBL_2</a> + 0x1000)</td></tr>
-<tr class="separator:a51462e4a7a0582f4cdb61c330aa849b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa0e221f556df4f0b3ca5e6b75ed7b554"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem_8h.html#aa0e221f556df4f0b3ca5e6b75ed7b554">FRAMES_TABLE</a>&#160;&#160;&#160;(<a class="el" href="mem_8h.html#a51462e4a7a0582f4cdb61c330aa849b0">PAGETBL_3</a> + 0x1000)</td></tr>
-<tr class="separator:aa0e221f556df4f0b3ca5e6b75ed7b554"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a90b0c70caf54e851c0c24330789db259"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem_8h.html#a90b0c70caf54e851c0c24330789db259">FRAMES_TABLE_SIZE</a>&#160;&#160;&#160;0x10000</td></tr>
-<tr class="separator:a90b0c70caf54e851c0c24330789db259"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a61ac234688a12bf083ac1abb075c4938"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem_8h.html#a61ac234688a12bf083ac1abb075c4938">FRAMES_START</a>&#160;&#160;&#160;(<a class="el" href="mem_8h.html#aa0e221f556df4f0b3ca5e6b75ed7b554">FRAMES_TABLE</a> + <a class="el" href="mem_8h.html#a90b0c70caf54e851c0c24330789db259">FRAMES_TABLE_SIZE</a> + 0x10000)</td></tr>
+<tr class="memitem:a61ac234688a12bf083ac1abb075c4938"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem_8h.html#a61ac234688a12bf083ac1abb075c4938">FRAMES_START</a>&#160;&#160;&#160;(((u32)&amp;<a class="el" href="paging_8h.html#a95f05feb6b1c576f3d83a427f5cd082d">kern_end</a> &amp; 0xFFFFF000) + 0x1000)</td></tr>
+<tr class="memdesc:a61ac234688a12bf083ac1abb075c4938"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start of page frames.  <a href="#a61ac234688a12bf083ac1abb075c4938">More...</a><br/></td></tr>
 <tr class="separator:a61ac234688a12bf083ac1abb075c4938"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
-<a class="anchor" id="ac7f4e0245d6aa62f1605ec92e3f74e19"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define FIRST_PAGEDIR&#160;&#160;&#160;(((u32)&amp;<a class="el" href="paging_8h.html#a95f05feb6b1c576f3d83a427f5cd082d">kern_end</a> &amp; 0xFFFFF000) + 0x1000)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="mem_8h_source.html#l00006">6</a> of file <a class="el" href="mem_8h_source.html">mem.h</a>.</p>
-
-</div>
-</div>
 <a class="anchor" id="a61ac234688a12bf083ac1abb075c4938"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define FRAMES_START&#160;&#160;&#160;(<a class="el" href="mem_8h.html#aa0e221f556df4f0b3ca5e6b75ed7b554">FRAMES_TABLE</a> + <a class="el" href="mem_8h.html#a90b0c70caf54e851c0c24330789db259">FRAMES_TABLE_SIZE</a> + 0x10000)</td>
+          <td class="memname">#define FRAMES_START&#160;&#160;&#160;(((u32)&amp;<a class="el" href="paging_8h.html#a95f05feb6b1c576f3d83a427f5cd082d">kern_end</a> &amp; 0xFFFFF000) + 0x1000)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="mem_8h_source.html#l00017">17</a> of file <a class="el" href="mem_8h_source.html">mem.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="aa0e221f556df4f0b3ca5e6b75ed7b554"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define FRAMES_TABLE&#160;&#160;&#160;(<a class="el" href="mem_8h.html#a51462e4a7a0582f4cdb61c330aa849b0">PAGETBL_3</a> + 0x1000)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="mem_8h_source.html#l00013">13</a> of file <a class="el" href="mem_8h_source.html">mem.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a90b0c70caf54e851c0c24330789db259"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define FRAMES_TABLE_SIZE&#160;&#160;&#160;0x10000</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="mem_8h_source.html#l00015">15</a> of file <a class="el" href="mem_8h_source.html">mem.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a9afc856859decfe58d8db3362c10956e"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define PAGETBL_0&#160;&#160;&#160;(<a class="el" href="mem_8h.html#ac7f4e0245d6aa62f1605ec92e3f74e19">FIRST_PAGEDIR</a> + 0x1000)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="mem_8h_source.html#l00008">8</a> of file <a class="el" href="mem_8h_source.html">mem.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a58de786613e888707086a37a1ea3a678"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define PAGETBL_1&#160;&#160;&#160;(<a class="el" href="mem_8h.html#a9afc856859decfe58d8db3362c10956e">PAGETBL_0</a> + 0x1000)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="mem_8h_source.html#l00009">9</a> of file <a class="el" href="mem_8h_source.html">mem.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="aa5ee5e12576d5780839e646187d85623"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define PAGETBL_2&#160;&#160;&#160;(<a class="el" href="mem_8h.html#a58de786613e888707086a37a1ea3a678">PAGETBL_1</a> + 0x1000)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="mem_8h_source.html#l00010">10</a> of file <a class="el" href="mem_8h_source.html">mem.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a51462e4a7a0582f4cdb61c330aa849b0"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define PAGETBL_3&#160;&#160;&#160;(<a class="el" href="mem_8h.html#aa5ee5e12576d5780839e646187d85623">PAGETBL_2</a> + 0x1000)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="mem_8h_source.html#l00011">11</a> of file <a class="el" href="mem_8h_source.html">mem.h</a>.</p>
+<p>Definition at line <a class="el" href="mem_8h_source.html#l00006">6</a> of file <a class="el" href="mem_8h_source.html">mem.h</a>.</p>
 
 </div>
 </div>
@@ -249,7 +138,7 @@ Macros</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_4a04b9aac4eefdd334a78e565f4616f2.html">arch</a></li><li class="navelem"><a class="el" href="dir_0ce8714634557e35558d1ff2ffab94d6.html">x86</a></li><li class="navelem"><a class="el" href="dir_7c13a396c62eec3d86490ab07a304f3c.html">mm</a></li><li class="navelem"><a class="el" href="mem_8h.html">mem.h</a></li>
-    <li class="footer">Generated on Thu Jan 2 2014 10:46:45 for Lambda OS by
+    <li class="footer">Generated on Mon Jan 13 2014 21:41:56 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

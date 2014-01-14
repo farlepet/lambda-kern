@@ -116,9 +116,9 @@ $(document).ready(function(){initNavTree('delay_8c.html','');});
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a3b61138b184a8ce1c6a230f81e26198a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="delay_8c.html#a3b61138b184a8ce1c6a230f81e26198a">time_over</a> (int pid)</td></tr>
-<tr class="memdesc:a3b61138b184a8ce1c6a230f81e26198a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tells <code>delay</code> it can return. Called when the time specified by <code>delay</code> has run out. Sets the value in <code>timeup</code> corresponding to the callers pid to 1.  <a href="#a3b61138b184a8ce1c6a230f81e26198a">More...</a><br/></td></tr>
-<tr class="separator:a3b61138b184a8ce1c6a230f81e26198a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ac13b8378918de0d36e28bcd8b147cd"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="delay_8c.html#a3ac13b8378918de0d36e28bcd8b147cd">time_over</a> (int pid)</td></tr>
+<tr class="memdesc:a3ac13b8378918de0d36e28bcd8b147cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tells <code>delay</code> it can return. Called when the time specified by <code>delay</code> has run out. Sets the value in <code>timeup</code> corresponding to the callers pid to 1.  <a href="#a3ac13b8378918de0d36e28bcd8b147cd">More...</a><br/></td></tr>
+<tr class="separator:a3ac13b8378918de0d36e28bcd8b147cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac636b3cbd4b41aae8ea46ae55d1ea047"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="delay_8c.html#ac636b3cbd4b41aae8ea46ae55d1ea047">delay</a> (u64 delay)</td></tr>
 <tr class="memdesc:ac636b3cbd4b41aae8ea46ae55d1ea047"><td class="mdescLeft">&#160;</td><td class="mdescRight">Waits for a specified amount of time. Creates a time block to wait for <code>delay</code> clock ticks, then waits until the time has run out.  <a href="#ac636b3cbd4b41aae8ea46ae55d1ea047">More...</a><br/></td></tr>
 <tr class="separator:ac636b3cbd4b41aae8ea46ae55d1ea047"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -152,38 +152,46 @@ Variables</h2></td></tr>
 
 <p>Definition at line <a class="el" href="delay_8c_source.html#l00026">26</a> of file <a class="el" href="delay_8c_source.html">delay.c</a>.</p>
 
-<p>References <a class="el" href="time_8c_source.html#l00043">add_time_block()</a>, <a class="el" href="proc_8h_source.html#l00019">BLOCK_DELAY</a>, <a class="el" href="proc_8h_source.html#l00047">kproc::blocked</a>, <a class="el" href="mtask_8h_source.html#l00009">current_pid</a>, <a class="el" href="int_8h_source.html#l00016">interrupt_halt()</a>, <a class="el" href="proc_8h_source.html#l00026">kproc::pid</a>, <a class="el" href="mtask_8c_source.html#l00020">proc_by_pid()</a>, <a class="el" href="mtask_8h_source.html#l00007">procs</a>, and <a class="el" href="delay_8c_source.html#l00013">time_over()</a>.</p>
+<p>References <a class="el" href="time_8c_source.html#l00043">add_time_block()</a>, <a class="el" href="proc_8h_source.html#l00018">BLOCK_DELAY</a>, <a class="el" href="proc_8h_source.html#l00060">kproc::blocked</a>, <a class="el" href="mtask_8h_source.html#l00009">current_pid</a>, <a class="el" href="int_8h_source.html#l00016">interrupt_halt()</a>, <a class="el" href="proc_8h_source.html#l00039">kproc::pid</a>, <a class="el" href="mtask_8c_source.html#l00023">proc_by_pid()</a>, <a class="el" href="mtask_8h_source.html#l00007">procs</a>, and <a class="el" href="delay_8c_source.html#l00013">time_over()</a>.</p>
 <div class="fragment"><div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;{</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keywordtype">int</span> pid = <a class="code" href="mtask_8h.html#a094c35e28eaea5860385357011a6abfa">current_pid</a>;</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <span class="keywordtype">int</span> idx = <a class="code" href="mtask_8h.html#a0772f38ccb3b1cd09a51ce5cd6a356dc">proc_by_pid</a>(pid);</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <a class="code" href="time_8h.html#ac13697ae3be32275f47296226d651f74">add_time_block</a>(&amp;<a class="code" href="delay_8c.html#a3b61138b184a8ce1c6a230f81e26198a">time_over</a>, <a class="code" href="delay_8c.html#ac636b3cbd4b41aae8ea46ae55d1ea047">delay</a>, pid);</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <a class="code" href="time_8h.html#ac13697ae3be32275f47296226d651f74">add_time_block</a>(&amp;<a class="code" href="delay_8c.html#a3ac13b8378918de0d36e28bcd8b147cd">time_over</a>, <a class="code" href="delay_8c.html#ac636b3cbd4b41aae8ea46ae55d1ea047">delay</a>, pid);</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <a class="code" href="mtask_8h.html#a9c534bb57476c3b6c00e7b2d6f48b498">procs</a>[idx].<a class="code" href="structkproc.html#aa49316a502fdb7d9f2122e05d27e4eea">blocked</a> |= <a class="code" href="proc_8h.html#a9044b9fd08939494b8fdbf1afc87fb04">BLOCK_DELAY</a>;</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <a class="code" href="int_8h.html#a8f0cee2662994d427d4287d0975028f1">interrupt_halt</a>(); <span class="comment">// Halt until multitasking comes in</span></div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;}</div>
 <div class="ttc" id="delay_8c_html_ac636b3cbd4b41aae8ea46ae55d1ea047"><div class="ttname"><a href="delay_8c.html#ac636b3cbd4b41aae8ea46ae55d1ea047">delay</a></div><div class="ttdeci">void delay(u64 delay)</div><div class="ttdoc">Waits for a specified amount of time. Creates a time block to wait for delay clock ticks...</div><div class="ttdef"><b>Definition:</b> <a href="delay_8c_source.html#l00026">delay.c:26</a></div></div>
-<div class="ttc" id="structkproc_html_aa49316a502fdb7d9f2122e05d27e4eea"><div class="ttname"><a href="structkproc.html#aa49316a502fdb7d9f2122e05d27e4eea">kproc::blocked</a></div><div class="ttdeci">u32 blocked</div><div class="ttdoc">Contains flags telling whether or not this process is blocked, and by what. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00047">proc.h:47</a></div></div>
-<div class="ttc" id="mtask_8h_html_a0772f38ccb3b1cd09a51ce5cd6a356dc"><div class="ttname"><a href="mtask_8h.html#a0772f38ccb3b1cd09a51ce5cd6a356dc">proc_by_pid</a></div><div class="ttdeci">int proc_by_pid(int pid)</div><div class="ttdef"><b>Definition:</b> <a href="mtask_8c_source.html#l00020">mtask.c:20</a></div></div>
-<div class="ttc" id="proc_8h_html_a9044b9fd08939494b8fdbf1afc87fb04"><div class="ttname"><a href="proc_8h.html#a9044b9fd08939494b8fdbf1afc87fb04">BLOCK_DELAY</a></div><div class="ttdeci">#define BLOCK_DELAY</div><div class="ttdoc">Process is blocked waiting for a delay. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00019">proc.h:19</a></div></div>
+<div class="ttc" id="structkproc_html_aa49316a502fdb7d9f2122e05d27e4eea"><div class="ttname"><a href="structkproc.html#aa49316a502fdb7d9f2122e05d27e4eea">kproc::blocked</a></div><div class="ttdeci">u32 blocked</div><div class="ttdoc">Contains flags telling whether or not this process is blocked, and by what. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00060">proc.h:60</a></div></div>
+<div class="ttc" id="mtask_8h_html_a0772f38ccb3b1cd09a51ce5cd6a356dc"><div class="ttname"><a href="mtask_8h.html#a0772f38ccb3b1cd09a51ce5cd6a356dc">proc_by_pid</a></div><div class="ttdeci">int proc_by_pid(int pid)</div><div class="ttdef"><b>Definition:</b> <a href="mtask_8c_source.html#l00023">mtask.c:23</a></div></div>
+<div class="ttc" id="proc_8h_html_a9044b9fd08939494b8fdbf1afc87fb04"><div class="ttname"><a href="proc_8h.html#a9044b9fd08939494b8fdbf1afc87fb04">BLOCK_DELAY</a></div><div class="ttdeci">#define BLOCK_DELAY</div><div class="ttdoc">Process is blocked waiting for a delay. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00018">proc.h:18</a></div></div>
 <div class="ttc" id="mtask_8h_html_a094c35e28eaea5860385357011a6abfa"><div class="ttname"><a href="mtask_8h.html#a094c35e28eaea5860385357011a6abfa">current_pid</a></div><div class="ttdeci">int current_pid</div><div class="ttdoc">The PID of the currently running process. </div><div class="ttdef"><b>Definition:</b> <a href="mtask_8h_source.html#l00009">mtask.h:9</a></div></div>
+<div class="ttc" id="delay_8c_html_a3ac13b8378918de0d36e28bcd8b147cd"><div class="ttname"><a href="delay_8c.html#a3ac13b8378918de0d36e28bcd8b147cd">time_over</a></div><div class="ttdeci">static void time_over(int pid)</div><div class="ttdoc">Tells delay it can return. Called when the time specified by delay has run out. Sets the value in tim...</div><div class="ttdef"><b>Definition:</b> <a href="delay_8c_source.html#l00013">delay.c:13</a></div></div>
 <div class="ttc" id="mtask_8h_html_a9c534bb57476c3b6c00e7b2d6f48b498"><div class="ttname"><a href="mtask_8h.html#a9c534bb57476c3b6c00e7b2d6f48b498">procs</a></div><div class="ttdeci">struct kproc procs[MAX_PROCESSES]</div><div class="ttdef"><b>Definition:</b> <a href="mtask_8h_source.html#l00007">mtask.h:7</a></div></div>
 <div class="ttc" id="int_8h_html_a8f0cee2662994d427d4287d0975028f1"><div class="ttname"><a href="int_8h.html#a8f0cee2662994d427d4287d0975028f1">interrupt_halt</a></div><div class="ttdeci">static void interrupt_halt()</div><div class="ttdef"><b>Definition:</b> <a href="int_8h_source.html#l00016">int.h:16</a></div></div>
-<div class="ttc" id="delay_8c_html_a3b61138b184a8ce1c6a230f81e26198a"><div class="ttname"><a href="delay_8c.html#a3b61138b184a8ce1c6a230f81e26198a">time_over</a></div><div class="ttdeci">void time_over(int pid)</div><div class="ttdoc">Tells delay it can return. Called when the time specified by delay has run out. Sets the value in tim...</div><div class="ttdef"><b>Definition:</b> <a href="delay_8c_source.html#l00013">delay.c:13</a></div></div>
 <div class="ttc" id="time_8h_html_ac13697ae3be32275f47296226d651f74"><div class="ttname"><a href="time_8h.html#ac13697ae3be32275f47296226d651f74">add_time_block</a></div><div class="ttdeci">void add_time_block(void(*func)(int), u64 count, int pid)</div><div class="ttdoc">Adds a time block to time_blocks[]. Finds the first free time_block and sets its values to the ones s...</div><div class="ttdef"><b>Definition:</b> <a href="time_8c_source.html#l00043">time.c:43</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
-<a class="anchor" id="a3b61138b184a8ce1c6a230f81e26198a"></a>
+<a class="anchor" id="a3ac13b8378918de0d36e28bcd8b147cd"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void time_over </td>
+          <td class="memname">static void time_over </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>pid</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -194,15 +202,15 @@ Variables</h2></td></tr>
 
 <p>Definition at line <a class="el" href="delay_8c_source.html#l00013">13</a> of file <a class="el" href="delay_8c_source.html">delay.c</a>.</p>
 
-<p>References <a class="el" href="proc_8h_source.html#l00019">BLOCK_DELAY</a>, <a class="el" href="proc_8h_source.html#l00047">kproc::blocked</a>, <a class="el" href="mtask_8c_source.html#l00020">proc_by_pid()</a>, and <a class="el" href="mtask_8h_source.html#l00007">procs</a>.</p>
+<p>References <a class="el" href="proc_8h_source.html#l00018">BLOCK_DELAY</a>, <a class="el" href="proc_8h_source.html#l00060">kproc::blocked</a>, <a class="el" href="mtask_8c_source.html#l00023">proc_by_pid()</a>, and <a class="el" href="mtask_8h_source.html#l00007">procs</a>.</p>
 <div class="fragment"><div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;{</div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    <span class="keywordtype">int</span> idx = <a class="code" href="mtask_8h.html#a0772f38ccb3b1cd09a51ce5cd6a356dc">proc_by_pid</a>(pid);</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    <a class="code" href="mtask_8h.html#a9c534bb57476c3b6c00e7b2d6f48b498">procs</a>[idx].<a class="code" href="structkproc.html#aa49316a502fdb7d9f2122e05d27e4eea">blocked</a> &amp;= ~<a class="code" href="proc_8h.html#a9044b9fd08939494b8fdbf1afc87fb04">BLOCK_DELAY</a>;</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    <a class="code" href="mtask_8h.html#a9c534bb57476c3b6c00e7b2d6f48b498">procs</a>[idx].<a class="code" href="structkproc.html#aa49316a502fdb7d9f2122e05d27e4eea">blocked</a> &amp;= (u32)~<a class="code" href="proc_8h.html#a9044b9fd08939494b8fdbf1afc87fb04">BLOCK_DELAY</a>;</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;}</div>
-<div class="ttc" id="structkproc_html_aa49316a502fdb7d9f2122e05d27e4eea"><div class="ttname"><a href="structkproc.html#aa49316a502fdb7d9f2122e05d27e4eea">kproc::blocked</a></div><div class="ttdeci">u32 blocked</div><div class="ttdoc">Contains flags telling whether or not this process is blocked, and by what. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00047">proc.h:47</a></div></div>
-<div class="ttc" id="mtask_8h_html_a0772f38ccb3b1cd09a51ce5cd6a356dc"><div class="ttname"><a href="mtask_8h.html#a0772f38ccb3b1cd09a51ce5cd6a356dc">proc_by_pid</a></div><div class="ttdeci">int proc_by_pid(int pid)</div><div class="ttdef"><b>Definition:</b> <a href="mtask_8c_source.html#l00020">mtask.c:20</a></div></div>
-<div class="ttc" id="proc_8h_html_a9044b9fd08939494b8fdbf1afc87fb04"><div class="ttname"><a href="proc_8h.html#a9044b9fd08939494b8fdbf1afc87fb04">BLOCK_DELAY</a></div><div class="ttdeci">#define BLOCK_DELAY</div><div class="ttdoc">Process is blocked waiting for a delay. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00019">proc.h:19</a></div></div>
+<div class="ttc" id="structkproc_html_aa49316a502fdb7d9f2122e05d27e4eea"><div class="ttname"><a href="structkproc.html#aa49316a502fdb7d9f2122e05d27e4eea">kproc::blocked</a></div><div class="ttdeci">u32 blocked</div><div class="ttdoc">Contains flags telling whether or not this process is blocked, and by what. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00060">proc.h:60</a></div></div>
+<div class="ttc" id="mtask_8h_html_a0772f38ccb3b1cd09a51ce5cd6a356dc"><div class="ttname"><a href="mtask_8h.html#a0772f38ccb3b1cd09a51ce5cd6a356dc">proc_by_pid</a></div><div class="ttdeci">int proc_by_pid(int pid)</div><div class="ttdef"><b>Definition:</b> <a href="mtask_8c_source.html#l00023">mtask.c:23</a></div></div>
+<div class="ttc" id="proc_8h_html_a9044b9fd08939494b8fdbf1afc87fb04"><div class="ttname"><a href="proc_8h.html#a9044b9fd08939494b8fdbf1afc87fb04">BLOCK_DELAY</a></div><div class="ttdeci">#define BLOCK_DELAY</div><div class="ttdoc">Process is blocked waiting for a delay. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00018">proc.h:18</a></div></div>
 <div class="ttc" id="mtask_8h_html_a9c534bb57476c3b6c00e7b2d6f48b498"><div class="ttname"><a href="mtask_8h.html#a9c534bb57476c3b6c00e7b2d6f48b498">procs</a></div><div class="ttdeci">struct kproc procs[MAX_PROCESSES]</div><div class="ttdef"><b>Definition:</b> <a href="mtask_8h_source.html#l00007">mtask.h:7</a></div></div>
 </div><!-- fragment -->
 </div>
@@ -228,7 +236,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_3dd30a497388ee684638f120a124721c.html">src</a></li><li class="navelem"><a class="el" href="dir_e8df725fb6d798976a973853d9f83f39.html">time</a></li><li class="navelem"><a class="el" href="delay_8c.html">delay.c</a></li>
-    <li class="footer">Generated on Thu Jan 2 2014 10:46:45 for Lambda OS by
+    <li class="footer">Generated on Mon Jan 13 2014 21:41:56 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

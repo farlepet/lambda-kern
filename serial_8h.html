@@ -142,7 +142,7 @@ Functions</h2></td></tr>
 <tr class="separator:a0dd56845fd0ce137a7f81c28d9036d60"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a17db58618a6b2b6ee0af78ed369469fc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="serial_8h.html#a17db58618a6b2b6ee0af78ed369469fc">serial_print</a> (u16 port, char *str)</td></tr>
 <tr class="separator:a17db58618a6b2b6ee0af78ed369469fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed23b1bb8877fa88b66f975f0a2ee400"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="serial_8h.html#aed23b1bb8877fa88b66f975f0a2ee400">serial_printnum</a> (u16 port, u32 n, int base)</td></tr>
+<tr class="memitem:aed23b1bb8877fa88b66f975f0a2ee400"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="serial_8h.html#aed23b1bb8877fa88b66f975f0a2ee400">serial_printnum</a> (u16 port, u32 <a class="el" href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a>, int base)</td></tr>
 <tr class="separator:aed23b1bb8877fa88b66f975f0a2ee400"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
@@ -223,12 +223,12 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="serial_8c_source.html#l00048">48</a> of file <a class="el" href="serial_8c_source.html">serial.c</a>.</p>
+<p>Definition at line <a class="el" href="serial_8c_source.html#l00049">49</a> of file <a class="el" href="serial_8c_source.html">serial.c</a>.</p>
 
 <p>References <a class="el" href="ioport_8h_source.html#l00056">inb()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;{</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a>(port + 5) &amp; 0x20;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;}</div>
+<div class="fragment"><div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;{</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a>(port + 5) &amp; 0x20;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;}</div>
 <div class="ttc" id="ioport_8h_html_a72469337290ae306e228d538970aef1d"><div class="ttname"><a href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a></div><div class="ttdeci">static u8 inb(u16 port)</div><div class="ttdoc">read a byte from a port. Grab a byte from a port. </div><div class="ttdef"><b>Definition:</b> <a href="ioport_8h_source.html#l00056">ioport.h:56</a></div></div>
 </div><!-- fragment -->
 </div>
@@ -253,18 +253,18 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="serial_8c_source.html#l00009">9</a> of file <a class="el" href="serial_8c_source.html">serial.c</a>.</p>
+<p>Definition at line <a class="el" href="serial_8c_source.html#l00010">10</a> of file <a class="el" href="serial_8c_source.html">serial.c</a>.</p>
 
 <p>References <a class="el" href="ioport_8h_source.html#l00020">outb()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;{</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(port + 1, 0x00);</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(port + 3, 0x80);</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(port + 0, 0x03);</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(port + 1, 0x00);</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(port + 3, 0x03);</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(port + 2, 0xC7);</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(port + 4, 0x0B);</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;}</div>
+<div class="fragment"><div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;{</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(port + 1, 0x00);</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(port + 3, 0x80);</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(port + 0, 0x03);</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(port + 1, 0x00);</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(port + 3, 0x03);</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(port + 2, 0xC7);</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(port + 4, 0x0B);</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;}</div>
 <div class="ttc" id="ioport_8h_html_abc086ee7e5764c55967724916e21b553"><div class="ttname"><a href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a></div><div class="ttdeci">static void outb(u16 port, u8 value)</div><div class="ttdoc">Output a byte to a port. Outputs a byte on a port. </div><div class="ttdef"><b>Definition:</b> <a href="ioport_8h_source.html#l00020">ioport.h:20</a></div></div>
 </div><!-- fragment -->
 </div>
@@ -348,15 +348,15 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section see"><dt>See Also</dt><dd><a class="el" href="serial_8h.html#a7223f4775e13a33d4f7cf6f8e3bdec8b" title="Check if a byte is waiting to be read. Check if a byte is waiting to be read. ">serial_received</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="serial_8c_source.html#l00036">36</a> of file <a class="el" href="serial_8c_source.html">serial.c</a>.</p>
+<p>Definition at line <a class="el" href="serial_8c_source.html#l00037">37</a> of file <a class="el" href="serial_8c_source.html">serial.c</a>.</p>
 
-<p>References <a class="el" href="ioport_8h_source.html#l00056">inb()</a>, and <a class="el" href="serial_8c_source.html#l00025">serial_received()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;{</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <span class="keywordflow">while</span> (<a class="code" href="serial_8c.html#a7223f4775e13a33d4f7cf6f8e3bdec8b">serial_received</a>(port) == 0);</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    </div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a>(port);</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;}</div>
-<div class="ttc" id="serial_8c_html_a7223f4775e13a33d4f7cf6f8e3bdec8b"><div class="ttname"><a href="serial_8c.html#a7223f4775e13a33d4f7cf6f8e3bdec8b">serial_received</a></div><div class="ttdeci">int serial_received(u16 port)</div><div class="ttdoc">Check if a byte is waiting to be read. Check if a byte is waiting to be read. </div><div class="ttdef"><b>Definition:</b> <a href="serial_8c_source.html#l00025">serial.c:25</a></div></div>
+<p>References <a class="el" href="ioport_8h_source.html#l00056">inb()</a>, and <a class="el" href="serial_8c_source.html#l00026">serial_received()</a>.</p>
+<div class="fragment"><div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;{</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keywordflow">while</span> (<a class="code" href="serial_8c.html#a7223f4775e13a33d4f7cf6f8e3bdec8b">serial_received</a>(port) == 0);</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    </div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keywordflow">return</span> (<span class="keywordtype">char</span>)<a class="code" href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a>(port);</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;}</div>
+<div class="ttc" id="serial_8c_html_a7223f4775e13a33d4f7cf6f8e3bdec8b"><div class="ttname"><a href="serial_8c.html#a7223f4775e13a33d4f7cf6f8e3bdec8b">serial_received</a></div><div class="ttdeci">int serial_received(u16 port)</div><div class="ttdoc">Check if a byte is waiting to be read. Check if a byte is waiting to be read. </div><div class="ttdef"><b>Definition:</b> <a href="serial_8c_source.html#l00026">serial.c:26</a></div></div>
 <div class="ttc" id="ioport_8h_html_a72469337290ae306e228d538970aef1d"><div class="ttname"><a href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a></div><div class="ttdeci">static u8 inb(u16 port)</div><div class="ttdoc">read a byte from a port. Grab a byte from a port. </div><div class="ttdef"><b>Definition:</b> <a href="ioport_8h_source.html#l00056">ioport.h:56</a></div></div>
 </div><!-- fragment -->
 </div>
@@ -381,12 +381,12 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="serial_8c_source.html#l00025">25</a> of file <a class="el" href="serial_8c_source.html">serial.c</a>.</p>
+<p>Definition at line <a class="el" href="serial_8c_source.html#l00026">26</a> of file <a class="el" href="serial_8c_source.html">serial.c</a>.</p>
 
 <p>References <a class="el" href="ioport_8h_source.html#l00056">inb()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;{</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a>(port + 5) &amp; 1;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;}</div>
+<div class="fragment"><div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;{</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a>(port + 5) &amp; 1;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;}</div>
 <div class="ttc" id="ioport_8h_html_a72469337290ae306e228d538970aef1d"><div class="ttname"><a href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a></div><div class="ttdeci">static u8 inb(u16 port)</div><div class="ttdoc">read a byte from a port. Grab a byte from a port. </div><div class="ttdef"><b>Definition:</b> <a href="ioport_8h_source.html#l00056">ioport.h:56</a></div></div>
 </div><!-- fragment -->
 </div>
@@ -423,14 +423,14 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section see"><dt>See Also</dt><dd><a class="el" href="serial_8h.html#a13526cfea7bc49d3c6d8c09b250e4401" title="Checks if it is okay to send a byte to the serial port. Checks if it is okay to send a byte to the sp...">is_transmit_empty</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="serial_8c_source.html#l00060">60</a> of file <a class="el" href="serial_8c_source.html">serial.c</a>.</p>
+<p>Definition at line <a class="el" href="serial_8c_source.html#l00061">61</a> of file <a class="el" href="serial_8c_source.html">serial.c</a>.</p>
 
-<p>References <a class="el" href="serial_8c_source.html#l00048">is_transmit_empty()</a>, and <a class="el" href="ioport_8h_source.html#l00020">outb()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;{</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keywordflow">while</span> (<a class="code" href="serial_8c.html#a13526cfea7bc49d3c6d8c09b250e4401">is_transmit_empty</a>(port) == 0);</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(port, a);</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;}<div class="ttc" id="ioport_8h_html_abc086ee7e5764c55967724916e21b553"><div class="ttname"><a href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a></div><div class="ttdeci">static void outb(u16 port, u8 value)</div><div class="ttdoc">Output a byte to a port. Outputs a byte on a port. </div><div class="ttdef"><b>Definition:</b> <a href="ioport_8h_source.html#l00020">ioport.h:20</a></div></div>
-<div class="ttc" id="serial_8c_html_a13526cfea7bc49d3c6d8c09b250e4401"><div class="ttname"><a href="serial_8c.html#a13526cfea7bc49d3c6d8c09b250e4401">is_transmit_empty</a></div><div class="ttdeci">int is_transmit_empty(u16 port)</div><div class="ttdoc">Checks if it is okay to send a byte to the serial port. Checks if it is okay to send a byte to the sp...</div><div class="ttdef"><b>Definition:</b> <a href="serial_8c_source.html#l00048">serial.c:48</a></div></div>
+<p>References <a class="el" href="serial_8c_source.html#l00049">is_transmit_empty()</a>, and <a class="el" href="ioport_8h_source.html#l00020">outb()</a>.</p>
+<div class="fragment"><div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;{</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordflow">while</span> (<a class="code" href="serial_8c.html#a13526cfea7bc49d3c6d8c09b250e4401">is_transmit_empty</a>(port) == 0);</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(port, (u8)a);</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;}<div class="ttc" id="ioport_8h_html_abc086ee7e5764c55967724916e21b553"><div class="ttname"><a href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a></div><div class="ttdeci">static void outb(u16 port, u8 value)</div><div class="ttdoc">Output a byte to a port. Outputs a byte on a port. </div><div class="ttdef"><b>Definition:</b> <a href="ioport_8h_source.html#l00020">ioport.h:20</a></div></div>
+<div class="ttc" id="serial_8c_html_a13526cfea7bc49d3c6d8c09b250e4401"><div class="ttname"><a href="serial_8c.html#a13526cfea7bc49d3c6d8c09b250e4401">is_transmit_empty</a></div><div class="ttdeci">int is_transmit_empty(u16 port)</div><div class="ttdoc">Checks if it is okay to send a byte to the serial port. Checks if it is okay to send a byte to the sp...</div><div class="ttdef"><b>Definition:</b> <a href="serial_8c_source.html#l00049">serial.c:49</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -440,7 +440,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_4a04b9aac4eefdd334a78e565f4616f2.html">arch</a></li><li class="navelem"><a class="el" href="dir_0ce8714634557e35558d1ff2ffab94d6.html">x86</a></li><li class="navelem"><a class="el" href="dir_24bd73eb6f069e2f40faac4e871f98c4.html">io</a></li><li class="navelem"><a class="el" href="serial_8h.html">serial.h</a></li>
-    <li class="footer">Generated on Thu Jan 2 2014 10:46:45 for Lambda OS by
+    <li class="footer">Generated on Mon Jan 13 2014 21:41:56 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>
