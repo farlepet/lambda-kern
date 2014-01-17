@@ -27,7 +27,7 @@ int kmain(struct multiboot_header_tag *, u32);
  */
 int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 {
-	if(magic != 0x36d76289)
+	if(magic != 0x2BADB002)
 		kpanic("Invalid magic number given by the bootloader: 0x%08X", magic);
 
 	serial_init(SERIAL_COM1);

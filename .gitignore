@@ -29,3 +29,6 @@
 *.kern
 *.iso
 *.cpio
+
+# GRUB files
+stage2_eltorito

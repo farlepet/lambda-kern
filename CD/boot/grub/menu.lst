@@ -1,0 +1,5 @@
+default 0
+timeout 3
+
+title Lambda OS
+	kernel /lambda.kern
