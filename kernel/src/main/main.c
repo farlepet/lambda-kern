@@ -19,8 +19,8 @@
 #include <dev/keyb/input.h>
 
 void kernel_task(void);
-int kmain(struct multiboot_header *, u32);
-static void iloop()
+__noreturn int kmain(struct multiboot_header *, u32);
+__noreturn static void iloop()
 {
 	kerror(ERR_BOOTINFO, "iloop()");
 	for(;;) busy_wait();
@@ -53,7 +53,7 @@ int kmain(struct multiboot_header *mboot_head, u32 magic)
 	interrupts_init();
 
 	initrd_init(mboot_head);
-iloop();	
+	
 	keyb_init();
 
 	timer_init(500);
@@ -67,7 +67,7 @@ iloop();
 
 	kerror(ERR_BOOTINFO, "Lambda OS kernel finished initializing");
 
-	for(;;) busy_wait();
+	iloop();
 }
 
 /**
