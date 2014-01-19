@@ -7,7 +7,7 @@
 #include <mm/paging.h>
 #endif
 
-struct multiboot_module_tag *initrd = 0;
+struct mboot_module *initrd = 0;
 
 
 static struct header_old_cpio *cpio = 0;
@@ -17,40 +17,35 @@ static struct header_old_cpio *files[0x1000]; // Table of initrd file locations
 static char filenames[0x1000][128];           // Table of initrd filenames
 static u32 filedata[0x1000];                  // Table of initrd data locations
 
+char *cpio_name = NULL; 
 
 #define n(x) ((x << 16) | (x >> 16))
 
-void initrd_init(struct multiboot_header_tag* mboot_tag, char *name)
+void initrd_init(struct multiboot_header* mboot_head)
 {
 	kerror(ERR_BOOTINFO, "Loading InitCPIO");
 
-	u32 size = mboot_tag->size;
-	u32 i = 8; // Bypass multiboot_header_tag
-	while(i < size)
+	struct mboot_module *mod = (struct mboot_module *)mboot_head->mod_addr;
+	u32 modcnt = mboot_head->mod_count;
+
+	u32 i = 0;
+	while(i < modcnt)
 	{
-		struct multiboot_tag *tag = (struct multiboot_tag *)(i + (ptr_t)mboot_tag);
-
-		if(tag->type == 3)
-		{
-			struct multiboot_module_tag *mod = (struct multiboot_module_tag *)tag;
-
 	#if defined(ARCH_X86)
-			ptr_t mod_start = (u32)mod->mod_start;
-			ptr_t mod_end   = (u32)mod->mod_end;
+		ptr_t mod_start = (u32)mod->mod_start;
+		ptr_t mod_end   = (u32)mod->mod_end;
 
-			u32 b = ((mod_start - (u32)firstframe) / 0x1000);
-			for(; b < ((mod_end - (u32)firstframe) / 0x1000) + 1; b++)
-			{
-				set_frame(b, 1); // Make sure that the module is not overwritten
-				map_page((b * 0x1000) + firstframe, (b * 0x1000) + firstframe, 3);
-			}
-	#endif
-
-
-			if(!strcmp((char *)mod->name, name)) initrd = mod;
+		u32 b = ((mod_start - (u32)firstframe) / 0x1000);
+		for(; b < ((mod_end - (u32)firstframe) / 0x1000) + 1; b++)
+		{
+			set_frame(b, 1); // Make sure that the module is not overwritten
+			map_page((b * 0x1000) + firstframe, (b * 0x1000) + firstframe, 3);
 		}
-		i += tag->size;
-		if(i & 0x07) i = (i & (u32)~0x07) + 8; // Entries are aways padded
+	#endif
+		
+		if(!strcmp((char *)mod->string, cpio_name)) initrd = mod;
+		i++;
+		mod++;
 	}
 	
 	if(!initrd)
@@ -108,6 +103,8 @@ void initrd_init(struct multiboot_header_tag* mboot_tag, char *name)
 
 void *initrd_find_file(char *name, u32 *size)
 {
+	if(!initrd) return 0;
+
 	int cidx = 0;
 	while(cidx <= n_files)
 	{

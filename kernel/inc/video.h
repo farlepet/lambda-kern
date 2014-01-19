@@ -4,9 +4,6 @@
 #include <types.h>
 #include <multiboot.h>
 
-void init_video(struct multiboot_header_tag* mboot_tag);
-
-
 
 /**
  * \brief Prints a single character.

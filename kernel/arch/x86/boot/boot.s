@@ -21,8 +21,8 @@ mboot:
 #	.quad 0
 
 	.long 0x1BADB002
-	.long 3
-	.long -(0x1BADB002 + 3)
+	.long 0x03
+	.long -(0x1BADB002 + 0x03)
 
 mbootEnd:
 

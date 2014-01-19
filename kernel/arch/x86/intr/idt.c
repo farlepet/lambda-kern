@@ -1,6 +1,7 @@
 #include <types.h>
 #include <io/ioport.h>
 #include "idt.h"
+#include <err/error.h>
 
 extern void load_idt(u64 *, u32); //!< Use `lidt` to set the IDT pointer.
 extern void dummy_int(); //!< Dummy interrupt se all IRQ's can function, even if not setup.
@@ -37,7 +38,9 @@ static void remap_pic(u8 off1, u8 off2)
  */
 static void reload_idt()
 {
+	kerror(ERR_BOOTINFO, "      -> Loading IDT");
 	load_idt(IDT, sizeof(IDT)-1);
+	kerror(ERR_BOOTINFO, "      -> Remapping IRQ's");
 	remap_pic(0x20, 0x28);
 }
 
@@ -49,10 +52,14 @@ static void reload_idt()
  */
 void idt_init()
 {
+	kerror(ERR_BOOTINFO, "      -> Setting dummy interrupt vectors");
 	int i = 0;
 	for(; i < 256; i++)
+	{
+		kerror(ERR_INFO, "        -> INT %02X", i);
 		IDT[i] = IDT_ENTRY((u32)&dummy_int, 0x08, 0x8E);
-	
+	}
+
 	reload_idt();
 }
 

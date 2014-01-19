@@ -3,3 +3,14 @@ timeout 3
 
 title Lambda OS
 	kernel /lambda.kern
+
+title Lambda OS -- InitCPIO
+	kernel /lambda.kern
+	module /initrd.cpio -cpio /initrd.cpio
+
+title Lambda OS -- Serial Console
+	kernel /lambda.kern -sCOM1
+
+title Lambda OS -- Serial Console -- InitCPIO
+	kernel /lambda.kern -sCOM1 -cpio /initrd.cpio
+	module /initrd.cpio

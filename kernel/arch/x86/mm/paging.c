@@ -159,7 +159,10 @@ void clear_pagedir(u32 *dir)
 {
 	int i = 0;
 	for(i = 0; i < 1024; i++)
+	{
+		kerror(ERR_INFO, "      -> PDIRENT %X", i);
 		dir[i] = 2; // supervisor, rw, not present.
+	}
 }
 
 /**
@@ -227,22 +230,36 @@ void paging_init(u32 eom)
 
 	nframes = (u32)(eom - (u32)firstframe) / 0x1000;
 	
+	kerror(ERR_BOOTINFO, "  -> Clearing page frame table"); 
+	
 	u32 i = 0;
 	for(; i < nframes; i += 32, frames[i] = 0);
 
+	kerror(ERR_BOOTINFO, "  -> Clearing page directory");
+
 	clear_pagedir(pagedir);
+
+	kerror(ERR_BOOTINFO, "  -> Filling first 4 page tables");
+
 	fill_pagetable((void *)init_tbls[0], 0x00000000);
 	fill_pagetable((void *)init_tbls[1], 0x00400000);
 	fill_pagetable((void *)init_tbls[2], 0x00800000);
 	fill_pagetable((void *)init_tbls[3], 0x00C00000);
+
+	kerror(ERR_BOOTINFO, "  -> Setting page directory entries");
 
 	pagedir[0] = (u32)init_tbls[0] | 3;
 	pagedir[1] = (u32)init_tbls[1] | 3;
 	pagedir[2] = (u32)init_tbls[2] | 3;
 	pagedir[3] = (u32)init_tbls[3] | 3;
 
+	kerror(ERR_BOOTINFO, "  -> Setting page directory");
+
 	kernel_cr3 = (u32)pagedir;
 	set_pagedir(pagedir);
+
+	kerror(ERR_BOOTINFO, "  -> Enabling paging");
+
 	enable_paging();
 }
 

@@ -7,12 +7,8 @@
 #include <intr/idt.h>
 #include <intr/pit.h>
 #include <intr/int.h>
+#include <mm/gdt.h>
 extern void exceptions_init(); //!< Initializes basic exception handlers. Found in intr/exceptions.asm
-
-#elif defined(ARCH_X86_64)
-
-#include <intr/idt.h>
-#include <intr/int.h>
 
 #endif
 
@@ -22,9 +18,15 @@ extern void exceptions_init(); //!< Initializes basic exception handlers. Found 
  */
 void interrupts_init()
 {
+	kerror(ERR_BOOTINFO, "Enabling Interrupts");
 #if  defined(ARCH_X86)
+	kerror(ERR_BOOTINFO, "  -> GDT");
+	gdt_init();
+	kerror(ERR_BOOTINFO, "  -> IDT");
 	idt_init();
+	kerror(ERR_BOOTINFO, "  -> Exceptions");
 	exceptions_init();
+	kerror(ERR_BOOTINFO, "  -> STI");
 	enable_interrupts();
 #endif
 	kerror(ERR_BOOTINFO, "Interrupts enabled");

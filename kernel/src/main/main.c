@@ -1,3 +1,4 @@
+// vim: ts=4 sw=4
 #include <proc/ktasks.h>
 #include <proc/mtask.h>
 #include <multiboot.h>
@@ -18,21 +19,21 @@
 #include <dev/keyb/input.h>
 
 void kernel_task(void);
-int kmain(struct multiboot_header_tag *, u32);
+int kmain(struct multiboot_header *, u32);
 
 /**
  * Main kernel functions, initializes all devices, and sets up environment.
- * @param mboot_ptr pointer to multiboot structure
- * @param initial_stack location of the initial stack
+ * @param mboot_head pointer to multiboot structure
+ * @param magic magic number telling us this is a multiboot-compliant bootloader
  */
-int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
+int kmain(struct multiboot_header *mboot_head, u32 magic)
 {
 	if(magic != 0x2BADB002)
 		kpanic("Invalid magic number given by the bootloader: 0x%08X", magic);
 
 	serial_init(SERIAL_COM1);
 
-	check_commandline(mboot_tag);
+	check_commandline(mboot_head);
 
 #ifdef __clang__
 	kerror(ERR_BOOTINFO, "Built with clang " __clang_version__);
@@ -42,11 +43,11 @@ int kmain(struct multiboot_header_tag *mboot_tag, u32 magic)
 	kerror(ERR_BOOTINFO, "Kernel occupies this memory space: %08X - %08X", &kern_start, &kern_end);
 
 
-	mm_init(mboot_tag);
+	mm_init(mboot_head);
 
 	interrupts_init();
 
-	initrd_init(mboot_tag, "initrd");
+	initrd_init(mboot_head);
 
 
 

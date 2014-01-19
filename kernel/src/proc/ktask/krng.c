@@ -48,6 +48,17 @@ static void rot_seed(int a, int b, int c, int d)
 	seed[d] = _d;
 }
 
+/**
+ * A Galois LFSR
+ *
+ * @param n input number
+ * @returns output number
+ */
+static u32 glfsr(u32 n)
+{
+	return (n >> 1) ^ (-(n & 1) & 0xD0000001);
+}
+
 void krng_add_entropy(u8 ent)
 {
 	u32 entropy = (u32)(ent | ((ent << 8) ^ seed[3]) | ((ent << 16) ^ seed[0]) | ((ent << 24) ^ seed[2]));
@@ -57,6 +68,11 @@ void krng_add_entropy(u8 ent)
 #if __has_builtin(__builtin_readcyclecounter) // Add a bit extra
 		seed[3] = (int)__builtin_readcyclecounter();
 #endif
+
+	seed[0] = (int)glfsr((u32)seed[0]);
+	u32 t = (u32)seed[2];
+	seed[2] = (int)glfsr((u32)seed[1]);
+	seed[1] = (int)glfsr(t);
 
 	ent = (entropy & 0x03) | (entropy >> 8 & 0x0C) | (entropy >> 16 & 0x30) | (entropy >> 24 & 0xC0); // Shuffle their values about
 	put_cbuff(ent, &e_pool);

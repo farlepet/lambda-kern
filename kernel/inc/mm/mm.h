@@ -11,9 +11,9 @@
 /**
  * \brief Initializes memory management.
  * Initializes memory management for the target archetecture.
- * @param mboot_tag the multiboot header location
+ * @param mboot_head the multiboot header location
  */
-void mm_init(struct multiboot_header_tag *mboot_tag);
+void mm_init(struct multiboot_header *mboot_head);
 
 
 #endif

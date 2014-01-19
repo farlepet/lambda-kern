@@ -32,3 +32,7 @@
 
 # GRUB files
 stage2_eltorito
+
+# vim
+*.swp
+*.swo

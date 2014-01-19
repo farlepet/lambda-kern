@@ -16,10 +16,8 @@ To build Lambda OS you need the following tools:
  * `clang` and `llvm` or `gcc`
  * `nasm`
  * `make`
- * `grub`
- * Ubuntu/apt-get based systems: `grub-pc-bin`
- * `grub-mkrescue`
- * `xorriso`
+ * `curl`
+ * `genisoimage`
 
 Build process:
  * Clone the git repository (If first time): `git clone https://github.com/farlepet/lambda-os.git`
