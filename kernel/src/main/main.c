@@ -78,14 +78,22 @@ __noreturn void kernel_task()
 	init_ktasks();
 
 
-	struct kvid_type_msg ktm;
-	ktm.pid  = current_pid;
-	ktm.type = KVID_PRINT;
-	struct kvid_print_msg kpm;
-	kpm.string = "Hello, kvid!\n";
-	while(!ktask_pids[KVID_TASK_SLOT]) busy_wait(); // Wait for kvid task to start
-	send_message(ktask_pids[KVID_TASK_SLOT], &ktm, sizeof(struct kvid_type_msg));
-	send_message(ktask_pids[KVID_TASK_SLOT], &kpm, sizeof(struct kvid_print_msg));
+	int kvid = get_ktask(KVID_TASK_SLOT, 50);
+	if(kvid)
+	{
+		struct kvid_print_m kpm;
+		kpm.ktm.pid    = current_pid;
+		kpm.ktm.type   = KVID_PRINT;
+		kpm.kpm.string = "Hello kernel via kvid!\n";
+		//struct kvid_type_msg ktm;
+		//ktm.pid  = current_pid;
+		//ktm.type = KVID_PRINT;
+		//struct kvid_print_msg kpm;
+		//kpm.string = "Hello, kvid!\n";
+		//send_message(kvid, &ktm, sizeof(struct kvid_type_msg));
+		//send_message(kvid, &kpm, sizeof(struct kvid_print_msg));
+		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
+	}
 
 	u32 elf_size;
 	void *elf = initrd_find_file("test.elf", &elf_size);

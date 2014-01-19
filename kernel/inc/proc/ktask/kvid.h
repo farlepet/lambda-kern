@@ -24,6 +24,18 @@ struct kvid_kerror_msg //!< A message telling kvid to print a kernel message
 	char *string;    //!< String for kerror to print
 };
 
+struct kvid_print_m //!< A structure holding an entire kvid print message
+{
+	struct kvid_type_msg  ktm;
+	struct kvid_print_msg kpm;
+};
+
+struct kvid_kerror_m //!< S structure holding an entire kvid kerror message
+{
+	struct kvid_type_msg   ktm;
+	struct kvid_kerror_msg kkm;
+};
+
 void kvid_task(void);
 
 #endif // KTASK_KVID_H

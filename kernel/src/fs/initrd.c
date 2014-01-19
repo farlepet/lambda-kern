@@ -108,11 +108,11 @@ void *initrd_find_file(char *name, u32 *size)
 	int cidx = 0;
 	while(cidx <= n_files)
 	{
-		kerror(ERR_BOOTINFO, ":Testing %s:%d", filenames[cidx], files[cidx]->c_filesize);
+		kerror(ERR_INFO, ":Testing %s:%d", filenames[cidx], files[cidx]->c_filesize);
 		if(!strcmp(name, filenames[cidx]))
 		{
 			if(size) *size = files[cidx]->c_filesize;
-			kerror(ERR_BOOTINFO, "files[%d]: %08X", cidx, files[cidx]->c_magic);
+			kerror(ERR_INFO, "files[%d]: %08X", cidx, files[cidx]->c_magic);
 			return (void *)filedata[cidx];
 		}
 		cidx++;

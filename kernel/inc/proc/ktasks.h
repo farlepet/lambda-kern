@@ -19,6 +19,7 @@
 
 int ktask_pids[KTASK_SLOTS];
 
+int get_ktask(int n, u64 time);
 
 void init_ktasks(void);
 
