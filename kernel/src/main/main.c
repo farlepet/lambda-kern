@@ -20,6 +20,11 @@
 
 void kernel_task(void);
 int kmain(struct multiboot_header *, u32);
+static void iloop()
+{
+	kerror(ERR_BOOTINFO, "iloop()");
+	for(;;) busy_wait();
+}
 
 /**
  * Main kernel functions, initializes all devices, and sets up environment.
@@ -48,10 +53,7 @@ int kmain(struct multiboot_header *mboot_head, u32 magic)
 	interrupts_init();
 
 	initrd_init(mboot_head);
-
-
-
-	
+iloop();	
 	keyb_init();
 
 	timer_init(500);
@@ -85,13 +87,6 @@ __noreturn void kernel_task()
 		kpm.ktm.pid    = current_pid;
 		kpm.ktm.type   = KVID_PRINT;
 		kpm.kpm.string = "Hello kernel via kvid!\n";
-		//struct kvid_type_msg ktm;
-		//ktm.pid  = current_pid;
-		//ktm.type = KVID_PRINT;
-		//struct kvid_print_msg kpm;
-		//kpm.string = "Hello, kvid!\n";
-		//send_message(kvid, &ktm, sizeof(struct kvid_type_msg));
-		//send_message(kvid, &kpm, sizeof(struct kvid_print_msg));
 		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
 	}
 

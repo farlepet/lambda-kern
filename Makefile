@@ -58,7 +58,11 @@ link:   $(OBJS)
 	@echo -e "\033[33m  \033[1mGenerating InitCPIO\033[0m"
 	@cd initrd; find . | cpio -o -v -O../CD/initrd.cpio &> /dev/null
 	@echo -e "\033[33m  \033[1mCreating ISO\033[0m"
-	@grub-mkrescue -o lambda-os.iso CD
+ifeq ($(wildcard CD/boot/grub/stage2_eltorito),)
+	curl -o CD/boot/grub/stage2_eltorito https://gitorious.org/tools/tools/raw/1e447ee9fa3c1af65b2e032b9c7020b74a32c9dd:linux-live/cd-root/boot/grub/stage2_eltorito
+endif
+	genisoimage -R -b boot/grub/stage2_eltorito -no-emul-boot -boot-load-size 4 \
+		-boot-info-table -o lambda-os.iso CD
 endif # x86
 endif # gcc
 

@@ -69,12 +69,15 @@ static void idebug()
 {
 	kerror(ERR_INFO, "IDEBUG started");
 	
-	kprintf("\e[41mPID UID GID SENT     RECEIVED\e[0m\n");
+	// TODO: Switch EIP with a more architecture-generic term
+	kprintf("\e[41mPID UID GID SENT     RECEIVED BLCK PRIO NAME            \e[0m\n");
 	int i = 0;
 	for(; i < MAX_PROCESSES; i++)
 		if(procs[i].type & TYPE_VALID)
 		{
-			kprintf("% 02d % 02d % 02d %8d %8d\n", procs[i].pid, procs[i].uid, procs[i].gid, procs[i].book.sent_msgs, procs[i].book.recvd_msgs);
+			kprintf("% 02d % 02d % 02d %8d %8d   %c  %02d  %s\n", 
+				procs[i].pid, procs[i].uid, procs[i].gid, procs[i].book.sent_msgs, procs[i].book.recvd_msgs,
+				((procs[i].blocked != 0) ? 'Y' : 'N'), procs[i].prio, procs[i].name);
 		}
 
 	kerror(ERR_INFO, "IDEBUG finished");
