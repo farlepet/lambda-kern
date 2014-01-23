@@ -25,6 +25,12 @@ void initrd_init(struct multiboot_header* mboot_head)
 {
 	kerror(ERR_BOOTINFO, "Loading InitCPIO");
 
+	if(!(mboot_head->flags & MBOOT_MODULES))
+	{
+		kerror(ERR_BOOTINFO, "  -> No modules to load");
+		return;
+	}
+
 	struct mboot_module *mod = (struct mboot_module *)mboot_head->mod_addr;
 	u32 modcnt = mboot_head->mod_count;
 

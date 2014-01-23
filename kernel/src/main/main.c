@@ -88,6 +88,13 @@ __noreturn void kernel_task()
 		kpm.ktm.type   = KVID_PRINT;
 		kpm.kpm.string = "Hello kernel via kvid!\n";
 		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
+		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
+		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
+		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
+		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
+		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
+		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
+		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
 	}
 
 	u32 elf_size;

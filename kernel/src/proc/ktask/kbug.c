@@ -1,4 +1,5 @@
 #include <proc/ktasks.h>
+#include <time/time.h>
 #include <err/error.h>
 #include <proc/ipc.h>
 #include <video.h>
@@ -75,6 +76,7 @@ static void idebug()
 	for(; i < MAX_PROCESSES; i++)
 		if(procs[i].type & TYPE_VALID)
 		{
+			delay(5);
 			kprintf("% 02d % 02d % 02d %8d %8d   %c  %02d  %s\n", 
 				procs[i].pid, procs[i].uid, procs[i].gid, procs[i].book.sent_msgs, procs[i].book.recvd_msgs,
 				((procs[i].blocked != 0) ? 'Y' : 'N'), procs[i].prio, procs[i].name);

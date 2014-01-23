@@ -1,0 +1,34 @@
+Lambda OS v0.1.2
+
+*** Description ***
+
+Lambda OS is a hobby operating system developed by Peter Farley. Lambda OS
+is designed to work on any i386-compatible processor, but the design of
+Lambda OS allows for easier addition of new architectures without any
+major modification of the main kernel code. 
+
+
+*** Building ***
+
+To be able to build Lambda OS, you need the following tools:
+  - x86 or x86_64 PC (Unless you are using a cross-compiler)
+  - `gcc`
+  - `nasm`
+  - `make`
+  - `curl`
+  - `genisoimage`
+
+To build Lambda OS:
+  - (If fisrt time) Clone the Lambda OS code repository.
+  - (If not first time) Run `git pull`
+  - Make: `make`
+
+
+*** More Documentation ***
+
+Documentation on various parts of Lambda OS can be found in the `docs`
+directory.
+
+Documentation of the source code in Lambda OS can be found at
+http://farlepet.github.io/lambda-os
+
