@@ -5,8 +5,8 @@ title Lambda OS
 	kernel /lambda.kern
 
 title Lambda OS -- InitCPIO
-	kernel /lambda.kern
-	module /initrd.cpio -cpio /initrd.cpio
+	kernel /lambda.kern -cpio /initrd.cpio
+	module /initrd.cpio
 
 title Lambda OS -- Serial Console
 	kernel /lambda.kern -sCOM1

@@ -20,6 +20,7 @@
 
 void kernel_task(void);
 __noreturn int kmain(struct multiboot_header *, u32);
+
 __noreturn static void iloop()
 {
 	kerror(ERR_BOOTINFO, "iloop()");
@@ -40,11 +41,7 @@ int kmain(struct multiboot_header *mboot_head, u32 magic)
 
 	check_commandline(mboot_head);
 
-#ifdef __clang__
-	kerror(ERR_BOOTINFO, "Built with clang " __clang_version__);
-	kerror(ERR_BOOTINFO, "  -> On " __TIMESTAMP__);
-#endif
-
+	
 	kerror(ERR_BOOTINFO, "Kernel occupies this memory space: %08X - %08X", &kern_start, &kern_end);
 
 
@@ -81,19 +78,12 @@ __noreturn void kernel_task()
 
 
 	int kvid = get_ktask(KVID_TASK_SLOT, 50);
-	if(kvid)
+	if(kvid) // A quick message-passing test
 	{
 		struct kvid_print_m kpm;
 		kpm.ktm.pid    = current_pid;
 		kpm.ktm.type   = KVID_PRINT;
 		kpm.kpm.string = "Hello kernel via kvid!\n";
-		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
-		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
-		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
-		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
-		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
-		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
-		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
 		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
 	}
 

@@ -14,7 +14,11 @@ int load_elf(void *file, u32 length)
 		(head->e_ident[2] != ELF_IDENT2) ||
 		(head->e_ident[3] != ELF_IDENT3))
 	{
-		kerror(ERR_SMERR, "Tried to load an ELF with incorrect header");
+		kerror(ERR_SMERR, "Tried to load an ELF with incorrect header: %x %c %c %c",
+			(head->e_ident[0]),
+			(head->e_ident[1]),
+			(head->e_ident[2]),
+			(head->e_ident[3]));
 		return 1;
 	}
 

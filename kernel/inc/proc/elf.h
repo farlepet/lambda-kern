@@ -33,10 +33,10 @@
 
 #define ELF_IDENT 0x464C457F //E,L,F,0x7F
 
-#define ELF_IDENT0 'E'
-#define ELF_IDENT1 'L'
-#define ELF_IDENT2 'F'
-#define ELF_IDENT3 0x7F
+#define ELF_IDENT0 0x7F
+#define ELF_IDENT1 'E'
+#define ELF_IDENT2 'L'
+#define ELF_IDENT3 'F'
 
 
 typedef struct

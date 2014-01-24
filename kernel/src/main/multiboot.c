@@ -43,7 +43,7 @@ void check_commandline(struct multiboot_header *mboot_head)
 			cpio_name = cmd; // The name of the initrd module
 			while(*cmd != ' ' && *cmd != 0) cmd++;
 		}
-#if defined(ARCH_X86)
+#if defined(ARCH_X86) // Names of serial ports will likely be different on different systems
 		else if(!strcmp(tmp, "-s"))     output_serial = SERIAL_COM1;
 		else if(!strcmp(tmp, "-sCOM1")) output_serial = SERIAL_COM1;
 		else if(!strcmp(tmp, "-sCOM2")) output_serial = SERIAL_COM2;
