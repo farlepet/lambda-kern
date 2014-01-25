@@ -3,6 +3,7 @@
 #include <err/error.h>
 #include <err/panic.h>
 #include <proc/proc.h>
+#include <mm/alloc.h>
 #include <string.h>
 #include <mm/mm.h>
 
@@ -101,7 +102,7 @@ void add_kernel_task(void *process, char *name, u32 stack_size, int pri)
 #ifdef STACK_PROTECTOR
 // TODO: Fix stack guarding:
 	//block_page(procs[p].stack_end - 0x1000); // <-- Problematic line
-	block_page(procs[p].stack_beg + 0x1000);
+	//block_page(procs[p].stack_beg + 0x1000);
 #endif // STACK_PROTECTOR
 
 #endif // ARCH_X86

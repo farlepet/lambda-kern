@@ -1,6 +1,7 @@
 #include <multiboot.h>
 #include <err/error.h>
 #include <intr/int.h>
+#include <mm/alloc.h>
 #include <string.h>
 #include "paging.h"
 #include <types.h>
@@ -261,6 +262,13 @@ void paging_init(u32 eom)
 	kerror(ERR_BOOTINFO, "  -> Enabling paging");
 
 	enable_paging();
+
+	kerror(ERR_BOOTINFO, "  -> Initializing `malloc`");
+
+	u32 alloc_mem = (u32)page_alloc(0x1000000 + 0x2000) & ~0xFFF; // 16 MB should be good for now
+	init_alloc(alloc_mem, 0x1000000);
+
+	kerror(ERR_BOOTINFO, "      -> %08X -> %08X (%08X)", alloc_mem, alloc_mem + 0x1000000, 0x1000000);
 }
 
 
@@ -343,7 +351,7 @@ struct alloc_head //!< Header for allocated blocks
  * @param size size of the memory region
  * @return address of the memory region
  */
-void *kmalloc(u32 size)
+void *page_alloc(u32 size)
 {
 	int ints_en = interrupts_enabled();
 	disable_interrupts();
@@ -374,7 +382,7 @@ void *kmalloc(u32 size)
  * @param ptr pointer to memory region
  * @see malloc
  */
-void kfree(void *ptr)
+void page_free(void *ptr)
 {
 	if(!ptr)
 	{

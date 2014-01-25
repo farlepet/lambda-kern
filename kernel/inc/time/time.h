@@ -6,6 +6,12 @@
 u64 kerneltime; //!< Number of elapsed ticks since the PIT was initialized
 
 /**
+ * Used when specifying UNIX time (not timer ticks).
+ *   - It is signed so it can represent time before January 1, 1970
+ */
+typedef s64 time_t; //!< Typedef used when specifying UNIX time (not timer ticks)
+
+/**
  * \brief A structure to help with timing.
  * A structure that helps processes keep time. Every timer tick, count will
  * be decremented by 1. When count reaches 0, event() is called.
