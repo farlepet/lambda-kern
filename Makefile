@@ -63,10 +63,10 @@ clean:
 	@rm -f kern.*
 	@cd $(MAINDIR)/kernel/arch/x86; make clean
 
-docs:
+documentation:
 	@echo -e "\033[32mGenerating documentation\033[0m"
 	@doxygen Doxyfile
 	# Remove the following lines of you are generating documentation yourself
-	@cp -r doc/html/* ../lambda-os-doc/lambda-os/
+	@cp -r doc/html/* ../lambda-os-doc/
 	@rm -r doc
 	@cd ../lambda-os-doc/lambda-os/; git add --all; git commit -a; git push origin gh-pages
