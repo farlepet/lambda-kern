@@ -122,6 +122,8 @@ Functions</h2></td></tr>
 <tr class="separator:add445213349a893b48eba7896ee5ab52"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a286f34972499101b8cfa20e0f1f22217"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="krng_8c.html#a286f34972499101b8cfa20e0f1f22217">rot_seed</a> (int a, int b, int c, int d)</td></tr>
 <tr class="separator:a286f34972499101b8cfa20e0f1f22217"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3157be056009f8c0e8d3c1efe121985"><td class="memItemLeft" align="right" valign="top">static u32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="krng_8c.html#af3157be056009f8c0e8d3c1efe121985">glfsr</a> (u32 <a class="el" href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a>)</td></tr>
+<tr class="separator:af3157be056009f8c0e8d3c1efe121985"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a61fbf3a4628fdf5d7e465ed95aa03d1d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="krng_8c.html#a61fbf3a4628fdf5d7e465ed95aa03d1d">krng_add_entropy</a> (u8 ent)</td></tr>
 <tr class="separator:a61fbf3a4628fdf5d7e465ed95aa03d1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -150,19 +152,57 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="krng_8c_source.html#l00065">65</a> of file <a class="el" href="krng_8c_source.html">krng.c</a>.</p>
+<p>Definition at line <a class="el" href="krng_8c_source.html#l00081">81</a> of file <a class="el" href="krng_8c_source.html">krng.c</a>.</p>
 
 <p>References <a class="el" href="cbuff_8c_source.html#l00019">get_cbuff()</a>, <a class="el" href="krng_8c_source.html#l00039">rot_seed()</a>, and <a class="el" href="krng_8c_source.html#l00015">seed</a>.</p>
-<div class="fragment"><div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;{</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <a class="code" href="krng_8c.html#a286f34972499101b8cfa20e0f1f22217">rot_seed</a>(2, 1, 3, 0);</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    u32 i = 0xFFFF;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keywordflow">while</span>(i &amp; 0xFFFFFF00) i = (u32)<a class="code" href="cbuff_8h.html#a63cd14d6728d247a66109aba749c58a6">get_cbuff</a>(&amp;<a class="code" href="krng_8c.html#a5c32965c6865d38a25c122b27d45bb09">e_pool</a>);</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordflow">return</span> (u8)i ^ (u8)<a class="code" href="krng_8c.html#afb5c29b8c0888893bdc4e26bc60550f1">seed</a>[0] &gt;&gt; (u8)(i &amp; 0x0F);</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;}</div>
+<div class="fragment"><div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;{</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <a class="code" href="krng_8c.html#a286f34972499101b8cfa20e0f1f22217">rot_seed</a>(2, 1, 3, 0);</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    u32 i = 0xFFFF;</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keywordflow">while</span>(i &amp; 0xFFFFFF00) i = (u32)<a class="code" href="cbuff_8h.html#a63cd14d6728d247a66109aba749c58a6">get_cbuff</a>(&amp;<a class="code" href="krng_8c.html#a5c32965c6865d38a25c122b27d45bb09">e_pool</a>);</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordflow">return</span> (u8)i ^ (u8)<a class="code" href="krng_8c.html#afb5c29b8c0888893bdc4e26bc60550f1">seed</a>[0] &gt;&gt; (u8)(i &amp; 0x0F);</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;}</div>
 <div class="ttc" id="krng_8c_html_a5c32965c6865d38a25c122b27d45bb09"><div class="ttname"><a href="krng_8c.html#a5c32965c6865d38a25c122b27d45bb09">e_pool</a></div><div class="ttdeci">static struct cbuff e_pool</div><div class="ttdef"><b>Definition:</b> <a href="krng_8c_source.html#l00012">krng.c:12</a></div></div>
 <div class="ttc" id="cbuff_8h_html_a63cd14d6728d247a66109aba749c58a6"><div class="ttname"><a href="cbuff_8h.html#a63cd14d6728d247a66109aba749c58a6">get_cbuff</a></div><div class="ttdeci">int get_cbuff(struct cbuff *buff)</div><div class="ttdef"><b>Definition:</b> <a href="cbuff_8c_source.html#l00019">cbuff.c:19</a></div></div>
 <div class="ttc" id="krng_8c_html_a286f34972499101b8cfa20e0f1f22217"><div class="ttname"><a href="krng_8c.html#a286f34972499101b8cfa20e0f1f22217">rot_seed</a></div><div class="ttdeci">static void rot_seed(int a, int b, int c, int d)</div><div class="ttdef"><b>Definition:</b> <a href="krng_8c_source.html#l00039">krng.c:39</a></div></div>
 <div class="ttc" id="krng_8c_html_afb5c29b8c0888893bdc4e26bc60550f1"><div class="ttname"><a href="krng_8c.html#afb5c29b8c0888893bdc4e26bc60550f1">seed</a></div><div class="ttdeci">static int seed[4]</div><div class="ttdoc">Some arbitrary numbers... </div><div class="ttdef"><b>Definition:</b> <a href="krng_8c_source.html#l00015">krng.c:15</a></div></div>
+</div><!-- fragment -->
+</div>
+</div>
+<a class="anchor" id="af3157be056009f8c0e8d3c1efe121985"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static u32 glfsr </td>
+          <td>(</td>
+          <td class="paramtype">u32&#160;</td>
+          <td class="paramname"><em>n</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>A Galois LFSR</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">n</td><td>input number </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>output number </dd></dl>
+
+<p>Definition at line <a class="el" href="krng_8c_source.html#l00057">57</a> of file <a class="el" href="krng_8c_source.html">krng.c</a>.</p>
+<div class="fragment"><div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;{</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keywordflow">return</span> (<a class="code" href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a> &gt;&gt; 1) ^ (-(<a class="code" href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a> &amp; 1) &amp; 0xD0000001);</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;}</div>
+<div class="ttc" id="initrd_8c_html_aeeaadee5bc43f82500dbe49fdf7516f5"><div class="ttname"><a href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a></div><div class="ttdeci">#define n(x)</div><div class="ttdef"><b>Definition:</b> <a href="initrd_8c_source.html#l00022">initrd.c:22</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -180,24 +220,30 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="krng_8c_source.html#l00051">51</a> of file <a class="el" href="krng_8c_source.html">krng.c</a>.</p>
+<p>Definition at line <a class="el" href="krng_8c_source.html#l00062">62</a> of file <a class="el" href="krng_8c_source.html">krng.c</a>.</p>
 
-<p>References <a class="el" href="cbuff_8c_source.html#l00004">put_cbuff()</a>, <a class="el" href="krng_8c_source.html#l00039">rot_seed()</a>, and <a class="el" href="krng_8c_source.html#l00015">seed</a>.</p>
-<div class="fragment"><div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;{</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    u32 entropy = (u32)(ent | ((ent &lt;&lt; 8) ^ <a class="code" href="krng_8c.html#afb5c29b8c0888893bdc4e26bc60550f1">seed</a>[3]) | ((ent &lt;&lt; 16) ^ <a class="code" href="krng_8c.html#afb5c29b8c0888893bdc4e26bc60550f1">seed</a>[0]) | ((ent &lt;&lt; 24) ^ seed[2]));</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    entropy *= (u32)seed[2];</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <a class="code" href="krng_8c.html#a286f34972499101b8cfa20e0f1f22217">rot_seed</a>(0, 3, 2, 1);</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="preprocessor">#if __has_builtin(__builtin_readcyclecounter) // Add a bit extra</span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="preprocessor"></span>        seed[3] = (int)__builtin_readcyclecounter();</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    ent = (entropy &amp; 0x03) | (entropy &gt;&gt; 8 &amp; 0x0C) | (entropy &gt;&gt; 16 &amp; 0x30) | (entropy &gt;&gt; 24 &amp; 0xC0); <span class="comment">// Shuffle their values about</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <a class="code" href="cbuff_8h.html#a0b4b658c98402c4327c349b96a455e34">put_cbuff</a>(ent, &amp;<a class="code" href="krng_8c.html#a5c32965c6865d38a25c122b27d45bb09">e_pool</a>);</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;}</div>
+<p>References <a class="el" href="krng_8c_source.html#l00057">glfsr()</a>, <a class="el" href="cbuff_8c_source.html#l00004">put_cbuff()</a>, <a class="el" href="krng_8c_source.html#l00039">rot_seed()</a>, and <a class="el" href="krng_8c_source.html#l00015">seed</a>.</p>
+<div class="fragment"><div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;{</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    u32 entropy = (u32)(ent | ((ent &lt;&lt; 8) ^ <a class="code" href="krng_8c.html#afb5c29b8c0888893bdc4e26bc60550f1">seed</a>[3]) | ((ent &lt;&lt; 16) ^ <a class="code" href="krng_8c.html#afb5c29b8c0888893bdc4e26bc60550f1">seed</a>[0]) | ((ent &lt;&lt; 24) ^ seed[2]));</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    entropy *= (u32)seed[2];</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <a class="code" href="krng_8c.html#a286f34972499101b8cfa20e0f1f22217">rot_seed</a>(0, 3, 2, 1);</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="preprocessor">#if __has_builtin(__builtin_readcyclecounter) // Add a bit extra</span></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="preprocessor"></span>        seed[3] = (int)__builtin_readcyclecounter();</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    seed[0] = (int)<a class="code" href="krng_8c.html#af3157be056009f8c0e8d3c1efe121985">glfsr</a>((u32)seed[0]);</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    u32 t = (u32)seed[2];</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    seed[2] = (int)<a class="code" href="krng_8c.html#af3157be056009f8c0e8d3c1efe121985">glfsr</a>((u32)seed[1]);</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    seed[1] = (int)<a class="code" href="krng_8c.html#af3157be056009f8c0e8d3c1efe121985">glfsr</a>(t);</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    ent = (entropy &amp; 0x03) | (entropy &gt;&gt; 8 &amp; 0x0C) | (entropy &gt;&gt; 16 &amp; 0x30) | (entropy &gt;&gt; 24 &amp; 0xC0); <span class="comment">// Shuffle their values about</span></div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <a class="code" href="cbuff_8h.html#a0b4b658c98402c4327c349b96a455e34">put_cbuff</a>(ent, &amp;<a class="code" href="krng_8c.html#a5c32965c6865d38a25c122b27d45bb09">e_pool</a>);</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;}</div>
 <div class="ttc" id="krng_8c_html_a5c32965c6865d38a25c122b27d45bb09"><div class="ttname"><a href="krng_8c.html#a5c32965c6865d38a25c122b27d45bb09">e_pool</a></div><div class="ttdeci">static struct cbuff e_pool</div><div class="ttdef"><b>Definition:</b> <a href="krng_8c_source.html#l00012">krng.c:12</a></div></div>
 <div class="ttc" id="krng_8c_html_a286f34972499101b8cfa20e0f1f22217"><div class="ttname"><a href="krng_8c.html#a286f34972499101b8cfa20e0f1f22217">rot_seed</a></div><div class="ttdeci">static void rot_seed(int a, int b, int c, int d)</div><div class="ttdef"><b>Definition:</b> <a href="krng_8c_source.html#l00039">krng.c:39</a></div></div>
 <div class="ttc" id="cbuff_8h_html_a0b4b658c98402c4327c349b96a455e34"><div class="ttname"><a href="cbuff_8h.html#a0b4b658c98402c4327c349b96a455e34">put_cbuff</a></div><div class="ttdeci">int put_cbuff(u8 data, struct cbuff *buff)</div><div class="ttdef"><b>Definition:</b> <a href="cbuff_8c_source.html#l00004">cbuff.c:4</a></div></div>
+<div class="ttc" id="krng_8c_html_af3157be056009f8c0e8d3c1efe121985"><div class="ttname"><a href="krng_8c.html#af3157be056009f8c0e8d3c1efe121985">glfsr</a></div><div class="ttdeci">static u32 glfsr(u32 n)</div><div class="ttdef"><b>Definition:</b> <a href="krng_8c_source.html#l00057">krng.c:57</a></div></div>
 <div class="ttc" id="krng_8c_html_afb5c29b8c0888893bdc4e26bc60550f1"><div class="ttname"><a href="krng_8c.html#afb5c29b8c0888893bdc4e26bc60550f1">seed</a></div><div class="ttdeci">static int seed[4]</div><div class="ttdoc">Some arbitrary numbers... </div><div class="ttdef"><b>Definition:</b> <a href="krng_8c_source.html#l00015">krng.c:15</a></div></div>
 </div><!-- fragment -->
 </div>
@@ -219,7 +265,7 @@ Variables</h2></td></tr>
 
 <p>Definition at line <a class="el" href="krng_8c_source.html#l00022">22</a> of file <a class="el" href="krng_8c_source.html">krng.c</a>.</p>
 
-<p>References <a class="el" href="mtask_8h_source.html#l00009">current_pid</a>, <a class="el" href="krng_8c_source.html#l00065">generate_rand_byte()</a>, <a class="el" href="ktasks_8h_source.html#l00016">KRNG_TASK_SLOT</a>, <a class="el" href="ktasks_8h_source.html#l00020">ktask_pids</a>, <a class="el" href="krng_8h_source.html#l00011">rng_request::n_bytes</a>, <a class="el" href="krng_8h_source.html#l00010">rng_request::pid</a>, <a class="el" href="ipc_8c_source.html#l00037">recv_message()</a>, and <a class="el" href="ipc_8c_source.html#l00010">send_message()</a>.</p>
+<p>References <a class="el" href="mtask_8h_source.html#l00009">current_pid</a>, <a class="el" href="krng_8c_source.html#l00081">generate_rand_byte()</a>, <a class="el" href="ktasks_8h_source.html#l00016">KRNG_TASK_SLOT</a>, <a class="el" href="ktasks_8h_source.html#l00020">ktask_pids</a>, <a class="el" href="krng_8h_source.html#l00011">rng_request::n_bytes</a>, <a class="el" href="krng_8h_source.html#l00010">rng_request::pid</a>, <a class="el" href="ipc_8c_source.html#l00037">recv_message()</a>, and <a class="el" href="ipc_8c_source.html#l00010">send_message()</a>.</p>
 <div class="fragment"><div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;{</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <a class="code" href="ktasks_8h.html#a451e2165b96bdd220da63dbca8441bdb">ktask_pids</a>[<a class="code" href="ktasks_8h.html#a59642053e6fb128ff92d2685cc99db68">KRNG_TASK_SLOT</a>] = <a class="code" href="mtask_8h.html#a094c35e28eaea5860385357011a6abfa">current_pid</a>;</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;</div>
@@ -239,7 +285,7 @@ Variables</h2></td></tr>
 <div class="ttc" id="structrng__request_html"><div class="ttname"><a href="structrng__request.html">rng_request</a></div><div class="ttdef"><b>Definition:</b> <a href="krng_8h_source.html#l00008">krng.h:8</a></div></div>
 <div class="ttc" id="ktasks_8h_html_a451e2165b96bdd220da63dbca8441bdb"><div class="ttname"><a href="ktasks_8h.html#a451e2165b96bdd220da63dbca8441bdb">ktask_pids</a></div><div class="ttdeci">int ktask_pids[KTASK_SLOTS]</div><div class="ttdef"><b>Definition:</b> <a href="ktasks_8h_source.html#l00020">ktasks.h:20</a></div></div>
 <div class="ttc" id="mtask_8h_html_a094c35e28eaea5860385357011a6abfa"><div class="ttname"><a href="mtask_8h.html#a094c35e28eaea5860385357011a6abfa">current_pid</a></div><div class="ttdeci">int current_pid</div><div class="ttdoc">The PID of the currently running process. </div><div class="ttdef"><b>Definition:</b> <a href="mtask_8h_source.html#l00009">mtask.h:9</a></div></div>
-<div class="ttc" id="krng_8c_html_ac9089d2c205df7fc5fe8d8ee2b15361f"><div class="ttname"><a href="krng_8c.html#ac9089d2c205df7fc5fe8d8ee2b15361f">generate_rand_byte</a></div><div class="ttdeci">u8 generate_rand_byte(void)</div><div class="ttdef"><b>Definition:</b> <a href="krng_8c_source.html#l00065">krng.c:65</a></div></div>
+<div class="ttc" id="krng_8c_html_ac9089d2c205df7fc5fe8d8ee2b15361f"><div class="ttname"><a href="krng_8c.html#ac9089d2c205df7fc5fe8d8ee2b15361f">generate_rand_byte</a></div><div class="ttdeci">u8 generate_rand_byte(void)</div><div class="ttdef"><b>Definition:</b> <a href="krng_8c_source.html#l00081">krng.c:81</a></div></div>
 <div class="ttc" id="ipc_8h_html_af841b45138827a75b10b045f1891f4c9"><div class="ttname"><a href="ipc_8h.html#af841b45138827a75b10b045f1891f4c9">recv_message</a></div><div class="ttdeci">int recv_message(void *msg, int size)</div><div class="ttdef"><b>Definition:</b> <a href="ipc_8c_source.html#l00037">ipc.c:37</a></div></div>
 <div class="ttc" id="ipc_8h_html_a82e56b3fca07f4f9a31157b24c495655"><div class="ttname"><a href="ipc_8h.html#a82e56b3fca07f4f9a31157b24c495655">send_message</a></div><div class="ttdeci">int send_message(int dest, void *msg, int size)</div><div class="ttdef"><b>Definition:</b> <a href="ipc_8c_source.html#l00010">ipc.c:10</a></div></div>
 </div><!-- fragment -->
@@ -379,7 +425,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_3dd30a497388ee684638f120a124721c.html">src</a></li><li class="navelem"><a class="el" href="dir_e86ceaef520d7e0fde5acb9ff043cb13.html">proc</a></li><li class="navelem"><a class="el" href="dir_9497cedc487fd50b64d871e65f30aa45.html">ktask</a></li><li class="navelem"><a class="el" href="krng_8c.html">krng.c</a></li>
-    <li class="footer">Generated on Mon Jan 13 2014 21:41:56 for Lambda OS by
+    <li class="footer">Generated on Sat Jan 25 2014 17:36:05 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

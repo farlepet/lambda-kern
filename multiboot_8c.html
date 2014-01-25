@@ -109,6 +109,7 @@ $(document).ready(function(){initNavTree('multiboot_8c.html','');});
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;<a class="el" href="multiboot_8h_source.html">multiboot.h</a>&gt;</code><br/>
+<code>#include &lt;<a class="el" href="panic_8h_source.html">err/panic.h</a>&gt;</code><br/>
 <code>#include &lt;<a class="el" href="error_8h_source.html">err/error.h</a>&gt;</code><br/>
 <code>#include &lt;<a class="el" href="string_8h_source.html">string.h</a>&gt;</code><br/>
 <code>#include &lt;<a class="el" href="video_8h_source.html">video.h</a>&gt;</code><br/>
@@ -117,27 +118,27 @@ $(document).ready(function(){initNavTree('multiboot_8c.html','');});
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a93a0df7201080b93f585c3078a8460af"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structmultiboot__tag.html">multiboot_tag</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="multiboot_8c.html#a93a0df7201080b93f585c3078a8460af">find_multiboot_table</a> (struct <a class="el" href="structmultiboot__header__tag.html">multiboot_header_tag</a> *mboot_tag, u32 type)</td></tr>
-<tr class="separator:a93a0df7201080b93f585c3078a8460af"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a35ac3197e0563bd660eb6c532c63c1dd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="multiboot_8c.html#a35ac3197e0563bd660eb6c532c63c1dd">check_commandline</a> (struct <a class="el" href="structmultiboot__header__tag.html">multiboot_header_tag</a> *mboot_tag)</td></tr>
-<tr class="separator:a35ac3197e0563bd660eb6c532c63c1dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adfc43aa03cc2c585a24d9035d1a4069c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="multiboot_8c.html#adfc43aa03cc2c585a24d9035d1a4069c">check_commandline</a> (struct <a class="el" href="structmultiboot__header.html">multiboot_header</a> *mboot_head)</td></tr>
+<tr class="separator:adfc43aa03cc2c585a24d9035d1a4069c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
 <tr class="memitem:a195d84c3eb44334f5819411c7d8ee97c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="multiboot_8c.html#a195d84c3eb44334f5819411c7d8ee97c">output_serial</a></td></tr>
 <tr class="memdesc:a195d84c3eb44334f5819411c7d8ee97c"><td class="mdescLeft">&#160;</td><td class="mdescRight">If 0, write to VGA, else, write to serial port pointed to by <code>output_serial</code>  <a href="#a195d84c3eb44334f5819411c7d8ee97c">More...</a><br/></td></tr>
 <tr class="separator:a195d84c3eb44334f5819411c7d8ee97c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf90eb291397fbd23e59167b200621fe"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="multiboot_8c.html#acf90eb291397fbd23e59167b200621fe">cpio_name</a></td></tr>
+<tr class="separator:acf90eb291397fbd23e59167b200621fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="a35ac3197e0563bd660eb6c532c63c1dd"></a>
+<a class="anchor" id="adfc43aa03cc2c585a24d9035d1a4069c"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">void check_commandline </td>
           <td>(</td>
-          <td class="paramtype">struct <a class="el" href="structmultiboot__header__tag.html">multiboot_header_tag</a> *&#160;</td>
-          <td class="paramname"><em>mboot_tag</em></td><td>)</td>
+          <td class="paramtype">struct <a class="el" href="structmultiboot__header.html">multiboot_header</a> *&#160;</td>
+          <td class="paramname"><em>mboot_head</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -150,108 +151,77 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="multiboot_8c_source.html#l00040">40</a> of file <a class="el" href="multiboot_8c_source.html">multiboot.c</a>.</p>
-
-<p>References <a class="el" href="multiboot_8h_source.html#l00053">multiboot_cmdline_tag::cmdline</a>, <a class="el" href="error_8h_source.html#l00010">ERR_MEDERR</a>, <a class="el" href="multiboot_8c_source.html#l00018">find_multiboot_table()</a>, <a class="el" href="error_8c_source.html#l00022">kerror()</a>, <a class="el" href="video_8c_source.html#l00011">output_serial</a>, <a class="el" href="serial_8h_source.html#l00006">SERIAL_COM1</a>, <a class="el" href="serial_8h_source.html#l00007">SERIAL_COM2</a>, <a class="el" href="serial_8h_source.html#l00008">SERIAL_COM3</a>, <a class="el" href="serial_8h_source.html#l00009">SERIAL_COM4</a>, <a class="el" href="string_8c_source.html#l00035">strcmp()</a>, and <a class="el" href="string_8c_source.html#l00009">strlen()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;{</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="keyword">struct </span><a class="code" href="structmultiboot__cmdline__tag.html">multiboot_cmdline_tag</a> *cmdtag = (<span class="keyword">struct </span><a class="code" href="structmultiboot__cmdline__tag.html">multiboot_cmdline_tag</a> *)<a class="code" href="multiboot_8c.html#a93a0df7201080b93f585c3078a8460af">find_multiboot_table</a>(mboot_tag, 1);</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordflow">if</span>(!cmdtag)</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    {</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;        <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389ac58e9a937f93b7844c2bf35fc77c10c5">ERR_MEDERR</a>, <span class="stringliteral">&quot;Commandline tag not found!&quot;</span>);</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;        <span class="keywordflow">return</span>;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    }</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keywordtype">char</span> *cmd = (<span class="keywordtype">char</span> *)cmdtag-&gt;<a class="code" href="structmultiboot__cmdline__tag.html#af54ab0d1284386e45624f4eeb35685ca">cmdline</a>;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keywordtype">char</span> *end = cmd + <a class="code" href="string_8h.html#adbbf4d6ec8d6b708c64bd6a4a18065dd">strlen</a>(cmd) + 1;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keywordtype">char</span> tmp[1000];</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordtype">int</span> i;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keywordflow">while</span>(cmd &lt; end)</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    {</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;        i = 0;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        <span class="keywordflow">while</span>(*cmd == <span class="charliteral">&#39; &#39;</span>) cmd++;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;        <span class="keywordflow">while</span>(*cmd != <span class="charliteral">&#39; &#39;</span>) tmp[i++] = *cmd++;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;        tmp[i] = 0;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="preprocessor">#if defined(ARCH_X86)</span></div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="preprocessor"></span>        <span class="keywordflow">if</span>     (!<a class="code" href="string_8h.html#a6f3dcb20ff11ff9db5904c3cfb61a38c">strcmp</a>(tmp, <span class="stringliteral">&quot;-s&quot;</span>))     <a class="code" href="multiboot_8c.html#a195d84c3eb44334f5819411c7d8ee97c">output_serial</a> = <a class="code" href="serial_8h.html#a7dba27fd7950f6e40269808bd9238aca">SERIAL_COM1</a>;</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span>(!<a class="code" href="string_8h.html#a6f3dcb20ff11ff9db5904c3cfb61a38c">strcmp</a>(tmp, <span class="stringliteral">&quot;-sCOM1&quot;</span>)) <a class="code" href="multiboot_8c.html#a195d84c3eb44334f5819411c7d8ee97c">output_serial</a> = <a class="code" href="serial_8h.html#a7dba27fd7950f6e40269808bd9238aca">SERIAL_COM1</a>;</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span>(!<a class="code" href="string_8h.html#a6f3dcb20ff11ff9db5904c3cfb61a38c">strcmp</a>(tmp, <span class="stringliteral">&quot;-sCOM2&quot;</span>)) <a class="code" href="multiboot_8c.html#a195d84c3eb44334f5819411c7d8ee97c">output_serial</a> = <a class="code" href="serial_8h.html#ae9710beee223d2d90244af5114386be5">SERIAL_COM2</a>;</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span>(!<a class="code" href="string_8h.html#a6f3dcb20ff11ff9db5904c3cfb61a38c">strcmp</a>(tmp, <span class="stringliteral">&quot;-sCOM3&quot;</span>)) <a class="code" href="multiboot_8c.html#a195d84c3eb44334f5819411c7d8ee97c">output_serial</a> = <a class="code" href="serial_8h.html#a43e0f7440b85cfbd0ac3e94ee7e8a5e1">SERIAL_COM3</a>;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span>(!<a class="code" href="string_8h.html#a6f3dcb20ff11ff9db5904c3cfb61a38c">strcmp</a>(tmp, <span class="stringliteral">&quot;-sCOM4&quot;</span>)) <a class="code" href="multiboot_8c.html#a195d84c3eb44334f5819411c7d8ee97c">output_serial</a> = <a class="code" href="serial_8h.html#a16ecbbe0f2c0076c10b8b2e84739609c">SERIAL_COM4</a>;</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="preprocessor"></span>    }</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;}<div class="ttc" id="serial_8h_html_a16ecbbe0f2c0076c10b8b2e84739609c"><div class="ttname"><a href="serial_8h.html#a16ecbbe0f2c0076c10b8b2e84739609c">SERIAL_COM4</a></div><div class="ttdeci">#define SERIAL_COM4</div><div class="ttdef"><b>Definition:</b> <a href="serial_8h_source.html#l00009">serial.h:9</a></div></div>
-<div class="ttc" id="string_8h_html_a6f3dcb20ff11ff9db5904c3cfb61a38c"><div class="ttname"><a href="string_8h.html#a6f3dcb20ff11ff9db5904c3cfb61a38c">strcmp</a></div><div class="ttdeci">int strcmp(const char *str1, const char *str2)</div><div class="ttdef"><b>Definition:</b> <a href="string_8c_source.html#l00035">string.c:35</a></div></div>
-<div class="ttc" id="error_8h_html_a2e9b2c29084c4a3193a6c1c1f39e36f8"><div class="ttname"><a href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a></div><div class="ttdeci">void kerror(error_level errlvl, char *msg,...)</div><div class="ttdoc">Prints information about the kernel. Disables interrupts so it will not get interrupted, checks to see if the error level is &gt;= the minimum level, and if so, prints the current clock tick, then prints the error message. Then, if en_int != 0, it enables interrupts again. </div><div class="ttdef"><b>Definition:</b> <a href="error_8c_source.html#l00022">error.c:22</a></div></div>
-<div class="ttc" id="multiboot_8c_html_a93a0df7201080b93f585c3078a8460af"><div class="ttname"><a href="multiboot_8c.html#a93a0df7201080b93f585c3078a8460af">find_multiboot_table</a></div><div class="ttdeci">struct multiboot_tag * find_multiboot_table(struct multiboot_header_tag *mboot_tag, u32 type)</div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8c_source.html#l00018">multiboot.c:18</a></div></div>
-<div class="ttc" id="error_8h_html_adfccb88929c124c0313e7a14243a0389ac58e9a937f93b7844c2bf35fc77c10c5"><div class="ttname"><a href="error_8h.html#adfccb88929c124c0313e7a14243a0389ac58e9a937f93b7844c2bf35fc77c10c5">ERR_MEDERR</a></div><div class="ttdoc">A slightly worse error, but can USUALLY be ignored. </div><div class="ttdef"><b>Definition:</b> <a href="error_8h_source.html#l00010">error.h:10</a></div></div>
-<div class="ttc" id="serial_8h_html_a43e0f7440b85cfbd0ac3e94ee7e8a5e1"><div class="ttname"><a href="serial_8h.html#a43e0f7440b85cfbd0ac3e94ee7e8a5e1">SERIAL_COM3</a></div><div class="ttdeci">#define SERIAL_COM3</div><div class="ttdef"><b>Definition:</b> <a href="serial_8h_source.html#l00008">serial.h:8</a></div></div>
-<div class="ttc" id="structmultiboot__cmdline__tag_html"><div class="ttname"><a href="structmultiboot__cmdline__tag.html">multiboot_cmdline_tag</a></div><div class="ttdoc">The commandline given to the kernel. </div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00049">multiboot.h:49</a></div></div>
-<div class="ttc" id="string_8h_html_adbbf4d6ec8d6b708c64bd6a4a18065dd"><div class="ttname"><a href="string_8h.html#adbbf4d6ec8d6b708c64bd6a4a18065dd">strlen</a></div><div class="ttdeci">u32 strlen(const char *str)</div><div class="ttdef"><b>Definition:</b> <a href="string_8c_source.html#l00009">string.c:9</a></div></div>
-<div class="ttc" id="structmultiboot__cmdline__tag_html_af54ab0d1284386e45624f4eeb35685ca"><div class="ttname"><a href="structmultiboot__cmdline__tag.html#af54ab0d1284386e45624f4eeb35685ca">multiboot_cmdline_tag::cmdline</a></div><div class="ttdeci">u8 cmdline[]</div><div class="ttdoc">C-style string containing command line. </div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00053">multiboot.h:53</a></div></div>
-<div class="ttc" id="multiboot_8c_html_a195d84c3eb44334f5819411c7d8ee97c"><div class="ttname"><a href="multiboot_8c.html#a195d84c3eb44334f5819411c7d8ee97c">output_serial</a></div><div class="ttdeci">int output_serial</div><div class="ttdoc">If 0, write to VGA, else, write to serial port pointed to by output_serial </div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00011">video.c:11</a></div></div>
-<div class="ttc" id="serial_8h_html_ae9710beee223d2d90244af5114386be5"><div class="ttname"><a href="serial_8h.html#ae9710beee223d2d90244af5114386be5">SERIAL_COM2</a></div><div class="ttdeci">#define SERIAL_COM2</div><div class="ttdef"><b>Definition:</b> <a href="serial_8h_source.html#l00007">serial.h:7</a></div></div>
-<div class="ttc" id="serial_8h_html_a7dba27fd7950f6e40269808bd9238aca"><div class="ttname"><a href="serial_8h.html#a7dba27fd7950f6e40269808bd9238aca">SERIAL_COM1</a></div><div class="ttdeci">#define SERIAL_COM1</div><div class="ttdef"><b>Definition:</b> <a href="serial_8h_source.html#l00006">serial.h:6</a></div></div>
-</div><!-- fragment -->
-</div>
-</div>
-<a class="anchor" id="a93a0df7201080b93f585c3078a8460af"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">struct <a class="el" href="structmultiboot__tag.html">multiboot_tag</a>* find_multiboot_table </td>
-          <td>(</td>
-          <td class="paramtype">struct <a class="el" href="structmultiboot__header__tag.html">multiboot_header_tag</a> *&#160;</td>
-          <td class="paramname"><em>mboot_tag</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">u32&#160;</td>
-          <td class="paramname"><em>type</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Finds the first multiboot entry with a certain type value, then returns it as a <a class="el" href="structmultiboot__tag.html" title="General structure of a multiboot tag. ">multiboot_tag</a>.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">mboot_tag</td><td>the pointer to the multiboot tags header </td></tr>
-    <tr><td class="paramname">type</td><td>the type value to look for </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section see"><dt>See Also</dt><dd><a class="el" href="structmultiboot__tag.html" title="General structure of a multiboot tag. ">multiboot_tag</a> </dd></dl>
-
 <p>Definition at line <a class="el" href="multiboot_8c_source.html#l00018">18</a> of file <a class="el" href="multiboot_8c_source.html">multiboot.c</a>.</p>
 
-<p>References <a class="el" href="multiboot_8h_source.html#l00018">multiboot_header_tag::size</a>, <a class="el" href="multiboot_8h_source.html#l00026">multiboot_tag::size</a>, <a class="el" href="paging_8c_source.html#l00282">size</a>, and <a class="el" href="multiboot_8h_source.html#l00025">multiboot_tag::type</a>.</p>
+<p>References <a class="el" href="multiboot_8h_source.html#l00033">multiboot_header::cmdline</a>, <a class="el" href="initrd_8c_source.html#l00020">cpio_name</a>, <a class="el" href="error_8h_source.html#l00008">ERR_BOOTINFO</a>, <a class="el" href="multiboot_8h_source.html#l00029">multiboot_header::flags</a>, <a class="el" href="error_8c_source.html#l00022">kerror()</a>, <a class="el" href="panic_8c_source.html#l00012">kpanic()</a>, <a class="el" href="multiboot_8h_source.html#l00017">MBOOT_CMDLINE</a>, <a class="el" href="video_8c_source.html#l00011">output_serial</a>, <a class="el" href="serial_8h_source.html#l00006">SERIAL_COM1</a>, <a class="el" href="serial_8h_source.html#l00007">SERIAL_COM2</a>, <a class="el" href="serial_8h_source.html#l00008">SERIAL_COM3</a>, <a class="el" href="serial_8h_source.html#l00009">SERIAL_COM4</a>, <a class="el" href="string_8c_source.html#l00035">strcmp()</a>, and <a class="el" href="string_8c_source.html#l00009">strlen()</a>.</p>
 <div class="fragment"><div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;{</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    u32 <a class="code" href="paging_8c.html#acfd6273064c5acdcfc39a23a69dd4343">size</a> = mboot_tag-&gt;<a class="code" href="structmultiboot__header__tag.html#a600ea6674bbc05aca99c337e14384a59">size</a>;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    u32 i = 8; <span class="comment">// Bypass multiboot_header_tag</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <span class="keywordflow">while</span>(i &lt; size)</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    {</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;        <span class="keyword">struct </span><a class="code" href="structmultiboot__tag.html">multiboot_tag</a> *tag = (<span class="keyword">struct </span><a class="code" href="structmultiboot__tag.html">multiboot_tag</a> *)(i + (ptr_t)mboot_tag);</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;        <span class="keywordflow">if</span>(tag-&gt;<a class="code" href="structmultiboot__tag.html#ae5862b38ad043d3bbcdd375f4aa251fa">type</a> == <a class="code" href="structmultiboot__tag.html#ae5862b38ad043d3bbcdd375f4aa251fa">type</a>) <span class="keywordflow">return</span> tag;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        i += tag-&gt;<a class="code" href="structmultiboot__tag.html#aea1e8e58c2708e504287725c26074090">size</a>;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        <span class="keywordflow">if</span>(i &amp; 0x07) i = (i &amp; (u32)~0x07) + 8; <span class="comment">// Entries are aways padded</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    }</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <span class="keywordflow">return</span> 0; <span class="comment">// Couldn&#39;t find an appropiate tag</span></div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;}</div>
-<div class="ttc" id="structmultiboot__tag_html_aea1e8e58c2708e504287725c26074090"><div class="ttname"><a href="structmultiboot__tag.html#aea1e8e58c2708e504287725c26074090">multiboot_tag::size</a></div><div class="ttdeci">u32 size</div><div class="ttdoc">Size of multiboot tag. </div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00026">multiboot.h:26</a></div></div>
-<div class="ttc" id="paging_8c_html_acfd6273064c5acdcfc39a23a69dd4343"><div class="ttname"><a href="paging_8c.html#acfd6273064c5acdcfc39a23a69dd4343">size</a></div><div class="ttdeci">u32 size</div><div class="ttdoc">Size of block, including this header, AND padding. </div><div class="ttdef"><b>Definition:</b> <a href="paging_8c_source.html#l00282">paging.c:282</a></div></div>
-<div class="ttc" id="structmultiboot__tag_html_ae5862b38ad043d3bbcdd375f4aa251fa"><div class="ttname"><a href="structmultiboot__tag.html#ae5862b38ad043d3bbcdd375f4aa251fa">multiboot_tag::type</a></div><div class="ttdeci">u32 type</div><div class="ttdoc">Type of multiboot tag. </div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00025">multiboot.h:25</a></div></div>
-<div class="ttc" id="structmultiboot__header__tag_html_a600ea6674bbc05aca99c337e14384a59"><div class="ttname"><a href="structmultiboot__header__tag.html#a600ea6674bbc05aca99c337e14384a59">multiboot_header_tag::size</a></div><div class="ttdeci">u32 size</div><div class="ttdoc">Total size of multiboot tags. </div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00018">multiboot.h:18</a></div></div>
-<div class="ttc" id="structmultiboot__tag_html"><div class="ttname"><a href="structmultiboot__tag.html">multiboot_tag</a></div><div class="ttdoc">General structure of a multiboot tag. </div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00023">multiboot.h:23</a></div></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    <span class="keywordflow">if</span>(!(mboot_head-&gt;<a class="code" href="structmultiboot__header.html#a3fcabe752a2303340eceb07332f38352">flags</a> &amp; <a class="code" href="multiboot_8h.html#a3e0ef12017c9f541cd59007b3c7fedc3">MBOOT_CMDLINE</a>))</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    {</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;        <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a>, <span class="stringliteral">&quot;No commandline provided&quot;</span>);</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;        <span class="keywordflow">return</span>;</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    }</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    </div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="keywordtype">char</span> *cmd = (<span class="keywordtype">char</span> *)mboot_head-&gt;<a class="code" href="structmultiboot__header.html#ab70478076ac71ee87cf406fb8d9be745">cmdline</a>;</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keywordtype">char</span> *end = cmd + <a class="code" href="string_8h.html#adbbf4d6ec8d6b708c64bd6a4a18065dd">strlen</a>(cmd) + 1;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keywordtype">char</span> tmp[1000];</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <span class="keywordtype">int</span> i;</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <span class="keywordflow">while</span>(cmd &lt; end)</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    {</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;        <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a>, <span class="stringliteral">&quot;CMD: %08X END: %08X&quot;</span>, cmd, end);</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;        i = 0;</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;        <span class="keywordflow">if</span>(*cmd == 0) <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;        <span class="keywordflow">while</span>(*cmd == <span class="charliteral">&#39; &#39;</span>) cmd++;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;        <span class="keywordflow">while</span>(*cmd != <span class="charliteral">&#39; &#39;</span> &amp;&amp; *cmd != 0) tmp[i++] = *cmd++;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;        tmp[i] = 0;</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;        <span class="keywordflow">if</span>     (!<a class="code" href="string_8h.html#a6f3dcb20ff11ff9db5904c3cfb61a38c">strcmp</a>(tmp, <span class="stringliteral">&quot;-cpio&quot;</span>))</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;        {</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;            <span class="keywordflow">if</span>(*cmd == 0) <a class="code" href="panic_8h.html#ad9596da66fc4b2244b44cd89d7097617">kpanic</a>(<span class="stringliteral">&quot;No module name supplied after `-cpio`&quot;</span>);</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;            <span class="keywordflow">while</span>(*cmd == <span class="charliteral">&#39; &#39;</span>) cmd++;</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;            <a class="code" href="multiboot_8c.html#acf90eb291397fbd23e59167b200621fe">cpio_name</a> = cmd; <span class="comment">// The name of the initrd module</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;            <span class="keywordflow">while</span>(*cmd != <span class="charliteral">&#39; &#39;</span> &amp;&amp; *cmd != 0) cmd++;</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;        }</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">#if defined(ARCH_X86) // Names of serial ports will likely be different on different systems</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor"></span>        <span class="keywordflow">else</span> <span class="keywordflow">if</span>(!<a class="code" href="string_8h.html#a6f3dcb20ff11ff9db5904c3cfb61a38c">strcmp</a>(tmp, <span class="stringliteral">&quot;-s&quot;</span>))     <a class="code" href="multiboot_8c.html#a195d84c3eb44334f5819411c7d8ee97c">output_serial</a> = <a class="code" href="serial_8h.html#a7dba27fd7950f6e40269808bd9238aca">SERIAL_COM1</a>;</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span>(!<a class="code" href="string_8h.html#a6f3dcb20ff11ff9db5904c3cfb61a38c">strcmp</a>(tmp, <span class="stringliteral">&quot;-sCOM1&quot;</span>)) <a class="code" href="multiboot_8c.html#a195d84c3eb44334f5819411c7d8ee97c">output_serial</a> = <a class="code" href="serial_8h.html#a7dba27fd7950f6e40269808bd9238aca">SERIAL_COM1</a>;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span>(!<a class="code" href="string_8h.html#a6f3dcb20ff11ff9db5904c3cfb61a38c">strcmp</a>(tmp, <span class="stringliteral">&quot;-sCOM2&quot;</span>)) <a class="code" href="multiboot_8c.html#a195d84c3eb44334f5819411c7d8ee97c">output_serial</a> = <a class="code" href="serial_8h.html#ae9710beee223d2d90244af5114386be5">SERIAL_COM2</a>;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span>(!<a class="code" href="string_8h.html#a6f3dcb20ff11ff9db5904c3cfb61a38c">strcmp</a>(tmp, <span class="stringliteral">&quot;-sCOM3&quot;</span>)) <a class="code" href="multiboot_8c.html#a195d84c3eb44334f5819411c7d8ee97c">output_serial</a> = <a class="code" href="serial_8h.html#a43e0f7440b85cfbd0ac3e94ee7e8a5e1">SERIAL_COM3</a>;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span>(!<a class="code" href="string_8h.html#a6f3dcb20ff11ff9db5904c3cfb61a38c">strcmp</a>(tmp, <span class="stringliteral">&quot;-sCOM4&quot;</span>)) <a class="code" href="multiboot_8c.html#a195d84c3eb44334f5819411c7d8ee97c">output_serial</a> = <a class="code" href="serial_8h.html#a16ecbbe0f2c0076c10b8b2e84739609c">SERIAL_COM4</a>;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor"></span>    }</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;}</div>
+<div class="ttc" id="serial_8h_html_a16ecbbe0f2c0076c10b8b2e84739609c"><div class="ttname"><a href="serial_8h.html#a16ecbbe0f2c0076c10b8b2e84739609c">SERIAL_COM4</a></div><div class="ttdeci">#define SERIAL_COM4</div><div class="ttdef"><b>Definition:</b> <a href="serial_8h_source.html#l00009">serial.h:9</a></div></div>
+<div class="ttc" id="multiboot_8c_html_acf90eb291397fbd23e59167b200621fe"><div class="ttname"><a href="multiboot_8c.html#acf90eb291397fbd23e59167b200621fe">cpio_name</a></div><div class="ttdeci">char * cpio_name</div><div class="ttdef"><b>Definition:</b> <a href="initrd_8c_source.html#l00020">initrd.c:20</a></div></div>
+<div class="ttc" id="string_8h_html_a6f3dcb20ff11ff9db5904c3cfb61a38c"><div class="ttname"><a href="string_8h.html#a6f3dcb20ff11ff9db5904c3cfb61a38c">strcmp</a></div><div class="ttdeci">int strcmp(const char *str1, const char *str2)</div><div class="ttdef"><b>Definition:</b> <a href="string_8c_source.html#l00035">string.c:35</a></div></div>
+<div class="ttc" id="error_8h_html_a2e9b2c29084c4a3193a6c1c1f39e36f8"><div class="ttname"><a href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a></div><div class="ttdeci">void kerror(error_level errlvl, char *msg,...)</div><div class="ttdoc">Prints information about the kernel. Disables interrupts so it will not get interrupted, checks to see if the error level is &gt;= the minimum level, and if so, prints the current clock tick, then prints the error message. Then, if en_int != 0, it enables interrupts again. </div><div class="ttdef"><b>Definition:</b> <a href="error_8c_source.html#l00022">error.c:22</a></div></div>
+<div class="ttc" id="serial_8h_html_a43e0f7440b85cfbd0ac3e94ee7e8a5e1"><div class="ttname"><a href="serial_8h.html#a43e0f7440b85cfbd0ac3e94ee7e8a5e1">SERIAL_COM3</a></div><div class="ttdeci">#define SERIAL_COM3</div><div class="ttdef"><b>Definition:</b> <a href="serial_8h_source.html#l00008">serial.h:8</a></div></div>
+<div class="ttc" id="structmultiboot__header_html_ab70478076ac71ee87cf406fb8d9be745"><div class="ttname"><a href="structmultiboot__header.html#ab70478076ac71ee87cf406fb8d9be745">multiboot_header::cmdline</a></div><div class="ttdeci">u32 cmdline</div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00033">multiboot.h:33</a></div></div>
+<div class="ttc" id="error_8h_html_adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1"><div class="ttname"><a href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a></div><div class="ttdoc">Message containing information about the kernel&#39;s boot process. </div><div class="ttdef"><b>Definition:</b> <a href="error_8h_source.html#l00008">error.h:8</a></div></div>
+<div class="ttc" id="string_8h_html_adbbf4d6ec8d6b708c64bd6a4a18065dd"><div class="ttname"><a href="string_8h.html#adbbf4d6ec8d6b708c64bd6a4a18065dd">strlen</a></div><div class="ttdeci">u32 strlen(const char *str)</div><div class="ttdef"><b>Definition:</b> <a href="string_8c_source.html#l00009">string.c:9</a></div></div>
+<div class="ttc" id="multiboot_8c_html_a195d84c3eb44334f5819411c7d8ee97c"><div class="ttname"><a href="multiboot_8c.html#a195d84c3eb44334f5819411c7d8ee97c">output_serial</a></div><div class="ttdeci">int output_serial</div><div class="ttdoc">If 0, write to VGA, else, write to serial port pointed to by output_serial </div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00011">video.c:11</a></div></div>
+<div class="ttc" id="multiboot_8h_html_a3e0ef12017c9f541cd59007b3c7fedc3"><div class="ttname"><a href="multiboot_8h.html#a3e0ef12017c9f541cd59007b3c7fedc3">MBOOT_CMDLINE</a></div><div class="ttdeci">#define MBOOT_CMDLINE</div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00017">multiboot.h:17</a></div></div>
+<div class="ttc" id="structmultiboot__header_html_a3fcabe752a2303340eceb07332f38352"><div class="ttname"><a href="structmultiboot__header.html#a3fcabe752a2303340eceb07332f38352">multiboot_header::flags</a></div><div class="ttdeci">u32 flags</div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00029">multiboot.h:29</a></div></div>
+<div class="ttc" id="serial_8h_html_ae9710beee223d2d90244af5114386be5"><div class="ttname"><a href="serial_8h.html#ae9710beee223d2d90244af5114386be5">SERIAL_COM2</a></div><div class="ttdeci">#define SERIAL_COM2</div><div class="ttdef"><b>Definition:</b> <a href="serial_8h_source.html#l00007">serial.h:7</a></div></div>
+<div class="ttc" id="serial_8h_html_a7dba27fd7950f6e40269808bd9238aca"><div class="ttname"><a href="serial_8h.html#a7dba27fd7950f6e40269808bd9238aca">SERIAL_COM1</a></div><div class="ttdeci">#define SERIAL_COM1</div><div class="ttdef"><b>Definition:</b> <a href="serial_8h_source.html#l00006">serial.h:6</a></div></div>
+<div class="ttc" id="panic_8h_html_ad9596da66fc4b2244b44cd89d7097617"><div class="ttname"><a href="panic_8h.html#ad9596da66fc4b2244b44cd89d7097617">kpanic</a></div><div class="ttdeci">void kpanic(char *msg,...)</div><div class="ttdoc">Halts OS after printing error information. Disabled interrupts, prints the provided error message...</div><div class="ttdef"><b>Definition:</b> <a href="panic_8c_source.html#l00012">panic.c:12</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
+<a class="anchor" id="acf90eb291397fbd23e59167b200621fe"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* cpio_name</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="initrd_8c_source.html#l00020">20</a> of file <a class="el" href="initrd_8c_source.html">initrd.c</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="a195d84c3eb44334f5819411c7d8ee97c"></a>
 <div class="memitem">
 <div class="memproto">
@@ -272,7 +242,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_3dd30a497388ee684638f120a124721c.html">src</a></li><li class="navelem"><a class="el" href="dir_f2d89d2b1d9c2db1a3c63568d0092ca4.html">main</a></li><li class="navelem"><a class="el" href="multiboot_8c.html">multiboot.c</a></li>
-    <li class="footer">Generated on Mon Jan 13 2014 21:41:56 for Lambda OS by
+    <li class="footer">Generated on Sat Jan 25 2014 17:36:05 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

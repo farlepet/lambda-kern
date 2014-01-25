@@ -1,0 +1,25 @@
+var structkfile =
+[
+    [ "atime", "structkfile.html#a9b3b06daeb99f1a328b67573a6df67d8", null ],
+    [ "close", "structkfile.html#ac83f60535af1c8a81626c3d820424af6", null ],
+    [ "create", "structkfile.html#a81087e571e04b3125309c759b21299d0", null ],
+    [ "ctime", "structkfile.html#a7c8f48f188fabaad1641a87c1e8e9a7f", null ],
+    [ "finddir", "structkfile.html#a847942728f0cefd1c0f4f74d384d9478", null ],
+    [ "flags", "structkfile.html#a106ad4bca93f559e2bf5c42e6128989b", null ],
+    [ "gid", "structkfile.html#a31789731c7226e1e7dd28efb41986aa3", null ],
+    [ "impl", "structkfile.html#af87d0d89c8445b43fcf60c7bcd620e35", null ],
+    [ "inode", "structkfile.html#a079cdc14d0cf6bd98f6574c6712cb4d4", null ],
+    [ "ioctl", "structkfile.html#a017993a2009ada4ffee2e0b735a1b980", null ],
+    [ "length", "structkfile.html#a67eb2f3ad6e2e710937b4d0b0ed33244", null ],
+    [ "link", "structkfile.html#af8beedeaf00ced4b38cbe4760deb80ca", null ],
+    [ "mkdir", "structkfile.html#a1efa105044636442e977895d13a05cbc", null ],
+    [ "mtime", "structkfile.html#a2bfacf0420684574cd47120ecb07bdff", null ],
+    [ "name", "structkfile.html#afca7c7c23a87e6615051f5041804e089", null ],
+    [ "open", "structkfile.html#a1b72aaf6ce97c6cd8d9755e12b15f837", null ],
+    [ "open_flags", "structkfile.html#af2bc2e544fb34cd2d832ef50c7133af8", null ],
+    [ "pflags", "structkfile.html#a42945f237fd4689d44a2961e0a2e3fc7", null ],
+    [ "read", "structkfile.html#a65b10ff2de79a09a06e5efa85ccbf44a", null ],
+    [ "readdir", "structkfile.html#ae4491f40bd028ae0d21fef0c732cbe60", null ],
+    [ "uid", "structkfile.html#afeda825388d263d0d446ebc41ae68043", null ],
+    [ "write", "structkfile.html#a3121c0c59af91c13376d29f4ae620e66", null ]
+];

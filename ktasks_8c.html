@@ -110,6 +110,7 @@ $(document).ready(function(){initNavTree('ktasks_8c.html','');});
 <div class="contents">
 <div class="textblock"><code>#include &lt;<a class="el" href="ktasks_8h_source.html">proc/ktasks.h</a>&gt;</code><br/>
 <code>#include &lt;<a class="el" href="error_8h_source.html">err/error.h</a>&gt;</code><br/>
+<code>#include &lt;<a class="el" href="time_8h_source.html">time/time.h</a>&gt;</code><br/>
 <code>#include &lt;<a class="el" href="ipc_8h_source.html">proc/ipc.h</a>&gt;</code><br/>
 <code>#include &lt;<a class="el" href="int_8h_source.html">intr/int.h</a>&gt;</code><br/>
 <code>#include &lt;<a class="el" href="video_8h_source.html">video.h</a>&gt;</code><br/>
@@ -118,6 +119,8 @@ $(document).ready(function(){initNavTree('ktasks_8c.html','');});
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:aef5a824910ee4148c6238f5b768a148e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ktasks_8c.html#aef5a824910ee4148c6238f5b768a148e">get_ktask</a> (int <a class="el" href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a>, u64 time)</td></tr>
+<tr class="separator:aef5a824910ee4148c6238f5b768a148e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8b9d34b4d78fec263960afff3c4c18d3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ktasks_8c.html#a8b9d34b4d78fec263960afff3c4c18d3">init_ktasks</a> ()</td></tr>
 <tr class="separator:a8b9d34b4d78fec263960afff3c4c18d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -128,6 +131,67 @@ Variables</h2></td></tr>
 <tr class="separator:a451e2165b96bdd220da63dbca8441bdb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
+<a class="anchor" id="aef5a824910ee4148c6238f5b768a148e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int get_ktask </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">u64&#160;</td>
+          <td class="paramname"><em>time</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Get a kernel task PID</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">n</td><td>kernel task number </td></tr>
+    <tr><td class="paramname">time</td><td>max number of clock ticks to wait (0 = infinite) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="ktasks_8c_source.html#l00016">16</a> of file <a class="el" href="ktasks_8c_source.html">ktasks.c</a>.</p>
+
+<p>References <a class="el" href="int_8h_source.html#l00021">busy_wait()</a>, <a class="el" href="error_8h_source.html#l00010">ERR_MEDERR</a>, <a class="el" href="time_8h_source.html#l00006">kerneltime</a>, <a class="el" href="error_8c_source.html#l00022">kerror()</a>, <a class="el" href="ktasks_8c_source.html#l00008">ktask_pids</a>, <a class="el" href="ktasks_8h_source.html#l00018">KTASK_SLOTS</a>, and <a class="el" href="initrd_8c_source.html#l00022">n</a>.</p>
+<div class="fragment"><div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;{</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a> &gt;= <a class="code" href="ktasks_8h.html#a11af705257675d532b25476c498b5e64">KTASK_SLOTS</a>)</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    {</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;        <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389ac58e9a937f93b7844c2bf35fc77c10c5">ERR_MEDERR</a>, <span class="stringliteral">&quot;Kernel requested pid of invalid ktask: %d&quot;</span>, <a class="code" href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a>);</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;        <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    }</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    u64 end = <a class="code" href="time_8h.html#a2136c1b265c64af3e757a11f3a09548b">kerneltime</a> + time;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keywordflow">while</span>((<a class="code" href="time_8h.html#a2136c1b265c64af3e757a11f3a09548b">kerneltime</a> &lt; end) || (time == 0))</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    {</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        <span class="keywordflow">if</span>(<a class="code" href="ktasks_8c.html#a451e2165b96bdd220da63dbca8441bdb">ktask_pids</a>[<a class="code" href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a>]) <span class="keywordflow">return</span> <a class="code" href="ktasks_8c.html#a451e2165b96bdd220da63dbca8441bdb">ktask_pids</a>[<a class="code" href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a>];</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        <a class="code" href="int_8h.html#a9545bdecacf9a54e87040eed17d121e6">busy_wait</a>();</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    }</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389ac58e9a937f93b7844c2bf35fc77c10c5">ERR_MEDERR</a>, <span class="stringliteral">&quot;Could not get pid of ktask %d within %d ticks&quot;</span>, <a class="code" href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a>, time);</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;}</div>
+<div class="ttc" id="time_8h_html_a2136c1b265c64af3e757a11f3a09548b"><div class="ttname"><a href="time_8h.html#a2136c1b265c64af3e757a11f3a09548b">kerneltime</a></div><div class="ttdeci">u64 kerneltime</div><div class="ttdoc">Number of elapsed ticks since the PIT was initialized. </div><div class="ttdef"><b>Definition:</b> <a href="time_8h_source.html#l00006">time.h:6</a></div></div>
+<div class="ttc" id="error_8h_html_a2e9b2c29084c4a3193a6c1c1f39e36f8"><div class="ttname"><a href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a></div><div class="ttdeci">void kerror(error_level errlvl, char *msg,...)</div><div class="ttdoc">Prints information about the kernel. Disables interrupts so it will not get interrupted, checks to see if the error level is &gt;= the minimum level, and if so, prints the current clock tick, then prints the error message. Then, if en_int != 0, it enables interrupts again. </div><div class="ttdef"><b>Definition:</b> <a href="error_8c_source.html#l00022">error.c:22</a></div></div>
+<div class="ttc" id="error_8h_html_adfccb88929c124c0313e7a14243a0389ac58e9a937f93b7844c2bf35fc77c10c5"><div class="ttname"><a href="error_8h.html#adfccb88929c124c0313e7a14243a0389ac58e9a937f93b7844c2bf35fc77c10c5">ERR_MEDERR</a></div><div class="ttdoc">A slightly worse error, but can USUALLY be ignored. </div><div class="ttdef"><b>Definition:</b> <a href="error_8h_source.html#l00010">error.h:10</a></div></div>
+<div class="ttc" id="ktasks_8h_html_a11af705257675d532b25476c498b5e64"><div class="ttname"><a href="ktasks_8h.html#a11af705257675d532b25476c498b5e64">KTASK_SLOTS</a></div><div class="ttdeci">#define KTASK_SLOTS</div><div class="ttdef"><b>Definition:</b> <a href="ktasks_8h_source.html#l00018">ktasks.h:18</a></div></div>
+<div class="ttc" id="int_8h_html_a9545bdecacf9a54e87040eed17d121e6"><div class="ttname"><a href="int_8h.html#a9545bdecacf9a54e87040eed17d121e6">busy_wait</a></div><div class="ttdeci">static void busy_wait()</div><div class="ttdef"><b>Definition:</b> <a href="int_8h_source.html#l00021">int.h:21</a></div></div>
+<div class="ttc" id="initrd_8c_html_aeeaadee5bc43f82500dbe49fdf7516f5"><div class="ttname"><a href="initrd_8c.html#aeeaadee5bc43f82500dbe49fdf7516f5">n</a></div><div class="ttdeci">#define n(x)</div><div class="ttdef"><b>Definition:</b> <a href="initrd_8c_source.html#l00022">initrd.c:22</a></div></div>
+<div class="ttc" id="ktasks_8c_html_a451e2165b96bdd220da63dbca8441bdb"><div class="ttname"><a href="ktasks_8c.html#a451e2165b96bdd220da63dbca8441bdb">ktask_pids</a></div><div class="ttdeci">int ktask_pids[KTASK_SLOTS]</div><div class="ttdoc">PID&#39;s of these tasks. </div><div class="ttdef"><b>Definition:</b> <a href="ktasks_8c_source.html#l00008">ktasks.c:8</a></div></div>
+</div><!-- fragment -->
+</div>
+</div>
 <a class="anchor" id="a8b9d34b4d78fec263960afff3c4c18d3"></a>
 <div class="memitem">
 <div class="memproto">
@@ -142,34 +206,35 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="ktasks_8c_source.html#l00009">9</a> of file <a class="el" href="ktasks_8c_source.html">ktasks.c</a>.</p>
+<p>Definition at line <a class="el" href="ktasks_8c_source.html#l00034">34</a> of file <a class="el" href="ktasks_8c_source.html">ktasks.c</a>.</p>
 
-<p>References <a class="el" href="mtask_8c_source.html#l00044">add_kernel_task()</a>, <a class="el" href="error_8h_source.html#l00008">ERR_BOOTINFO</a>, <a class="el" href="idle_8c_source.html#l00009">idle_task()</a>, <a class="el" href="kbug_8c_source.html#l00013">kbug_task()</a>, <a class="el" href="error_8c_source.html#l00022">kerror()</a>, <a class="el" href="kinput_8c_source.html#l00048">kinput_task()</a>, <a class="el" href="krng_8c_source.html#l00022">krng_task()</a>, <a class="el" href="kvid_8c_source.html#l00009">kvid_task()</a>, <a class="el" href="proc_8h_source.html#l00024">PRIO_DRIVER</a>, <a class="el" href="proc_8h_source.html#l00021">PRIO_IDLE</a>, and <a class="el" href="proc_8h_source.html#l00025">PRIO_KERNEL</a>.</p>
-<div class="fragment"><div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;{</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a>, <span class="stringliteral">&quot;Starting kernel idle task&quot;</span>);</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    <a class="code" href="mtask_8h.html#a940cd86075fdd80665ef6316b9584a3a">add_kernel_task</a>((<span class="keywordtype">void</span> *)&amp;<a class="code" href="idle_8h.html#a72b95d7bf14c8b40e3df1b5c0a647a29">idle_task</a>, <span class="stringliteral">&quot;_idle_&quot;</span>, 0x100, <a class="code" href="proc_8h.html#a81ea189bb01a0d3df10e590165d625fc">PRIO_IDLE</a>);</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a>, <span class="stringliteral">&quot;Starting kernel video task&quot;</span>);</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    <a class="code" href="mtask_8h.html#a940cd86075fdd80665ef6316b9584a3a">add_kernel_task</a>((<span class="keywordtype">void</span> *)&amp;<a class="code" href="kvid_8h.html#aed1c8676b730c75eb4d6032cf848a835">kvid_task</a>, <span class="stringliteral">&quot;kvid&quot;</span>, 0x1000, <a class="code" href="proc_8h.html#a19c3d4b903970baad9da390bb87dc88c">PRIO_DRIVER</a>);</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#ifdef DEBUGGER</span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor"></span>    <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a>, <span class="stringliteral">&quot;Starting kernel debug task&quot;</span>);</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    <a class="code" href="mtask_8h.html#a940cd86075fdd80665ef6316b9584a3a">add_kernel_task</a>((<span class="keywordtype">void</span> *)&amp;<a class="code" href="kbug_8h.html#ab8a5644d2f4b5d893ccb8932438fa72d">kbug_task</a>, <span class="stringliteral">&quot;kbug&quot;</span>, 0x2000, <a class="code" href="proc_8h.html#a859fe539536b9859fb71e7b124eeb9e3">PRIO_KERNEL</a>);</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#endif // DEBUGGER</span></div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a>, <span class="stringliteral">&quot;Starting kernel input task&quot;</span>);</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <a class="code" href="mtask_8h.html#a940cd86075fdd80665ef6316b9584a3a">add_kernel_task</a>((<span class="keywordtype">void</span> *)&amp;<a class="code" href="kinput_8h.html#a33da48b9c873a48a35318117b1f6f234">kinput_task</a>, <span class="stringliteral">&quot;kinput&quot;</span>, 0x1000, <a class="code" href="proc_8h.html#a19c3d4b903970baad9da390bb87dc88c">PRIO_DRIVER</a>);</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a>, <span class="stringliteral">&quot;Starting kernel RNG task&quot;</span>);</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <a class="code" href="mtask_8h.html#a940cd86075fdd80665ef6316b9584a3a">add_kernel_task</a>((<span class="keywordtype">void</span> *)&amp;<a class="code" href="krng_8h.html#ae65aae3660a818afee97c189969bc6c8">krng_task</a>, <span class="stringliteral">&quot;krng&quot;</span>, 0x1000, <a class="code" href="proc_8h.html#a19c3d4b903970baad9da390bb87dc88c">PRIO_DRIVER</a>);</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;}<div class="ttc" id="error_8h_html_a2e9b2c29084c4a3193a6c1c1f39e36f8"><div class="ttname"><a href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a></div><div class="ttdeci">void kerror(error_level errlvl, char *msg,...)</div><div class="ttdoc">Prints information about the kernel. Disables interrupts so it will not get interrupted, checks to see if the error level is &gt;= the minimum level, and if so, prints the current clock tick, then prints the error message. Then, if en_int != 0, it enables interrupts again. </div><div class="ttdef"><b>Definition:</b> <a href="error_8c_source.html#l00022">error.c:22</a></div></div>
+<p>References <a class="el" href="mtask_8c_source.html#l00045">add_kernel_task()</a>, <a class="el" href="error_8h_source.html#l00008">ERR_BOOTINFO</a>, <a class="el" href="idle_8c_source.html#l00009">idle_task()</a>, <a class="el" href="kbug_8c_source.html#l00014">kbug_task()</a>, <a class="el" href="error_8c_source.html#l00022">kerror()</a>, <a class="el" href="kinput_8c_source.html#l00048">kinput_task()</a>, <a class="el" href="krng_8c_source.html#l00022">krng_task()</a>, <a class="el" href="kvid_8c_source.html#l00009">kvid_task()</a>, <a class="el" href="proc_8h_source.html#l00024">PRIO_DRIVER</a>, <a class="el" href="proc_8h_source.html#l00021">PRIO_IDLE</a>, and <a class="el" href="proc_8h_source.html#l00025">PRIO_KERNEL</a>.</p>
+<div class="fragment"><div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;{</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a>, <span class="stringliteral">&quot;Starting kernel idle task&quot;</span>);</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <a class="code" href="mtask_8h.html#a940cd86075fdd80665ef6316b9584a3a">add_kernel_task</a>((<span class="keywordtype">void</span> *)&amp;<a class="code" href="idle_8h.html#a72b95d7bf14c8b40e3df1b5c0a647a29">idle_task</a>, <span class="stringliteral">&quot;_idle_&quot;</span>, 0x100, <a class="code" href="proc_8h.html#a81ea189bb01a0d3df10e590165d625fc">PRIO_IDLE</a>);</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a>, <span class="stringliteral">&quot;Starting kernel video task&quot;</span>);</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <a class="code" href="mtask_8h.html#a940cd86075fdd80665ef6316b9584a3a">add_kernel_task</a>((<span class="keywordtype">void</span> *)&amp;<a class="code" href="kvid_8h.html#aed1c8676b730c75eb4d6032cf848a835">kvid_task</a>, <span class="stringliteral">&quot;kvid&quot;</span>, 0x1000, <a class="code" href="proc_8h.html#a19c3d4b903970baad9da390bb87dc88c">PRIO_DRIVER</a>);</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">#ifdef DEBUGGER</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor"></span>    <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a>, <span class="stringliteral">&quot;Starting kernel debug task&quot;</span>);</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <a class="code" href="mtask_8h.html#a940cd86075fdd80665ef6316b9584a3a">add_kernel_task</a>((<span class="keywordtype">void</span> *)&amp;<a class="code" href="kbug_8h.html#ab8a5644d2f4b5d893ccb8932438fa72d">kbug_task</a>, <span class="stringliteral">&quot;kbug&quot;</span>, 0x2000, <a class="code" href="proc_8h.html#a859fe539536b9859fb71e7b124eeb9e3">PRIO_KERNEL</a>);</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">#endif // DEBUGGER</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a>, <span class="stringliteral">&quot;Starting kernel input task&quot;</span>);</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <a class="code" href="mtask_8h.html#a940cd86075fdd80665ef6316b9584a3a">add_kernel_task</a>((<span class="keywordtype">void</span> *)&amp;<a class="code" href="kinput_8h.html#a33da48b9c873a48a35318117b1f6f234">kinput_task</a>, <span class="stringliteral">&quot;kinput&quot;</span>, 0x1000, <a class="code" href="proc_8h.html#a19c3d4b903970baad9da390bb87dc88c">PRIO_DRIVER</a>);</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a>, <span class="stringliteral">&quot;Starting kernel RNG task&quot;</span>);</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <a class="code" href="mtask_8h.html#a940cd86075fdd80665ef6316b9584a3a">add_kernel_task</a>((<span class="keywordtype">void</span> *)&amp;<a class="code" href="krng_8h.html#ae65aae3660a818afee97c189969bc6c8">krng_task</a>, <span class="stringliteral">&quot;krng&quot;</span>, 0x1000, <a class="code" href="proc_8h.html#a19c3d4b903970baad9da390bb87dc88c">PRIO_DRIVER</a>);</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;}</div>
+<div class="ttc" id="error_8h_html_a2e9b2c29084c4a3193a6c1c1f39e36f8"><div class="ttname"><a href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a></div><div class="ttdeci">void kerror(error_level errlvl, char *msg,...)</div><div class="ttdoc">Prints information about the kernel. Disables interrupts so it will not get interrupted, checks to see if the error level is &gt;= the minimum level, and if so, prints the current clock tick, then prints the error message. Then, if en_int != 0, it enables interrupts again. </div><div class="ttdef"><b>Definition:</b> <a href="error_8c_source.html#l00022">error.c:22</a></div></div>
 <div class="ttc" id="kvid_8h_html_aed1c8676b730c75eb4d6032cf848a835"><div class="ttname"><a href="kvid_8h.html#aed1c8676b730c75eb4d6032cf848a835">kvid_task</a></div><div class="ttdeci">void kvid_task(void)</div><div class="ttdef"><b>Definition:</b> <a href="kvid_8c_source.html#l00009">kvid.c:9</a></div></div>
 <div class="ttc" id="error_8h_html_adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1"><div class="ttname"><a href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a></div><div class="ttdoc">Message containing information about the kernel&#39;s boot process. </div><div class="ttdef"><b>Definition:</b> <a href="error_8h_source.html#l00008">error.h:8</a></div></div>
 <div class="ttc" id="krng_8h_html_ae65aae3660a818afee97c189969bc6c8"><div class="ttname"><a href="krng_8h.html#ae65aae3660a818afee97c189969bc6c8">krng_task</a></div><div class="ttdeci">void krng_task(void)</div><div class="ttdef"><b>Definition:</b> <a href="krng_8c_source.html#l00022">krng.c:22</a></div></div>
-<div class="ttc" id="kbug_8h_html_ab8a5644d2f4b5d893ccb8932438fa72d"><div class="ttname"><a href="kbug_8h.html#ab8a5644d2f4b5d893ccb8932438fa72d">kbug_task</a></div><div class="ttdeci">void kbug_task(void)</div><div class="ttdef"><b>Definition:</b> <a href="kbug_8c_source.html#l00013">kbug.c:13</a></div></div>
+<div class="ttc" id="kbug_8h_html_ab8a5644d2f4b5d893ccb8932438fa72d"><div class="ttname"><a href="kbug_8h.html#ab8a5644d2f4b5d893ccb8932438fa72d">kbug_task</a></div><div class="ttdeci">void kbug_task(void)</div><div class="ttdef"><b>Definition:</b> <a href="kbug_8c_source.html#l00014">kbug.c:14</a></div></div>
 <div class="ttc" id="proc_8h_html_a19c3d4b903970baad9da390bb87dc88c"><div class="ttname"><a href="proc_8h.html#a19c3d4b903970baad9da390bb87dc88c">PRIO_DRIVER</a></div><div class="ttdeci">#define PRIO_DRIVER</div><div class="ttdoc">Priority for kernel drivers. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00024">proc.h:24</a></div></div>
 <div class="ttc" id="proc_8h_html_a859fe539536b9859fb71e7b124eeb9e3"><div class="ttname"><a href="proc_8h.html#a859fe539536b9859fb71e7b124eeb9e3">PRIO_KERNEL</a></div><div class="ttdeci">#define PRIO_KERNEL</div><div class="ttdoc">Priority for main kernel tasks. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00025">proc.h:25</a></div></div>
-<div class="ttc" id="mtask_8h_html_a940cd86075fdd80665ef6316b9584a3a"><div class="ttname"><a href="mtask_8h.html#a940cd86075fdd80665ef6316b9584a3a">add_kernel_task</a></div><div class="ttdeci">void add_kernel_task(void *process, char *name, u32 stack_size, int pri)</div><div class="ttdef"><b>Definition:</b> <a href="mtask_8c_source.html#l00044">mtask.c:44</a></div></div>
+<div class="ttc" id="mtask_8h_html_a940cd86075fdd80665ef6316b9584a3a"><div class="ttname"><a href="mtask_8h.html#a940cd86075fdd80665ef6316b9584a3a">add_kernel_task</a></div><div class="ttdeci">void add_kernel_task(void *process, char *name, u32 stack_size, int pri)</div><div class="ttdef"><b>Definition:</b> <a href="mtask_8c_source.html#l00045">mtask.c:45</a></div></div>
 <div class="ttc" id="proc_8h_html_a81ea189bb01a0d3df10e590165d625fc"><div class="ttname"><a href="proc_8h.html#a81ea189bb01a0d3df10e590165d625fc">PRIO_IDLE</a></div><div class="ttdeci">#define PRIO_IDLE</div><div class="ttdoc">Only idle processes use this priority. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00021">proc.h:21</a></div></div>
 <div class="ttc" id="kinput_8h_html_a33da48b9c873a48a35318117b1f6f234"><div class="ttname"><a href="kinput_8h.html#a33da48b9c873a48a35318117b1f6f234">kinput_task</a></div><div class="ttdeci">void kinput_task(void)</div><div class="ttdef"><b>Definition:</b> <a href="kinput_8c_source.html#l00048">kinput.c:48</a></div></div>
 <div class="ttc" id="idle_8h_html_a72b95d7bf14c8b40e3df1b5c0a647a29"><div class="ttname"><a href="idle_8h.html#a72b95d7bf14c8b40e3df1b5c0a647a29">idle_task</a></div><div class="ttdeci">void idle_task(void)</div><div class="ttdef"><b>Definition:</b> <a href="idle_8c_source.html#l00009">idle.c:9</a></div></div>
@@ -187,7 +252,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="ktasks_8c_source.html#l00007">7</a> of file <a class="el" href="ktasks_8c_source.html">ktasks.c</a>.</p>
+<p>Definition at line <a class="el" href="ktasks_8c_source.html#l00008">8</a> of file <a class="el" href="ktasks_8c_source.html">ktasks.c</a>.</p>
 
 </div>
 </div>
@@ -197,7 +262,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_3dd30a497388ee684638f120a124721c.html">src</a></li><li class="navelem"><a class="el" href="dir_e86ceaef520d7e0fde5acb9ff043cb13.html">proc</a></li><li class="navelem"><a class="el" href="dir_9497cedc487fd50b64d871e65f30aa45.html">ktask</a></li><li class="navelem"><a class="el" href="ktasks_8c.html">ktasks.c</a></li>
-    <li class="footer">Generated on Mon Jan 13 2014 21:41:56 for Lambda OS by
+    <li class="footer">Generated on Sat Jan 25 2014 17:36:05 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

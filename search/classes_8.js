@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['pci_5fdevice',['pci_device',['../structpci__device.html',1,'']]],
-  ['proc_5fbook',['proc_book',['../structproc__book.html',1,'']]]
+  ['mboot_5fmodule',['mboot_module',['../structmboot__module.html',1,'']]],
+  ['multiboot_5fheader',['multiboot_header',['../structmultiboot__header.html',1,'']]]
 ];

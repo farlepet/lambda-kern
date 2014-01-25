@@ -7,8 +7,9 @@ var searchData=
   ['kerror_5flock',['kerror_lock',['../error_8c.html#acc25465439dca9199750cba5c774d61c',1,'error.c']]],
   ['keyb_5fdev',['keyb_dev',['../arch_2x86_2dev_2keyb_2input_8c.html#a1f7ca3990fc3dc484985d0b37ae6f36d',1,'input.c']]],
   ['keytab_5fx86_5fa',['keytab_x86_a',['../kinput_8c.html#a024af6938fc8ac2dda7c767981d5d0ca',1,'kinput.c']]],
+  ['kkm',['kkm',['../structkvid__kerror__m.html#a09247515528990decd27cd280f2a3d5f',1,'kvid_kerror_m']]],
   ['kmm',['kmm',['../structkbug__type__mem__msg.html#a5127129cf817e76def3e302f00084c98',1,'kbug_type_mem_msg']]],
-  ['kpm',['kpm',['../structkbug__type__proc__msg.html#ae48bf26e06d63b1b1e08167d8f8e80f3',1,'kbug_type_proc_msg']]],
+  ['kpm',['kpm',['../structkbug__type__proc__msg.html#ae48bf26e06d63b1b1e08167d8f8e80f3',1,'kbug_type_proc_msg::kpm()'],['../structkvid__print__m.html#abc226d904e70e2be082f7a2c70a2ed73',1,'kvid_print_m::kpm()']]],
   ['ktask_5fpids',['ktask_pids',['../ktasks_8h.html#a451e2165b96bdd220da63dbca8441bdb',1,'ktask_pids():&#160;ktasks.h'],['../ktasks_8c.html#a451e2165b96bdd220da63dbca8441bdb',1,'ktask_pids():&#160;ktasks.c']]],
-  ['ktm',['ktm',['../structkbug__type__proc__msg.html#acbecb9ca463d843f9e6ac0da9ef626d5',1,'kbug_type_proc_msg::ktm()'],['../structkbug__type__mem__msg.html#abe44118ab01bff5969cdffa3191757df',1,'kbug_type_mem_msg::ktm()']]]
+  ['ktm',['ktm',['../structkbug__type__proc__msg.html#acbecb9ca463d843f9e6ac0da9ef626d5',1,'kbug_type_proc_msg::ktm()'],['../structkbug__type__mem__msg.html#abe44118ab01bff5969cdffa3191757df',1,'kbug_type_mem_msg::ktm()'],['../structkvid__print__m.html#a6d78d025e99d88125c485232b8bea934',1,'kvid_print_m::ktm()'],['../structkvid__kerror__m.html#abc58786981b87f7afb1a3a6a96ae6143',1,'kvid_kerror_m::ktm()']]]
 ];

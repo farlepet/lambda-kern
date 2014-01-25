@@ -1,5 +1,7 @@
 var dir_7c13a396c62eec3d86490ab07a304f3c =
 [
+    [ "alloc.c", "alloc_8c.html", "alloc_8c" ],
+    [ "alloc.h", "alloc_8h.html", "alloc_8h" ],
     [ "gdt.c", "gdt_8c.html", "gdt_8c" ],
     [ "gdt.h", "gdt_8h.html", "gdt_8h" ],
     [ "mem.h", "mem_8h.html", "mem_8h" ],

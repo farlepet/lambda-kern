@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['offset',['offset',['../structmultiboot__apm__table__tag.html#af54f353616fefe999013f152576c32ab',1,'multiboot_apm_table_tag']]],
+  ['open',['open',['../structkfile.html#a1b72aaf6ce97c6cd8d9755e12b15f837',1,'kfile']]],
+  ['open_5fflags',['open_flags',['../structkfile.html#af2bc2e544fb34cd2d832ef50c7133af8',1,'kfile']]],
   ['origin',['origin',['../structinput__event.html#ac35d32903ca80bcfd2a72b5f66b84bec',1,'input_event']]],
   ['outb',['outb',['../ioport_8h.html#abc086ee7e5764c55967724916e21b553',1,'ioport.h']]],
   ['outl',['outl',['../ioport_8h.html#a69af5f2dace28273fec1ac7ae8fbe2b3',1,'ioport.h']]],

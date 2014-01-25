@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['ypos',['ypos',['../print_8c.html#a4db09a4236b6f591c377857b932eb41a',1,'print.c']]],
-  ['yres',['yres',['../print_8c.html#aa56a403ffdfe2aec14965c0b618de1c1',1,'print.c']]]
+  ['xpos',['xpos',['../print_8c.html#a4c8fb3f1c1ae597ee856290390ebc274',1,'print.c']]],
+  ['xres',['xres',['../print_8c.html#a64bd209719805b927440b59fa98dfeb5',1,'print.c']]]
 ];

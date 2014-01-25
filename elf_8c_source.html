@@ -121,30 +121,34 @@ $(document).ready(function(){initNavTree('elf_8c_source.html','');});
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;        (head-&gt;<a class="code" href="structElf32__Ehdr.html#adccb2b8ebff0a16c0214dd9088775c1a">e_ident</a>[2] != <a class="code" href="elf_8h.html#a529db7ac9e659cfbad44b2af20649098">ELF_IDENT2</a>) ||</div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;        (head-&gt;<a class="code" href="structElf32__Ehdr.html#adccb2b8ebff0a16c0214dd9088775c1a">e_ident</a>[3] != <a class="code" href="elf_8h.html#a6c9c6b9574b407efbf2e9c06bed9bb57">ELF_IDENT3</a>))</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    {</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;        <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389abbe95803f49255df4326d9cc1c8afbf4">ERR_SMERR</a>, <span class="stringliteral">&quot;Tried to load an ELF with incorrect header&quot;</span>);</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;        <span class="keywordflow">return</span> 1;</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    }</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <span class="keywordflow">if</span>(head-&gt;<a class="code" href="structElf32__Ehdr.html#adccb2b8ebff0a16c0214dd9088775c1a">e_ident</a>[4] != HOST_CLASS)</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    {</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;        <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389abbe95803f49255df4326d9cc1c8afbf4">ERR_SMERR</a>, <span class="stringliteral">&quot;Tried to load ELF not compatible with current bittiness: %d&quot;</span>, head-&gt;<a class="code" href="structElf32__Ehdr.html#adccb2b8ebff0a16c0214dd9088775c1a">e_ident</a>[4]);</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;        <span class="keywordflow">return</span> 1;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    }</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keywordflow">if</span>(head-&gt;<a class="code" href="structElf32__Ehdr.html#a7e03b5ee8e499bedd37efcee4e8d6537">e_type</a> != <a class="code" href="elf_8h.html#a942478985eb016311380dee473cc8c3e">ET_EXEC</a>)</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    {</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;        <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389abbe95803f49255df4326d9cc1c8afbf4">ERR_SMERR</a>, <span class="stringliteral">&quot;Tried to load non-executable ELF with type %d&quot;</span>, head-&gt;<a class="code" href="structElf32__Ehdr.html#a7e03b5ee8e499bedd37efcee4e8d6537">e_type</a>);</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;        <span class="keywordflow">return</span> 1;</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    }</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keywordflow">if</span>(head-&gt;<a class="code" href="structElf32__Ehdr.html#a1414ef7d7b81aad5095cba947569ea21">e_machine</a> != HOST_MACHINE)</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    {</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;        <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389abbe95803f49255df4326d9cc1c8afbf4">ERR_SMERR</a>, <span class="stringliteral">&quot;Tried to load ELF not compatible with current architecture: %d&quot;</span>, head-&gt;<a class="code" href="structElf32__Ehdr.html#a1414ef7d7b81aad5095cba947569ea21">e_machine</a>);</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;        <span class="keywordflow">return</span> 1;</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    }</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;}</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;        <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389abbe95803f49255df4326d9cc1c8afbf4">ERR_SMERR</a>, <span class="stringliteral">&quot;Tried to load an ELF with incorrect header: %x %c %c %c&quot;</span>,</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;            (head-&gt;<a class="code" href="structElf32__Ehdr.html#adccb2b8ebff0a16c0214dd9088775c1a">e_ident</a>[0]),</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;            (head-&gt;<a class="code" href="structElf32__Ehdr.html#adccb2b8ebff0a16c0214dd9088775c1a">e_ident</a>[1]),</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;            (head-&gt;<a class="code" href="structElf32__Ehdr.html#adccb2b8ebff0a16c0214dd9088775c1a">e_ident</a>[2]),</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;            (head-&gt;<a class="code" href="structElf32__Ehdr.html#adccb2b8ebff0a16c0214dd9088775c1a">e_ident</a>[3]));</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;        <span class="keywordflow">return</span> 1;</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    }</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keywordflow">if</span>(head-&gt;<a class="code" href="structElf32__Ehdr.html#adccb2b8ebff0a16c0214dd9088775c1a">e_ident</a>[4] != HOST_CLASS)</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    {</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389abbe95803f49255df4326d9cc1c8afbf4">ERR_SMERR</a>, <span class="stringliteral">&quot;Tried to load ELF not compatible with current bittiness: %d&quot;</span>, head-&gt;<a class="code" href="structElf32__Ehdr.html#adccb2b8ebff0a16c0214dd9088775c1a">e_ident</a>[4]);</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        <span class="keywordflow">return</span> 1;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    }</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="keywordflow">if</span>(head-&gt;<a class="code" href="structElf32__Ehdr.html#a7e03b5ee8e499bedd37efcee4e8d6537">e_type</a> != <a class="code" href="elf_8h.html#a942478985eb016311380dee473cc8c3e">ET_EXEC</a>)</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    {</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;        <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389abbe95803f49255df4326d9cc1c8afbf4">ERR_SMERR</a>, <span class="stringliteral">&quot;Tried to load non-executable ELF with type %d&quot;</span>, head-&gt;<a class="code" href="structElf32__Ehdr.html#a7e03b5ee8e499bedd37efcee4e8d6537">e_type</a>);</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;        <span class="keywordflow">return</span> 1;</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    }</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="keywordflow">if</span>(head-&gt;<a class="code" href="structElf32__Ehdr.html#a1414ef7d7b81aad5095cba947569ea21">e_machine</a> != HOST_MACHINE)</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    {</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;        <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389abbe95803f49255df4326d9cc1c8afbf4">ERR_SMERR</a>, <span class="stringliteral">&quot;Tried to load ELF not compatible with current architecture: %d&quot;</span>, head-&gt;<a class="code" href="structElf32__Ehdr.html#a1414ef7d7b81aad5095cba947569ea21">e_machine</a>);</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;        <span class="keywordflow">return</span> 1;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    }</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;}</div>
 <div class="ttc" id="structElf32__Ehdr_html_a1414ef7d7b81aad5095cba947569ea21"><div class="ttname"><a href="structElf32__Ehdr.html#a1414ef7d7b81aad5095cba947569ea21">Elf32_Ehdr::e_machine</a></div><div class="ttdeci">u16 e_machine</div><div class="ttdef"><b>Definition:</b> <a href="elf_8h_source.html#l00046">elf.h:46</a></div></div>
 <div class="ttc" id="structElf32__Ehdr_html"><div class="ttname"><a href="structElf32__Ehdr.html">Elf32_Ehdr</a></div><div class="ttdef"><b>Definition:</b> <a href="elf_8h_source.html#l00042">elf.h:42</a></div></div>
 <div class="ttc" id="elf_8h_html_a77d10f8e38fe43b4cf139bf0d8615c35"><div class="ttname"><a href="elf_8h.html#a77d10f8e38fe43b4cf139bf0d8615c35">ELF_IDENT0</a></div><div class="ttdeci">#define ELF_IDENT0</div><div class="ttdef"><b>Definition:</b> <a href="elf_8h_source.html#l00036">elf.h:36</a></div></div>
@@ -168,7 +172,7 @@ $(document).ready(function(){initNavTree('elf_8c_source.html','');});
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_3dd30a497388ee684638f120a124721c.html">src</a></li><li class="navelem"><a class="el" href="dir_e86ceaef520d7e0fde5acb9ff043cb13.html">proc</a></li><li class="navelem"><a class="el" href="elf_8c.html">elf.c</a></li>
-    <li class="footer">Generated on Mon Jan 13 2014 21:41:56 for Lambda OS by
+    <li class="footer">Generated on Sat Jan 25 2014 17:36:05 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

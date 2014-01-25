@@ -111,48 +111,43 @@ $(document).ready(function(){initNavTree('video_8h_source.html','');});
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="types_8h.html">types.h</a>&gt;</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="multiboot_8h.html">multiboot.h</a>&gt;</span></div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keywordtype">void</span> <a class="code" href="video_8h.html#a003facbe1543bae2a974a57e86bf5f0f">init_video</a>(<span class="keyword">struct</span> <a class="code" href="structmultiboot__header__tag.html">multiboot_header_tag</a>* mboot_tag);</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;</div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="keywordtype">void</span> <a class="code" href="video_8h.html#adaf7eb760749b489484d8c5a62932088">kput</a>(<span class="keywordtype">char</span> c);</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keywordtype">void</span> <a class="code" href="video_8h.html#afcd2b10a34bb5913417312f00e6f3661">kwput</a>(<span class="keywordtype">int</span> c);</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="keywordtype">void</span> <a class="code" href="video_8h.html#a9c163b4ca9a9bd7315ab683595dc5868">kprint</a>(<span class="keywordtype">char</span> *str);</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="keywordtype">void</span> <a class="code" href="video_8h.html#a8777a3137a89016c5748e3a2a4d7c147">kwprint</a>(u16 *str);</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
-<div class="line"><a name="l00041"></a><span class="lineno"><a class="line" href="video_8h.html#ac4db7ed731de1ae9467a04824415afbd">   41</a></span>&#160;<span class="preprocessor">#define FMT_SPEC &#39;%&#39; </span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00044"></a><span class="lineno"><a class="line" href="video_8h.html#a9096e5816e251332af78373126512fc5">   44</a></span>&#160;<span class="preprocessor">#define ZERO_ALL_VID()  \</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">    do {                \</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">        is_in_spec = 0; \</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor">        size       = 0; \</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor">        width      = 0; \</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">        precision  = 0; \</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">        showsign   = 0; \</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">        signspace  = 0; \</span></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="preprocessor">        leftalign  = 0; \</span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor">        padzeros   = 0; \</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="preprocessor">    } while(0);</span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="keywordtype">int</span> <a class="code" href="video_8h.html#aa0649118bc3728b2a62af0b47606ff51">sprintf</a>(<span class="keywordtype">char</span> *out, <span class="keyword">const</span> <span class="keywordtype">char</span> *format, ...);</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="keywordtype">int</span> <a class="code" href="video_8h.html#a75d539c3cb1f92afa0150b5816a5a372">kprintf</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *format, ...);</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="keywordtype">int</span> <a class="code" href="video_8h.html#a177ccd0d6d720b4876e2836ec4eab5be">kprintv</a>(<span class="keywordtype">char</span> *format, __builtin_va_list varg);</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keywordtype">void</span> <a class="code" href="video_8h.html#adaf7eb760749b489484d8c5a62932088">kput</a>(<span class="keywordtype">char</span> c);</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keywordtype">void</span> <a class="code" href="video_8h.html#afcd2b10a34bb5913417312f00e6f3661">kwput</a>(<span class="keywordtype">int</span> c);</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keywordtype">void</span> <a class="code" href="video_8h.html#a9c163b4ca9a9bd7315ab683595dc5868">kprint</a>(<span class="keywordtype">char</span> *str);</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="keywordtype">void</span> <a class="code" href="video_8h.html#a8777a3137a89016c5748e3a2a4d7c147">kwprint</a>(u16 *str);</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
+<div class="line"><a name="l00038"></a><span class="lineno"><a class="line" href="video_8h.html#ac4db7ed731de1ae9467a04824415afbd">   38</a></span>&#160;<span class="preprocessor">#define FMT_SPEC &#39;%&#39; </span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00041"></a><span class="lineno"><a class="line" href="video_8h.html#a9096e5816e251332af78373126512fc5">   41</a></span>&#160;<span class="preprocessor">#define ZERO_ALL_VID()  \</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">    do {                \</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor">        is_in_spec = 0; \</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor">        size       = 0; \</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor">        width      = 0; \</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">        precision  = 0; \</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor">        showsign   = 0; \</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor">        signspace  = 0; \</span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">        leftalign  = 0; \</span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">        padzeros   = 0; \</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">    } while(0);</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="keywordtype">int</span> <a class="code" href="video_8h.html#aa0649118bc3728b2a62af0b47606ff51">sprintf</a>(<span class="keywordtype">char</span> *out, <span class="keyword">const</span> <span class="keywordtype">char</span> *format, ...);</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="keywordtype">int</span> <a class="code" href="video_8h.html#a75d539c3cb1f92afa0150b5816a5a372">kprintf</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *format, ...);</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="keywordtype">int</span> <a class="code" href="video_8h.html#a177ccd0d6d720b4876e2836ec4eab5be">kprintv</a>(<span class="keywordtype">char</span> *format, __builtin_va_list varg);</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="video_8h_html_adaf7eb760749b489484d8c5a62932088"><div class="ttname"><a href="video_8h.html#adaf7eb760749b489484d8c5a62932088">kput</a></div><div class="ttdeci">void kput(char c)</div><div class="ttdoc">Prints a single character. Uses the current architecture&#39;s put function. </div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00018">video.c:18</a></div></div>
 <div class="ttc" id="video_8h_html_afcd2b10a34bb5913417312f00e6f3661"><div class="ttname"><a href="video_8h.html#afcd2b10a34bb5913417312f00e6f3661">kwput</a></div><div class="ttdeci">void kwput(int c)</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00031">video.c:31</a></div></div>
 <div class="ttc" id="types_8h_html"><div class="ttname"><a href="types_8h.html">types.h</a></div><div class="ttdoc">Contains useful types and definitions. </div></div>
-<div class="ttc" id="video_8h_html_a003facbe1543bae2a974a57e86bf5f0f"><div class="ttname"><a href="video_8h.html#a003facbe1543bae2a974a57e86bf5f0f">init_video</a></div><div class="ttdeci">void init_video(struct multiboot_header_tag *mboot_tag)</div></div>
 <div class="ttc" id="video_8h_html_a177ccd0d6d720b4876e2836ec4eab5be"><div class="ttname"><a href="video_8h.html#a177ccd0d6d720b4876e2836ec4eab5be">kprintv</a></div><div class="ttdeci">int kprintv(char *format, __builtin_va_list varg)</div><div class="ttdoc">Creates and prints a string based on input format string and arguments. Uses print to convert the for...</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00392">video.c:392</a></div></div>
-<div class="ttc" id="structmultiboot__header__tag_html"><div class="ttname"><a href="structmultiboot__header__tag.html">multiboot_header_tag</a></div><div class="ttdoc">Information about the multiboot tags. </div><div class="ttdef"><b>Definition:</b> <a href="multiboot_8h_source.html#l00016">multiboot.h:16</a></div></div>
 <div class="ttc" id="video_8h_html_a75d539c3cb1f92afa0150b5816a5a372"><div class="ttname"><a href="video_8h.html#a75d539c3cb1f92afa0150b5816a5a372">kprintf</a></div><div class="ttdeci">int kprintf(const char *format,...)</div><div class="ttdoc">Creates and prints a string based on input format string and arguments. Uses print to convert the for...</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00370">video.c:370</a></div></div>
 <div class="ttc" id="video_8h_html_aa0649118bc3728b2a62af0b47606ff51"><div class="ttname"><a href="video_8h.html#aa0649118bc3728b2a62af0b47606ff51">sprintf</a></div><div class="ttdeci">int sprintf(char *out, const char *format,...)</div><div class="ttdoc">Creates a string based on input format string and arguments. Uses print to convert the format string ...</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00352">video.c:352</a></div></div>
 <div class="ttc" id="video_8h_html_a8777a3137a89016c5748e3a2a4d7c147"><div class="ttname"><a href="video_8h.html#a8777a3137a89016c5748e3a2a4d7c147">kwprint</a></div><div class="ttdeci">void kwprint(u16 *str)</div><div class="ttdef"><b>Definition:</b> <a href="video_8c_source.html#l00056">video.c:56</a></div></div>
@@ -164,7 +159,7 @@ $(document).ready(function(){initNavTree('video_8h_source.html','');});
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_25ecda1410e8adf967f2aaaca1260861.html">inc</a></li><li class="navelem"><a class="el" href="video_8h.html">video.h</a></li>
-    <li class="footer">Generated on Mon Jan 13 2014 21:41:56 for Lambda OS by
+    <li class="footer">Generated on Sat Jan 25 2014 17:36:05 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

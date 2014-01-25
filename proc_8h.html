@@ -495,7 +495,7 @@ Functions</h2></td></tr>
 
 <p>Definition at line <a class="el" href="proc_8c_source.html#l00032">32</a> of file <a class="el" href="proc_8c_source.html">proc.c</a>.</p>
 
-<p>References <a class="el" href="proc_8h_source.html#l00060">kproc::blocked</a>, <a class="el" href="mtask_8c_source.html#l00140">c_proc</a>, <a class="el" href="mtask_8h_source.html#l00009">current_pid</a>, <a class="el" href="proc_8h_source.html#l00006">MAX_PROCESSES</a>, <a class="el" href="proc_8h_source.html#l00039">kproc::pid</a>, <a class="el" href="mtask_8h_source.html#l00007">procs</a>, <a class="el" href="proc_8h_source.html#l00043">kproc::type</a>, and <a class="el" href="proc_8h_source.html#l00011">TYPE_RUNNABLE</a>.</p>
+<p>References <a class="el" href="proc_8h_source.html#l00060">kproc::blocked</a>, <a class="el" href="mtask_8c_source.html#l00141">c_proc</a>, <a class="el" href="mtask_8h_source.html#l00009">current_pid</a>, <a class="el" href="proc_8h_source.html#l00006">MAX_PROCESSES</a>, <a class="el" href="proc_8h_source.html#l00039">kproc::pid</a>, <a class="el" href="mtask_8h_source.html#l00007">procs</a>, <a class="el" href="proc_8h_source.html#l00043">kproc::type</a>, and <a class="el" href="proc_8h_source.html#l00011">TYPE_RUNNABLE</a>.</p>
 <div class="fragment"><div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;{</div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">int</span> <a class="code" href="mtask_8c.html#ac5d2846cf721766486d3f6bd03734e43">c_proc</a>;</div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
@@ -505,7 +505,7 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <a class="code" href="mtask_8h.html#a094c35e28eaea5860385357011a6abfa">current_pid</a> = <a class="code" href="mtask_8h.html#a9c534bb57476c3b6c00e7b2d6f48b498">procs</a>[<a class="code" href="mtask_8c.html#ac5d2846cf721766486d3f6bd03734e43">c_proc</a>].<a class="code" href="structkproc.html#a563b46e8deaba8b7e63b9589a1ed9138">pid</a>;</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="mtask_8c.html#ac5d2846cf721766486d3f6bd03734e43">c_proc</a>;</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;}<div class="ttc" id="mtask_8c_html_ac5d2846cf721766486d3f6bd03734e43"><div class="ttname"><a href="mtask_8c.html#ac5d2846cf721766486d3f6bd03734e43">c_proc</a></div><div class="ttdeci">static int c_proc</div><div class="ttdef"><b>Definition:</b> <a href="mtask_8c_source.html#l00140">mtask.c:140</a></div></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;}<div class="ttc" id="mtask_8c_html_ac5d2846cf721766486d3f6bd03734e43"><div class="ttname"><a href="mtask_8c.html#ac5d2846cf721766486d3f6bd03734e43">c_proc</a></div><div class="ttdeci">static int c_proc</div><div class="ttdef"><b>Definition:</b> <a href="mtask_8c_source.html#l00141">mtask.c:141</a></div></div>
 <div class="ttc" id="proc_8h_html_a92fd8bb5807bf6abb640686f51e5df3e"><div class="ttname"><a href="proc_8h.html#a92fd8bb5807bf6abb640686f51e5df3e">MAX_PROCESSES</a></div><div class="ttdeci">#define MAX_PROCESSES</div><div class="ttdoc">Maximum amount of running processes. </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00006">proc.h:6</a></div></div>
 <div class="ttc" id="mtask_8h_html_a094c35e28eaea5860385357011a6abfa"><div class="ttname"><a href="mtask_8h.html#a094c35e28eaea5860385357011a6abfa">current_pid</a></div><div class="ttdeci">int current_pid</div><div class="ttdoc">The PID of the currently running process. </div><div class="ttdef"><b>Definition:</b> <a href="mtask_8h_source.html#l00009">mtask.h:9</a></div></div>
 <div class="ttc" id="proc_8h_html_aea97b3123a60daf6ab7086548db31948"><div class="ttname"><a href="proc_8h.html#aea97b3123a60daf6ab7086548db31948">TYPE_RUNNABLE</a></div><div class="ttdeci">#define TYPE_RUNNABLE</div><div class="ttdoc">Is this process runnable? </div><div class="ttdef"><b>Definition:</b> <a href="proc_8h_source.html#l00011">proc.h:11</a></div></div>
@@ -541,7 +541,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_25ecda1410e8adf967f2aaaca1260861.html">inc</a></li><li class="navelem"><a class="el" href="dir_edc1f7041b83362b574058d4932cc899.html">proc</a></li><li class="navelem"><a class="el" href="proc_8h.html">proc.h</a></li>
-    <li class="footer">Generated on Mon Jan 13 2014 21:41:56 for Lambda OS by
+    <li class="footer">Generated on Sat Jan 25 2014 17:36:05 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

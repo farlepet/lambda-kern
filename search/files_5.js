@@ -1,19 +1,5 @@
 var searchData=
 [
-  ['idle_2ec',['idle.c',['../idle_8c.html',1,'']]],
-  ['idle_2eh',['idle.h',['../idle_8h.html',1,'']]],
-  ['idt_2ec',['idt.c',['../idt_8c.html',1,'']]],
-  ['idt_2eh',['idt.h',['../idt_8h.html',1,'']]],
-  ['initrd_2ec',['initrd.c',['../initrd_8c.html',1,'']]],
-  ['initrd_2eh',['initrd.h',['../initrd_8h.html',1,'']]],
-  ['input_2ec',['input.c',['../arch_2x86_2dev_2keyb_2input_8c.html',1,'']]],
-  ['input_2ec',['input.c',['../src_2io_2input_8c.html',1,'']]],
-  ['input_2eh',['input.h',['../inc_2io_2input_8h.html',1,'']]],
-  ['input_2eh',['input.h',['../arch_2x86_2dev_2keyb_2input_8h.html',1,'']]],
-  ['int_2eh',['int.h',['../int_8h.html',1,'']]],
-  ['interrupts_2ec',['interrupts.c',['../interrupts_8c.html',1,'']]],
-  ['intr_2eh',['intr.h',['../intr_8h.html',1,'']]],
-  ['ioport_2eh',['ioport.h',['../ioport_8h.html',1,'']]],
-  ['ipc_2ec',['ipc.c',['../ipc_8c.html',1,'']]],
-  ['ipc_2eh',['ipc.h',['../ipc_8h.html',1,'']]]
+  ['gdt_2ec',['gdt.c',['../gdt_8c.html',1,'']]],
+  ['gdt_2eh',['gdt.h',['../gdt_8h.html',1,'']]]
 ];

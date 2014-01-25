@@ -324,15 +324,15 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>returns 0 if success </dd></dl>
 
-<p>Definition at line <a class="el" href="idt_8c_source.html#l00081">81</a> of file <a class="el" href="idt_8c_source.html">idt.c</a>.</p>
+<p>Definition at line <a class="el" href="idt_8c_source.html#l00088">88</a> of file <a class="el" href="idt_8c_source.html">idt.c</a>.</p>
 
 <p>References <a class="el" href="ioport_8h_source.html#l00056">inb()</a>, and <a class="el" href="ioport_8h_source.html#l00020">outb()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;{</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordflow">if</span>(irq &gt; 16) <span class="keywordflow">return</span> 1;</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <span class="keywordflow">if</span>(irq &lt; 8)  <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(0x21, <a class="code" href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a>(0x21) | (1 &gt;&gt; irq));</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keywordflow">else</span>         <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(0xA1, <a class="code" href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a>(0xA1) | (u8)(0x100 &gt;&gt; irq));</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;}</div>
+<div class="fragment"><div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;{</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <span class="keywordflow">if</span>(irq &gt; 16) <span class="keywordflow">return</span> 1;</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <span class="keywordflow">if</span>(irq &lt; 8)  <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(0x21, <a class="code" href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a>(0x21) | (1 &gt;&gt; irq));</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <span class="keywordflow">else</span>         <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(0xA1, <a class="code" href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a>(0xA1) | (u8)(0x100 &gt;&gt; irq));</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;}</div>
 <div class="ttc" id="ioport_8h_html_a72469337290ae306e228d538970aef1d"><div class="ttname"><a href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a></div><div class="ttdeci">static u8 inb(u16 port)</div><div class="ttdoc">read a byte from a port. Grab a byte from a port. </div><div class="ttdef"><b>Definition:</b> <a href="ioport_8h_source.html#l00056">ioport.h:56</a></div></div>
 <div class="ttc" id="ioport_8h_html_abc086ee7e5764c55967724916e21b553"><div class="ttname"><a href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a></div><div class="ttdeci">static void outb(u16 port, u8 value)</div><div class="ttdoc">Output a byte to a port. Outputs a byte on a port. </div><div class="ttdef"><b>Definition:</b> <a href="ioport_8h_source.html#l00020">ioport.h:20</a></div></div>
 </div><!-- fragment -->
@@ -360,15 +360,16 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>returns 0 if success </dd></dl>
 
-<p>Definition at line <a class="el" href="idt_8c_source.html#l00095">95</a> of file <a class="el" href="idt_8c_source.html">idt.c</a>.</p>
+<p>Definition at line <a class="el" href="idt_8c_source.html#l00102">102</a> of file <a class="el" href="idt_8c_source.html">idt.c</a>.</p>
 
 <p>References <a class="el" href="ioport_8h_source.html#l00056">inb()</a>, and <a class="el" href="ioport_8h_source.html#l00020">outb()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;{</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <span class="keywordflow">if</span>(irq &gt; 16) <span class="keywordflow">return</span> 1;</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="keywordflow">if</span>(irq &lt; 8)  <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(0x21, <a class="code" href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a>(0x21) &amp; ~(1 &gt;&gt; irq));</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    <span class="keywordflow">else</span>         <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(0xA1, <a class="code" href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a>(0xA1) &amp; ~(0x100 &gt;&gt; irq));</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;}<div class="ttc" id="ioport_8h_html_a72469337290ae306e228d538970aef1d"><div class="ttname"><a href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a></div><div class="ttdeci">static u8 inb(u16 port)</div><div class="ttdoc">read a byte from a port. Grab a byte from a port. </div><div class="ttdef"><b>Definition:</b> <a href="ioport_8h_source.html#l00056">ioport.h:56</a></div></div>
+<div class="fragment"><div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;{</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    <span class="keywordflow">if</span>(irq &gt; 16) <span class="keywordflow">return</span> 1;</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <span class="keywordflow">if</span>(irq &lt; 8)  <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(0x21, <a class="code" href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a>(0x21) &amp; ~(1 &gt;&gt; irq));</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    <span class="keywordflow">else</span>         <a class="code" href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a>(0xA1, <a class="code" href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a>(0xA1) &amp; ~(0x100 &gt;&gt; irq));</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;}</div>
+<div class="ttc" id="ioport_8h_html_a72469337290ae306e228d538970aef1d"><div class="ttname"><a href="ioport_8h.html#a72469337290ae306e228d538970aef1d">inb</a></div><div class="ttdeci">static u8 inb(u16 port)</div><div class="ttdoc">read a byte from a port. Grab a byte from a port. </div><div class="ttdef"><b>Definition:</b> <a href="ioport_8h_source.html#l00056">ioport.h:56</a></div></div>
 <div class="ttc" id="ioport_8h_html_abc086ee7e5764c55967724916e21b553"><div class="ttname"><a href="ioport_8h.html#abc086ee7e5764c55967724916e21b553">outb</a></div><div class="ttdeci">static void outb(u16 port, u8 value)</div><div class="ttdoc">Output a byte to a port. Outputs a byte on a port. </div><div class="ttdef"><b>Definition:</b> <a href="ioport_8h_source.html#l00020">ioport.h:20</a></div></div>
 </div><!-- fragment -->
 </div>
@@ -390,19 +391,26 @@ Functions</h2></td></tr>
 <p>Initializes the IDT by first setting every IDT entry to use the dummy interrupt then loads the IDT pointer and remaps the PIC.</p>
 <dl class="section see"><dt>See Also</dt><dd><a class="el" href="idt_8c.html#a2c579dffc2271136205ebd85cd39c225">reload_idt</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="idt_8c_source.html#l00050">50</a> of file <a class="el" href="idt_8c_source.html">idt.c</a>.</p>
+<p>Definition at line <a class="el" href="idt_8c_source.html#l00053">53</a> of file <a class="el" href="idt_8c_source.html">idt.c</a>.</p>
 
-<p>References <a class="el" href="idt_8c.html#a73661ba532acc6fbef07f6024a17d42b">dummy_int()</a>, <a class="el" href="idt_8c_source.html#l00008">IDT</a>, <a class="el" href="idt_8h_source.html#l00018">IDT_ENTRY</a>, and <a class="el" href="idt_8c_source.html#l00038">reload_idt()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;{</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keywordtype">int</span> i = 0;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordflow">for</span>(; i &lt; 256; i++)</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;        <a class="code" href="idt_8c.html#a53832f8d40d9f1dbf1cc583fbccdbea5">IDT</a>[i] = <a class="code" href="idt_8h.html#a1b5bb8212147aadf0ae4d141f3a81e63">IDT_ENTRY</a>((u32)&amp;<a class="code" href="idt_8c.html#a73661ba532acc6fbef07f6024a17d42b">dummy_int</a>, 0x08, 0x8E);</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    </div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <a class="code" href="idt_8c.html#a2c579dffc2271136205ebd85cd39c225">reload_idt</a>();</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;}</div>
-<div class="ttc" id="idt_8c_html_a53832f8d40d9f1dbf1cc583fbccdbea5"><div class="ttname"><a href="idt_8c.html#a53832f8d40d9f1dbf1cc583fbccdbea5">IDT</a></div><div class="ttdeci">u64 IDT[256]</div><div class="ttdoc">Interrupt Descriptor Table. Table of all interrupt handlers and settings. </div><div class="ttdef"><b>Definition:</b> <a href="idt_8c_source.html#l00008">idt.c:8</a></div></div>
+<p>References <a class="el" href="idt_8c.html#a73661ba532acc6fbef07f6024a17d42b">dummy_int()</a>, <a class="el" href="error_8h_source.html#l00008">ERR_BOOTINFO</a>, <a class="el" href="error_8h_source.html#l00007">ERR_INFO</a>, <a class="el" href="idt_8c_source.html#l00009">IDT</a>, <a class="el" href="idt_8h_source.html#l00018">IDT_ENTRY</a>, <a class="el" href="error_8c_source.html#l00022">kerror()</a>, and <a class="el" href="idt_8c_source.html#l00039">reload_idt()</a>.</p>
+<div class="fragment"><div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;{</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a>, <span class="stringliteral">&quot;      -&gt; Setting dummy interrupt vectors&quot;</span>);</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordtype">int</span> i = 0;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordflow">for</span>(; i &lt; 256; i++)</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    {</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;        <a class="code" href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a>(<a class="code" href="error_8h.html#adfccb88929c124c0313e7a14243a0389a09d65dd5a3222924ee07b66587ef071c">ERR_INFO</a>, <span class="stringliteral">&quot;        -&gt; INT %02X&quot;</span>, i);</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;        <a class="code" href="idt_8c.html#a53832f8d40d9f1dbf1cc583fbccdbea5">IDT</a>[i] = <a class="code" href="idt_8h.html#a1b5bb8212147aadf0ae4d141f3a81e63">IDT_ENTRY</a>((u32)&amp;<a class="code" href="idt_8c.html#a73661ba532acc6fbef07f6024a17d42b">dummy_int</a>, 0x08, 0x8E);</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    }</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <a class="code" href="idt_8c.html#a2c579dffc2271136205ebd85cd39c225">reload_idt</a>();</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;}</div>
+<div class="ttc" id="idt_8c_html_a53832f8d40d9f1dbf1cc583fbccdbea5"><div class="ttname"><a href="idt_8c.html#a53832f8d40d9f1dbf1cc583fbccdbea5">IDT</a></div><div class="ttdeci">u64 IDT[256]</div><div class="ttdoc">Interrupt Descriptor Table. Table of all interrupt handlers and settings. </div><div class="ttdef"><b>Definition:</b> <a href="idt_8c_source.html#l00009">idt.c:9</a></div></div>
+<div class="ttc" id="error_8h_html_a2e9b2c29084c4a3193a6c1c1f39e36f8"><div class="ttname"><a href="error_8h.html#a2e9b2c29084c4a3193a6c1c1f39e36f8">kerror</a></div><div class="ttdeci">void kerror(error_level errlvl, char *msg,...)</div><div class="ttdoc">Prints information about the kernel. Disables interrupts so it will not get interrupted, checks to see if the error level is &gt;= the minimum level, and if so, prints the current clock tick, then prints the error message. Then, if en_int != 0, it enables interrupts again. </div><div class="ttdef"><b>Definition:</b> <a href="error_8c_source.html#l00022">error.c:22</a></div></div>
 <div class="ttc" id="idt_8h_html_a1b5bb8212147aadf0ae4d141f3a81e63"><div class="ttname"><a href="idt_8h.html#a1b5bb8212147aadf0ae4d141f3a81e63">IDT_ENTRY</a></div><div class="ttdeci">#define IDT_ENTRY(off, sel, attr)</div><div class="ttdoc">Allows for easy creation of an IDT entry. Helps easily create an IDT entry. </div><div class="ttdef"><b>Definition:</b> <a href="idt_8h_source.html#l00018">idt.h:18</a></div></div>
-<div class="ttc" id="idt_8c_html_a2c579dffc2271136205ebd85cd39c225"><div class="ttname"><a href="idt_8c.html#a2c579dffc2271136205ebd85cd39c225">reload_idt</a></div><div class="ttdeci">static void reload_idt()</div><div class="ttdef"><b>Definition:</b> <a href="idt_8c_source.html#l00038">idt.c:38</a></div></div>
+<div class="ttc" id="error_8h_html_adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1"><div class="ttname"><a href="error_8h.html#adfccb88929c124c0313e7a14243a0389a32928ab8bce6e6527deac5d3cc59a2e1">ERR_BOOTINFO</a></div><div class="ttdoc">Message containing information about the kernel&#39;s boot process. </div><div class="ttdef"><b>Definition:</b> <a href="error_8h_source.html#l00008">error.h:8</a></div></div>
+<div class="ttc" id="error_8h_html_adfccb88929c124c0313e7a14243a0389a09d65dd5a3222924ee07b66587ef071c"><div class="ttname"><a href="error_8h.html#adfccb88929c124c0313e7a14243a0389a09d65dd5a3222924ee07b66587ef071c">ERR_INFO</a></div><div class="ttdoc">Message containing kernel info. </div><div class="ttdef"><b>Definition:</b> <a href="error_8h_source.html#l00007">error.h:7</a></div></div>
+<div class="ttc" id="idt_8c_html_a2c579dffc2271136205ebd85cd39c225"><div class="ttname"><a href="idt_8c.html#a2c579dffc2271136205ebd85cd39c225">reload_idt</a></div><div class="ttdeci">static void reload_idt()</div><div class="ttdef"><b>Definition:</b> <a href="idt_8c_source.html#l00039">idt.c:39</a></div></div>
 <div class="ttc" id="idt_8c_html_a73661ba532acc6fbef07f6024a17d42b"><div class="ttname"><a href="idt_8c.html#a73661ba532acc6fbef07f6024a17d42b">dummy_int</a></div><div class="ttdeci">void dummy_int()</div><div class="ttdoc">Dummy interrupt se all IRQ&#39;s can function, even if not setup. </div></div>
 </div><!-- fragment -->
 </div>
@@ -469,13 +477,13 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="idt_8c_source.html#l00067">67</a> of file <a class="el" href="idt_8c_source.html">idt.c</a>.</p>
+<p>Definition at line <a class="el" href="idt_8c_source.html#l00074">74</a> of file <a class="el" href="idt_8c_source.html">idt.c</a>.</p>
 
-<p>References <a class="el" href="idt_8c_source.html#l00008">IDT</a>, and <a class="el" href="idt_8h_source.html#l00018">IDT_ENTRY</a>.</p>
-<div class="fragment"><div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;{</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <a class="code" href="idt_8c.html#a53832f8d40d9f1dbf1cc583fbccdbea5">IDT</a>[intr] = <a class="code" href="idt_8h.html#a1b5bb8212147aadf0ae4d141f3a81e63">IDT_ENTRY</a>((u32)func, sel, flags);</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;}</div>
-<div class="ttc" id="idt_8c_html_a53832f8d40d9f1dbf1cc583fbccdbea5"><div class="ttname"><a href="idt_8c.html#a53832f8d40d9f1dbf1cc583fbccdbea5">IDT</a></div><div class="ttdeci">u64 IDT[256]</div><div class="ttdoc">Interrupt Descriptor Table. Table of all interrupt handlers and settings. </div><div class="ttdef"><b>Definition:</b> <a href="idt_8c_source.html#l00008">idt.c:8</a></div></div>
+<p>References <a class="el" href="idt_8c_source.html#l00009">IDT</a>, and <a class="el" href="idt_8h_source.html#l00018">IDT_ENTRY</a>.</p>
+<div class="fragment"><div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;{</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <a class="code" href="idt_8c.html#a53832f8d40d9f1dbf1cc583fbccdbea5">IDT</a>[intr] = <a class="code" href="idt_8h.html#a1b5bb8212147aadf0ae4d141f3a81e63">IDT_ENTRY</a>((u32)func, sel, flags);</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;}</div>
+<div class="ttc" id="idt_8c_html_a53832f8d40d9f1dbf1cc583fbccdbea5"><div class="ttname"><a href="idt_8c.html#a53832f8d40d9f1dbf1cc583fbccdbea5">IDT</a></div><div class="ttdeci">u64 IDT[256]</div><div class="ttdoc">Interrupt Descriptor Table. Table of all interrupt handlers and settings. </div><div class="ttdef"><b>Definition:</b> <a href="idt_8c_source.html#l00009">idt.c:9</a></div></div>
 <div class="ttc" id="idt_8h_html_a1b5bb8212147aadf0ae4d141f3a81e63"><div class="ttname"><a href="idt_8h.html#a1b5bb8212147aadf0ae4d141f3a81e63">IDT_ENTRY</a></div><div class="ttdeci">#define IDT_ENTRY(off, sel, attr)</div><div class="ttdoc">Allows for easy creation of an IDT entry. Helps easily create an IDT entry. </div><div class="ttdef"><b>Definition:</b> <a href="idt_8h_source.html#l00018">idt.h:18</a></div></div>
 </div><!-- fragment -->
 </div>
@@ -486,7 +494,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_dc43877d82dd332f9fb2071fcca799d6.html">kernel</a></li><li class="navelem"><a class="el" href="dir_4a04b9aac4eefdd334a78e565f4616f2.html">arch</a></li><li class="navelem"><a class="el" href="dir_0ce8714634557e35558d1ff2ffab94d6.html">x86</a></li><li class="navelem"><a class="el" href="dir_0c7d054cbd0b863d3fd96f939fcc8e82.html">intr</a></li><li class="navelem"><a class="el" href="idt_8h.html">idt.h</a></li>
-    <li class="footer">Generated on Mon Jan 13 2014 21:41:56 for Lambda OS by
+    <li class="footer">Generated on Sat Jan 25 2014 17:36:05 for Lambda OS by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>

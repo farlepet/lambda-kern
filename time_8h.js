@@ -2,6 +2,7 @@ var time_8h =
 [
     [ "time_block", "structtime__block.html", "structtime__block" ],
     [ "MAX_TIME_BLOCKS", "time_8h.html#aae75ec0c74d89a0c44dd3db5d5c32851", null ],
+    [ "time_t", "time_8h.html#a72c65cf925ebcdbcfe25209359dfb48f", null ],
     [ "add_time_block", "time_8h.html#ac13697ae3be32275f47296226d651f74", null ],
     [ "delay", "time_8h.html#ac636b3cbd4b41aae8ea46ae55d1ea047", null ],
     [ "do_time_block_timeup", "time_8h.html#ab53eb0474b8a81a7f1e897476c53a644", null ],
