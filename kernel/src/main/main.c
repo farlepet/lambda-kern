@@ -29,6 +29,7 @@ __noreturn static void iloop()
 
 /**
  * Main kernel functions, initializes all devices, and sets up environment.
+ * 
  * @param mboot_head pointer to multiboot structure
  * @param magic magic number telling us this is a multiboot-compliant bootloader
  */
