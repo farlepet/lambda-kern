@@ -3,8 +3,12 @@
 static struct kfile *kfiles;
 
 
-void add_file(struct kfile *file)
+static u32 c_inode = 0;
+
+int fs_add_file(struct kfile *file)
 {
+	file->inode = c_inode++;
+
 	if(!kfiles)
 	{
 		kfiles          = file;
@@ -19,6 +23,8 @@ void add_file(struct kfile *file)
 		file->prev_file    = last;
 		file->magic        = 0xF11E0000;
 	}
+
+	return file->inode;
 }
 
 u32 fs_read(struct kfile *f, u32 off, u32 sz, u8 *buff)

@@ -1,7 +1,9 @@
 #include <multiboot.h>
 #include <fs/initrd.h>
 #include <err/error.h>
+#include <mm/alloc.h>
 #include <string.h>
+#include <fs/fs.h>
 
 #if defined(ARCH_X86)
 #include <mm/paging.h>
@@ -23,7 +25,7 @@ char *cpio_name = NULL;
 
 void initrd_init(struct multiboot_header* mboot_head)
 {
-	kerror(ERR_BOOTINFO, "Loading InitCPIO");
+	kerror(ERR_BOOTINFO, "Loading GRUB modules");
 
 	if(!(mboot_head->flags & MBOOT_MODULES))
 	{
@@ -97,6 +99,25 @@ void initrd_init(struct multiboot_header* mboot_head)
 		filedata[cidx] = data;
 
 		//kerror(ERR_BOOTINFO, "Found %s @ %08x w/ size %d w/ data @ %08x [%d]", filenames[cidx], cfile, files[cidx]->c_filesize, data, files[cidx].c_namesize);
+
+		struct kfile *file = (struct kfile *)kmalloc(sizeof(struct kfile));
+
+		memcpy(file->name, cfile + sizeof(struct header_old_cpio), cfile->c_namesize);
+		file->length     = cfile->c_filesize;
+		file->impl       = 0; // FIXME
+		file->uid        = cfile->c_uid;
+		file->gid        = cfile->c_gid;
+		file->link       = 0; // FIXME
+		file->open_flags = 0;
+		file->pflags     = 0; // FIXME
+		file->flags      = 0; // FIXME
+		file->atime      = cfile->c_mtime;
+		file->mtime      = cfile->c_mtime;
+		file->ctime      = cfile->c_mtime; // Ehh....
+		
+		// TODO: Add R/W O/C etc... functions
+
+		cfile->c_ino = fs_add_file(file);
 
 		cfile = (struct header_old_cpio *)(data + cfile->c_filesize + (cfile->c_filesize & 1));
 

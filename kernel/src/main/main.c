@@ -50,6 +50,7 @@ int kmain(struct multiboot_header *mboot_head, u32 magic)
 
 	interrupts_init();
 
+	// TODO: Create root `/` directory somehow
 	initrd_init(mboot_head);
 	
 	keyb_init();

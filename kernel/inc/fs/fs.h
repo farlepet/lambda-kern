@@ -48,4 +48,17 @@ struct kfile //!< Kernel representation of a file
 	struct kfile *next_file; //!< Previous file in the linked-list
 };
 
+
+int fs_add_file(struct kfile *file);
+
+u32            fs_read   (struct kfile *f, u32 off, u32 sz, u8 *buff);
+u32            fs_write  (struct kfile *f, u32 off, u32 sz, u8 *buff);
+void           fs_open   (struct kfile *f, u32 flags);
+void           fs_close  (struct kfile *f);
+struct dirent *fs_readdir(struct kfile *f, u32 idx);
+struct kfile  *fs_finddir(struct kfile *f, char *name);
+int            fs_mkdir  (struct kfile *f, char *name, u32 prems);
+int            fs_create (struct kfile *f, char *name, u32 perms);
+int            fs_ioctl  (struct kfile *f, int req, void *args);
+
 #endif // FS_H
