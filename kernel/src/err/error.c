@@ -3,6 +3,7 @@
 #include <time/time.h>
 #include <err/error.h>
 #include <intr/int.h>
+#include <config.h>
 #include <types.h>
 #include <video.h>
 
@@ -25,7 +26,11 @@ void kerror(error_level errlvl, char *msg, ...)
 
 	if(errlvl >= minlvl)
 	{
-		kprintf("[%X%08X] ", (u32)(kerneltime >> 32), (u32)kerneltime);
+		if(KERNEL_COLORCODE)
+			kprintf("\e[31m[\e[32m%X%08X\e[31m]\e[0m ", (u32)(kerneltime >> 32), (u32)kerneltime);
+		else
+			kprintf("[%X%08X] ", (u32)(kerneltime >> 32), (u32)kerneltime);
+
 		__builtin_va_list varg;
 		__builtin_va_start(varg, msg);
 		kprintv(msg, varg);

@@ -6,6 +6,7 @@
 #include <err/panic.h>
 #include <err/error.h>
 #include <time/time.h>
+#include <mm/alloc.h>
 #include <fs/initrd.h>
 #include <proc/elf.h>
 #include <proc/ipc.h>
@@ -99,14 +100,16 @@ __noreturn void kernel_task()
 	if(elf)
 	{
 		kerror(ERR_BOOTINFO, "  -> Found test.elf!");
+		u32 size = elf->length;
+		u8 *elfd = kmalloc(size);
+		fs_read(elf, 0, size, elfd);
+		load_elf(elfd, size);
 	}
 	else
 	{
 		kerror(ERR_BOOTINFO, "  -> Could not find test.elf!");
 	}
-	//u32 elf_size;
-	//void *elf = initrd_find_file("test.elf", &elf_size);
-	//load_elf(elf, elf_size);
+
 
 	for(;;) busy_wait();
 }
