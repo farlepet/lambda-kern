@@ -1,11 +1,14 @@
 #include "alloc.h"
 #include <string.h>
 #include <err/error.h>
+#include <err/panic.h>
 #include <proc/atomic.h>
 
 static lock_t alloc_lock = 0;
 
-static struct alcent allocs[N_ALLOCS]; //!< Array of memory blocks (TODO: Make this an expandable array!)
+static struct alcent block_1[ALLOC_BLOCK];
+
+static struct alcent *allocs[ALLOC_BLOCKS] = { block_1 };
 
 /**
  * Add a memory block to the block list
@@ -14,16 +17,20 @@ static struct alcent allocs[N_ALLOCS]; //!< Array of memory blocks (TODO: Make t
  */
 static void add_alloc(struct alcent *al)
 {
-	int i = 0;
+	int i, j = 0;
 
 	// Search for a free allocation slot
-	for(; i < N_ALLOCS; i++)
+	for(; j < ALLOC_BLOCKS; j++)
 	{
-		if(!allocs[i].valid) // Check if the allocation slot is in use
+		if(!allocs[j]) continue;
+		for(i = 0; i < ALLOC_BLOCK; i++)
 		{
-			// Copy `al` to this allocation slot
-			memcpy(&allocs[i], al, sizeof(struct alcent));
-			return;
+			if(!allocs[j][i].valid) // Check if the allocation slot is in use
+			{
+				// Copy `al` to this allocation slot
+				memcpy(&allocs[j][i], al, sizeof(struct alcent));
+				return;
+			}
 		}
 	}
 
@@ -37,30 +44,34 @@ static void add_alloc(struct alcent *al)
  *
  * @param idx index of the block to remove
  */
-static void rm_alloc(int idx)
+static void rm_alloc(int block, int idx)
 {
-	u32 addr = allocs[idx].addr;
-	u32 size = allocs[idx].size;
+	u32 addr = allocs[block][idx].addr;
+	u32 size = allocs[block][idx].size;
 
-	int i = 0;
+	int i, j = 0;
 
 	// See if this block immediately preceeds or proceeds any other block
-	for(; i < N_ALLOCS; i++)
+	for(; j < ALLOC_BLOCKS; j++)
 	{
-		if(allocs[i].valid)
+		if(!allocs[j]) continue;
+		for(i = 0; i < ALLOC_BLOCK; i++)
 		{
-			if((((allocs[i].addr + size - 1) == addr) ||
-			(allocs[i].addr == (addr + size - 1))) && (!allocs[i].used))
+			if(allocs[j][i].valid)
 			{
-				allocs[i].size += size;
-				allocs[idx].valid = 0;
-				return;
+				if((((allocs[j][i].addr + size - 1) == addr) ||
+				(allocs[j][i].addr == (addr + size - 1))) && (!allocs[j][i].used))
+				{
+					allocs[j][i].size += size;
+					allocs[block][idx].valid = 0;
+					return;
+				}
 			}
 		}
 	}
 
 	// No preceeding or proceeding block found
-	allocs[idx].used = 0;
+	allocs[block][idx].used = 0;
 }
 
 /**
@@ -69,28 +80,53 @@ static void rm_alloc(int idx)
  * @param sz amount of memory required
  * @returns index of block
  */
-static int find_hole(u32 sz)
+static u32 find_hole(u32 sz)
 {
-	int idx = -1;
+	u32 idx  = 0xFFFFFFFF;
 	u32 size = 0xFFFFFFFF;
 	
-	int i = 0;
+	int i, j = 0;
 
 	// Find the smallest available block of free memory
-	for(; i < N_ALLOCS; i++)
+	for(; j < ALLOC_BLOCKS; j++)
 	{
-		if(allocs[i].valid) // Is it a valid slot?
+		if(!allocs[j]) continue;
+		for(i = 0; i < ALLOC_BLOCK; i++)
 		{
-			if(allocs[i].size > sz) // Is it big enough?
-				if(allocs[i].size < size) // Is it smaller than the previously found block (if any)?
-				{
-					idx = i;
-					size = allocs[i].size;
-				}
+			if(allocs[j][i].valid) // Is it a valid slot?
+			{
+				if(allocs[j][i].size > sz) // Is it big enough?
+					if(allocs[j][i].size < size) // Is it smaller than the previously found block (if any)?
+					{
+						idx = (u16)i | j << 16;
+						size = allocs[j][i].size;
+					}
+			}
 		}
 	}
 
 	return idx;
+}
+
+
+static int empty_slots(int block)
+{
+	int fill = ALLOC_BLOCK;
+	int i = 0;
+
+	for(; i < ALLOC_BLOCK; i++)
+		if(allocs[block][i].valid) fill--;
+
+	return fill;
+}
+
+static int get_free_block()
+{
+	int i = 0;
+	for(; i < ALLOC_BLOCKS; i++)
+		if(allocs[i] == 0) return i;
+
+	return ALLOC_BLOCKS;
 }
 
 /**
@@ -107,24 +143,59 @@ void *kmalloc(u32 sz)
 	lock(&alloc_lock);
 
 	// Find the smallest memory block that we can use
-	int idx = find_hole(sz);
+	u32 idx = find_hole(sz);
 
 	// Couldn't find one...
-	if(idx < 0) return 0;
+	if(idx == 0xFFFFFFFF) return 0;
 
-	if(allocs[idx].size == sz)
+	int block = idx >> 16;
+	int index = idx & 0xFFFF;
+
+	if(empty_slots(block) == 4) // Get ready ahead of time
 	{
-		allocs[idx].used = 1;
-		unlock(&alloc_lock);
-		kerror(ERR_DETAIL, "  -> %08X W", allocs[idx].addr);
-		return (void *)allocs[idx].addr;
+		u32 asz = ALLOC_BLOCK * sizeof(struct alcent);
+
+		u32 idx = find_hole(asz);
+		if(idx == 0xFFFFFFFF) kpanic("Could not create another allocation block!");
+
+		int block = idx >> 16;
+		int index = idx & 0xFFFF;
+
+		if(allocs[block][index].size == asz)
+		{
+			allocs[block][index].used = 1;
+			allocs[get_free_block()] = (struct alcent *)allocs[block][index].addr;
+		}
+		else
+		{
+			allocs[block][index].size -= asz;
+			struct alcent ae = { .valid = 1, .used = 1, .addr = allocs[block][index].addr, .size = asz };
+			allocs[block][index].addr += asz;
+			add_alloc(&ae);
+			allocs[get_free_block()] = (struct alcent *)ae.addr;
+		}
 	}
 
-	allocs[idx].size -= sz; // We are using part of this block
+	// If the previous block of code was used, we may have to reinitialize these
+	idx = find_hole(sz);
+	if(idx == 0xFFFFFFFF) return 0;
+	block = idx >> 16;
+	index = idx & 0xFFFF;
 
-	struct alcent ae = { .valid = 1, .used = 1, .addr = allocs[idx].addr, .size = sz };
 
-	allocs[idx].addr += sz; // We don't want anything else using the allocated memory
+	if(allocs[block][index].size == sz)
+	{
+		allocs[block][index].used = 1;
+		unlock(&alloc_lock);
+		kerror(ERR_DETAIL, "  -> %08X W", allocs[block][index].addr);
+		return (void *)allocs[block][index].addr;
+	}
+
+	allocs[block][index].size -= sz; // We are using part of this block
+
+	struct alcent ae = { .valid = 1, .used = 1, .addr = allocs[block][index].addr, .size = sz };
+
+	allocs[block][index].addr += sz; // We don't want anything else using the allocated memory
 
 	add_alloc(&ae); // We will just assume this worked, the worst that could happen is we can't `free` it (FIXME)
 
@@ -146,13 +217,17 @@ void kfree(void *ptr)
 
 	lock(&alloc_lock);
 
-	int i = 0;
+	int i, j = 0;
 
 	// Find the corresponding memory block
-	for(; i < N_ALLOCS; i++)
-		if(allocs[i].valid) // Is it valid?
-			if(allocs[i].addr == (u32)ptr) // Is it the correct block?
-				rm_alloc(i); // Free it!
+	for(; j < ALLOC_BLOCKS; j++)
+	{
+		if(!allocs[j]) continue;
+		for(; i < ALLOC_BLOCK; i++)
+			if(allocs[j][i].valid) // Is it valid?
+				if(allocs[j][i].addr == (u32)ptr) // Is it the correct block?
+					rm_alloc(j, i); // Free it!
+	}
 
 	unlock(&alloc_lock);
 }

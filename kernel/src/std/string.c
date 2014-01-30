@@ -32,13 +32,17 @@ u32 wcslen(const short *str)
  * @param str1 first string
  * @param str2 second string
  */
- int strcmp(const char *str1, const char *str2)
- {
- 	while(*str1 && (*str1==*str2))
-        str1++, str2++;
-    return *(const u8*)str1-*(const u8*)str2;
- }
+int strcmp(const char *str1, const char *str2)
+{
+	while(*str1 && (*str1==*str2)) str1++, str2++;
+	return *(const u8 *)str1 - *(const u8 *)str2;
+}
 
+int strncmp(const char *str1, const char *str2, u32 num)
+{
+	while(*str1 && (*str1 == *str2) && num--) str1++, str2++;
+	return *(const u8 *)str1 - *(const u8 *)str2;
+}
 
 void *memcpy(void *dest, const void *src, u32 n)
 {

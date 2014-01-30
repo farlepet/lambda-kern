@@ -10,6 +10,7 @@
 #include <proc/elf.h>
 #include <proc/ipc.h>
 #include <mm/mm.h>
+#include <fs/fs.h>
 #include <video.h>
 
 
@@ -50,7 +51,7 @@ int kmain(struct multiboot_header *mboot_head, u32 magic)
 
 	interrupts_init();
 
-	// TODO: Create root `/` directory somehow
+	fs_init();
 	initrd_init(mboot_head);
 	
 	keyb_init();
@@ -89,9 +90,23 @@ __noreturn void kernel_task()
 		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
 	}
 
-	u32 elf_size;
-	void *elf = initrd_find_file("test.elf", &elf_size);
-	load_elf(elf, elf_size);
+
+	fs_debug(16);
+
+	kerror(ERR_BOOTINFO, "Opening test.elf");
+
+	struct kfile *elf = fs_finddir(fs_root, "test.elf");
+	if(elf)
+	{
+		kerror(ERR_BOOTINFO, "  -> Found test.elf!");
+	}
+	else
+	{
+		kerror(ERR_BOOTINFO, "  -> Could not find test.elf!");
+	}
+	//u32 elf_size;
+	//void *elf = initrd_find_file("test.elf", &elf_size);
+	//load_elf(elf, elf_size);
 
 	for(;;) busy_wait();
 }

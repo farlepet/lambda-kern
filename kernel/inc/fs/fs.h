@@ -3,8 +3,34 @@
 
 #include <types.h>
 #include <time/time.h>
+#include <proc/atomic.h>
 
 #define FILE_NAME_MAX 256
+
+#define OFLAGS_OPEN   1
+#define OFLAGS_WRITE  2
+#define OFLAGS_READ   4
+#define OFLAGS_APPEND 8
+#define OFLAGS_CREATE 16
+
+#define FS_FILE     1
+#define FS_DIR      2
+#define FS_CHARDEV  4
+#define FS_BLCKDEV  8
+#define FS_PIPE     16
+#define FS_SYMLINK  32
+#define FS_MNTPOINT 64
+
+
+#define PERM_R   01
+#define PERM_W   02
+#define PERM_RW  03
+#define PERM_E   04
+#define PERM_RE  05
+#define PERM_WE  06
+#define PERM_RWE 07
+
+#define PERMISSIONS(u, g, w) ((u << 6) | (g << 3) | (w << 0))
 
 struct dirent
 {
@@ -43,11 +69,14 @@ struct kfile //!< Kernel representation of a file
 
 	void *info;              //!< Driver-specific information (eg: Hard-disk, partition, and offset for a file on a HDD)
 
+	lock_t file_lock;        //!< Make sure only one process can access this at a time
+
 	u32 magic;               //!< Verify this is a valid file entry (0xF11E0000)
 	struct kfile *prev_file; //!< Next file in the linked-list
 	struct kfile *next_file; //!< Previous file in the linked-list
 };
 
+struct kfile *fs_root;
 
 int fs_add_file(struct kfile *file);
 
@@ -60,5 +89,9 @@ struct kfile  *fs_finddir(struct kfile *f, char *name);
 int            fs_mkdir  (struct kfile *f, char *name, u32 prems);
 int            fs_create (struct kfile *f, char *name, u32 perms);
 int            fs_ioctl  (struct kfile *f, int req, void *args);
+
+void fs_init(void);
+
+void fs_debug(int nfiles);
 
 #endif // FS_H

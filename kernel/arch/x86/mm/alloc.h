@@ -1,7 +1,8 @@
 #include <types.h>
 #include "paging.h"
 
-#define N_ALLOCS 1024
+#define ALLOC_BLOCK  1024
+#define ALLOC_BLOCKS 512
 
 struct alcent //!< Describes a block of memory
 {

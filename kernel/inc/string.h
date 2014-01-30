@@ -25,10 +25,13 @@ u32 wcslen(const short *str);
  * @param str1 first string
  * @param str2 second string
  */
- int strcmp(const char *str1, const char *str2);
+int strcmp(const char *str1, const char *str2);
 
- void *memcpy(void *dest, const void *src, u32 n);
+int strncmp(const char *str1, const char *str2, u32 num);
 
- void *memset(void *s, int c, u32 n);
+
+void *memcpy(void *dest, const void *src, u32 n);
+
+void *memset(void *s, int c, u32 n);
 
 #endif
