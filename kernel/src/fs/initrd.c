@@ -193,8 +193,37 @@ void initrd_init(struct multiboot_header* mboot_head)
 		file->gid        = cfile->c_gid;
 		file->link       = 0; // FIXME
 		file->open_flags = 0;
-		file->pflags     = 0; // FIXME
-		file->flags      = 0; // FIXME
+		file->pflags     = cfile->c_mode & 07777;
+		switch(cfile->c_mode & 0170000)
+		{
+			case 0140000:
+				file->flags |= 0; // FIXME: Socket
+				break;
+
+			case 0120000:
+				file->flags |= FS_SYMLINK;
+				break;
+
+			case 0100000:
+				file->flags |= FS_FILE;
+				break;
+
+			case 0060000:
+				file->flags |= FS_BLCKDEV;
+				break;
+
+			case 0040000:
+				file->flags |= FS_DIR;
+				break;
+
+			case 0020000:
+				file->flags |= FS_CHARDEV;
+				break;
+
+			case 0010000:
+				file->flags |= FS_PIPE;
+				break;
+		}
 		file->atime      = cfile->c_mtime;
 		file->mtime      = cfile->c_mtime;
 		file->ctime      = cfile->c_mtime; // Ehh....

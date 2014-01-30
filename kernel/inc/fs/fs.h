@@ -22,12 +22,12 @@
 #define FS_MNTPOINT 64
 
 
-#define PERM_R   01
+#define PERM_E   01
 #define PERM_W   02
-#define PERM_RW  03
-#define PERM_E   04
+#define PERM_WE  03
+#define PERM_R   04
 #define PERM_RE  05
-#define PERM_WE  06
+#define PERM_RW  06
 #define PERM_RWE 07
 
 #define PERMISSIONS(u, g, w) ((u << 6) | (g << 3) | (w << 0))

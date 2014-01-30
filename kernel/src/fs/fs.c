@@ -150,7 +150,7 @@ void fs_init()
 	fs_root->gid        = 0;
 	fs_root->link       = NULL;
 	fs_root->open_flags = 0;
-	fs_root->pflags     = PERMISSIONS(PERM_RW, PERM_R, PERM_R); // rw-r--r--
+	fs_root->pflags     = PERMISSIONS(PERM_RWE, PERM_RE, PERM_RE); // rwxr-xr-x
 	fs_root->flags      = FS_DIR;
 	fs_root->atime      = time;
 	fs_root->mtime      = time;
@@ -178,10 +178,11 @@ void fs_debug(int nfiles)
 
 	while(nfiles--)
 	{
-		kerror(ERR_BOOTINFO, "FSDBG::%c%c%c%c%c%c%c%c%c %d %s",
-			((f->pflags&0400)?'r':'-'), ((f->pflags&0200)?'w':'-'), ((f->pflags&0100)?'x':'-'),
-			((f->pflags&040)?'r':'-'), ((f->pflags&020)?'w':'-'), ((f->pflags&010)?'x':'-'),
+		kerror(ERR_BOOTINFO, "FSDBG::%c%c%c%c%c%c%c%c%c%s %d %s",
+			((f->pflags&0400)?'r':'-'), ((f->pflags&0200)?'w':'-'), ((f->pflags&04000)?'s':((f->pflags&0100)?'x':'-')),
+			((f->pflags&040)?'r':'-'), ((f->pflags&020)?'w':'-'), ((f->pflags&02000)?'s':((f->pflags&010)?'x':'-')),
 			((f->pflags&04)?'r':'-'), ((f->pflags&02)?'w':'-'), ((f->pflags&01)?'x':'-'),
+			((f->pflags&01000)?"T ":" "),
 			f->inode, f->name);
 
 		f = f->next_file;
