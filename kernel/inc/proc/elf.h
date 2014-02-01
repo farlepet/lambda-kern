@@ -184,6 +184,6 @@ typedef struct
 
 
 
-int load_elf(void *file, u32 length);
+ptr_t load_elf(void *file, u32 length, u32 **pdir);
 
 #endif

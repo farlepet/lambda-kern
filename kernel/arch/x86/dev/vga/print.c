@@ -67,9 +67,8 @@ void vga_put(char c)
 		buff[buff_loc++] = c;
 		if(is_esc == 2)
 		{
-			if(c == ';') is_esc = 1;
-			else goto __print;
-
+			//if(c == ';') is_esc = 1;
+			goto __print;
 		}
 		else if(is_ansi(c))
 		{

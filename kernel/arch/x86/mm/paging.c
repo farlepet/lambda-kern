@@ -139,6 +139,30 @@ void map_page(void *physaddr, void *virtualaddr, u32 flags)
 	if((((u32)physaddr / 0x1000)    > (u32)firstframe) && (((u32)physaddr    / 0x1000) < (u32)lastframe)) set_frame(((((u32)physaddr)    - (u32)firstframe) / 0x1000), 1);
 }
 
+void pgdir_map_page(u32 *pgdir, void *physaddr, void *virtualaddr, u32 flags)
+{
+	virtualaddr = (void *)((u32)virtualaddr & 0xFFFFF000);
+	physaddr    = (void *)((u32)physaddr    & 0xFFFFF000);
+
+	u32 pdindex = (u32)virtualaddr >> 22;
+	u32 ptindex = (u32)virtualaddr >> 12 & 0x03FF;
+
+	// Should I check if it is already present? I don't know...
+	if(pgdir[pdindex] & 0x01)
+		((u32 *)pgdir[pdindex])[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
+
+	else
+	{
+		pgdir[pdindex] = (((u32)kmalloc(0x2000) + 0x1000) & ~0xFFF) | 0x03;
+
+		int i = 0;
+		for(; i < 1024; i++)
+			((u32 *)pgdir[pdindex])[i] = 0x00000000;
+
+		((u32 *)pgdir[pdindex])[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
+	}
+}
+
 /**
  * Free an allocated page frame, allowing it to be allocated again.
  * 
@@ -272,7 +296,13 @@ void paging_init(u32 eom)
 }
 
 
+u32 *clone_kpagedir()
+{
+	u32 *pgd = (u32 *)((ptr_t)kmalloc(sizeof(pagedir) + 0x1000) & 0xFFFFF000);
 
+	memcpy(pgd, pagedir, sizeof(pagedir));
+	return pgd;
+}
 
 
 

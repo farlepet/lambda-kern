@@ -14,11 +14,13 @@
 #include <fs/fs.h>
 #include <video.h>
 
-
+#ifdef ARCH_X86
 // TODO: Move these to another file:
 #include <io/pci.h>
 #include <io/serial.h>
 #include <dev/keyb/input.h>
+#include <dev/vga/print.h>
+#endif
 
 void kernel_task(void);
 __noreturn int kmain(struct multiboot_header *, u32);
@@ -39,6 +41,10 @@ int kmain(struct multiboot_header *mboot_head, u32 magic)
 {
 	if(magic != 0x2BADB002)
 		kpanic("Invalid magic number given by the bootloader: 0x%08X", magic);
+
+#ifdef ARCH_X86
+	vga_clear();
+#endif
 
 	serial_init(SERIAL_COM1);
 
@@ -91,8 +97,7 @@ __noreturn void kernel_task()
 		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
 	}
 
-
-	fs_debug(16);
+	//fs_debug(16);
 
 	kerror(ERR_BOOTINFO, "Opening test.elf");
 
@@ -103,7 +108,10 @@ __noreturn void kernel_task()
 		u32 size = elf->length;
 		u8 *elfd = kmalloc(size);
 		fs_read(elf, 0, size, elfd);
-		load_elf(elfd, size);
+		u32 *pdir;
+		ptr_t elfe = load_elf(elfd, size, &pdir);
+		kerror(ERR_BOOTINFO, "  -> Entrypoint: 0x%08X", elfe);
+		add_kernel_task_pdir((void *)elfe, "test.elf", 0x1000, PRIO_DRIVER, pdir);
 	}
 	else
 	{

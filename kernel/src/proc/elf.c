@@ -1,9 +1,15 @@
 #include <proc/mtask.h>
 #include <err/error.h>
+#include <mm/alloc.h>
 #include <proc/elf.h>
+#include <string.h>
+
+#ifdef ARCH_X86
+#include <mm/paging.h>
+#endif
 
 
-int load_elf(void *file, u32 length)
+ptr_t load_elf(void *file, u32 length, u32 **pdir)
 {
 	kerror(ERR_BOOTINFO, "Loading elf from %08X of length %08X", file, length);
 
@@ -19,26 +25,54 @@ int load_elf(void *file, u32 length)
 			(head->e_ident[1]),
 			(head->e_ident[2]),
 			(head->e_ident[3]));
-		return 1;
+		return 0;
 	}
 
 	if(head->e_ident[4] != HOST_CLASS)
 	{
 		kerror(ERR_SMERR, "Tried to load ELF not compatible with current bittiness: %d", head->e_ident[4]);
-		return 1;
+		return 0;
 	}
 
 	if(head->e_type != ET_EXEC)
 	{
 		kerror(ERR_SMERR, "Tried to load non-executable ELF with type %d", head->e_type);
-		return 1;
+		return 0;
 	}
 
 	if(head->e_machine != HOST_MACHINE)
 	{
 		kerror(ERR_SMERR, "Tried to load ELF not compatible with current architecture: %d", head->e_machine);
-		return 1;
+		return 0;
 	}
 
-	return 0;
+	u32 *pgdir = clone_kpagedir();
+
+	ptr_t i = 0;
+	for(; i < (ptr_t)(head->e_shentsize * head->e_shnum); i += head->e_shentsize)
+	{
+		Elf32_Shdr *shdr = (Elf32_Shdr *)((ptr_t)head + (head->e_shoff + i));
+
+		kerror(ERR_INFO, "shdr[%d/%d] T:%X ADDR:%08X SZ:%08X", (i/head->e_shentsize)+1, head->e_shnum, shdr->sh_type, shdr->sh_addr, shdr->sh_size);
+
+		if(shdr->sh_addr)
+		{
+			void *phys = kmalloc(shdr->sh_size + 0x2000); // + 0x2000 so we can page-align it
+			phys = (void *)((ptr_t)phys & ~0xFFF) + 0x1000 + (shdr->sh_addr & 0xFFF);
+
+			ptr_t p = 0;
+			for(; p < shdr->sh_size; p += 0x1000)
+			{
+				kerror(ERR_BOOTINFO, "  -> MAP_PAGE[%08X, %08X]", (phys + p), (shdr->sh_addr + p));
+				pgdir_map_page(pgdir, (phys + p), (void *)(shdr->sh_addr + p), 0x03);
+				kerror(ERR_BOOTINFO, "      -> DONE");
+			}
+
+			if(shdr->sh_type == SHT_NOBITS) memset(phys, 0, shdr->sh_size);
+			else memcpy(phys, (void *)((ptr_t)head + shdr->sh_offset), shdr->sh_size);
+		}
+	}
+
+	*pdir = pgdir;
+	return head->e_entry;
 }

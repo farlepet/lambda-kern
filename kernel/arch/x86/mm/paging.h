@@ -50,6 +50,8 @@ void free_frame(void *frame);
  */
 void map_page(void *physaddr, void *virtualaddr, u32 flags);
 
+void pgdir_map_page(u32 *pgdir, void *physaddr, void *virtualaddr, u32 flags);
+
 /**
  * \brief Clear a page directory to it's default values.
  * Clear the page directory marking every page table as non-existant.
@@ -115,5 +117,10 @@ void *page_alloc(u32 size);
  * @see malloc
  */
 void page_free(void *ptr);
+
+
+
+
+u32 *clone_kpagedir();
 
 #endif

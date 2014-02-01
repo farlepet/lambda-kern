@@ -119,12 +119,89 @@ void add_kernel_task(void *process, char *name, u32 stack_size, int pri)
 	kerror(ERR_INFO, "Added process %s as pid %d to slot %d", name, procs[p].pid, p);
 }
 
+void add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *pagedir)
+{
+	lock(&creat_task);
+
+	int parent = 0;
+	if(tasking) parent = proc_by_pid(current_pid);
+
+	int p = get_next_open_proc();
+	if(p == -1) kerror(ERR_SMERR, "Could not add kernel task to the process list");
+
+	if(tasking)
+	{
+		int i = 0;
+		for(; i < MAX_CHILDREN; i++)
+		{
+			if(!procs[parent].children[i])
+			{
+				procs[parent].children[i] = p;
+				break;
+			}
+		}
+		if(i == MAX_CHILDREN)
+		{
+			kerror(ERR_SMERR, "Process %d has run out of children slots", procs[parent].pid);
+			unlock(&creat_task);
+			return;
+		}
+	}
+
+	memcpy(procs[p].name, name, strlen(name));
+
+	procs[p].pid  = next_kernel_pid--;
+	procs[p].uid  = 0;
+	procs[p].gid  = 0;
+	procs[p].type = TYPE_RUNNABLE | TYPE_KERNEL | TYPE_VALID | TYPE_RANONCE;
+	procs[p].prio = pri;
+
+#if defined(ARCH_X86)
+	procs[p].eip = (u32)process;
+	procs[p].cr3 = (u32)pagedir;
+
+#ifdef STACK_PROTECTOR
+	procs[p].ebp = (u32)kmalloc((stack_size ? stack_size : STACK_SIZE) + 0x2000);
+	procs[p].ebp +=            ((stack_size ? stack_size : STACK_SIZE) + 0x1000);
+#else // STACK_PROTECTOR
+	procs[p].ebp = ((u32)kmalloc((stack_size ? stack_size : STACK_SIZE)) & ~0x10) + 0x10;
+	procs[p].ebp +=            ((stack_size ? stack_size : STACK_SIZE)) & ~0x10;
+#endif // !STACK_PROTECTOR
+
+	//procs[p].ebp += 0x10; procs[p].ebp &= 0xFFFFFFF0; // Small alignment
+
+	procs[p].esp = procs[p].ebp;
+
+	
+	procs[p].stack_end = procs[p].ebp - STACK_SIZE;
+	procs[p].stack_beg = procs[p].ebp;
+
+#ifdef STACK_PROTECTOR
+// TODO: Fix stack guarding:
+	//block_page(procs[p].stack_end - 0x1000); // <-- Problematic line
+	//block_page(procs[p].stack_beg + 0x1000);
+#endif // STACK_PROTECTOR
+
+#endif // ARCH_X86
+
+// Set up message buffer
+	procs[p].messages.head  = 0;
+	procs[p].messages.tail  = 0;
+	procs[p].messages.count = 0;
+	procs[p].messages.size  = MSG_BUFF_SIZE;
+	procs[p].messages.buff  = procs[p].msg_buff;
+
+
+
+	unlock(&creat_task);
+}
+
 void init_multitasking(void *process, char *name)
 {
 	disable_interrupts();
 	kerror(ERR_BOOTINFO, "Initializing multitasking");
 
-	add_kernel_task(process, name, 0, PRIO_KERNEL);
+	add_kernel_task(process, name, 0x10000, PRIO_KERNEL);
 
 	kerror(ERR_BOOTINFO, "--");
 
@@ -141,8 +218,8 @@ void init_multitasking(void *process, char *name)
 static int c_proc = 0;
 __hot void do_task_switch()
 {
-	if(!tasking) return;
-
+	if(!tasking)   return;
+	if(creat_task) return; // We don't want to interrupt process creation
 
 #if  defined(ARCH_X86)
 	u32 esp, ebp, eip, cr3;
