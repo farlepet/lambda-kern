@@ -71,6 +71,8 @@ static void pci_write_config_word(u32 bus, u32 slot, u32 func, u32 offset, u16 d
 void pci_enumerate()
 {
 	kerror(ERR_BOOTINFO, "Initializing PCI devices");
+	disable_interrupts();
+	
 	u16 tmp;
 
 	u32 bus = 0;
@@ -154,6 +156,9 @@ void pci_enumerate()
 			}
 		}
 	n_pci_devices = devn;
+
+	enable_interrupts();
+	kerror(ERR_BOOTINFO, "PCI devices enumerated");
 }
 
 /**

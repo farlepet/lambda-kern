@@ -172,8 +172,13 @@ void add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u3
 
 	procs[p].esp = procs[p].ebp;
 
-	
-	procs[p].stack_end = procs[p].ebp - STACK_SIZE;
+	u32 i = 0;
+	for(; i < (stack_size ? stack_size : STACK_SIZE); i++)
+	{
+		pgdir_map_page(pagedir, (void *)(procs[p].esp - i), (void *)(procs[p].esp - i), 0x03);
+	}
+
+	procs[p].stack_end = procs[p].ebp - (stack_size ? stack_size : STACK_SIZE);
 	procs[p].stack_beg = procs[p].ebp;
 
 #ifdef STACK_PROTECTOR
@@ -191,14 +196,13 @@ void add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u3
 	procs[p].messages.size  = MSG_BUFF_SIZE;
 	procs[p].messages.buff  = procs[p].msg_buff;
 
-
+	kerror(ERR_BOOTINFO, "PID: %d EIP: %08X CR3: %08X ESP: %08X", procs[p].pid, procs[p].eip, procs[p].cr3, procs[p].esp);
 
 	unlock(&creat_task);
 }
 
 void init_multitasking(void *process, char *name)
 {
-	disable_interrupts();
 	kerror(ERR_BOOTINFO, "Initializing multitasking");
 
 	add_kernel_task(process, name, 0x10000, PRIO_KERNEL);
@@ -211,7 +215,6 @@ void init_multitasking(void *process, char *name)
 	current_pid = -1;
 
 	kerror(ERR_BOOTINFO, "Multitasking enabled");
-	enable_interrupts();
 }
 
 
@@ -244,7 +247,6 @@ __hot void do_task_switch()
 #endif
 	}
 	else procs[c_proc].type |= TYPE_RANONCE;
-
 
 	// Switch to next process here...
 	c_proc = sched_next_process();

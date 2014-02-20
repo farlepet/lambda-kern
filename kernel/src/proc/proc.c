@@ -1,4 +1,6 @@
 #include <proc/mtask.h>
+#include <err/error.h>
+#include <err/panic.h>
 #include <proc/proc.h>
 #include <string.h>
 
@@ -32,10 +34,22 @@ __hot void sched_processes()
 __hot int sched_next_process()
 {
 	static int c_proc;
+	int oc_proc = c_proc;
+	int nr = 0;
 
 	c_proc++;
 	while(!(procs[c_proc].type & TYPE_RUNNABLE) || procs[c_proc].blocked)
-		{ c_proc++; if(c_proc >= MAX_PROCESSES) c_proc = 0; }
+	{
+		if(c_proc == oc_proc) nr++;
+		if(nr >= 2)
+		{
+			// We couldn't get a new runnable task, so we panic and halt
+			kpanic("Could not schedule new task -- All tasks are blocked!");
+		}
+
+		c_proc++;
+		if(c_proc >= MAX_PROCESSES) c_proc = 0;
+	}
 	current_pid = procs[c_proc].pid;
 
 	return c_proc;

@@ -46,7 +46,8 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 		return 0;
 	}
 
-	u32 *pgdir = clone_kpagedir();
+	//u32 *pgdir = clone_kpagedir();
+	u32 *pgdir = (u32 *)kernel_cr3;
 
 	ptr_t i = 0;
 	for(; i < (ptr_t)(head->e_shentsize * head->e_shnum); i += head->e_shentsize)
@@ -64,12 +65,15 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 			for(; p < shdr->sh_size; p += 0x1000)
 			{
 				kerror(ERR_BOOTINFO, "  -> MAP_PAGE[%08X, %08X]", (phys + p), (shdr->sh_addr + p));
-				pgdir_map_page(pgdir, (phys + p), (void *)(shdr->sh_addr + p), 0x03);
+				//pgdir_map_page(pgdir, (phys + p), (void *)(shdr->sh_addr + p), 0x03);
+				map_page((phys + p), (void *)(shdr->sh_addr + p), 0x03);
 				kerror(ERR_BOOTINFO, "      -> DONE");
 			}
+			
+			if(shdr->sh_type == SHT_NOBITS) memset((void *)shdr->sh_addr, 0, shdr->sh_size);
+			else memcpy((void *)shdr->sh_addr, (void *)((ptr_t)head + shdr->sh_offset), shdr->sh_size);
 
-			if(shdr->sh_type == SHT_NOBITS) memset(phys, 0, shdr->sh_size);
-			else memcpy(phys, (void *)((ptr_t)head + shdr->sh_offset), shdr->sh_size);
+
 		}
 	}
 

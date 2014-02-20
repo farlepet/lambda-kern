@@ -50,9 +50,7 @@ int kmain(struct multiboot_header *mboot_head, u32 magic)
 
 	check_commandline(mboot_head);
 
-	
 	kerror(ERR_BOOTINFO, "Kernel occupies this memory space: %08X - %08X", &kern_start, &kern_end);
-
 
 	mm_init(mboot_head);
 
@@ -65,14 +63,7 @@ int kmain(struct multiboot_header *mboot_head, u32 magic)
 
 	timer_init(500);
 	
-	pci_enumerate();
-
-	pci_init();
-
-
 	init_multitasking(&kernel_task, "kern");
-
-	kerror(ERR_BOOTINFO, "Lambda OS kernel finished initializing");
 
 	iloop();
 }
@@ -85,6 +76,9 @@ __noreturn void kernel_task()
 	kerror(ERR_BOOTINFO, "Main kernel task started");
 
 	init_ktasks();
+
+	pci_enumerate();
+	pci_init();
 
 
 	int kvid = get_ktask(KVID_TASK_SLOT, 50);
@@ -100,7 +94,7 @@ __noreturn void kernel_task()
 	//fs_debug(16);
 
 	kerror(ERR_BOOTINFO, "Opening test.elf");
-
+/*
 	struct kfile *elf = fs_finddir(fs_root, "test.elf");
 	if(elf)
 	{
@@ -110,14 +104,20 @@ __noreturn void kernel_task()
 		fs_read(elf, 0, size, elfd);
 		u32 *pdir;
 		ptr_t elfe = load_elf(elfd, size, &pdir);
+		if(!elfe) goto ELF_ERR_BRA;
+
 		kerror(ERR_BOOTINFO, "  -> Entrypoint: 0x%08X", elfe);
-		add_kernel_task_pdir((void *)elfe, "test.elf", 0x1000, PRIO_DRIVER, pdir);
+		//add_kernel_task_pdir((void *)elfe, "test.elf", 0x1000, PRIO_DRIVER, pdir);
+		add_kernel_task((void *)elfe, "test.elf", 0x1000, PRIO_KERNEL);
+		kerror(ERR_BOOTINFO, "      -> Created task");
 	}
 	else
 	{
 		kerror(ERR_BOOTINFO, "  -> Could not find test.elf!");
 	}
 
+ELF_ERR_BRA:
+*/
 
 	for(;;) busy_wait();
 }
