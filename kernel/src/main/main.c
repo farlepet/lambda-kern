@@ -61,7 +61,7 @@ int kmain(struct multiboot_header *mboot_head, u32 magic)
 	
 	keyb_init();
 
-	timer_init(500);
+	timer_init(100);
 	
 	init_multitasking(&kernel_task, "kern");
 
@@ -92,9 +92,9 @@ __noreturn void kernel_task()
 	}
 
 	//fs_debug(16);
-
-	kerror(ERR_BOOTINFO, "Opening test.elf");
 /*
+	kerror(ERR_BOOTINFO, "Opening test.elf");
+
 	struct kfile *elf = fs_finddir(fs_root, "test.elf");
 	if(elf)
 	{
