@@ -1,5 +1,6 @@
 #include <multiboot.h>
 #include <err/error.h>
+#include <err/panic.h>
 #include <intr/int.h>
 #include <mm/alloc.h>
 #include <string.h>
@@ -64,24 +65,24 @@ static u32 test_frame(u32 frame)
  */
 static void *get_free_frame()
 {
-		u32 i = 0;
-		while(test_frame(i) != 0)
+	u32 i = 0;
+	while(test_frame(i) != 0)
+	{
+		if(frames[i/32] == 0xFFFFFFFF)
 		{
-			if(frames[i/32] == 0xFFFFFFFF)
-			{
-				i += 32;
-				continue;
-			}
-			if(i == nframes)
-				return (void *)0xFFFFFFFF; // Error, no pages available
-			i++;
+			i += 32;
+			continue;
 		}
+		if(i == nframes)
+			return (void *)0xFFFFFFFF; // Error, no pages available
+		i++;
+	}
 
-		set_frame(i, 1);
+	set_frame(i, 1);
 
-		map_page(firstframe + (i*0x1000), firstframe + (i*0x1000), 3); // Make sure it is mapped
+	map_page(firstframe + (i*0x1000), firstframe + (i*0x1000), 3); // Make sure it is mapped
 		
-		return (firstframe + (i*0x1000));
+	return (firstframe + (i*0x1000));
 }
 
 /**
@@ -102,6 +103,25 @@ void *alloc_frame()
 			pframe = 0;
 		}
 		return (void *)prealloc_frames[pframe++];
+}
+
+void *get_phys_page(void *virtaddr)
+{
+	void *off = (void *)((u32)virtaddr & 0x00000FFF);
+	virtaddr = (void *)((u32)virtaddr & 0xFFFFF000);
+
+	u32 pdindex = (u32)virtaddr >> 22;
+	u32 ptindex = (u32)virtaddr >> 12 & 0x03FF;
+
+	if(pagedir[pdindex] & 0x01)
+	{
+		if(((u32 *)pagedir[pdindex])[ptindex] & 0x01)
+			return (void *)((((u32 *)pagedir[pdindex])[ptindex] & 0xFFFFF000) | (u32)off);
+		else
+			return NULL;
+	}
+
+	else return NULL;
 }
 
 /**
@@ -133,10 +153,6 @@ void map_page(void *physaddr, void *virtualaddr, u32 flags)
 
 		((u32 *)pagedir[pdindex])[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
 	}
-
-	// These pages must NOT be reused
-	if((((u32)virtualaddr / 0x1000) > (u32)firstframe) && (((u32)virtualaddr / 0x1000) < (u32)lastframe)) set_frame(((((u32)virtualaddr) - (u32)firstframe) / 0x1000), 1);
-	if((((u32)physaddr / 0x1000)    > (u32)firstframe) && (((u32)physaddr    / 0x1000) < (u32)lastframe)) set_frame(((((u32)physaddr)    - (u32)firstframe) / 0x1000), 1);
 }
 
 void pgdir_map_page(u32 *pgdir, void *physaddr, void *virtualaddr, u32 flags)
@@ -210,6 +226,12 @@ void fill_pagetable(u32 *table, u32 addr)
  */
 void set_pagedir(u32 *dir)
 {
+	if(!dir)
+	{
+		kpanic("Attempted to set pagedir pointer to NULL!");
+	}
+
+	kerror(ERR_BOOTINFO, "SET_PAGEDIR: %08X", dir);
 	asm volatile("mov %0, %%cr3":: "b"(dir));
 }
 
@@ -298,7 +320,7 @@ void paging_init(u32 eom)
 
 u32 *clone_kpagedir()
 {
-	u32 *pgd = (u32 *)((ptr_t)kmalloc(sizeof(pagedir) + 0x1000) & 0xFFFFF000);
+	u32 *pgd = (u32 *)(((ptr_t)kmalloc(sizeof(pagedir) + 0x1000) + 0x1000) & 0xFFFFF000);
 
 	memcpy(pgd, pagedir, sizeof(pagedir));
 	return pgd;

@@ -22,7 +22,7 @@ lock_t kerror_lock = 0; //!< Only 1 message can be printed at a time
  */
 void kerror(error_level errlvl, char *msg, ...)
 {
-	lock(&kerror_lock);
+	lock_for(&kerror_lock, 32); // We don't want something like a kernel message from a lost task stopping us
 
 	if(errlvl >= minlvl)
 	{

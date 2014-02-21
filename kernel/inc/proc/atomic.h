@@ -1,6 +1,7 @@
 #ifndef ATOMIC_H
 #define ATOMIC_H
 
+#include <time/time.h>
 #include <intr/int.h>
 #include <types.h>
 
@@ -39,6 +40,20 @@ static inline void lock(lock_t *lock)
 		busy_wait();
 		old = 0;
 	}
+}
+
+static inline int lock_for(lock_t *lock, u32 ticks)
+{
+	int old = 0;
+	u64 endticks = kerneltime + ticks;
+	
+	while(!a_cmp_chx_weak(lock, &old, 1, __ATOMIC_ACQUIRE, __ATOMIC_RELAXED))
+	{
+		busy_wait();
+		old = 0;
+		if(kerneltime >= endticks) return 1;
+	}
+	return 0;
 }
 
 #endif

@@ -22,6 +22,9 @@ dummy_int:
 	mov al, 0x20
 	out 0x20, al
 	out 0xA0, al
+
+	call do_task_switch
+
 	popa
 	iret
 
@@ -30,12 +33,15 @@ dummy_int:
 
 global pit_int
 extern pit_handler
+extern do_task_switch
 ; Interrupt handler called by the PIT
 pit_int:
 	cli
 	pusha
 
 	call pit_handler
+
+	call do_task_switch
 
 	popa
 	iret

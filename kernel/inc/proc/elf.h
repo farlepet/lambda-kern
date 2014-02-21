@@ -100,6 +100,9 @@ typedef struct
 #define SHT_NOTE     7
 #define SHT_NOBITS   8
 
+char *sht_strings[SHT_NOBITS+1];
+
+
 typedef struct
 {
 	u32 st_name;

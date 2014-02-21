@@ -92,8 +92,8 @@ __noreturn void kernel_task()
 	}
 
 	//fs_debug(16);
-/*
-	kerror(ERR_BOOTINFO, "Opening test.elf");
+
+/*	kerror(ERR_BOOTINFO, "Opening test.elf");
 
 	struct kfile *elf = fs_finddir(fs_root, "test.elf");
 	if(elf)
@@ -107,8 +107,8 @@ __noreturn void kernel_task()
 		if(!elfe) goto ELF_ERR_BRA;
 
 		kerror(ERR_BOOTINFO, "  -> Entrypoint: 0x%08X", elfe);
-		//add_kernel_task_pdir((void *)elfe, "test.elf", 0x1000, PRIO_DRIVER, pdir);
-		add_kernel_task((void *)elfe, "test.elf", 0x1000, PRIO_KERNEL);
+		add_kernel_task_pdir((void *)elfe, "test.elf", 0x1000, PRIO_DRIVER, pdir);
+		//add_kernel_task((void *)elfe, "test.elf", 0x1000, PRIO_KERNEL);
 		kerror(ERR_BOOTINFO, "      -> Created task");
 	}
 	else

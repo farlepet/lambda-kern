@@ -52,6 +52,9 @@ void map_page(void *physaddr, void *virtualaddr, u32 flags);
 
 void pgdir_map_page(u32 *pgdir, void *physaddr, void *virtualaddr, u32 flags);
 
+void *get_phys_page(void *virtaddr);
+
+
 /**
  * \brief Clear a page directory to it's default values.
  * Clear the page directory marking every page table as non-existant.

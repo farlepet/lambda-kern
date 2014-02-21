@@ -123,6 +123,8 @@ void add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u3
 {
 	lock(&creat_task);
 
+	kerror(ERR_BOOTINFO, "mtask:aktp(%08X, %s, %dK, %d, %08X)", process, name, (stack_size ? (stack_size / 1024) : (STACK_SIZE / 1024)), pri, pagedir);
+
 	int parent = 0;
 	if(tasking) parent = proc_by_pid(current_pid);
 
@@ -211,8 +213,8 @@ void init_multitasking(void *process, char *name)
 
 	procs[0].type &= (u32)~(TYPE_RANONCE); // Don't save registers right away for the first task
 
-	tasking = 1;
 	current_pid = -1;
+	tasking = 1;
 
 	kerror(ERR_BOOTINFO, "Multitasking enabled");
 }

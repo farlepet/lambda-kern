@@ -25,7 +25,7 @@ void pit_handler()
 	
 	outb(0x20, 0x20);
 	
-	do_task_switch();
+	//do_task_switch();
 }
 
 /**

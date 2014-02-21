@@ -7,6 +7,6 @@
 
 // Color-code the output the kernel produces
 // FIXME: Seems to crash the kernel sometimes
-#define KERNEL_COLORCODE 0
+#define KERNEL_COLORCODE 1
 
 #endif
