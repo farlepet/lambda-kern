@@ -8,11 +8,15 @@
 
 #define TIMER_INT    32
 #define KEYBOARD_INT 33
+#define SERIALA_INT  35
+#define SERIALB_INT  36
 
 #else
 
 #define TIMER_INT    0
 #define KEYBOARD_INT 0
+#define SERIALA_INT  0
+#define SERIALB_INT  0
 
 #endif
 

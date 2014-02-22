@@ -56,6 +56,8 @@ int kmain(struct multiboot_header *mboot_head, u32 magic)
 
 	interrupts_init();
 
+	serial_init(SERIAL_COM1); // Initialize it a second time to enable it's interrupts
+
 	fs_init();
 	initrd_init(mboot_head);
 	
@@ -92,8 +94,8 @@ __noreturn void kernel_task()
 	}
 
 	//fs_debug(16);
-
-/*	kerror(ERR_BOOTINFO, "Opening test.elf");
+/*
+	kerror(ERR_BOOTINFO, "Opening test.elf");
 
 	struct kfile *elf = fs_finddir(fs_root, "test.elf");
 	if(elf)

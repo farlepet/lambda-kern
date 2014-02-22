@@ -49,4 +49,7 @@ void init_ktasks()
 
 	kerror(ERR_BOOTINFO, "Starting kernel RNG task");
 	add_kernel_task((void *)&krng_task, "krng", 0x1000, PRIO_DRIVER);
+
+	kerror(ERR_BOOTINFO, "Starting kernel terminal task");
+	add_kernel_task((void *)&kterm_task, "kterm", 0x2000, PRIO_DRIVER);
 }

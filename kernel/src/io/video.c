@@ -2,6 +2,7 @@
 #include <string.h>
 #include <mm/mm.h>
 #include <multiboot.h>
+#include <proc/atomic.h>
 
 #if defined(ARCH_X86)
 #include <dev/vga/print.h>
@@ -358,6 +359,9 @@ int sprintf(char *out, const char *format, ...)
 	return ret;
 }
 
+
+lock_t print_lock;
+
 /**
  * Uses `print` to convert the format string and any number of arguments to
  * a string then prints that string to the screen.
@@ -369,6 +373,7 @@ int sprintf(char *out, const char *format, ...)
  */
 int kprintf(const char *format, ...)
 {
+	lock(&print_lock);
 	__builtin_va_list varg;
 	__builtin_va_start(varg, format);
 	char temp[1024];
@@ -377,6 +382,7 @@ int kprintf(const char *format, ...)
 	int ret = print(temp, format, varg);
 	kprint(temp);
 	__builtin_va_end(varg);
+	unlock(&print_lock);
 	return ret;
 }
 
@@ -391,10 +397,12 @@ int kprintf(const char *format, ...)
  */
 int kprintv(char *format, __builtin_va_list varg)
 {
+	lock(&print_lock);
 	char temp[1024];
 	int i = 0;
 	while(i < 1024) temp[i++] = ' ';
 	int ret = print(temp, format, varg);
 	kprint(temp);
+	unlock(&print_lock);
 	return ret;
 }

@@ -45,6 +45,10 @@ static char keycode_to_char(struct input_event *iev)
 	return '\0';
 }
 
+
+// TODO: Default to 0, add kernel flag to set it to 1, or something else
+static int to_kterm = 1; //!< When 1, send all serial input to kterm
+
 __noreturn void kinput_task()
 {
 	ktask_pids[KINPUT_TASK_SLOT] = current_pid;
@@ -62,7 +66,25 @@ __noreturn void kinput_task()
 				while(!ktask_pids[KBUG_TASK_SLOT]);
 				send_message(ktask_pids[KBUG_TASK_SLOT], &ktm, sizeof(struct kbug_type_msg));
 			}
-			else kprintf("%c", keycode_to_char(&iev));
+			// TODO: Send char to some other process
+			else
+			{
+				struct kvid_print_m kpm;
+				kpm.ktm.pid    = current_pid;
+				kpm.ktm.type   = KVID_PRINT;
+				kpm.kpm.string = " ";
+				kpm.kpm.string[0] = keycode_to_char(&iev);
+				while(!ktask_pids[KVID_TASK_SLOT]);
+				send_message(ktask_pids[KVID_TASK_SLOT], &kpm, sizeof(struct kvid_print_m));
+			}
+		}
+		else if(iev.type == EVENT_CHAR)
+		{
+			if(to_kterm)
+			{
+				if(ktask_pids[KTERM_TASK_SLOT])
+					send_message(ktask_pids[KTERM_TASK_SLOT], &iev.data, sizeof(char));
+			}
 		}
 	}
 }

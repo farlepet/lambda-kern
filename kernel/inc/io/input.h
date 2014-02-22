@@ -18,6 +18,7 @@ union input_id
 enum event_type
 {
 	EVENT_KEYPRESS, //!< A key was pressed (ex: keyboard)
+	EVENT_CHAR,     //!< A character was received (ex: serial)
 	EVENT_HWUPDATE, //!< The hardware was updated
 	EVENT_MOVEMENT  //!< Something was moved (ex: mouse)
 };
@@ -25,7 +26,8 @@ enum event_type
 enum builtin_idrivers //!< Input drivers recognized by the kernel
 {
 	IDRIVER_KEYBOARD = 0, //!< Keyboard driver
-	IDRIVER_MOUSE         //!< Mouse driver
+	IDRIVER_MOUSE,        //!< Mouse driver
+	IDRIVER_SERIAL        //!< Serial driver
 };
 
 enum keyb_idrv_state
