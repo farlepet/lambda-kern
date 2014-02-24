@@ -9,7 +9,7 @@
 u32 strlen(const char *str)
 {
 	register u32 i = 0;
-	while(str[i++]);
+	while(str[i]) i++;
 	return i;
 }
 

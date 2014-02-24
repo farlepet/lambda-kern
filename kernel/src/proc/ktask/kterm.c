@@ -1,23 +1,31 @@
 #include <proc/ktasks.h>
+#include <err/error.h>
 #include <time/time.h>
 #include <proc/ipc.h>
 #include <string.h>
 #include <video.h>
 
-static char *prompt = "\nkterm> ";
+#define prompt  "%skterm\e[0m> ", \
+				(retval ? "\e[31m" : "\e[32m")
 
-static void help(void);
+static int help(int, char **);
+static int load(int, char **);
+static int run(int, char **);
+static int unload(int, char **);
 
 struct kterm_entry
 {
 	u32   hash;
 	char *string;
-	void (*function)(void);
+	int (*function)(int, char **);
 };
 
 struct kterm_entry kterm_ents[] =
 {
-	{ 0, "help", &help },
+	{ 0, "help",   &help   },
+	{ 0, "load",   &load   },
+	{ 0, "run",    &run    },
+	{ 0, "unload", &unload },
 };
 
 u32 hash(char *str)
@@ -39,14 +47,18 @@ __noreturn void kterm_task()
 
 	delay(100); // Wait for things to be initialized
 
+	int retval = 0;
+
 	for(;;)
 	{
 		kprintf(prompt);
 
 		char input[512];
+		char *argv[32];
 		int iloc = 0;
 
 		memset(input, 0, 512);
+		memset(argv,  0, sizeof(char *)*32);
 
 		char t = 0;
 		while(1)
@@ -59,27 +71,100 @@ __noreturn void kterm_task()
 		}
 
 		kprintf("\n");
+
+		u32 inlen   = strlen(input);
+		int cstring = 0;
+		int argidx  = 0;
+		for(i = 0; i <= inlen; i++)
+		{
+			if(input[i] == ' ' || input[i] == '\t' || input[i] == '\0')
+			{
+				argv[argidx++] = &input[cstring];
+				input[i] = 0;
+				cstring = i+1;
+			}
+		}
+
+
+
 		//kprintf("%s\n", input);
-		u32 h = hash(input);
+		u32 h = hash(argv[0]);
 		int fnd = 0;
 		for(i = 0; i < (sizeof(kterm_ents)/sizeof(kterm_ents[0])); i++)
 		{
 			if(kterm_ents[i].hash == h)
-				if(!strcmp(kterm_ents[i].string, input))
+				if(!strcmp(kterm_ents[i].string, argv[0]))
 				{
-					kterm_ents[i].function();
+					retval = kterm_ents[i].function(argidx, argv);
 					fnd = 1;
 					break;
 				}
 		}
 		if(!fnd)
-			kprintf("Could not find command\n");
+			kprintf("Could not find command: %s\n", argv[0]);
 	}
 }
 
 
-static void help()
+static int help(int argc, char **argv)
 {
+	(void)argc;
+	(void)argv;
 	kprintf("Kterm help:\n");
-	kprintf("    help: display this page\n");
+	kprintf("    help:   display this page\n");
+	kprintf("    load:   load an executable\n");
+	kprintf("    run:    run a loaded executable\n");
+	kprintf("    unload: unload a loaded executable\n");
+
+	return 0;
+}
+
+
+/*
+ * Executable file functions:
+ */
+
+char exec_filename[128] = { 0, };
+
+static int load(int argc, char **argv)
+{
+	if(argc < 2)
+	{
+		kprintf("No executable specified\n");
+		return 1;
+	}
+
+	memcpy(exec_filename, argv[1], strlen(argv[1]));
+
+	return 0;
+}
+
+static int run(int argc, char **argv)
+{
+	(void)argc;
+	(void)argv;
+
+	if(!strlen(exec_filename))
+	{
+		kprintf("No loaded executable to run\n");
+		return 1;
+	}
+
+	return 0;
+}
+
+static int unload(int argc, char **argv)
+{
+	(void)argc;
+	(void)argv;
+
+	if(!strlen(exec_filename))
+	{
+		kprintf("No loaded executable to unload");
+		return 1;
+	}
+
+	memset(exec_filename, 0, 128);
+
+	return 0;
 }
