@@ -1,11 +1,14 @@
 #include <proc/atomic.h>
 #include <proc/mtask.h>
 #include <err/error.h>
+#include <intr/intr.h>
 #include <err/panic.h>
 #include <proc/proc.h>
+#include <intr/int.h>
 #include <mm/alloc.h>
 #include <string.h>
 #include <mm/mm.h>
+#include <video.h>
 
 #if  defined(ARCH_X86)
 #include <mm/paging.h>
@@ -203,6 +206,10 @@ void add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u3
 	unlock(&creat_task);
 }
 
+#ifdef ARCH_X86
+extern void sched_run(void);
+#endif
+
 void init_multitasking(void *process, char *name)
 {
 	kerror(ERR_BOOTINFO, "Initializing multitasking");
@@ -213,10 +220,17 @@ void init_multitasking(void *process, char *name)
 
 	procs[0].type &= (u32)~(TYPE_RANONCE); // Don't save registers right away for the first task
 
+	set_interrupt(SCHED_INT, sched_run);
+
 	current_pid = -1;
 	tasking = 1;
 
 	kerror(ERR_BOOTINFO, "Multitasking enabled");
+}
+
+void run_sched(void)
+{
+	INTERRUPT(SCHED_INT);	
 }
 
 
@@ -225,6 +239,7 @@ __hot void do_task_switch()
 {
 	if(!tasking)   return;
 	if(creat_task) return; // We don't want to interrupt process creation
+
 
 #if  defined(ARCH_X86)
 	u32 esp, ebp, eip, cr3;
@@ -279,11 +294,15 @@ void exit(int code)
 	{
 		kerror(ERR_MEDERR, "Could not find process by pid (%d)", current_pid);
 		enable_interrupts();
-		return;
+		run_sched();
 	}
 	procs[p].type &= (u32)~(TYPE_RUNNABLE);
 	procs[p].type |= TYPE_ZOMBIE; // It isn't removed unless it's parent inquires on it
 	procs[p].exitcode = code;
 	
-	for(;;) busy_wait();
+	for(;;)
+	{
+		kerror(ERR_MEDERR, "exit.run_sched()");
+		run_sched();
+	}
 }

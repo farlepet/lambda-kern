@@ -247,7 +247,7 @@ static int print(char *out, const char *format, __builtin_va_list varg)
 					  if(size == 2){} // TODO: Handle this!
 					  temp = (ptr_t)print_int(temp, 10, 0, width, padzeros, showsign, signspace, 0, out);
 					  nchars += temp;
-					  out += temp-1;
+					  out += temp;
 					  ZERO_ALL_VID();
 					  break;
 					  
@@ -257,7 +257,7 @@ static int print(char *out, const char *format, __builtin_va_list varg)
 					  if(size == 2){} // TODO: Handle this!
 					  temp = (ptr_t)print_int(temp, 10, 1, width, padzeros, showsign, signspace, 0, out);
 					  nchars += temp;
-					  out += temp-1;
+					  out += temp;
 					  ZERO_ALL_VID();
 					  break;
 			
@@ -277,7 +277,7 @@ static int print(char *out, const char *format, __builtin_va_list varg)
 					  if(size == 2){} // TODO: Handle this!
 					  temp = (ptr_t)print_int(temp, 16, 1, width, padzeros, showsign, signspace, (*format == 'X'), out);
 					  nchars += temp;
-					  out += temp-1;
+					  out += temp;
 					  ZERO_ALL_VID();
 					  break;
 			
@@ -287,7 +287,7 @@ static int print(char *out, const char *format, __builtin_va_list varg)
 					  if(size == 2){} // TODO: Handle this!
 					  temp = (ptr_t)print_int(temp, 8, 1, width, padzeros, showsign, signspace, 0, out);
 					  nchars += temp;
-					  out += temp-1;
+					  out += temp;
 					  ZERO_ALL_VID();
 					  break;
 					 
@@ -316,7 +316,7 @@ static int print(char *out, const char *format, __builtin_va_list varg)
 			case 'p': temp = (ptr_t)va_arg(varg, ptr_t);
 					  temp = (ptr_t)print_int(temp, 16, 1, width, padzeros, showsign, signspace, 1 /* Should this be upper or lower case? */, out);
 					  nchars += temp;
-					  out += temp-1;
+					  out += temp;
 					  break;
 					
 			case 'a':
@@ -373,7 +373,7 @@ lock_t print_lock;
  */
 int kprintf(const char *format, ...)
 {
-	lock(&print_lock);
+	if(interrupts_enabled()) lock_for(&print_lock, 16);
 	__builtin_va_list varg;
 	__builtin_va_start(varg, format);
 	char temp[1024];
@@ -382,7 +382,7 @@ int kprintf(const char *format, ...)
 	int ret = print(temp, format, varg);
 	kprint(temp);
 	__builtin_va_end(varg);
-	unlock(&print_lock);
+	if(interrupts_enabled()) unlock(&print_lock);
 	return ret;
 }
 
@@ -397,12 +397,12 @@ int kprintf(const char *format, ...)
  */
 int kprintv(char *format, __builtin_va_list varg)
 {
-	lock(&print_lock);
+	if(interrupts_enabled()) lock_for(&print_lock, 16);
 	char temp[1024];
 	int i = 0;
 	while(i < 1024) temp[i++] = ' ';
 	int ret = print(temp, format, varg);
 	kprint(temp);
-	unlock(&print_lock);
+	if(interrupts_enabled()) unlock(&print_lock);
 	return ret;
 }

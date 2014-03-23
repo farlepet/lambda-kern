@@ -23,6 +23,9 @@ static inline void busy_wait() //!< Preform lower-power wait
 	asm volatile("hlt");
 }
 
+#define INTERRUPT(int_n) __INTERRUPT(int_n)
+#define __INTERRUPT(int_n) asm volatile("int $" #int_n)
+
 int interrupts_enabled(); //!< in intr.asm
 
 #endif

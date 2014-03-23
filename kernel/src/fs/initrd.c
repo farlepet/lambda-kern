@@ -185,6 +185,7 @@ void initrd_init(struct multiboot_header* mboot_head)
 
 		struct kfile *file = (struct kfile *)kmalloc(sizeof(struct kfile));
 
+		memset(file->name, 0, FILE_NAME_MAX);
 		memcpy(file->name, filenames[cidx], strlen(filenames[cidx]));
 
 		file->length     = cfile->c_filesize;

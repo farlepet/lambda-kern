@@ -47,7 +47,7 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 	}
 
 	u32 *pgdir = clone_kpagedir();
-	u32 *phys_pgdir = get_phys_page(pgdir);
+	//u32 *phys_pgdir = get_phys_page(pgdir);
 	//u32 *pgdir = (u32 *)kernel_cr3;
 
 	ptr_t i = 0;
@@ -55,7 +55,7 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 	{
 		Elf32_Shdr *shdr = (Elf32_Shdr *)((ptr_t)head + (head->e_shoff + i));
 
-		kerror(ERR_BOOTINFO, "shdr[%d/%d] T:%s ADDR:%08X SZ:%08X", (i/head->e_shentsize)+1, head->e_shnum, sht_strings[shdr->sh_type], shdr->sh_addr, shdr->sh_size);
+		kerror(ERR_BOOTINFO, "shdr[%X/%X] T:%s ADDR:%08X SZ:%08X", (i/head->e_shentsize)+1, head->e_shnum, sht_strings[shdr->sh_type], shdr->sh_addr, shdr->sh_size);
 
 		if(shdr->sh_addr)
 		{
@@ -82,7 +82,7 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 
 	kerror(ERR_BOOTINFO, "ELF Loaded");
 
-	*pdir = phys_pgdir;
+	*pdir = pgdir;
 	return head->e_entry;
 }
 

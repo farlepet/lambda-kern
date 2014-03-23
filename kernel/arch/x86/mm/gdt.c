@@ -1,6 +1,8 @@
 #include <types.h>
 #include "gdt.h"
 
+static u8 system_stack[0x2000];
+
 u32 TSS[26] = { 0, }; //!< The Task State Segment
 
 u64 GDT[6] =          //!< The Global Descriptor Table
@@ -23,7 +25,17 @@ extern void load_tss();           //!< Sets the TSS descriptor
 void gdt_init()
 {
 	GDT[5] = GDT_ENTRY((u32)&TSS, sizeof(TSS), 0x0089); // Or should it be 0x00E9?
-	TSS[2] = 0x10;
+	
+	TSS[2]  = 0x10; // SS0
+	TSS[18] = 0x13; // ES
+	TSS[19] = 0x0B; // CS
+	TSS[20] = 0x13; // SS
+	TSS[21] = 0x13; // DS
+	TSS[22] = 0x13; // FS
+	TSS[23] = 0x13; // GS
+
+	TSS[1] = (u32)system_stack; // ESP0
+	TSS[25] = sizeof(TSS); // IOPB
 
 	load_gdt(GDT, sizeof(GDT));
 	seg_reload();

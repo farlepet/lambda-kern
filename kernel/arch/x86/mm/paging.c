@@ -133,19 +133,26 @@ void *get_phys_page(void *virtaddr)
  */
 void map_page(void *physaddr, void *virtualaddr, u32 flags)
 {
+	kerror(ERR_BOOTINFO, "Mapping %8X to %8X (%X)", physaddr, virtualaddr, flags);
 	virtualaddr = (void *)((u32)virtualaddr & 0xFFFFF000);
 	physaddr    = (void *)((u32)physaddr    & 0xFFFFF000);
 
 	u32 pdindex = (u32)virtualaddr >> 22;
 	u32 ptindex = (u32)virtualaddr >> 12 & 0x03FF;
 
+	
+
 	// Should I check if it is already present? I don't know...
 	if(pagedir[pdindex] & 0x01)
+	{
+		kerror(ERR_BOOTINFO, "  -> Page table exists");
 		((u32 *)pagedir[pdindex])[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
+	}
 
 	else
 	{
-		pagedir[pdindex] = (u32)alloc_frame() | 0x03;
+		kerror(ERR_BOOTINFO, "  -> Creating new page table");
+		pagedir[pdindex] = (((u32)kmalloc(0x2000) + 0x1000) & ~0xFFF) | 0x03;
 
 		int i = 0;
 		for(; i < 1024; i++)
@@ -321,6 +328,11 @@ void paging_init(u32 eom)
 u32 *clone_kpagedir()
 {
 	u32 *pgd = (u32 *)(((ptr_t)kmalloc(sizeof(pagedir) + 0x1000) + 0x1000) & 0xFFFFF000);
+
+	// kmalloc doesn't always gaive us mapped pages
+	u32 i = 0;
+	for(; i < sizeof(pagedir); i += 0x1000);
+		map_page((void *)((u32)pgd + i), (void *)((u32)pgd + i), 0x03);
 
 	memcpy(pgd, pagedir, sizeof(pagedir));
 	return pgd;

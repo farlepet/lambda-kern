@@ -1,8 +1,11 @@
 #include <proc/ktasks.h>
 #include <err/error.h>
 #include <time/time.h>
+#include <mm/alloc.h>
 #include <proc/ipc.h>
+#include <proc/elf.h>
 #include <string.h>
+#include <fs/fs.h>
 #include <video.h>
 
 #define prompt  "%skterm\e[0m> ", \
@@ -125,6 +128,8 @@ static int help(int argc, char **argv)
  */
 
 char exec_filename[128] = { 0, };
+struct kfile *exec      = NULL;
+u8			 *exec_data = NULL;
 
 static int load(int argc, char **argv)
 {
@@ -135,6 +140,20 @@ static int load(int argc, char **argv)
 	}
 
 	memcpy(exec_filename, argv[1], strlen(argv[1]));
+
+	exec = fs_finddir(fs_root, argv[1]);
+	if(!exec)
+	{
+		memset(exec_filename, 0, 128);
+		kprintf("Could not open %s!\n", argv[1]);
+		return 1;
+	}
+	fs_open(exec, OFLAGS_OPEN | OFLAGS_READ);
+
+	exec_data = kmalloc(exec->length);
+	fs_read(exec, 0, exec->length, exec_data);
+
+	kprintf("%s loaded\n", exec->name);
 
 	return 0;
 }
@@ -149,6 +168,43 @@ static int run(int argc, char **argv)
 		kprintf("No loaded executable to run\n");
 		return 1;
 	}
+
+	//u32 *pagedir;
+	//ptr_t exec_ep = load_elf(exec_data, exec->length, &pagedir);
+	ptr_t exec_ep = 0x80000000;
+	if(!exec_ep)
+	{
+		kprintf("Failed to run loaded executable\n");
+		return 1;
+	}
+
+	kprintf("Allocating memory for executable\n");
+
+	void *phys = kmalloc(exec->length + 0x2000);
+	phys = (void *)(((u32)phys & ~0xFFF) + 0x1000);
+
+	kprintf("Mapping memory to corrent location\n");
+
+	map_page(phys, (void *)exec_ep, 0x03);
+
+	kprintf("Populating memory\n");
+
+	memcpy((void *)exec_ep, exec_data, exec->length);
+
+	kprintf("Adding executable as task\n");
+
+	//add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_DRIVER, pagedir);
+	add_kernel_task((void *)exec_ep, exec_filename, 0x200, PRIO_DRIVER);
+
+	//if(pagedir) set_pagedir(pagedir);
+
+	//kprintf("Set page directory\n");
+
+
+	//void (*prog)() = (void *)exec_ep;
+	//prog();
+
+	kprintf("Executable is now running\n");
 
 	return 0;
 }

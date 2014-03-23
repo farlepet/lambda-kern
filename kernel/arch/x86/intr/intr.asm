@@ -2,6 +2,8 @@ global handle_int
 global load_idt
 global dummy_int
 
+extern stub_error
+
 
 idtr DW 0 ; For limit storage
 	 DD 0 ; For base storage
@@ -19,11 +21,10 @@ load_idt:
 dummy_int:
 	cli
 	pusha
+	call stub_error
 	mov al, 0x20
 	out 0x20, al
 	out 0xA0, al
-
-	call do_task_switch
 
 	popa
 	iret
@@ -46,6 +47,17 @@ pit_int:
 	popa
 	iret
 
+
+global sched_run
+; This is an interrupt that forces the scheduler to run
+sched_run:
+	cli
+	pusha
+
+	call do_task_switch
+
+	popa
+	iret
 
 
 global interrupts_enabled

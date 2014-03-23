@@ -6,6 +6,8 @@ extern vga_print
 extern vga_printnum
 extern set_idt
 
+extern stub_error
+
 %macro setidt 4
 	pusha
 	push %4
@@ -134,6 +136,8 @@ e_devavail:
 
 e_doublefault:
 	cli
+	call stub_error
+
 	pusha
 	print m_doublefault
 	popa
@@ -199,7 +203,7 @@ e_pagefault:
 	cli
 	pop dword [errcode]
 	pusha
-	mov eax, cr3
+	mov eax, cr2
 	push eax
 	push dword [errcode]
 	call handle_page_fault

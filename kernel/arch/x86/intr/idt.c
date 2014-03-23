@@ -60,6 +60,9 @@ void idt_init()
 		IDT[i] = IDT_ENTRY((u32)&dummy_int, 0x08, 0x8E);
 	}
 
+	for(i = 0; i < 16; i++)
+		disable_irq(i);
+
 	reload_idt();
 }
 

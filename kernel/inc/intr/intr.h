@@ -11,12 +11,16 @@
 #define SERIALA_INT  35
 #define SERIALB_INT  36
 
+#define SCHED_INT    64
+
 #else
 
 #define TIMER_INT    0
 #define KEYBOARD_INT 0
 #define SERIALA_INT  0
 #define SERIALB_INT  0
+
+#define SCHED_INT    0
 
 #endif
 

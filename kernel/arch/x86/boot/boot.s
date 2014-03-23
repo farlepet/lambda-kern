@@ -31,6 +31,8 @@ mbootEnd:
 .extern kmain
 
 start:
+	mov $(new_stack_t + 0x10000), %esp
+
 	pushl %eax
 	pushl %ebx
 
@@ -50,3 +52,6 @@ get_eip:
 	pop %eax
 	push %eax
 	ret
+
+
+.lcomm new_stack_t 0x10000
