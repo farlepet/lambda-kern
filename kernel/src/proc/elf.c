@@ -46,9 +46,9 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 		return 0;
 	}
 
-	u32 *pgdir = clone_kpagedir();
+	//u32 *pgdir = clone_kpagedir();
 	//u32 *phys_pgdir = get_phys_page(pgdir);
-	//u32 *pgdir = (u32 *)kernel_cr3;
+	u32 *pgdir = (u32 *)kernel_cr3;
 
 	ptr_t i = 0;
 	for(; i < (ptr_t)(head->e_shentsize * head->e_shnum); i += head->e_shentsize)

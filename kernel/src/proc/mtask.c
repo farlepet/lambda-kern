@@ -32,6 +32,11 @@ int proc_by_pid(int pid)
 	return -1;
 }
 
+int get_pid()
+{
+	return current_pid;
+}
+
 struct kproc procs[MAX_PROCESSES]; //!< Processes
 
 static int get_next_open_proc()
@@ -178,7 +183,7 @@ void add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u3
 	procs[p].esp = procs[p].ebp;
 
 	u32 i = 0;
-	for(; i < (stack_size ? stack_size : STACK_SIZE); i++)
+	for(; i < (stack_size ? stack_size : STACK_SIZE); i+= 0x1000)
 	{
 		pgdir_map_page(pagedir, (void *)(procs[p].esp - i), (void *)(procs[p].esp - i), 0x03);
 	}

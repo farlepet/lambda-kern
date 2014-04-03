@@ -10,6 +10,10 @@
 #include <proc/mtask.h>
 #include <types.h>
 
+/*
+ * NOTE: These must NEVER be renoved or modified/rordered as to maintain backwards compatibility
+ */
+
 #define IDLE_TASK_SLOT   0
 #define KVID_TASK_SLOT   1
 #define KBUG_TASK_SLOT   2

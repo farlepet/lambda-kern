@@ -62,11 +62,19 @@ typedef unsigned long long int max_ptr_t; //!< Maximum pointer size that can be 
   #define __has_builtin(x) 0
 #endif
 
+#define ARRAY_SZ(arry) (sizeof(arry) / sizeof(arry[0])) 
 
 #define NULL (void *)0x00000000
 
 typedef enum BOOL { FALSE, TRUE } bool;
 
 void __builtin_ia32_pause(); //!< Energy-saving alternative to `nop`
+
+typedef u32 (*func0_t)();
+typedef u32 (*func1_t)(u32);
+typedef u32 (*func2_t)(u32, u32);
+typedef u32 (*func3_t)(u32, u32, u32);
+typedef u32 (*func4_t)(u32, u32, u32, u32);
+typedef u32 (*func5_t)(u32, u32, u32, u32, u32);
 
 #endif

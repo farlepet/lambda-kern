@@ -127,9 +127,13 @@ static int help(int argc, char **argv)
  * Executable file functions:
  */
 
+#define EXEC_BIN 0
+#define EXEC_ELF 1
+
 char exec_filename[128] = { 0, };
 struct kfile *exec      = NULL;
 u8			 *exec_data = NULL;
+int           exec_type = 0;
 
 static int load(int argc, char **argv)
 {
@@ -153,6 +157,18 @@ static int load(int argc, char **argv)
 	exec_data = kmalloc(exec->length);
 	fs_read(exec, 0, exec->length, exec_data);
 
+	if(*(u32 *)exec_data == ELF_IDENT)
+	{
+		exec_type = EXEC_ELF;
+		kprintf("Executable is an ELF executable.\n");
+		kprintf("NOTE: ELF executables are not fully supported, so don't expect it to work.\n");
+	}
+	else
+	{
+		exec_type = EXEC_BIN;
+		kprintf("Executable is a raw binary executable.\n");
+	}
+
 	kprintf("%s loaded\n", exec->name);
 
 	return 0;
@@ -169,32 +185,35 @@ static int run(int argc, char **argv)
 		return 1;
 	}
 
-	//u32 *pagedir;
-	//ptr_t exec_ep = load_elf(exec_data, exec->length, &pagedir);
-	ptr_t exec_ep = 0x80000000;
-	if(!exec_ep)
+	if(exec_type == EXEC_ELF)
 	{
-		kprintf("Failed to run loaded executable\n");
-		return 1;
+		u32 *pagedir;
+		ptr_t exec_ep = load_elf(exec_data, exec->length, &pagedir);
+		if(!exec_ep)
+		{
+			kerror(ERR_MEDERR, "Could not load executable");
+			return 1;
+		}
+
+		add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_DRIVER, pagedir);
 	}
 
-	kprintf("Allocating memory for executable\n");
+	else if(exec_type == EXEC_BIN)
+	{
+		//u32 *pagedir;
+		//ptr_t exec_ep = load_elf(exec_data, exec->length, &pagedir);
+		ptr_t exec_ep = 0x80000000;
 
-	void *phys = kmalloc(exec->length + 0x2000);
-	phys = (void *)(((u32)phys & ~0xFFF) + 0x1000);
+		void *phys = kmalloc(exec->length + 0x2000);
+		phys = (void *)(((u32)phys & ~0xFFF) + 0x1000);
 
-	kprintf("Mapping memory to corrent location\n");
+		map_page(phys, (void *)exec_ep, 0x03);
 
-	map_page(phys, (void *)exec_ep, 0x03);
+		memcpy((void *)exec_ep, exec_data, exec->length);
 
-	kprintf("Populating memory\n");
-
-	memcpy((void *)exec_ep, exec_data, exec->length);
-
-	kprintf("Adding executable as task\n");
-
-	//add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_DRIVER, pagedir);
-	add_kernel_task((void *)exec_ep, exec_filename, 0x200, PRIO_DRIVER);
+		//add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_DRIVER, pagedir);
+		add_kernel_task((void *)exec_ep, exec_filename, 0x2000, PRIO_DRIVER);
+	}
 
 	//if(pagedir) set_pagedir(pagedir);
 

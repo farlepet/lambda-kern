@@ -68,3 +68,40 @@ interrupts_enabled:
 	and eax, (1 << 9) ; Get IF flag
 	shr eax, 9
 	ret
+
+
+
+
+
+
+
+extern handle_syscall
+global syscall_int
+; Interrupt used when issuing a syscall
+syscall_int:
+	pusha
+
+	push ebx ; Arguments pointer
+	push eax ; Syscall number
+
+	call handle_syscall
+
+	add esp, 8
+
+	popa
+	iret
+
+
+global call_syscall_int
+; Call interrupt for a syscall
+call_syscall_int:
+	mov ebp, esp
+	pusha
+
+	mov eax, [ebp + 4]
+	mov ebx, [ebp + 8]
+
+	int 0xFF
+
+	popa
+	ret

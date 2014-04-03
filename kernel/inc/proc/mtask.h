@@ -12,6 +12,8 @@ int tasking; //!< Whether or not multitasking has been started or not
 
 void *get_eip(); //!< Get the EIP value of the instruction after the call to this function
 
+int get_pid(); //!< Get the PID of the currently running task
+
 void init_multitasking(void *process, char *name);
 
 void do_task_switch(void);

@@ -1,4 +1,5 @@
 // vim: ts=4 sw=4
+#include <proc/syscalls.h>
 #include <proc/ktasks.h>
 #include <proc/mtask.h>
 #include <multiboot.h>
@@ -6,8 +7,8 @@
 #include <err/panic.h>
 #include <err/error.h>
 #include <time/time.h>
-#include <mm/alloc.h>
 #include <fs/initrd.h>
+#include <mm/alloc.h>
 #include <proc/elf.h>
 #include <proc/ipc.h>
 #include <mm/mm.h>
@@ -64,7 +65,9 @@ int kmain(struct multiboot_header *mboot_head, u32 magic)
 	keyb_init();
 
 	timer_init(100);
-	
+
+	init_syscalls();
+
 	init_multitasking(&kernel_task, "kern");
 
 	iloop();
@@ -83,7 +86,13 @@ __noreturn void kernel_task()
 	pci_init();
 
 
-	int kvid = get_ktask(KVID_TASK_SLOT, 50);
+	u32 args[4];
+
+	args[0] = KVID_TASK_SLOT;
+	args[1] = 50;
+	//int kvid = get_ktask(KVID_TASK_SLOT, 50);
+	call_syscall(SYSCALL_GET_KTASK, args);
+	int kvid = args[0];
 	if(kvid) // A quick message-passing test
 	{
 		struct kvid_print_m kpm;

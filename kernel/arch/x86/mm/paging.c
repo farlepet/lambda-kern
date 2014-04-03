@@ -164,6 +164,8 @@ void map_page(void *physaddr, void *virtualaddr, u32 flags)
 
 void pgdir_map_page(u32 *pgdir, void *physaddr, void *virtualaddr, u32 flags)
 {
+	kerror(ERR_BOOTINFO, "Mapping %8X to %8X (%X) in %8X", physaddr, virtualaddr, flags, pgdir);
+
 	virtualaddr = (void *)((u32)virtualaddr & 0xFFFFF000);
 	physaddr    = (void *)((u32)physaddr    & 0xFFFFF000);
 
@@ -172,10 +174,14 @@ void pgdir_map_page(u32 *pgdir, void *physaddr, void *virtualaddr, u32 flags)
 
 	// Should I check if it is already present? I don't know...
 	if(pgdir[pdindex] & 0x01)
+	{
+		kerror(ERR_BOOTINFO, "  -> Page table exists");
 		((u32 *)pgdir[pdindex])[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
+	}
 
 	else
 	{
+		kerror(ERR_BOOTINFO, "  -> Creating new page table");
 		pgdir[pdindex] = (((u32)kmalloc(0x2000) + 0x1000) & ~0xFFF) | 0x03;
 
 		int i = 0;
