@@ -3,8 +3,8 @@
 
 enum kvid_types
 {
-	KVID_PRINT, //!< Print a message to the screen
-	KVID_KERROR //!< Print information to the screen
+	KVID_PRINT  = 0, //!< Print a message to the screen
+	KVID_KERROR = 1  //!< Print information to the screen
 };
 
 struct kvid_type_msg //!< A type message to be sent to kvid

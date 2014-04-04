@@ -9,17 +9,17 @@
 
 enum kbug_types
 {
-	KBUG_PROCINFO, //!< Request info about a process
-	KBUG_CPUINFO,  //!< Request info about the CPU
-	KBUG_MEMINFO,  //!< Request info about memory
-	KBUG_IDEBUG    //!< Start the interactive debugger
+	KBUG_PROCINFO = 0, //!< Request info about a process
+	KBUG_CPUINFO  = 1, //!< Request info about the CPU
+	KBUG_MEMINFO  = 2, //!< Request info about memory
+	KBUG_IDEBUG   = 3  //!< Start the interactive debugger
 };
 
 enum kbug_proc_type
 {
-	KBUG_PROC_NPROCS,  //!< Number of currently running processes
-	KBUG_PROC_PROCPID, //!< The PID of the selected process
-	KBUG_PROC_UPROC    //!< Request a user version of the task structure
+	KBUG_PROC_NPROCS  = 0, //!< Number of currently running processes
+	KBUG_PROC_PROCPID = 1, //!< The PID of the selected process
+	KBUG_PROC_UPROC   = 2  //!< Request a user version of the task structure
 };
 
 struct kbug_type_msg //!< Message containing type of next message
