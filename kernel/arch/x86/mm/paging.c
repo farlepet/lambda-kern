@@ -337,7 +337,7 @@ u32 *clone_kpagedir()
 
 	// kmalloc doesn't always gaive us mapped pages
 	u32 i = 0;
-	for(; i < sizeof(pagedir); i += 0x1000);
+	for(; i < sizeof(pagedir); i += 0x1000)
 		map_page((void *)((u32)pgd + i), (void *)((u32)pgd + i), 0x03);
 
 	memcpy(pgd, pagedir, sizeof(pagedir));

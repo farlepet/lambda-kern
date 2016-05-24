@@ -17,7 +17,7 @@ CFLAGS     = -m32 -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/
 			 -pipe -g
 LDFLAGS    = -melf_i386 -T link_x86.ld
 
-link:   $(OBJS)
+link:   $(OBJS) CD/boot/grub/stage2_eltorito
 	@echo -e "\033[33m  \033[1mBuilding x86-specific bits\033[0m"
 	@cd $(MAINDIR)/kernel/arch/x86; make CC=$(CC)
 	@echo -e "\033[33m  \033[1mLinking sources\033[0m"
@@ -29,15 +29,14 @@ link:   $(OBJS)
 	@cd initrd; find . | cpio -o -v -O../CD/initrd.cpio &> /dev/null
 	@echo -e "\033[33m  \033[1mCreating ISO\033[0m"
 
-ifeq ($(wildcard CD/boot/grub/stage2_eltorito),)
-	@curl -o CD/boot/grub/stage2_eltorito https://gitorious.org/tools/tools/raw/1e447ee9fa3c1af65b2e032b9c7020b74a32c9dd:linux-live/cd-root/boot/grub/stage2_eltorito
-endif
 	@genisoimage -R -b boot/grub/stage2_eltorito -no-emul-boot -boot-load-size 4 \
 		-boot-info-table -o lambda-os.iso CD
-
-
+		
 endif # x86
 
+CD/boot/grub/stage2_eltorito:
+	@echo -e "\033[33m	\033[1mDownloading GRUB stage 2 binary\033[0m"
+	@curl -o CD/boot/grub/stage2_eltorito https://arabos.googlecode.com/files/stage2_eltorito
 
 all: printinfo link
 	
