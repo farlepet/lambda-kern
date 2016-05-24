@@ -35,12 +35,12 @@
 struct dirent
 {
 	u32   ino;                 //!< i-node of the file
-	char *name[FILE_NAME_MAX]; //!< name of the file
+	char  name[FILE_NAME_MAX]; //!< name of the file
 };
 
 struct kfile //!< Kernel representation of a file
 {
-	char *name[FILE_NAME_MAX]; //!< Filename
+	char name[FILE_NAME_MAX]; //!< Filename
 	u32  length;              //!< Length of the file
 	u32  impl;                //!< Owning i-node
 	u32  inode;               //!< i-node

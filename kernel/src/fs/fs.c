@@ -11,6 +11,7 @@ static u32 c_inode = 0;
 
 int fs_add_file(struct kfile *file)
 {
+	kerror(ERR_BOOTINFO, "  -> fs_add_file: %s, %d", file->name, file->length);
 	file->inode     = c_inode++;
 	file->file_lock = 0;
 
@@ -79,6 +80,7 @@ struct dirent *fs_readdir(struct kfile *f, u32 idx)
 			{
 				dent->ino = file->inode;
 				memcpy(dent->name, file->name, FILE_NAME_MAX);
+				kerror(ERR_BOOTINFO, "<ino, name, len>: %d, %s, %d", file->inode, file->name, file->length);
 				return dent; 
 			}
 			file = file->next_file;
@@ -157,15 +159,15 @@ void fs_init()
 	fs_root->ctime      = time;
 
 	// TODO: This should not be this way, it will only work for files OTHER than `/`
-	fs_root->open       = &fs_open;
-	fs_root->close      = &fs_close;
-	fs_root->read       = &fs_read;
-	fs_root->write      = &fs_write;
+	fs_root->open       = 0;
+	fs_root->close      = 0;
+	fs_root->read       = 0;
+	fs_root->write      = 0;
 	fs_root->readdir    = 0;
 	fs_root->finddir    = 0;
-	fs_root->mkdir      = &fs_mkdir;
-	fs_root->create     = &fs_create;
-	fs_root->ioctl      = &fs_ioctl;
+	fs_root->mkdir      = 0;
+	fs_root->create     = 0;
+	fs_root->ioctl      = 0;
 
 	fs_root->info       = NULL;
 

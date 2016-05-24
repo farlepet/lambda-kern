@@ -1,4 +1,4 @@
 #!/bin/sh
 
-# This file will be ran be `init` on startup
+# This file will be ran by `init` on startup
 

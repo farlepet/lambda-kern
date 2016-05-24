@@ -98,11 +98,11 @@ __noreturn void kernel_task()
 		struct kvid_print_m kpm;
 		kpm.ktm.pid    = current_pid;
 		kpm.ktm.type   = KVID_PRINT;
-		kpm.kpm.string = "Hello kernel via kvid!\n";
+		kpm.kpm.string = "Hello via kvid!\n";
 		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
 	}
 
-	//fs_debug(16);
+	//fs_debug(8);
 /*
 	kerror(ERR_BOOTINFO, "Opening test.elf");
 

@@ -82,6 +82,7 @@ static struct dirent *initrd_readdir(struct kfile *f, u32 idx)
 			memcpy(dent->name, file->name, FILE_NAME_MAX);
 			return dent;
 		}
+		file = file->next_file;
 	}
 
 	kfree(dent);
@@ -187,7 +188,6 @@ void initrd_init(struct multiboot_header* mboot_head)
 
 		memset(file->name, 0, FILE_NAME_MAX);
 		memcpy(file->name, filenames[cidx], strlen(filenames[cidx]));
-
 		file->length     = cfile->c_filesize;
 		file->impl       = 0; // FIXME
 		file->uid        = cfile->c_uid;

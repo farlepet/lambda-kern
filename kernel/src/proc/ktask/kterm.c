@@ -15,6 +15,7 @@ static int help(int, char **);
 static int load(int, char **);
 static int run(int, char **);
 static int unload(int, char **);
+static int ls(int, char **);
 
 struct kterm_entry
 {
@@ -29,6 +30,7 @@ struct kterm_entry kterm_ents[] =
 	{ 0, "load",   &load   },
 	{ 0, "run",    &run    },
 	{ 0, "unload", &unload },
+	{ 0, "ls",     &ls     },
 };
 
 u32 hash(char *str)
@@ -118,6 +120,7 @@ static int help(int argc, char **argv)
 	kprintf("    load:   load an executable\n");
 	kprintf("    run:    run a loaded executable\n");
 	kprintf("    unload: unload a loaded executable\n");
+	kprintf("    ls:     list files in current directory\n");
 
 	return 0;
 }
@@ -241,5 +244,28 @@ static int unload(int argc, char **argv)
 
 	memset(exec_filename, 0, 128);
 
+	return 0;
+}
+
+static int ls(int argc, char **argv)
+{
+	(void)argc;
+	(void)argv;
+	
+	// TODO: allow for more than just the root directory!
+	struct kfile *f = fs_root->next_file;
+	
+	while(f != fs_root)
+	{
+		kerror(ERR_BOOTINFO, "%c%c%c%c%c%c%c%c%c%s %02d %05d %s",
+			   ((f->pflags&0400)?'r':'-'), ((f->pflags&0200)?'w':'-'), ((f->pflags&04000)?'s':((f->pflags&0100)?'x':'-')),
+			   ((f->pflags&040)?'r':'-'), ((f->pflags&020)?'w':'-'), ((f->pflags&02000)?'s':((f->pflags&010)?'x':'-')),
+			   ((f->pflags&04)?'r':'-'), ((f->pflags&02)?'w':'-'), ((f->pflags&01)?'x':'-'),
+			   ((f->pflags&01000)?"T ":" "),
+			   f->inode, f->length, f->name);
+		
+		f = f->next_file;
+	}
+	
 	return 0;
 }
