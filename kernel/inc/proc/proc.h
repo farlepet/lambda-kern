@@ -4,7 +4,7 @@
 #include <mm/cbuff.h>
 
 #define MAX_PROCESSES 64 //!< Maximum amount of running processes
-#define MAX_CHILDREN  32 //!< Maximum number of children a parent can take care of
+#define MAX_CHILDREN  32 //!< Maximum number of children a parent can handle
 
 #define MSG_BUFF_SIZE 512 //!< Size of the message buffer in bytes
 

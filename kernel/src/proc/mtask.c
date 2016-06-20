@@ -50,7 +50,7 @@ static int get_next_open_proc()
 	return p;
 }
 
-void add_kernel_task(void *process, char *name, u32 stack_size, int pri)
+int add_kernel_task(void *process, char *name, u32 stack_size, int pri)
 {
 	lock(&creat_task);
 
@@ -73,7 +73,7 @@ void add_kernel_task(void *process, char *name, u32 stack_size, int pri)
 		{
 			kerror(ERR_MEDERR, "Process %d has run out of child slots", procs[parent].pid);
 			unlock(&creat_task);
-			return;
+			return 0;
 		}
 	}
 
@@ -125,9 +125,11 @@ void add_kernel_task(void *process, char *name, u32 stack_size, int pri)
 	unlock(&creat_task);
 
 	kerror(ERR_INFO, "Added process %s as pid %d to slot %d", name, procs[p].pid, p);
+	
+	return procs[p].pid;
 }
 
-void add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *pagedir)
+int add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *pagedir)
 {
 	lock(&creat_task);
 
@@ -154,7 +156,7 @@ void add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u3
 		{
 			kerror(ERR_SMERR, "Process %d has run out of children slots", procs[parent].pid);
 			unlock(&creat_task);
-			return;
+			return 0;
 		}
 	}
 
@@ -209,6 +211,8 @@ void add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u3
 	kerror(ERR_BOOTINFO, "PID: %d EIP: %08X CR3: %08X ESP: %08X", procs[p].pid, procs[p].eip, procs[p].cr3, procs[p].esp);
 
 	unlock(&creat_task);
+	
+	return procs[p].pid;
 }
 
 #ifdef ARCH_X86

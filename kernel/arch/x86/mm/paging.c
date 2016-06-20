@@ -40,7 +40,7 @@ void set_frame(u32 frame, u32 val)
 		u32 addr = (((frame * 0x1000) + (u32)firstframe) & 0xFFFFF000);
 		u32 pdindex = addr >> 22;
 		u32 ptindex = addr >> 12 & 0x03FF;
-		((u32 *)pagedir[pdindex])[ptindex] = 0x00000000; // Invalidate the page
+		((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] = 0x00000000; // Invalidate the page
 	}
 	else kerror(ERR_MEDERR, "invalid value to set_frame: %d", val);
 }
@@ -115,13 +115,34 @@ void *get_phys_page(void *virtaddr)
 
 	if(pagedir[pdindex] & 0x01)
 	{
-		if(((u32 *)pagedir[pdindex])[ptindex] & 0x01)
-			return (void *)((((u32 *)pagedir[pdindex])[ptindex] & 0xFFFFF000) | (u32)off);
+		if(((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] & 0x01)
+			return (void *)((((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] & 0xFFFFF000) | (u32)off);
 		else
 			return NULL;
 	}
 
 	else return NULL;
+}
+
+u32 get_page_entry(void *virtaddr) {
+	u32 pdindex = (u32)virtaddr >> 22;
+	u32 ptindex = (u32)virtaddr >> 12 & 0x03FF;
+
+	if(pagedir[pdindex] & 0x01) {
+		return ((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex];
+	}
+	return 0;
+}
+
+
+u32 pgdir_get_page_entry(u32 *pgdir, void *virtaddr) {
+	u32 pdindex = (u32)virtaddr >> 22;
+	u32 ptindex = (u32)virtaddr >> 12 & 0x03FF;
+
+	if(pgdir[pdindex] & 0x01) {
+		return ((u32 *)(pgdir[pdindex] & 0xFFFFF000))[ptindex];
+	}
+	return 0;
 }
 
 /**
@@ -133,7 +154,7 @@ void *get_phys_page(void *virtaddr)
  */
 void map_page(void *physaddr, void *virtualaddr, u32 flags)
 {
-	kerror(ERR_BOOTINFO, "Mapping %8X to %8X (%X)", physaddr, virtualaddr, flags);
+	kerror(ERR_BOOTINFO, "Mapping %8X to %8X (%03X)", physaddr, virtualaddr, flags);
 	virtualaddr = (void *)((u32)virtualaddr & 0xFFFFF000);
 	physaddr    = (void *)((u32)physaddr    & 0xFFFFF000);
 
@@ -146,7 +167,7 @@ void map_page(void *physaddr, void *virtualaddr, u32 flags)
 	if(pagedir[pdindex] & 0x01)
 	{
 		kerror(ERR_BOOTINFO, "  -> Page table exists");
-		((u32 *)pagedir[pdindex])[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
+		((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
 	}
 
 	else
@@ -156,15 +177,17 @@ void map_page(void *physaddr, void *virtualaddr, u32 flags)
 
 		int i = 0;
 		for(; i < 1024; i++)
-			((u32 *)pagedir[pdindex])[i] = 0x00000000;
+			((u32 *)(pagedir[pdindex] & 0xFFFFF000))[i] = 0x00000000;
 
-		((u32 *)pagedir[pdindex])[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
+		((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
 	}
+
+	__invlpg(virtualaddr);
 }
 
 void pgdir_map_page(u32 *pgdir, void *physaddr, void *virtualaddr, u32 flags)
 {
-	kerror(ERR_BOOTINFO, "Mapping %8X to %8X (%X) in %8X", physaddr, virtualaddr, flags, pgdir);
+	kerror(ERR_BOOTINFO, "Mapping %8X to %8X (%03X) in %8X", physaddr, virtualaddr, flags, pgdir);
 
 	virtualaddr = (void *)((u32)virtualaddr & 0xFFFFF000);
 	physaddr    = (void *)((u32)physaddr    & 0xFFFFF000);
@@ -176,7 +199,7 @@ void pgdir_map_page(u32 *pgdir, void *physaddr, void *virtualaddr, u32 flags)
 	if(pgdir[pdindex] & 0x01)
 	{
 		kerror(ERR_BOOTINFO, "  -> Page table exists");
-		((u32 *)pgdir[pdindex])[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
+		((u32 *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
 	}
 
 	else
@@ -186,9 +209,9 @@ void pgdir_map_page(u32 *pgdir, void *physaddr, void *virtualaddr, u32 flags)
 
 		int i = 0;
 		for(; i < 1024; i++)
-			((u32 *)pgdir[pdindex])[i] = 0x00000000;
+			((u32 *)(pgdir[pdindex] & 0xFFFFF000))[i] = 0x00000000;
 
-		((u32 *)pgdir[pdindex])[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
+		((u32 *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
 	}
 }
 
@@ -246,6 +269,13 @@ void set_pagedir(u32 *dir)
 
 	kerror(ERR_BOOTINFO, "SET_PAGEDIR: %08X", dir);
 	asm volatile("mov %0, %%cr3":: "b"(dir));
+}
+
+u32 *get_pagedir()
+{
+	u32 *dir;
+	asm volatile("mov %%cr3, %0": "=a"(dir));
+	return dir;
 }
 
 /**

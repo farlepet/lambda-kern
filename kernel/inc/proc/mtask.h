@@ -18,8 +18,8 @@ void init_multitasking(void *process, char *name);
 
 void do_task_switch(void);
 
-void add_kernel_task(void *process, char *name, u32 stack_size, int pri);
-void add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *pagedir);
+int add_kernel_task(void *process, char *name, u32 stack_size, int pri);
+int add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *pagedir);
 
 int proc_by_pid(int pid);
 
