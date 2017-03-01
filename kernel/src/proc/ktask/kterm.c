@@ -70,7 +70,12 @@ __noreturn void kterm_task()
 		{
 			recv_message(&t, sizeof(char));
 			if(t == '\n' || t == '\r') break;
-
+            if(t == '\b') {
+                iloc--;
+                input[iloc] = ' ';
+                kprintf("\b \b");
+                continue;
+            }
 			input[iloc++] = t;
 			kprintf("%c", t);
 		}

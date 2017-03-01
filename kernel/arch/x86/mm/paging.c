@@ -40,7 +40,7 @@ void set_frame(u32 frame, u32 val)
 		u32 addr = (((frame * 0x1000) + (u32)firstframe) & 0xFFFFF000);
 		u32 pdindex = addr >> 22;
 		u32 ptindex = addr >> 12 & 0x03FF;
-		((u32 *)pagedir[pdindex])[ptindex] = 0x00000000; // Invalidate the page
+		((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] = 0x00000000; // Invalidate the page
 	}
 	else kerror(ERR_MEDERR, "invalid value to set_frame: %d", val);
 }
@@ -115,8 +115,8 @@ void *get_phys_page(void *virtaddr)
 
 	if(pagedir[pdindex] & 0x01)
 	{
-		if(((u32 *)pagedir[pdindex])[ptindex] & 0x01)
-			return (void *)((((u32 *)pagedir[pdindex])[ptindex] & 0xFFFFF000) | (u32)off);
+		if(((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] & 0x01)
+			return (void *)((((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] & 0xFFFFF000) | (u32)off);
 		else
 			return NULL;
 	}
@@ -134,8 +134,8 @@ void *pgdir_get_phys_page(u32 *pgdir, void *virtaddr)
 
 	if(pgdir[pdindex] & 0x01)
 	{
-		if(((u32 *)pgdir[pdindex])[ptindex] & 0x01)
-			return (void *)((((u32 *)pgdir[pdindex])[ptindex] & 0xFFFFF000) | (u32)off);
+		if(((u32 *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] & 0x01)
+			return (void *)((((u32 *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] & 0xFFFFF000) | (u32)off);
 		else
 			return NULL;
 	}
@@ -165,7 +165,7 @@ void map_page(void *physaddr, void *virtualaddr, u32 flags)
 	if(pagedir[pdindex] & 0x01)
 	{
 		kerror(ERR_BOOTINFO, "  -> Page table exists");
-		((u32 *)pagedir[pdindex])[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
+		((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
 	}
 
 	else
@@ -175,9 +175,9 @@ void map_page(void *physaddr, void *virtualaddr, u32 flags)
 
 		int i = 0;
 		for(; i < 1024; i++)
-			((u32 *)pagedir[pdindex])[i] = 0x00000000;
+			((u32 *)(pagedir[pdindex] & 0xFFFFF000))[i] = 0x00000000;
 
-		((u32 *)pagedir[pdindex])[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
+		((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
 	}
 }
 
@@ -195,7 +195,7 @@ void pgdir_map_page(u32 *pgdir, void *physaddr, void *virtualaddr, u32 flags)
 	if(pgdir[pdindex] & 0x01)
 	{
 		kerror(ERR_BOOTINFO, "  -> Page table exists");
-		((u32 *)pgdir[pdindex])[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
+		((u32 *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
 	}
 
 	else
@@ -205,9 +205,9 @@ void pgdir_map_page(u32 *pgdir, void *physaddr, void *virtualaddr, u32 flags)
 
 		int i = 0;
 		for(; i < 1024; i++)
-			((u32 *)pgdir[pdindex])[i] = 0x00000000;
+			((u32 *)(pgdir[pdindex] & 0xFFFFF000))[i] = 0x00000000;
 
-		((u32 *)pgdir[pdindex])[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
+		((u32 *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
 	}
 }
 

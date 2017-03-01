@@ -129,4 +129,9 @@ void page_free(void *ptr);
 
 u32 *clone_kpagedir();
 
+static inline void __invlpg(u32 *addr)
+{
+	asm volatile("invlpg (%0)" ::"r" (addr) : "memory");
+}
+
 #endif
