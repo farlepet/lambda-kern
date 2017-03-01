@@ -124,6 +124,25 @@ void *get_phys_page(void *virtaddr)
 	else return NULL;
 }
 
+void *pgdir_get_phys_page(u32 *pgdir, void *virtaddr)
+{
+	void *off = (void *)((u32)virtaddr & 0x00000FFF);
+	virtaddr = (void *)((u32)virtaddr & 0xFFFFF000);
+
+	u32 pdindex = (u32)virtaddr >> 22;
+	u32 ptindex = (u32)virtaddr >> 12 & 0x03FF;
+
+	if(pgdir[pdindex] & 0x01)
+	{
+		if(((u32 *)pgdir[pdindex])[ptindex] & 0x01)
+			return (void *)((((u32 *)pgdir[pdindex])[ptindex] & 0xFFFFF000) | (u32)off);
+		else
+			return NULL;
+	}
+
+	else return NULL;
+}
+
 /**
  * Map a virtual address to a physical one.
  * 
@@ -246,6 +265,18 @@ void set_pagedir(u32 *dir)
 
 	kerror(ERR_BOOTINFO, "SET_PAGEDIR: %08X", dir);
 	asm volatile("mov %0, %%cr3":: "b"(dir));
+}
+
+/**
+ * Returns the current page directory as set in `CR3`
+ * 
+ * @return the currently set page directory.
+ */
+u32 *get_pagedir()
+{
+	u32 *dir;
+    asm volatile("mov %%cr3, %0": "=b"(dir) :);
+    return dir;
 }
 
 /**

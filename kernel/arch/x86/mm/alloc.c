@@ -84,7 +84,7 @@ static u32 find_hole(u32 sz)
 {
 	u32 idx  = 0xFFFFFFFF;
 	u32 size = 0xFFFFFFFF;
-	
+
 	int i, j = 0;
 
 	// Find the smallest available block of free memory
@@ -93,7 +93,7 @@ static u32 find_hole(u32 sz)
 		if(!allocs[j]) continue;
 		for(i = 0; i < ALLOC_BLOCK; i++)
 		{
-			if(allocs[j][i].valid) // Is it a valid slot?
+			if(allocs[j][i].valid && !allocs[j][i].used) // Is it a valid and unused slot?
 			{
 				if(allocs[j][i].size > sz) // Is it big enough?
 					if(allocs[j][i].size < size) // Is it smaller than the previously found block (if any)?
@@ -203,7 +203,7 @@ void *kmalloc(u32 sz)
 	unlock(&alloc_lock);
 
 	kerror(ERR_DETAIL, "  -> %08X P", ae.addr);
-	return (void *)ae.addr;	
+	return (void *)ae.addr;
 }
 
 /**
@@ -223,7 +223,7 @@ void kfree(void *ptr)
 	for(; j < ALLOC_BLOCKS; j++)
 	{
 		if(!allocs[j]) continue;
-		for(; i < ALLOC_BLOCK; i++)
+		for(i = 0; i < ALLOC_BLOCK; i++)
 			if(allocs[j][i].valid) // Is it valid?
 				if(allocs[j][i].addr == (u32)ptr) // Is it the correct block?
 					rm_alloc(j, i); // Free it!

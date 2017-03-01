@@ -54,6 +54,7 @@ void pgdir_map_page(u32 *pgdir, void *physaddr, void *virtualaddr, u32 flags);
 
 void *get_phys_page(void *virtaddr);
 
+void *pgdir_get_phys_page(u32 *pgdir, void *virtaddr);
 
 /**
  * \brief Clear a page directory to it's default values.
@@ -75,6 +76,8 @@ void fill_pagetable(u32 *table, u32 addr);
  * @param dir the page directory
  */
 void set_pagedir(u32 *dir);
+
+u32 *get_pagedir();
 
 /**
  * \brief Enable paging.

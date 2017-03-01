@@ -15,12 +15,17 @@ void handle_page_fault(u32, u32);
  */
 void handle_page_fault(u32 errcode, u32 cr2)
 {
-	kerror(ERR_MEDERR, "Page fault at 0x%08X --> 0x%08X (%s%s%s%s%s)", cr2, get_phys_page((void *)cr2),
+    u32 *cr3 = get_pagedir();
+	
+    kerror(ERR_MEDERR, "Page fault at 0x%08X --> 0x%08X (%s%s%s%s%s)", cr2, pgdir_get_phys_page(cr3, (void *)cr2),
 				((errcode & 0x01) ? "present"                   : "non-present"),
 				((errcode & 0x02) ? ", write"                   : ", read"),
 				((errcode & 0x04) ? ", user-mode"               : ", kernel-mode"),
 				((errcode & 0x08) ? ", modified reserved field" : ""),
 				((errcode & 0x10) ? ", instruction fetch"       : ""));
+
+    kerror(ERR_MEDERR, "  -> Pagedir: 0x%08X", cr3);
+
 
 	if(cr2 >= (u32)firstframe)
 	{

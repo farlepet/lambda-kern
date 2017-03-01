@@ -203,19 +203,27 @@ static int run(int argc, char **argv)
 
 	else if(exec_type == EXEC_BIN)
 	{
-		//u32 *pagedir;
+		u32 *pagedir = clone_kpagedir();//(u32 *)kernel_cr3;
 		//ptr_t exec_ep = load_elf(exec_data, exec->length, &pagedir);
 		ptr_t exec_ep = 0x80000000;
 
 		void *phys = kmalloc(exec->length + 0x2000);
 		phys = (void *)(((u32)phys & ~0xFFF) + 0x1000);
 
-		map_page(phys, (void *)exec_ep, 0x03);
+		//map_page(phys, (void *)exec_ep, 0x03);
+		pgdir_map_page(pagedir, phys, (void *)exec_ep, 0x03);
+        
 
+
+        kprintf("Phys: 0x%08X, Virt: 0x%08X, VirtToPhys: 0x%08X, PDir: 0x%08X, PTable: 0x%08X\n", phys, exec_ep, pgdir_get_phys_page(pagedir, (void *)exec_ep), pagedir, pagedir[exec_ep >> 22]);
+
+        set_pagedir(pagedir);
 		memcpy((void *)exec_ep, exec_data, exec->length);
-
-		//add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_DRIVER, pagedir);
-		add_kernel_task((void *)exec_ep, exec_filename, 0x2000, PRIO_DRIVER);
+		//memcpy(phys, exec_data, exec->length);
+        set_pagedir((u32 *)kernel_cr3);
+		
+        add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_DRIVER, pagedir);
+		//add_kernel_task((void *)exec_ep, exec_filename, 0x2000, PRIO_DRIVER);
 	}
 
 	//if(pagedir) set_pagedir(pagedir);
@@ -241,6 +249,8 @@ static int unload(int argc, char **argv)
 		kprintf("No loaded executable to unload");
 		return 1;
 	}
+
+    kfree(exec_data);
 
 	memset(exec_filename, 0, 128);
 
@@ -269,3 +279,4 @@ static int ls(int argc, char **argv)
 	
 	return 0;
 }
+
