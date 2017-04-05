@@ -19,7 +19,9 @@ int output_serial = 0; //!< If 0, write to VGA, else, write to serial port point
 void kput(char c)
 {
 #if defined(ARCH_X86)
-	if(output_serial) serial_write((u16)output_serial, c);
+	if(output_serial) {
+		serial_write((u16)output_serial, c);
+	}
 	else vga_put(c);
 #endif
 }

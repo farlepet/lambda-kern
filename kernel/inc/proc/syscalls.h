@@ -6,6 +6,7 @@
 #define SYSCALL_GET_KTASK 0
 #define SYSCALL_SEND_MSG  1
 #define SYSCALL_RECV_MSG  2
+#define SYSCALL_EXIT      3
 
 #define SYSCALL_INT       0xFF
 

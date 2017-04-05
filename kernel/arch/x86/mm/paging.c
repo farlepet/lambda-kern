@@ -124,23 +124,25 @@ void *get_phys_page(void *virtaddr)
 	else return NULL;
 }
 
-void *pgdir_get_phys_page(u32 *pgdir, void *virtaddr)
-{
-	void *off = (void *)((u32)virtaddr & 0x00000FFF);
-	virtaddr = (void *)((u32)virtaddr & 0xFFFFF000);
-
+u32 get_page_entry(void *virtaddr) {
 	u32 pdindex = (u32)virtaddr >> 22;
 	u32 ptindex = (u32)virtaddr >> 12 & 0x03FF;
 
-	if(pgdir[pdindex] & 0x01)
-	{
-		if(((u32 *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] & 0x01)
-			return (void *)((((u32 *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] & 0xFFFFF000) | (u32)off);
-		else
-			return NULL;
+	if(pagedir[pdindex] & 0x01) {
+		return ((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex];
 	}
+	return 0;
+}
 
-	else return NULL;
+
+u32 pgdir_get_page_entry(u32 *pgdir, void *virtaddr) {
+	u32 pdindex = (u32)virtaddr >> 22;
+	u32 ptindex = (u32)virtaddr >> 12 & 0x03FF;
+
+	if(pgdir[pdindex] & 0x01) {
+		return ((u32 *)(pgdir[pdindex] & 0xFFFFF000))[ptindex];
+	}
+	return 0;
 }
 
 /**
@@ -152,7 +154,7 @@ void *pgdir_get_phys_page(u32 *pgdir, void *virtaddr)
  */
 void map_page(void *physaddr, void *virtualaddr, u32 flags)
 {
-	kerror(ERR_BOOTINFO, "Mapping %8X to %8X (%X)", physaddr, virtualaddr, flags);
+	kerror(ERR_BOOTINFO, "Mapping %8X to %8X (%03X)", physaddr, virtualaddr, flags);
 	virtualaddr = (void *)((u32)virtualaddr & 0xFFFFF000);
 	physaddr    = (void *)((u32)physaddr    & 0xFFFFF000);
 
@@ -179,11 +181,13 @@ void map_page(void *physaddr, void *virtualaddr, u32 flags)
 
 		((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
 	}
+
+	__invlpg(virtualaddr);
 }
 
 void pgdir_map_page(u32 *pgdir, void *physaddr, void *virtualaddr, u32 flags)
 {
-	kerror(ERR_BOOTINFO, "Mapping %8X to %8X (%X) in %8X", physaddr, virtualaddr, flags, pgdir);
+	kerror(ERR_BOOTINFO, "Mapping %8X to %8X (%03X) in %8X", physaddr, virtualaddr, flags, pgdir);
 
 	virtualaddr = (void *)((u32)virtualaddr & 0xFFFFF000);
 	physaddr    = (void *)((u32)physaddr    & 0xFFFFF000);
@@ -267,16 +271,11 @@ void set_pagedir(u32 *dir)
 	asm volatile("mov %0, %%cr3":: "b"(dir));
 }
 
-/**
- * Returns the current page directory as set in `CR3`
- * 
- * @return the currently set page directory.
- */
 u32 *get_pagedir()
 {
 	u32 *dir;
-    asm volatile("mov %%cr3, %0": "=b"(dir) :);
-    return dir;
+	asm volatile("mov %%cr3, %0": "=a"(dir));
+	return dir;
 }
 
 /**

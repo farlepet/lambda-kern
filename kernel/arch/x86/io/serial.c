@@ -59,6 +59,7 @@ void serial_int_handle()
 	if(serial_received(SERIAL_COM1))
 	{
 		char ch = (char)inb(SERIAL_COM1);
+		if(ch == 0x7F) ch = '\b';
 
 		handle_input(ch);
 	}

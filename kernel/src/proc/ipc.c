@@ -2,6 +2,7 @@
 #include <proc/mtask.h>
 #include <proc/proc.h>
 #include <err/error.h>
+#include <mm/paging.h>
 #include <proc/ipc.h>
 #include <intr/int.h>
 
@@ -11,6 +12,10 @@ int send_message(int dest, void *msg, int size)
 {
 	// We don't want to be cut off doing this
 	lock(&send_lock);
+	
+	// Get physical location of the message:
+	//msg = get_phys_page(msg);
+	//kerror(ERR_BOOTINFO, "Sending message of size %d from 0x%08X to %d", size, msg, dest);
 
 	int idx = proc_by_pid(dest);
 

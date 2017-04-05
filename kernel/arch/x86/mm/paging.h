@@ -54,7 +54,10 @@ void pgdir_map_page(u32 *pgdir, void *physaddr, void *virtualaddr, u32 flags);
 
 void *get_phys_page(void *virtaddr);
 
-void *pgdir_get_phys_page(u32 *pgdir, void *virtaddr);
+u32 get_page_entry(void *virtaddr);
+
+
+u32 pgdir_get_page_entry(u32 *pgdir, void *virtaddr);
 
 /**
  * \brief Clear a page directory to it's default values.
@@ -78,6 +81,7 @@ void fill_pagetable(u32 *table, u32 addr);
 void set_pagedir(u32 *dir);
 
 u32 *get_pagedir();
+
 
 /**
  * \brief Enable paging.
@@ -105,6 +109,10 @@ void disable_paging(void);
 void paging_init(u32 eom);
 
 
+static inline void __invlpg(u32 *addr)
+{
+	asm volatile("invlpg (%0)" ::"r" (addr) : "memory");
+}
 
 
 /**
@@ -128,10 +136,5 @@ void page_free(void *ptr);
 
 
 u32 *clone_kpagedir();
-
-static inline void __invlpg(u32 *addr)
-{
-	asm volatile("invlpg (%0)" ::"r" (addr) : "memory");
-}
 
 #endif

@@ -56,13 +56,13 @@ exceptions_init:
 	setidt 0x0C, 0x08, 0x8E, e_stacksegfault
 	setidt 0x0D, 0x08, 0x8E, e_gpf
 	setidt 0x0E, 0x08, 0x8E, e_pagefault
-	
+
 	setidt 0x10, 0x08, 0x8E, e_fpe
 	setidt 0x11, 0x08, 0x8E, e_alignchk
 	setidt 0x12, 0x08, 0x8E, e_machchk
 	setidt 0x13, 0x08, 0x8E, e_simdfpe
 	setidt 0x14, 0x08, 0x8E, e_virtexcep
-	
+
 	setidt 0x1E, 0x08, 0x8E, e_securexcep
 
 	ret
@@ -75,7 +75,7 @@ e_div0:
 	pusha
 	print m_div0
 	popa
-	
+
 	jmp hang
 
 e_debug:
@@ -83,7 +83,7 @@ e_debug:
 	pusha
 	print m_debug
 	popa
-	
+
 	jmp hang
 
 e_nmi:
@@ -91,7 +91,7 @@ e_nmi:
 	pusha
 	print m_nmi
 	popa
-	
+
 	jmp hang
 
 e_breakpoint:
@@ -99,7 +99,7 @@ e_breakpoint:
 	pusha
 	print m_breakpoint
 	popa
-	
+
 	iret
 
 e_overflow:
@@ -107,7 +107,7 @@ e_overflow:
 	pusha
 	print m_overflow
 	popa
-	
+
 	jmp hang
 
 e_boundr:
@@ -115,7 +115,7 @@ e_boundr:
 	pusha
 	print m_boundr
 	popa
-	
+
 	jmp hang
 
 e_invalidop:
@@ -123,7 +123,7 @@ e_invalidop:
 	pusha
 	print m_invalidop
 	popa
-	
+
 	jmp hang
 
 e_devavail:
@@ -131,7 +131,7 @@ e_devavail:
 	pusha
 	print m_devavail
 	popa
-	
+
 	jmp hang
 
 e_doublefault:
@@ -142,7 +142,7 @@ e_doublefault:
 	print m_doublefault
 	popa
 	pop dword [errcode]
-	
+
 	jmp hang
 
 e_coprocover:
@@ -150,7 +150,7 @@ e_coprocover:
 	pusha
 	print m_cprocover
 	popa
-	
+
 	jmp hang
 
 e_invtss:
@@ -159,7 +159,7 @@ e_invtss:
 	print m_invtss
 	popa
 	pop dword [errcode]
-	
+
 	jmp hang
 
 e_segnpres:
@@ -168,7 +168,7 @@ e_segnpres:
 	print m_segnpres
 	popa
 	pop dword [errcode]
-	
+
 	jmp hang
 
 e_stacksegfault:
@@ -177,7 +177,7 @@ e_stacksegfault:
 	print m_stacksegfault
 	popa
 	pop dword [errcode]
-	
+
 	jmp hang
 
 e_gpf:
@@ -186,7 +186,7 @@ e_gpf:
 	mov eax, [esp + 8]
 	mov dword [errcode], eax
 	pop eax
-	
+
 	pusha
 	print m_gpf
 	push 16
@@ -195,20 +195,24 @@ e_gpf:
 	add esp, 8
 	popa
 	pop dword [errcode]
-	
+
 	jmp hang
 
 extern handle_page_fault
 e_pagefault:
 	cli
 	pop dword [errcode]
+	pop dword [address]
+	push dword [address]
 	pusha
+	push dword [address]
 	mov eax, cr2
 	push eax
 	push dword [errcode]
 	call handle_page_fault
-	add esp, 8
+	add esp, 12
 	popa
+	pop eax
 	iret
 
 
@@ -217,7 +221,7 @@ e_fpe:
 	pusha
 	print m_fpe
 	popa
-	
+
 	jmp hang
 
 e_alignchk:
@@ -226,7 +230,7 @@ e_alignchk:
 	print m_alignchk
 	popa
 	pop dword [errcode]
-	
+
 	jmp hang
 
 e_machchk:
@@ -234,7 +238,7 @@ e_machchk:
 	pusha
 	print m_machchk
 	popa
-	
+
 	jmp hang
 
 e_simdfpe:
@@ -242,7 +246,7 @@ e_simdfpe:
 	pusha
 	print m_simdfpe
 	popa
-	
+
 	jmp hang
 
 e_virtexcep:
@@ -250,7 +254,7 @@ e_virtexcep:
 	pusha
 	print m_virtexcep
 	popa
-	
+
 	jmp hang
 
 e_securexcep:
@@ -258,7 +262,7 @@ e_securexcep:
 	pusha
 	print m_securexcep
 	popa
-	
+
 	jmp hang
 
 
@@ -278,7 +282,7 @@ reg_dump:
 
 	print m_num_newline
 	print m_regdump_head
-	
+
 	print m_eax
 	printnum eax
 	print m_ebx
@@ -287,9 +291,9 @@ reg_dump:
 	printnum ecx
 	print m_edx
 	printnum edx
-	
+
 	print m_num_newline
-	
+
 	print m_cr0
 	printnum cr0
 	print m_cr2
@@ -298,30 +302,30 @@ reg_dump:
 	printnum cr3
 	print m_cr4
 	printnum cr4
-	
+
 	print m_num_newline
-	
+
 	print m_esi
 	printnum esi
 	print m_edi
 	printnum edi
-	
+
 	print m_num_newline
-	
+
 	print m_cs
 	printnum cs
 	print m_ds
 	printnum ds
 	print m_ss
 	printnum ss
-	
+
 	print m_num_newline
-	
+
 	print m_err
 	printnum [errcode]
-	
+
 	print m_num_newline
-	
+
 	popa
 	ret
 
@@ -352,6 +356,7 @@ m_virtexcep:     db "EXCEPTION: Virtualization Exception", 0
 m_securexcep:    db "EXCEPTION: Security Exception", 0
 
 errcode:   dd 0
+address:   dd 0
 oldcs:     dw 0
 oldeip:    dd 0
 oldeflags: dd 0

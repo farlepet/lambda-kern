@@ -20,11 +20,12 @@ struct syscall syscalls[] =
 	[SYSCALL_GET_KTASK] = { (func0_t)get_ktask,    2, 0 },
 	[SYSCALL_SEND_MSG]  = { (func0_t)send_message, 3, 0 },
 	[SYSCALL_RECV_MSG]  = { (func0_t)recv_message, 2, 0 },
+	[SYSCALL_EXIT]      = { (func0_t)exit,         1, 0 }
 };
 
 void handle_syscall(u32 scn, u32 *args)
 {
-	kerror(ERR_BOOTINFO, "Syscall %d called with args at %08X", scn, args);
+	//kerror(ERR_BOOTINFO, "Syscall %d called with args at %08X", scn, args);
 	if(scn >= ARRAY_SZ(syscalls))
 	{
 		int pid = get_pid();
@@ -60,20 +61,20 @@ void handle_syscall(u32 scn, u32 *args)
 			break;
 	}
 
-	kerror(ERR_BOOTINFO, "  -> Retval [0] = %d", args[0]);
+	//kerror(ERR_BOOTINFO, "  -> Retval [0] = %d", args[0]);
 }
 
 
 extern void syscall_int();
 void init_syscalls()
 {
-	set_interrupt(SYSCALL_INT, &syscall_int);	
+	set_interrupt(SYSCALL_INT, &syscall_int);
 }
 
 extern void call_syscall_int();
 void call_syscall(u32 scn, u32 *args)
 {
-	kerror(ERR_BOOTINFO, "call_syscall: %d, %08X", scn, args);
+	//kerror(ERR_BOOTINFO, "call_syscall: %d, %08X", scn, args);
 #ifdef ARCH_X86
 	call_syscall_int(scn, args);
 #endif

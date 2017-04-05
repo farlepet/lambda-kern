@@ -70,12 +70,13 @@ __noreturn void kterm_task()
 		{
 			recv_message(&t, sizeof(char));
 			if(t == '\n' || t == '\r') break;
-            if(t == '\b') {
-                iloc--;
-                input[iloc] = ' ';
-                kprintf("\b \b");
-                continue;
-            }
+			if(t == '\b') {
+				iloc--;
+				input[iloc] = ' ';
+				kprintf("\b");
+				continue;
+			}
+
 			input[iloc++] = t;
 			kprintf("%c", t);
 		}
@@ -203,41 +204,36 @@ static int run(int argc, char **argv)
 			return 1;
 		}
 
-		add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_DRIVER, pagedir);
+		add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
 	}
 
 	else if(exec_type == EXEC_BIN)
 	{
-		u32 *pagedir = clone_kpagedir();//(u32 *)kernel_cr3;
+		//u32 *pagedir;
 		//ptr_t exec_ep = load_elf(exec_data, exec->length, &pagedir);
 		ptr_t exec_ep = 0x80000000;
 
+		// Keep it on a page boundry:
 		void *phys = kmalloc(exec->length + 0x2000);
 		phys = (void *)(((u32)phys & ~0xFFF) + 0x1000);
 
 		//map_page(phys, (void *)exec_ep, 0x03);
-		pgdir_map_page(pagedir, phys, (void *)exec_ep, 0x03);
-        
 
-
-        kprintf("Phys: 0x%08X, Virt: 0x%08X, VirtToPhys: 0x%08X, PDir: 0x%08X, PTable: 0x%08X\n", phys, exec_ep, pgdir_get_phys_page(pagedir, (void *)exec_ep), pagedir, pagedir[exec_ep >> 22]);
-
-        set_pagedir(pagedir);
-		memcpy((void *)exec_ep, exec_data, exec->length);
-		//memcpy(phys, exec_data, exec->length);
-        set_pagedir((u32 *)kernel_cr3);
+		//u32 addr_tst = (u32)get_page_entry((void *)exec_ep);
+		//kerror(ERR_SMERR, "Page entry: 0x%08X", addr_tst);
 		
-        add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_DRIVER, pagedir);
-		//add_kernel_task((void *)exec_ep, exec_filename, 0x2000, PRIO_DRIVER);
+		memcpy(phys, exec_data, exec->length);
+
+		//kerror(ERR_BOOTINFO, "Current CR3: 0x%08X", get_pagedir());
+
+		u32 *pagedir = clone_kpagedir();
+		pgdir_map_page(pagedir, phys, (void *)exec_ep, 0x03);
+		kerror(ERR_BOOTINFO, "Page entry: 0x%08X", pgdir_get_page_entry(pagedir, (void *)exec_ep));
+
+		int pid = add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
+		//int pid = add_kernel_task((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG);
+		kerror(ERR_BOOTINFO, "Task PID: %d", pid);
 	}
-
-	//if(pagedir) set_pagedir(pagedir);
-
-	//kprintf("Set page directory\n");
-
-
-	//void (*prog)() = (void *)exec_ep;
-	//prog();
 
 	kprintf("Executable is now running\n");
 
@@ -255,8 +251,6 @@ static int unload(int argc, char **argv)
 		return 1;
 	}
 
-    kfree(exec_data);
-
 	memset(exec_filename, 0, 128);
 
 	return 0;
@@ -272,11 +266,12 @@ static int ls(int argc, char **argv)
 	
 	while(f != fs_root)
 	{
-		kerror(ERR_BOOTINFO, "%c%c%c%c%c%c%c%c%c%s %02d %05d %s",
+		kprintf("%c%c%c%c%c%c%c%c%c%c%s %02d %05d %s\n",
+			   ((f->flags & FS_DIR)?'d':'-'),
 			   ((f->pflags&0400)?'r':'-'), ((f->pflags&0200)?'w':'-'), ((f->pflags&04000)?'s':((f->pflags&0100)?'x':'-')),
 			   ((f->pflags&040)?'r':'-'), ((f->pflags&020)?'w':'-'), ((f->pflags&02000)?'s':((f->pflags&010)?'x':'-')),
 			   ((f->pflags&04)?'r':'-'), ((f->pflags&02)?'w':'-'), ((f->pflags&01)?'x':'-'),
-			   ((f->pflags&01000)?"T ":" "),
+			   ((f->pflags&01000)?"T":" "),
 			   f->inode, f->length, f->name);
 		
 		f = f->next_file;
@@ -284,4 +279,3 @@ static int ls(int argc, char **argv)
 	
 	return 0;
 }
-

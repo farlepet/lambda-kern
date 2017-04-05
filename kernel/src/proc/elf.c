@@ -50,6 +50,8 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 	//u32 *phys_pgdir = get_phys_page(pgdir);
 	u32 *pgdir = (u32 *)kernel_cr3;
 
+	//u32 used_addresses[32][2];
+
 	ptr_t i = 0;
 	for(; i < (ptr_t)(head->e_shentsize * head->e_shnum); i += head->e_shentsize)
 	{
@@ -57,7 +59,7 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 
 		kerror(ERR_BOOTINFO, "shdr[%X/%X] T:%s ADDR:%08X SZ:%08X", (i/head->e_shentsize)+1, head->e_shnum, sht_strings[shdr->sh_type], shdr->sh_addr, shdr->sh_size);
 
-		if(shdr->sh_addr)
+		if(shdr->sh_addr) // Check if there is a destination address
 		{
 			void *phys = kmalloc(shdr->sh_size + 0x2000); // + 0x2000 so we can page-align it
 			phys = (void *)((ptr_t)phys & ~0xFFF) + 0x1000 + (shdr->sh_addr & 0xFFF);
@@ -76,7 +78,7 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 				//map_page((phys + p), (void *)(shdr->sh_addr + p), 0x03);
 				kerror(ERR_BOOTINFO, "      -> DONE");
 			}
-	
+
 		}
 	}
 
@@ -101,4 +103,3 @@ char *sht_strings[] =
 	[SHT_NOTE]                      = "NOTE",
 	[SHT_NOBITS]                    = "NOBITS"
 };
-
