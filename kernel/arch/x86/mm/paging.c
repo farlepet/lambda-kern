@@ -124,6 +124,17 @@ void *get_phys_page(void *virtaddr)
 	else return NULL;
 }
 
+int page_present(u32 virtaddr) {
+	u32 pdindex = (u32)virtaddr >> 22;
+	u32 ptindex = (u32)virtaddr >> 12 & 0x03FF;
+
+    if(pagedir[pdindex] & 0x01) {
+		return ((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] & 0x01;
+	}
+
+	return 0;
+}
+
 u32 get_page_entry(void *virtaddr) {
 	u32 pdindex = (u32)virtaddr >> 22;
 	u32 ptindex = (u32)virtaddr >> 12 & 0x03FF;

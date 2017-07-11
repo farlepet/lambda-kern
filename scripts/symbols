@@ -1,0 +1,23 @@
+#!/bin/bash
+
+cat <<EOF
+#include <mm/symbols.h>
+
+symbol_t sym_objects[] = {
+EOF
+
+eu-readelf -s lambda.o | awk '/OBJECT/ {printf "    { \"%s\", 0x%s, %s },\n", $8, $2, $3;}'
+
+cat <<EOF
+    {"EOS", 0xFFFFFFFF, 0x0}
+};
+
+symbol_t sym_functions[] = {
+EOF
+
+eu-readelf -s lambda.o | awk '/FUNC/ {printf "    { \"%s\", 0x%s, %s },\n", $8, $2, $3;}'
+
+cat <<EOF
+    {"EOS", 0xFFFFFFFF, 0x0}
+};
+EOF

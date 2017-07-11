@@ -22,7 +22,13 @@ link:   $(OBJS) CD/boot/grub/stage2_eltorito
 	@cd $(MAINDIR)/kernel/arch/x86; make CC=$(CC)
 	@echo -e "\033[33m  \033[1mLinking sources\033[0m"
 
-	@ld $(LDFLAGS) -o lambda.kern $(OBJS) kernel/arch/x86/arch.a
+	@ld $(LDFLAGS) -r -o lambda.o $(OBJS) kernel/arch/x86/arch.a
+
+	@echo -e "\033[33m  \033[1mCreating symbol table\033[0m"
+	@scripts/symbols > symbols.c
+	@$(CC) $(CFLAGS) -c -o symbols.o symbols.c
+
+	@ld $(LDFLAGS) -o lambda.kern lambda.o symbols.o
 	@cp lambda.kern CD/lambda.kern
 
 	@echo -e "\033[33m  \033[1mGenerating InitCPIO\033[0m"
