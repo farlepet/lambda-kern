@@ -8,8 +8,6 @@
 #include <mm/alloc.h>
 #include <string.h>
 
-//static uint32_t next_message_id = 0;
-
 static lock_t send_lock = 0; //!< Make sure only 1 message is sent at a time
 
 int send_message(int dest, void *msg, int size)
@@ -74,6 +72,8 @@ int recv_message(void *msg, int size)
 
 struct ipc_message *ipc_messages[IPC_MAX_MESSAGES];
 
+static uint32_t next_message_id = 0;
+
 int ipc_create_user_message(struct ipc_message *msg, struct ipc_message_user *umsg)
 {
 	umsg->message_id = msg->message_id;
@@ -85,7 +85,8 @@ int ipc_create_user_message(struct ipc_message *msg, struct ipc_message_user *um
 
 int ipc_create_message(struct ipc_message *msg, int src, int dest, void *message, uint32_t length)
 {
-	// TODO: Set message ID
+	msg->message_id = next_message_id;
+	next_message_id++;
 
 	msg->src_pid  = src;
 	msg->dest_pid = dest;
