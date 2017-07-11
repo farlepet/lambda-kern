@@ -82,6 +82,13 @@ void set_pagedir(u32 *dir);
 
 u32 *get_pagedir();
 
+/**
+ * \brief Checks if the page corresponding to the virtual address exists
+ *
+ * @return 1 if exists, else 0
+ */
+int page_present(u32 virtaddr);
+
 
 /**
  * \brief Enable paging.
