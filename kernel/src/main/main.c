@@ -1,4 +1,5 @@
 // vim: ts=4 sw=4
+#include <mm/stack_trace.h>
 #include <proc/syscalls.h>
 #include <proc/ktasks.h>
 #include <proc/mtask.h>

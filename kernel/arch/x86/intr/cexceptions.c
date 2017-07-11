@@ -1,3 +1,4 @@
+#include <mm/stack_trace.h>
 #include <proc/mtask.h>
 #include <mm/paging.h>
 #include <err/error.h>
@@ -5,7 +6,7 @@
 #include <intr/int.h>
 #include <types.h>
 
-void handle_page_fault(u32, u32, u32);
+void handle_page_fault(u32, u32, u32, u32 *ebp);
 
 /**
  * C side of page fault handler.
@@ -13,7 +14,7 @@ void handle_page_fault(u32, u32, u32);
  * @param errcode errorcode pushed on stack by the fault
  * @param cr3 value of cr3 register (location of fault)
  */
-void handle_page_fault(u32 errcode, u32 cr2, u32 eip)
+void handle_page_fault(u32 errcode, u32 cr2, u32 eip, u32 *ebp)
 {
 	u32 *cr3 = get_pagedir();
 	kerror(ERR_MEDERR, "Page fault at 0x%08X --> 0x%08X (%s%s%s%s%s)", cr2, pgdir_get_page_entry(cr3, (void *)cr2) & 0xFFFFF000,
@@ -37,6 +38,7 @@ void handle_page_fault(u32 errcode, u32 cr2, u32 eip)
 	kerror(ERR_MEDERR, "  -> Page Directory: 0x%08X", cr3);
 	kerror(ERR_MEDERR, "  -> Kernel pagedir: 0x%08X", kernel_cr3);
 
+
 	if(tasking)
 	{
 		int pid = current_pid;
@@ -53,10 +55,14 @@ void handle_page_fault(u32 errcode, u32 cr2, u32 eip)
 		   ((cr2 < procs[p].stack_beg + STACK_SIZE) && (cr2 > procs[p].stack_end)))
 		{
 			kerror(ERR_MEDERR, "       -> Caused a stack overflow and is being dealt with", pid);
-			exit(1);
 		}
+	
+		if(ebp != NULL) { stack_trace(5, ebp, eip); }
+
 		exit(1);
 	}
+
+	if(ebp != NULL) { stack_trace(5, ebp, eip); }
 
 	kpanic("Page fault, multitasking not enabled, nothing to do to fix this.");
 

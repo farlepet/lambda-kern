@@ -29,9 +29,10 @@ mbootEnd:
 
 .global start
 .extern kmain
-
+.type start, @function
 start:
 	mov $(new_stack_t + 0x10000), %esp
+    mov %esp, %ebp
 
 	pushl %eax
 	pushl %ebx
@@ -44,7 +45,7 @@ endloop:
 	hlt
 	jmp endloop
 
-
+.size start, . - start
 
 
 .global get_eip

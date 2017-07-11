@@ -203,6 +203,8 @@ e_pagefault:
 	cli
 	pop dword [errcode]
 	pop dword [address]
+
+	push ebp
 	push dword [address]
 	pusha
 	push dword [address]
@@ -210,7 +212,7 @@ e_pagefault:
 	push eax
 	push dword [errcode]
 	call handle_page_fault
-	add esp, 12
+	add esp, 16
 	popa
 	pop eax
 	iret
