@@ -56,7 +56,7 @@ int ipc_create_user_message(struct ipc_message *msg, struct ipc_message_user *um
  * @param length Length of message, in bytes
  * @return < 0 on error
  */
-int ipc_create_message(struct ipc_message *msg, int src, int dest, void *message, uint32_t length);
+int ipc_create_message(struct ipc_message **msg, int src, int dest, void *message, uint32_t length);
 
 /**
  * Deletes the messsage with the given ID
@@ -84,5 +84,37 @@ int ipc_copy_message_data(struct ipc_message *msg, void *dest);
  * @return < 0 on error
  */
 int ipc_send_message(struct ipc_message *msg);
+
+
+/*
+ * User functions:
+ */
+
+
+/**
+ * Receive message (user message structure), if available
+ *
+ * @param umsg Where to store message
+ * @return 0 on success, < 0 on error or no message
+ */
+int ipc_user_recv_message(struct ipc_message_user *umsg);
+
+/**
+ * Receive message (user message structure), blocking if none available
+ *
+ * @param umsg Where to store message
+ * @return 0 on success, < 0 on error
+ */
+int ipc_user_recv_message_blocking(struct ipc_message_user *umsg);
+
+
+/**
+ * Copy message contents to specified destination, then delete message.
+ *
+ * @param message_id Message ID to copy from
+ * @param dest Pointer to data destination
+ * @return < 0 on error
+ */
+int ipc_user_copy_message(uint32_t message_id, void *dest);
 
 #endif

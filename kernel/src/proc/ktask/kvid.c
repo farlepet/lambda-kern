@@ -1,6 +1,8 @@
 #include <proc/ktasks.h>
+#include <time/time.h>
 #include <err/error.h>
 #include <proc/ipc.h>
+#include <mm/alloc.h>
 #include <video.h>
 
 /**
@@ -12,20 +14,31 @@ __noreturn void kvid_task()
 
 	for(;;)
 	{
-		struct kvid_type_msg ktm;
-		recv_message(&ktm, sizeof(struct kvid_type_msg));
+		int ret;
+		struct ipc_message_user umsg;
 
-		switch(ktm.type)
+		while((ret = ipc_user_recv_message_blocking(&umsg)) < 0)
 		{
-			case KVID_PRINT: {	struct kvid_print_msg kpm;
-								recv_message(&kpm, sizeof(struct kvid_print_msg));
-								kprintf("%s", kpm.string);
-							 } break;
+			kerror(ERR_MEDERR, "KVID: IPC error: %d", ret);
+		}
 
-			case KVID_KERROR: {	struct kvid_kerror_msg kkm;
-								recv_message(&kkm, sizeof(struct kvid_kerror_msg));
-								kerror(kkm.error_level, "%s", kkm.string); // Maybe we should check the string and PID or something?
+		kerror(ERR_BOOTINFO, "KVID: Received IPC message!");
+		
+		void *data = kmalloc(umsg.length);
+
+		ipc_user_copy_message(umsg.message_id, data);
+
+		switch(((struct kvid_type_msg *)data)->type)
+		{
+			case KVID_PRINT: {	struct kvid_print_m *m = (struct kvid_print_m *)data;
+								kprintf("%s", m->kpm.string);
+							 } break;
+			
+			case KVID_KERROR: {	struct kvid_kerror_m *m = (struct kvid_kerror_m *)data;
+								kerror(m->kkm.error_level, "%s", m->kkm.string); // Maybe we should check the string and PID or something?
 							  } break;
 		}
+
+		kfree(data);
 	}
 }
