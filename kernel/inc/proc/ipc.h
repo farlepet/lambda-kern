@@ -3,6 +3,8 @@
 
 #include <types.h>
 
+#define IPC_MAX_MESSAGES 512
+
 /**
  * Defines an internal representation of a message between processes
  */
@@ -23,9 +25,15 @@ struct ipc_message_user {
     uint32_t length;     ///< Length of message
 };
 
+
+extern struct ipc_message *ipc_messages[IPC_MAX_MESSAGES];
+
+
 int send_message(int dest, void *msg, int size);
 
 int recv_message(void *msg, int size);
+
+
 
 /**
  * Creates a user message from an internal IPC message
@@ -59,5 +67,14 @@ int ipc_create_message(struct ipc_message *msg, int src, int dest, void *message
  * @return < 0 on error
  */
 int ipc_delete_message(struct ipc_message *msg);
+
+/**
+ * Copys data from message into destination
+ *
+ * @param msg Message to copy data from
+ * @param dest Pointer to destination of data
+ * @return < 0 on error
+ */
+int ipc_copy_message_data(struct ipc_message *msg, void *dest);
 
 #endif

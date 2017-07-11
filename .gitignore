@@ -36,3 +36,6 @@ stage2_eltorito
 # vim
 *.swp
 *.swo
+
+# Visual Studio Code
+.vscode

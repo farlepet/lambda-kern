@@ -5,8 +5,12 @@
 #include <mm/paging.h>
 #include <proc/ipc.h>
 #include <intr/int.h>
+#include <mm/alloc.h>
+#include <string.h>
 
-lock_t send_lock = 0; //!< Make sure only 1 message is sent at a time
+//static uint32_t next_message_id = 0;
+
+static lock_t send_lock = 0; //!< Make sure only 1 message is sent at a time
 
 int send_message(int dest, void *msg, int size)
 {
@@ -60,6 +64,56 @@ int recv_message(void *msg, int size)
 
 	procs[idx].book.recvd_msgs++;
 	procs[idx].book.recvd_bytes += (u32)size;
+
+	return 0;
+}
+
+/*********************
+ * New IPC functions *
+ *********************/
+
+struct ipc_message *ipc_messages[IPC_MAX_MESSAGES];
+
+int ipc_create_user_message(struct ipc_message *msg, struct ipc_message_user *umsg)
+{
+	umsg->message_id = msg->message_id;
+	umsg->src_pid    = msg->src_pid;
+	umsg->length     = msg->length;
+
+	return 0;
+}
+
+int ipc_create_message(struct ipc_message *msg, int src, int dest, void *message, uint32_t length)
+{
+	// TODO: Set message ID
+
+	msg->src_pid  = src;
+	msg->dest_pid = dest;
+
+	msg->message = kmalloc(length);
+	if(msg->message == NULL) return -1;
+
+	msg->length  = length;
+	memcpy(msg->message, message, length);
+
+	return 0;
+}
+
+int ipc_delete_message(struct ipc_message *msg)
+{
+	// TODO: Delete message structure itself
+
+	kfree(msg->message);
+
+	return 0;
+}
+
+int ipc_copy_message_data(struct ipc_message *msg, void *dest) {
+	if(dest         == NULL) return -1;
+	if(msg          == NULL) return -2;
+	if(msg->message == NULL) return -3;
+
+	memcpy(dest, msg->message, msg->length);
 
 	return 0;
 }
