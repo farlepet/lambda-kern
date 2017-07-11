@@ -75,7 +75,11 @@ __noreturn void kinput_task()
 				kpm.kpm.string = " ";
 				kpm.kpm.string[0] = keycode_to_char(&iev);
 				while(!ktask_pids[KVID_TASK_SLOT]);
-				send_message(ktask_pids[KVID_TASK_SLOT], &kpm, sizeof(struct kvid_print_m));
+				//send_message(ktask_pids[KVID_TASK_SLOT], &kpm, sizeof(struct kvid_print_m));
+				
+				struct ipc_message *msg;
+				ipc_create_message(&msg, current_pid, ktask_pids[KVID_TASK_SLOT], &kpm, sizeof(struct kvid_print_m));
+				ipc_send_message(msg);
 			}
 		}
 		else if(iev.type == EVENT_CHAR)

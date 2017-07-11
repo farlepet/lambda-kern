@@ -97,12 +97,13 @@ __noreturn void kernel_task()
 	int kvid = args[0];
 	if(kvid) // A quick message-passing test
 	{
-		// Old System
 		struct kvid_print_m kpm;
 		kpm.ktm.pid    = current_pid;
 		kpm.ktm.type   = KVID_PRINT;
 		kpm.kpm.string = "Hello via kvid!\n";
-		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
+
+		// Old System
+		//send_message(kvid, &kpm, sizeof(struct kvid_print_m));
 
 		// New System
 		struct ipc_message *msg;
@@ -119,7 +120,6 @@ __noreturn void kernel_task()
 		else
 		{
 			kerror(ERR_BOOTINFO, "kernel_task: Message sent to KVID!");
-
 		}
 	}
 

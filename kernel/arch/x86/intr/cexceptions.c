@@ -47,7 +47,7 @@ void handle_page_fault(u32 errcode, u32 cr2, u32 eip)
 			for(;;);
 		}
 
-		kerror(ERR_MEDERR, "  -> Caused by process %d", pid);
+		kerror(ERR_MEDERR, "  -> Caused by process %d [%s]", pid, procs[p].name);
 
 		if(((cr2 < procs[p].stack_beg) && (cr2 > procs[p].stack_end - STACK_SIZE)) || // Remember, the x86 stack is upside-down
 		   ((cr2 < procs[p].stack_beg + STACK_SIZE) && (cr2 > procs[p].stack_end)))

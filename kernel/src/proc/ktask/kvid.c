@@ -21,8 +21,6 @@ __noreturn void kvid_task()
 		{
 			kerror(ERR_MEDERR, "KVID: IPC error: %d", ret);
 		}
-
-		kerror(ERR_BOOTINFO, "KVID: Received IPC message!");
 		
 		void *data = kmalloc(umsg.length);
 
