@@ -77,4 +77,12 @@ int ipc_delete_message(struct ipc_message *msg);
  */
 int ipc_copy_message_data(struct ipc_message *msg, void *dest);
 
+/**
+ * Send message to the corresponding process
+ *
+ * @param msg Message object to send
+ * @return < 0 on error
+ */
+int ipc_send_message(struct ipc_message *msg);
+
 #endif

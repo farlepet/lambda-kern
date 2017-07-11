@@ -109,7 +109,8 @@ int ipc_delete_message(struct ipc_message *msg)
 	return 0;
 }
 
-int ipc_copy_message_data(struct ipc_message *msg, void *dest) {
+int ipc_copy_message_data(struct ipc_message *msg, void *dest)
+{
 	if(dest         == NULL) return -1;
 	if(msg          == NULL) return -2;
 	if(msg->message == NULL) return -3;
@@ -117,4 +118,25 @@ int ipc_copy_message_data(struct ipc_message *msg, void *dest) {
 	memcpy(dest, msg->message, msg->length);
 
 	return 0;
+}
+
+int ipc_send_message(struct ipc_message *msg)
+{
+	if(msg == NULL) return -1;
+
+	int idx = proc_by_pid(current_pid);
+
+	struct ipc_message **messages = procs[idx].ipc_messages;
+
+	for(int i = 0; i < MAX_PROCESS_MESSAGES; i++)
+	{
+		if(messages[i] == NULL)
+		{
+			messages[i] = msg;
+			procs[idx].blocked &= (u32)~BLOCK_IPC_MESSAGE;
+			return 0;
+		}
+	}
+
+	return -2; // Could not find empty slot
 }
