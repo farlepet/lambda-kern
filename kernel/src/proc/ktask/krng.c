@@ -1,6 +1,8 @@
 #include <proc/ktasks.h>
+#include <err/error.h>
 #include <proc/ipc.h>
 #include <mm/cbuff.h>
+#include <mm/alloc.h>
 
 /*
  * This is an extremely horrible random number generator implementation.
@@ -25,14 +27,30 @@ __noreturn void krng_task()
 
 	for(;;)
 	{
+		int ret;
 		struct rng_request rngr;
-		recv_message(&rngr, sizeof(struct rng_request));
-
-		while(rngr.n_bytes)
+		struct ipc_message_user umsg;
+		while((ret = ipc_user_recv_message_blocking(&umsg)) < 0)
 		{
-			u8 byte = generate_rand_byte();
-			send_message(rngr.pid, &byte, 1);
+			kerror(ERR_MEDERR, "KRNG: IPC error: %d", ret);
 		}
+		
+		if(umsg.length > sizeof(struct rng_request))
+		{
+			// TODO: Delete message
+			continue;
+		}
+
+		ipc_user_copy_message(umsg.message_id, &rngr);
+
+		u8 *bytes = kmalloc(rngr.n_bytes);
+
+		for(u32 i = 0; i < rngr.n_bytes; i++)
+		{
+			bytes[i] = generate_rand_byte();
+		}
+
+		ipc_user_create_and_send_message(umsg.src_pid, bytes, rngr.n_bytes);
 	}
 }
 
