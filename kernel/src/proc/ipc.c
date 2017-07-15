@@ -217,3 +217,13 @@ int ipc_user_copy_message(uint32_t message_id, void *dest)
 
 	return -1; // Message not found
 }
+
+int ipc_user_create_and_send_message(int dest_pid, void *message, uint32_t length)
+{
+	struct ipc_message *msg;
+
+	if(ipc_create_message(&msg, current_pid, dest_pid, message, length) < 0) return -1;
+	if(ipc_send_message(msg)) return -2;
+
+	return 0;
+}

@@ -60,26 +60,34 @@ __noreturn void kinput_task()
 		{
 			if(iev.data == 0x01) // ESC -> DEBUG for now
 			{
-				struct kbug_type_msg ktm;
-				ktm.pid  = current_pid;
-				ktm.type = KBUG_IDEBUG;
-				while(!ktask_pids[KBUG_TASK_SLOT]);
-				send_message(ktask_pids[KBUG_TASK_SLOT], &ktm, sizeof(struct kbug_type_msg));
+				if(ktask_pids[KBUG_TASK_SLOT])
+				{
+					struct kbug_type_msg ktm;
+					ktm.type = KBUG_IDEBUG;
+					//while(!ktask_pids[KBUG_TASK_SLOT]);
+					ipc_user_create_and_send_message(ktask_pids[KBUG_TASK_SLOT], &ktm, sizeof(struct kbug_type_msg));
+
+					/*struct ipc_message *msg;
+					ipc_create_message(&msg, current_pid, ktask_pids[KBUG_TASK_SLOT], &ktm, sizeof(struct kbug_type_msg));
+					ipc_send_message(msg);*/
+				}
 			}
 			// TODO: Send char to some other process
 			else
 			{
-				struct kvid_print_m kpm;
-				kpm.ktm.pid    = current_pid;
-				kpm.ktm.type   = KVID_PRINT;
-				kpm.kpm.string = " ";
-				kpm.kpm.string[0] = keycode_to_char(&iev);
-				while(!ktask_pids[KVID_TASK_SLOT]);
-				//send_message(ktask_pids[KVID_TASK_SLOT], &kpm, sizeof(struct kvid_print_m));
-				
-				struct ipc_message *msg;
-				ipc_create_message(&msg, current_pid, ktask_pids[KVID_TASK_SLOT], &kpm, sizeof(struct kvid_print_m));
-				ipc_send_message(msg);
+				if(ktask_pids[KVID_TASK_SLOT])
+				{
+					struct kvid_print_m kpm;
+					kpm.ktm.pid    = current_pid;
+					kpm.ktm.type   = KVID_PRINT;
+					kpm.kpm.string = " ";
+					kpm.kpm.string[0] = keycode_to_char(&iev);
+					
+					
+					struct ipc_message *msg;
+					ipc_create_message(&msg, current_pid, ktask_pids[KVID_TASK_SLOT], &kpm, sizeof(struct kvid_print_m));
+					ipc_send_message(msg);
+				}
 			}
 		}
 		else if(iev.type == EVENT_CHAR)
@@ -91,8 +99,6 @@ __noreturn void kinput_task()
 					struct ipc_message *msg;
 					ipc_create_message(&msg, current_pid, ktask_pids[KTERM_TASK_SLOT], &iev.data, sizeof(char));
 					ipc_send_message(msg);
-
-					//send_message(ktask_pids[KTERM_TASK_SLOT], &iev.data, sizeof(char));
 				}
 			}
 		}

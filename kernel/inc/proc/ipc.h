@@ -117,4 +117,13 @@ int ipc_user_recv_message_blocking(struct ipc_message_user *umsg);
  */
 int ipc_user_copy_message(uint32_t message_id, void *dest);
 
+/**
+ * Create and send a message from thhe current process
+ *
+ * @param dest_pid Destination PID
+ * @param message Pointer to message data
+ * @param length Length of message data
+ */
+int ipc_user_create_and_send_message(int dest_pid, void *message, uint32_t length);
+
 #endif
