@@ -41,3 +41,6 @@ stage2_eltorito
 .vscode
 
 symbols.c
+
+# Doxygen output
+doc

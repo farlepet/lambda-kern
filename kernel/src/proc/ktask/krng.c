@@ -65,8 +65,6 @@ __noreturn void krng_task()
 				}
 			} break;
 		}
-
-		
 	}
 }
 
