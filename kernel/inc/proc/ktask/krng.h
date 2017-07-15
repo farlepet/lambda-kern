@@ -5,10 +5,40 @@
 
 void krng_task(void);
 
-struct rng_request
+enum krng_types
 {
-	int pid;     //!< PID requesting the random numbers
-	u32 n_bytes; //!< Number of bytes requested
+	KRNG_REQUEST     = 0,
+	KRNG_ADD_ENTROPY = 1
+};
+
+
+struct rng_type_msg
+{
+	u8 type;
+};
+
+struct rng_request_msg
+{
+	u32 n_bytes;
+};
+
+struct rng_add_entropy_msg
+{
+	u32 n_bytes;
+	u8  bytes[];
+};
+
+
+struct rng_type_request_msg
+{
+	struct rng_type_msg    rtm;
+	struct rng_request_msg rrm;
+};
+
+struct rng_type_add_entropy_msg
+{
+	struct rng_type_msg        rtm;
+	struct rng_add_entropy_msg raem;
 };
 
 void krng_add_entropy(u8 ent);
