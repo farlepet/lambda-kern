@@ -83,11 +83,10 @@ static void idebug()
 {
 	kerror(ERR_INFO, "IDEBUG started");
 	
-	// TODO: Switch EIP with a more architecture-generic term
 	if(KERNEL_COLORCODE)
-		kprintf("\e[41mPID UID GID SENT     RECEIVED BLCK PRI NAME            \e[0m\n");
+		kprintf("\e[41mPID  UID  GID      SENT  RECEIVED BLCK PRI  NAME            \e[0m\n");
 	else
-		kprintf("PID UID GET SENT     RECEIVED BLCK PRI NAME\n");
+		kprintf("PID  UID  GID      SENT  RECEIVED BLCK PRI  NAME\n");
 
 	int i = 0;
 	for(; i < MAX_PROCESSES; i++)

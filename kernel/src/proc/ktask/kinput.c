@@ -87,7 +87,13 @@ __noreturn void kinput_task()
 			if(to_kterm)
 			{
 				if(ktask_pids[KTERM_TASK_SLOT])
-					send_message(ktask_pids[KTERM_TASK_SLOT], &iev.data, sizeof(char));
+				{
+					struct ipc_message *msg;
+					ipc_create_message(&msg, current_pid, ktask_pids[KTERM_TASK_SLOT], &iev.data, sizeof(char));
+					ipc_send_message(msg);
+
+					//send_message(ktask_pids[KTERM_TASK_SLOT], &iev.data, sizeof(char));
+				}
 			}
 		}
 	}
