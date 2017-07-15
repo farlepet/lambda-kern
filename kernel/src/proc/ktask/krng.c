@@ -65,6 +65,8 @@ __noreturn void krng_task()
 				}
 			} break;
 		}
+
+		kfree(data);
 	}
 }
 
