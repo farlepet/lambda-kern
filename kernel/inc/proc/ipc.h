@@ -126,4 +126,11 @@ int ipc_user_copy_message(uint32_t message_id, void *dest);
  */
 int ipc_user_create_and_send_message(int dest_pid, void *message, uint32_t length);
 
+/**
+ * Delete given message
+ *
+ * @param message_id ID of message
+ */
+int ipc_user_delete_message(uint32_t message_id);
+
 #endif

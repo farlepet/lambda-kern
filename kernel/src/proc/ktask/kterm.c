@@ -76,7 +76,7 @@ __noreturn void kterm_task()
 			}
 
 			if(umsg.length > sizeof(char)) {
-				// TODO: Delete message!
+				ipc_user_delete_message(umsg.message_id);
 				continue;
 			}
 

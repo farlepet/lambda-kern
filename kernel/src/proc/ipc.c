@@ -227,3 +227,27 @@ int ipc_user_create_and_send_message(int dest_pid, void *message, uint32_t lengt
 
 	return 0;
 }
+
+int ipc_user_delete_message(uint32_t message_id)
+{
+	int idx = proc_by_pid(current_pid);
+
+	struct ipc_message **messages = procs[idx].ipc_messages;
+
+	for(int i = 0; i < MAX_PROCESS_MESSAGES; i++)
+	{
+		if(messages[i] != NULL)
+		{
+			if(messages[i]->message_id == message_id)
+			{
+				if(ipc_delete_message(messages[i]) < 0) return -2;
+				kfree(messages[i]);
+				messages[i] = NULL;
+
+				return 0;
+			}
+		}
+	}
+
+	return -1; // Message not found
+}

@@ -87,6 +87,8 @@ __noreturn void kbug_task()
 				idebug();
 			} break;
 		}
+
+		kfree(data);
 	}
 }
 
