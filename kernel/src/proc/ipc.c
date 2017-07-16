@@ -263,6 +263,16 @@ int ipc_user_create_and_send_message(int dest_pid, void *message, uint32_t lengt
 {
 	struct ipc_message *msg;
 
+	int idx = proc_by_pid(dest_pid);
+
+	for(int i = 0; i < MAX_BLOCKED_PIDS; i++)
+	{
+		if(procs[idx].blocked_ipc_pids[i] == current_pid)
+		{
+			return -3; // Blocked by receiving process
+		}
+	}
+
 	if(ipc_create_message(&msg, current_pid, dest_pid, message, length) < 0) return -1;
 	if(ipc_send_message(msg)) return -2;
 
@@ -291,4 +301,43 @@ int ipc_user_delete_message(uint32_t message_id)
 	}
 
 	return -1; // Message not found
+}
+
+int ipc_user_block_pid(int pid)
+{
+	int idx = proc_by_pid(current_pid);
+
+	struct ipc_message **messages         = procs[idx].ipc_messages;
+	int                 *blocked_ipc_pids = procs[idx].blocked_ipc_pids;
+
+	for(int i = 0; i < MAX_BLOCKED_PIDS; i++)
+	{
+		if(blocked_ipc_pids[i] == pid)
+		{
+			return 0;
+		}
+	}
+
+	for(int i = 0; i < MAX_BLOCKED_PIDS; i++)
+	{
+		if(blocked_ipc_pids[i] == 0)
+		{
+			blocked_ipc_pids[i] = pid;
+			for(int i = 0; i < MAX_PROCESS_MESSAGES; i++)
+			{
+				if(messages[i] != NULL)
+				{
+					if(messages[i]->src_pid == pid)
+					{
+						ipc_delete_message(messages[i]);
+						kfree(messages[i]);
+						messages[i] = NULL;
+					}
+				}
+			}
+			return 0;
+		}
+	}
+
+	return -1; // No free slots
 }

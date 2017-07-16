@@ -151,4 +151,12 @@ int ipc_user_create_and_send_message(int dest_pid, void *message, uint32_t lengt
  */
 int ipc_user_delete_message(uint32_t message_id);
 
+/**
+ * Block PID from sending messages to this process
+ *
+ * @param pid PID of process to block
+ * @return < 0 on error
+ */
+int ipc_user_block_pid(int pid);
+
 #endif

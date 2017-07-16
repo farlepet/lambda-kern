@@ -6,6 +6,7 @@
 #define MAX_PROCESSES        16 //!< Maximum amount of running processes
 #define MAX_CHILDREN         8  //!< Maximum number of children a parent can handle
 #define MAX_PROCESS_MESSAGES 64 //!< Maximum number of messages a process can retain
+#define MAX_BLOCKED_PIDS     (MAX_PROCESSES - 1)
 
 #define MSG_BUFF_SIZE 512 //!< Size of the message buffer in bytes
 
@@ -60,7 +61,8 @@ struct kproc //!< Structure of a process as seen by the kernel
 	u8 msg_buff[MSG_BUFF_SIZE]; //!< Actual buffer
 
 	// New IPC:
-	struct ipc_message *ipc_messages[MAX_PROCESS_MESSAGES];
+	struct ipc_message *ipc_messages[MAX_PROCESS_MESSAGES]; //!< IPC message pointers
+	int blocked_ipc_pids[MAX_BLOCKED_PIDS]; //!< PIDs blocked from sending messages to this process
 
 	u32 blocked;   //!< Contains flags telling whether or not this process is blocked, and by what
 
