@@ -100,12 +100,30 @@ int ipc_send_message(struct ipc_message *msg);
 int ipc_user_recv_message(struct ipc_message_user *umsg);
 
 /**
+ * Receive message (user message structure) from specified PID, if available
+ *
+ * @param umsg Where to store message
+ * @param pid PID of sending process
+ * @return 0 on success, < 0 on error or no message
+ */
+int ipc_user_recv_message_pid(struct ipc_message_user *umsg, int pid);
+
+/**
  * Receive message (user message structure), blocking if none available
  *
  * @param umsg Where to store message
  * @return 0 on success, < 0 on error
  */
 int ipc_user_recv_message_blocking(struct ipc_message_user *umsg);
+
+/**
+ * Receive message (user message structure), blocking if none available
+ *
+ * @param umsg Where to store message
+ * @param pid PID of sending process
+ * @return 0 on success, < 0 on error
+ */
+int ipc_user_recv_message_pid_blocking(struct ipc_message_user *umsg, int pid);
 
 
 /**

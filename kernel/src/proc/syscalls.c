@@ -20,7 +20,15 @@ struct syscall syscalls[] =
 	[SYSCALL_GET_KTASK] = { (func0_t)get_ktask,    2, 0 },
 	[SYSCALL_SEND_MSG]  = { (func0_t)send_message, 3, 0 },
 	[SYSCALL_RECV_MSG]  = { (func0_t)recv_message, 2, 0 },
-	[SYSCALL_EXIT]      = { (func0_t)exit,         1, 0 }
+	[SYSCALL_EXIT]      = { (func0_t)exit,         1, 0 },
+	
+	[SYSCALL_IPC_SEND]              = { (func0_t)ipc_user_create_and_send_message,   3, 0 },
+	[SYSCALL_IPC_RECV]              = { (func0_t)ipc_user_recv_message,              1, 0 },
+	[SYSCALL_IPC_RECV_PID]          = { (func0_t)ipc_user_recv_message_pid,          2, 0 },
+	[SYSCALL_IPC_RECV_BLOCKING]     = { (func0_t)ipc_user_recv_message_blocking,     1, 0 },
+	[SYSCALL_IPC_RECV_PID_BLOCKING] = { (func0_t)ipc_user_recv_message_pid_blocking, 2, 0 },
+	[SYSCALL_IPC_COPY_MSG]          = { (func0_t)ipc_user_copy_message,              2, 0 },
+	[SYSCALL_IPC_DELETE_MSG]        = { (func0_t)ipc_user_delete_message,            1, 0 }
 };
 
 void handle_syscall(u32 scn, u32 *args)

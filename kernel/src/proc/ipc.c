@@ -175,6 +175,31 @@ int ipc_user_recv_message(struct ipc_message_user *umsg)
 	return -1; // No waiting messages
 }
 
+int ipc_user_recv_message_pid(struct ipc_message_user *umsg, int pid)
+{
+	if(umsg == NULL) return -2;
+
+	int idx = proc_by_pid(current_pid);
+
+	struct ipc_message **messages = procs[idx].ipc_messages;
+
+	for(int i = 0; i < MAX_PROCESS_MESSAGES; i++)
+	{
+		if(messages[i] != NULL)
+		{
+			if(messages[i]->src_pid == pid) {
+				if(ipc_create_user_message(messages[i], umsg) < 0)
+				{
+					return -3; // Error while copying message data
+				}
+				return 0;
+			}
+		}
+	}
+
+	return -1; // No waiting messages
+}
+
 int ipc_user_recv_message_blocking(struct ipc_message_user *umsg)
 {
 	if(umsg == NULL) return -2;
@@ -183,6 +208,22 @@ int ipc_user_recv_message_blocking(struct ipc_message_user *umsg)
 
 	int ret;
 	while((ret = ipc_user_recv_message(umsg)) == -1)
+	{
+		procs[idx].blocked |= BLOCK_IPC_MESSAGE;
+		busy_wait();
+	}
+
+	return ret;
+}
+
+int ipc_user_recv_message_pid_blocking(struct ipc_message_user *umsg, int pid)
+{
+	if(umsg == NULL) return -2;
+
+	int idx = proc_by_pid(current_pid);
+
+	int ret;
+	while((ret = ipc_user_recv_message_pid(umsg, pid)) == -1)
 	{
 		procs[idx].blocked |= BLOCK_IPC_MESSAGE;
 		busy_wait();
