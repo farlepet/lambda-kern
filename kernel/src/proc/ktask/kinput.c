@@ -4,6 +4,8 @@
 #include <proc/ipc.h>
 #include <video.h>
 
+static int input_subs[KINPUT_MAX_SUBS];
+
 static char keytab_x86_a[2][256] =
 {
 	{ // Lowercase
@@ -43,6 +45,34 @@ static char keycode_to_char(struct input_event *iev)
 	}
 
 	return '\0';
+}
+
+
+
+static void send_input_char(char c) {
+	struct ipc_message *msg;
+
+	for(int i = 0; i < KINPUT_MAX_SUBS; i++) {
+		if(input_subs[i]) {
+			if(proc_by_pid(input_subs[i]) < 0) {
+				// Remove dead PID:
+				input_subs[i] = 0;
+			} else {
+				ipc_create_message(&msg, current_pid, input_subs[i], &c, sizeof(char));
+				ipc_send_message(msg);
+			}
+		}
+	}
+}
+
+static int add_subscriber(int pid) {
+	for(int i = 0; i < KINPUT_MAX_SUBS; i++) {
+		if(!input_subs[i]) {
+			input_subs[i] = pid;
+			return i;
+		}
+	}
+	return -1;
 }
 
 
@@ -94,13 +124,12 @@ __noreturn void kinput_task()
 		{
 			if(to_kterm)
 			{
-				if(ktask_pids[KTERM_TASK_SLOT])
-				{
-					struct ipc_message *msg;
-					ipc_create_message(&msg, current_pid, ktask_pids[KTERM_TASK_SLOT], &iev.data, sizeof(char));
-					ipc_send_message(msg);
+				if(ktask_pids[KTERM_TASK_SLOT]) {
+					// Add kterm PID, and if it was added, clear to_kterm
+					to_kterm = (add_subscriber(ktask_pids[KTERM_TASK_SLOT]) < 0);
 				}
 			}
+			send_input_char(iev.data);
 		}
 	}
 }
