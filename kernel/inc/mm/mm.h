@@ -15,5 +15,13 @@
  */
 void mm_init(struct multiboot_header *mboot_head);
 
+/**
+ * \brief Check if memory address is valid.
+ * 
+ * @param addr Address to check
+ * 
+ * @return 1 if readable, 2 if writable, else 0
+ */
+int mm_check_addr(void *addr);
 
 #endif

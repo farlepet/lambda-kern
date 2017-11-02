@@ -19,7 +19,7 @@ void mm_init(struct multiboot_header *mboot_head)
 
 	if(!mboot_head)
 		kpanic("Multiboot header pointer is NULL!");
-	if(!mboot_head->flags & MBOOT_MEMINFO)
+	if(!(mboot_head->flags & MBOOT_MEMINFO))
 		kpanic("Multiboot header entries mem_* are not available!");
 
 #if defined(ARCH_X86)
@@ -28,4 +28,18 @@ void mm_init(struct multiboot_header *mboot_head)
 #endif
 	
 	kerror(ERR_BOOTINFO, "Memory management enabled");
+}
+
+
+int mm_check_addr(void *addr) {
+#if defined(ARCH_X86)
+	u32 page = get_page_entry(addr);
+
+	if(!(page & 0x01)) return 0; // Page not present
+
+	return (page & 0x02) ? (2) : (1); // Check R/W bit
+#else
+	// Unimplemented for this architecture
+	return 0;
+#endif
 }

@@ -3,6 +3,7 @@
 #include <err/error.h>
 #include <proc/ipc.h>
 #include <mm/alloc.h>
+#include <mm/mm.h>
 #include <video.h>
 
 /**
@@ -29,11 +30,19 @@ __noreturn void kvid_task()
 		switch(((struct kvid_type_msg *)data)->type)
 		{
 			case KVID_PRINT: {	struct kvid_print_m *m = (struct kvid_print_m *)data;
-								kprintf("%s", m->kpm.string);
+								if(mm_check_addr(m->kpm.string)) {
+									kprintf("%s", m->kpm.string);
+								} else {
+									kerror(ERR_SMERR, "kvid: Given non-existant data pointer (%08X) from PID %d!", m->kpm.string, umsg.src_pid);
+								}
 							 } break;
 			
 			case KVID_KERROR: {	struct kvid_kerror_m *m = (struct kvid_kerror_m *)data;
-								kerror(m->kkm.error_level, "%s", m->kkm.string); // Maybe we should check the string and PID or something?
+								if(mm_check_addr(m->kkm.string)) {
+									kerror(m->kkm.error_level, "%s", m->kkm.string); // Maybe we should check the string and PID or something?
+								} else {
+									kerror(ERR_SMERR, "kvid: Given non-existant data pointer (%08X) from PID %d!", m->kkm.string, umsg.src_pid);
+								}
 							  } break;
 		}
 
