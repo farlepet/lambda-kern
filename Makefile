@@ -14,8 +14,12 @@ OBJS       = $(patsubst %.c,%.o,$(SRCS))
 ifeq ($(ARCH), X86)
 CFLAGS    += -m32 -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/x86/ \
 			 -nostdlib -nostdinc -ffreestanding -Wall -Wextra -Werror -DARCH_X86 -O2 \
-			 -pipe -g
+			 -pipe -g -fno-stack-protector
 LDFLAGS    = -melf_i386 -T link_x86.ld
+
+ifeq ($(CC), clang)
+CFLAGS += -Wno-incompatible-library-redeclaration 
+endif
 
 link:   $(OBJS) CD/boot/grub/stage2_eltorito
 	@echo -e "\033[33m  \033[1mBuilding x86-specific bits\033[0m"
