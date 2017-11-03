@@ -8,6 +8,8 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include <stdint.h>
+
 #include <config.h>
 
 #ifdef ARCH_X86
@@ -20,8 +22,6 @@ typedef unsigned char      u8;  //!< Unsigned 8 bit value
 typedef unsigned short     u16; //!< Unsigned 16 bit value
 typedef unsigned int       u32; //!< Unsigned 32 bit value
 typedef unsigned long long u64; //!< Unsigned 64 bit value
-
-typedef unsigned int ptr_t; //!< Pointer
 #endif // ARCH_X86
 
 typedef unsigned long long int max_ptr_t; //!< Maximum pointer size that can be used by an architecture

@@ -15,6 +15,9 @@
 #include <mm/mm.h>
 #include <fs/fs.h>
 #include <video.h>
+#include <string.h>
+
+#include <fs/stream.h>
 
 #ifdef ARCH_X86
 // TODO: Move these to another file:
@@ -89,6 +92,8 @@ __noreturn void kernel_task()
 
 	u32 args[4];
 
+	int pid = get_pid();
+
 	args[0] = KVID_TASK_SLOT;
 	args[1] = 50;
 	//int kvid = get_ktask(KVID_TASK_SLOT, 50);
@@ -100,7 +105,26 @@ __noreturn void kernel_task()
 		kpm.ktm.pid    = current_pid;
 		kpm.ktm.type   = KVID_PRINT;
 		kpm.kpm.string = "Hello via kvid!\n";
-		send_message(kvid, &kpm, sizeof(struct kvid_print_m));
+
+		// Old System
+		//send_message(kvid, &kpm, sizeof(struct kvid_print_m));
+
+		// New System
+		struct ipc_message *msg;
+		int ret;
+
+		if((ret = ipc_create_message(&msg, pid, kvid, &kpm, sizeof(struct kvid_print_m))) < 0) 
+		{
+			kerror(ERR_SMERR, "kernel_task: ipc_create_message returned %d", ret);
+		}
+		else if((ret = ipc_send_message(msg)) < 0)
+		{
+			kerror(ERR_SMERR, "kernel_task: ipc_send_message returned %d", ret);
+		}
+		else
+		{
+			kerror(ERR_BOOTINFO, "kernel_task: Message sent to KVID!");
+		}
 	}
 
 	//fs_debug(8);
@@ -130,6 +154,7 @@ __noreturn void kernel_task()
 
 ELF_ERR_BRA:
 */
+
 
 	for(;;) busy_wait();
 }

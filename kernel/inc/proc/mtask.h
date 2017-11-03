@@ -1,6 +1,8 @@
 #ifndef MTASK_H
 #define MTASK_H
 
+void run_sched(void);
+
 #include <types.h>
 #include <proc/proc.h>
 
@@ -24,8 +26,6 @@ int add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u32
 int proc_by_pid(int pid);
 
 void exit(int code);
-
-void run_sched(void);
 
 #define STACK_SIZE 0x8000 //!< Size of user stack or if kernel task has a unspecified stack size
 

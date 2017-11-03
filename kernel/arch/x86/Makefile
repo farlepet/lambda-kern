@@ -16,10 +16,13 @@ OBJS       = $(ASOBJS) $(COBJS) $(ASMOBJS)
 CC         = gcc
 AS         = gcc
 CFLAGS     = -m32 -I$(KERNDIR)/inc -I$(MAINDIR) -nostdlib -nostdinc -Wall -Wextra -Werror \
-			 -DARCH_X86 -O2 -pipe -g
+			 -DARCH_X86 -O2 -pipe -g -fno-stack-protector
 ASFLAGS    = -m32
 NASMFLAGS  = -f elf
 
+ifeq ($(CC), clang)
+CFLAGS += -Wno-incompatible-library-redeclaration
+endif
 
 all:     link
 

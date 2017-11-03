@@ -1,6 +1,7 @@
 #include <proc/ktasks.h>
 #include <err/error.h>
 #include <time/time.h>
+#include <fs/stream.h>
 #include <mm/alloc.h>
 #include <proc/ipc.h>
 #include <proc/elf.h>
@@ -68,7 +69,21 @@ __noreturn void kterm_task()
 		char t = 0;
 		while(1)
 		{
-			recv_message(&t, sizeof(char));
+			int ret;
+			struct ipc_message_user umsg;
+			while((ret = ipc_user_recv_message_blocking(&umsg)) < 0)
+			{
+				kerror(ERR_MEDERR, "KTERM: IPC error: %d", ret);
+			}
+
+			if(umsg.length > sizeof(char)) {
+				ipc_user_delete_message(umsg.message_id);
+				continue;
+			}
+
+			ipc_user_copy_message(umsg.message_id, &t);
+
+			//recv_message(&t, sizeof(char));
 			if(t == '\n' || t == '\r') break;
 			if(t == '\b') {
 				iloc--;
@@ -139,6 +154,8 @@ static int help(int argc, char **argv)
 #define EXEC_BIN 0
 #define EXEC_ELF 1
 
+#define EXEC_STREAM_LEN 256
+
 char exec_filename[128] = { 0, };
 struct kfile *exec      = NULL;
 u8			 *exec_data = NULL;
@@ -188,6 +205,8 @@ static int run(int argc, char **argv)
 	(void)argc;
 	(void)argv;
 
+	int pid = 0;
+
 	if(!strlen(exec_filename))
 	{
 		kprintf("No loaded executable to run\n");
@@ -204,7 +223,7 @@ static int run(int argc, char **argv)
 			return 1;
 		}
 
-		add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
+		pid = add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
 	}
 
 	else if(exec_type == EXEC_BIN)
@@ -230,12 +249,75 @@ static int run(int argc, char **argv)
 		pgdir_map_page(pagedir, phys, (void *)exec_ep, 0x03);
 		kerror(ERR_BOOTINFO, "Page entry: 0x%08X", pgdir_get_page_entry(pagedir, (void *)exec_ep));
 
-		int pid = add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
+		pid = add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
 		//int pid = add_kernel_task((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG);
-		kerror(ERR_BOOTINFO, "Task PID: %d", pid);
+		
 	}
 
-	kprintf("Executable is now running\n");
+	kerror(ERR_BOOTINFO, "Task PID: %d", pid);
+	
+	// TODO: Create helper functions for this:
+	int idx = proc_by_pid(pid);
+	if(idx < 0) {
+		kerror(ERR_MEDERR, "kterm: Could not find spawned process!");
+		return 1;
+	}
+
+	struct kfile *stdin = stream_create(EXEC_STREAM_LEN);
+	if(!stdin) {
+		kerror(ERR_MEDERR, "kterm: Could not create STDIN!");
+		return 1;
+	}
+
+	struct kfile *stdout = stream_create(EXEC_STREAM_LEN);
+	if(!stdout) {
+		kerror(ERR_MEDERR, "kterm: Could not create STDOUT!");
+		return 1;
+	}
+
+	struct kfile *stderr = stream_create(EXEC_STREAM_LEN);
+	if(!stderr) {
+		kerror(ERR_MEDERR, "kterm: Could not create STDERR!");
+		return 1;
+	}
+
+	procs[idx].open_files[0] = stdin;
+	procs[idx].open_files[1] = stdout;
+	procs[idx].open_files[2] = stderr;
+
+	char buffer[EXEC_STREAM_LEN];
+
+	while(!(procs[idx].type & TYPE_ZOMBIE)) {
+		char t;
+		struct ipc_message_user umsg;
+
+		if(ipc_user_recv_message(&umsg) >= 0)
+		{
+			if(umsg.length > sizeof(char)) {
+				ipc_user_delete_message(umsg.message_id);
+			} else {
+				ipc_user_copy_message(umsg.message_id, &t);
+				fs_write(stdin, 0, 1, (uint8_t *)&t);			
+			}
+		}
+
+		
+
+		if(stdout->length > 0) {
+			int sz = fs_read(stdout, 0, stdout->length, (uint8_t *)&buffer);
+			for(int i = 0; i < sz; i++) {
+				kput(buffer[i]);
+			}
+		}
+
+		if(stderr->length > 0) {
+			int sz = fs_read(stderr, 0, stderr->length, (uint8_t *)&buffer);
+			for(int i = 0; i < sz; i++) {
+				kput(buffer[i]);
+			}
+		}
+	}
+
 
 	return 0;
 }
@@ -250,6 +332,8 @@ static int unload(int argc, char **argv)
 		kprintf("No loaded executable to unload");
 		return 1;
 	}
+
+	// TODO: Free allocated data
 
 	memset(exec_filename, 0, 128);
 
