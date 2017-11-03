@@ -288,6 +288,21 @@ static int run(int argc, char **argv)
 	char buffer[EXEC_STREAM_LEN];
 
 	while(!(procs[idx].type & TYPE_ZOMBIE)) {
+		char t;
+		struct ipc_message_user umsg;
+
+		if(ipc_user_recv_message(&umsg) >= 0)
+		{
+			if(umsg.length > sizeof(char)) {
+				ipc_user_delete_message(umsg.message_id);
+			} else {
+				ipc_user_copy_message(umsg.message_id, &t);
+				fs_write(stdin, 0, 1, (uint8_t *)&t);			
+			}
+		}
+
+		
+
 		if(stdout->length > 0) {
 			int sz = fs_read(stdout, 0, stdout->length, (uint8_t *)&buffer);
 			for(int i = 0; i < sz; i++) {
