@@ -68,7 +68,21 @@ __noreturn void kterm_task()
 		char t = 0;
 		while(1)
 		{
-			recv_message(&t, sizeof(char));
+			int ret;
+			struct ipc_message_user umsg;
+			while((ret = ipc_user_recv_message_blocking(&umsg)) < 0)
+			{
+				kerror(ERR_MEDERR, "KTERM: IPC error: %d", ret);
+			}
+
+			if(umsg.length > sizeof(char)) {
+				ipc_user_delete_message(umsg.message_id);
+				continue;
+			}
+
+			ipc_user_copy_message(umsg.message_id, &t);
+
+			//recv_message(&t, sizeof(char));
 			if(t == '\n' || t == '\r') break;
 			if(t == '\b') {
 				iloc--;
@@ -250,6 +264,8 @@ static int unload(int argc, char **argv)
 		kprintf("No loaded executable to unload");
 		return 1;
 	}
+
+	// TODO: Free allocated data
 
 	memset(exec_filename, 0, 128);
 
