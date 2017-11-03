@@ -2,11 +2,13 @@
 #define PROC_H
 
 #include <mm/cbuff.h>
+#include <fs/kfile.h>
 
 #define MAX_PROCESSES        16 //!< Maximum amount of running processes
 #define MAX_CHILDREN         8  //!< Maximum number of children a parent can handle
 #define MAX_PROCESS_MESSAGES 64 //!< Maximum number of messages a process can retain
 #define MAX_BLOCKED_PIDS     (MAX_PROCESSES - 1)
+#define MAX_OPEN_FILES       8  //!< Maximum number of files opened by any particular process, including 0-2
 
 #define MSG_BUFF_SIZE 512 //!< Size of the message buffer in bytes
 
@@ -59,6 +61,8 @@ struct kproc //!< Structure of a process as seen by the kernel
 
 	struct cbuff messages;      //!< Message buffer structure
 	u8 msg_buff[MSG_BUFF_SIZE]; //!< Actual buffer
+
+	struct kfile *open_files[MAX_OPEN_FILES]; //!< Open file descriptors
 
 	// New IPC:
 	struct ipc_message *ipc_messages[MAX_PROCESS_MESSAGES]; //!< IPC message pointers

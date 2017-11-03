@@ -7,7 +7,7 @@ static struct kfile *kfiles;
 
 struct kfile *fs_root;
 
-static u32 c_inode = 0;
+static u32 c_inode = 1;
 
 int fs_add_file(struct kfile *file)
 {
