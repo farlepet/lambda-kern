@@ -6,7 +6,7 @@
 #define CBUFF_SIZE 512
 
 struct cbuff //!< A FIFO circular buffer
-{
+{ // TODO: Remove either tail or count, they are redundant
 	int head;  //!< Index of last written byte
 	int tail;  //!< Index of first written byte
 	int count; //!< Number of readable bytes in the buffer
@@ -15,11 +15,12 @@ struct cbuff //!< A FIFO circular buffer
 } __align(8); // For faster access times
 
 // Errors returned by cbuff functions
-#define CBUFF_FULL  0x70000000 // Buffer is full
-#define CBUFF_INVAL 0x60000000 // Buffer is invalid
-#define CBUFF_INVLD 0x50000000 // Invalid data
-#define CBUFF_EMPTY 0x40000000 // Buffer is empty
-#define CBUFF_NENOD 0x30000000 // Not enough data in buffer to satisfy the request
+#define CBUFF_FULL   0x70000000 // Buffer is full
+#define CBUFF_INVAL  0x60000000 // Buffer is invalid
+#define CBUFF_INVLD  0x50000000 // Invalid data
+#define CBUFF_EMPTY  0x40000000 // Buffer is empty
+#define CBUFF_NENOD  0x30000000 // Not enough data in buffer to satisfy the request
+#define CBUFF_ERRMSK 0xF0000000 // Where error bits are located
 
 
 int put_cbuff(u8 data, struct cbuff *buff);

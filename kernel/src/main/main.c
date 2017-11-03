@@ -15,6 +15,9 @@
 #include <mm/mm.h>
 #include <fs/fs.h>
 #include <video.h>
+#include <string.h>
+
+#include <fs/stream.h>
 
 #ifdef ARCH_X86
 // TODO: Move these to another file:
@@ -151,6 +154,7 @@ __noreturn void kernel_task()
 
 ELF_ERR_BRA:
 */
+
 
 	for(;;) busy_wait();
 }
