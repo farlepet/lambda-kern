@@ -7,11 +7,12 @@
 #include <fs/dirent.h>
 #include <proc/atomic.h>
 
-#define OFLAGS_OPEN   1
-#define OFLAGS_WRITE  2
-#define OFLAGS_READ   4
-#define OFLAGS_APPEND 8
-#define OFLAGS_CREATE 16
+#define OFLAGS_OPEN     1
+#define OFLAGS_WRITE    2
+#define OFLAGS_READ     4
+#define OFLAGS_APPEND   8
+#define OFLAGS_CREATE   16
+#define OFLAGS_NONBLOCK 32
 
 #define FS_FILE     1
 #define FS_DIR      2
@@ -20,6 +21,7 @@
 #define FS_PIPE     16
 #define FS_SYMLINK  32
 #define FS_MNTPOINT 64
+#define FS_STREAM   128
 
 
 #define PERM_E   01

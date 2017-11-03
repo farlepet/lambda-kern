@@ -27,6 +27,9 @@
 #define SYSCALL_FS_CREATE  19
 #define SYSCALL_FS_IOCTL   20
 
+#define SYSCALL_FS_READ_BLK 21
+
+
 #define SYSCALL_INT       0xFF
 
 void init_syscalls();

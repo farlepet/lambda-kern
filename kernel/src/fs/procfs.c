@@ -16,6 +16,33 @@ u32 proc_fs_read(int desc, u32 off, u32 sz, u8 *buff) {
     return 0;
 }
 
+u32 proc_fs_read_blk(int desc, u32 off, u32 sz, u8 *buff) {
+    if(desc > MAX_OPEN_FILES) return 0;
+    
+    int idx = proc_by_pid(current_pid);
+    if(idx < 0) return 0;
+    struct kproc *proc = &procs[idx];
+
+    if(proc->open_files[desc]) {
+        if((proc->open_files[desc]->flags & FS_STREAM) && (proc->open_files[desc]->open_flags & OFLAGS_NONBLOCK)) {
+            uint32_t count = 0;
+            while(count < sz) {
+                uint32_t ret = fs_read(proc->open_files[desc], off, sz - count, buff + count);
+                if(ret > 0x80000000) {
+                    return count;
+                }
+                count += ret;
+                run_sched(); // Wait
+            }
+            return count;
+        } else {
+            return fs_read(proc->open_files[desc], off, sz, buff);
+        }
+    }
+
+    return 0;
+}
+
 u32 proc_fs_write(int desc, u32 off, u32 sz, u8 *buff) {
     if(desc > MAX_OPEN_FILES) return 0;
     

@@ -32,15 +32,17 @@ struct syscall syscalls[] =
 	[SYSCALL_IPC_DELETE_MSG]        = { (func0_t)ipc_user_delete_message,            1, 0 },
 	[SYSCALL_IPC_BLOCK_PID]         = { (func0_t)ipc_user_block_pid,                 1, 0 },
 
-	[SYSCALL_FS_READ]    = { (func0_t)proc_fs_read,    4, 0 },
-	[SYSCALL_FS_WRITE]   = { (func0_t)proc_fs_write,   4, 0 },
-	[SYSCALL_FS_OPEN]    = { (func0_t)proc_fs_open,    2, 0 },
-	[SYSCALL_FS_CLOSE]   = { (func0_t)proc_fs_close,   1, 0 },
-	[SYSCALL_FS_READDIR] = { (func0_t)proc_fs_readdir, 2, 0 },
-	[SYSCALL_FS_FINDDIR] = { (func0_t)proc_fs_finddir, 2, 0 },
-	[SYSCALL_FS_MKDIR]   = { (func0_t)proc_fs_mkdir,   3, 0 },
-	[SYSCALL_FS_CREATE]  = { (func0_t)proc_fs_create,  3, 0 },
-	[SYSCALL_FS_IOCTL]   = { (func0_t)proc_fs_ioctl,   3, 0 }
+	[SYSCALL_FS_READ]     = { (func0_t)proc_fs_read,     4, 0 },
+	[SYSCALL_FS_WRITE]    = { (func0_t)proc_fs_write,    4, 0 },
+	[SYSCALL_FS_OPEN]     = { (func0_t)proc_fs_open,     2, 0 },
+	[SYSCALL_FS_CLOSE]    = { (func0_t)proc_fs_close,    1, 0 },
+	[SYSCALL_FS_READDIR]  = { (func0_t)proc_fs_readdir,  2, 0 },
+	[SYSCALL_FS_FINDDIR]  = { (func0_t)proc_fs_finddir,  2, 0 },
+	[SYSCALL_FS_MKDIR]    = { (func0_t)proc_fs_mkdir,    3, 0 },
+	[SYSCALL_FS_CREATE]   = { (func0_t)proc_fs_create,   3, 0 },
+	[SYSCALL_FS_IOCTL]    = { (func0_t)proc_fs_ioctl,    3, 0 },
+
+	[SYSCALL_FS_READ_BLK] = { (func0_t)proc_fs_read_blk, 4, 0 }
 };
 
 void handle_syscall(u32 scn, u32 *args)
