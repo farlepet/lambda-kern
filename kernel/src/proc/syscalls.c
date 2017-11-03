@@ -75,9 +75,13 @@ void handle_syscall(u32 scn, u32 *args)
 		case 3:
 			args[0] = (u32)((func3_t)func(args[0], args[1], args[2]));
 			break;
+		
+		case 4:
+			args[0] = (u32)((func4_t)func(args[0], args[1], args[2], args[3]));
+			break;
 
 		default:
-			kpanic("Syscall error: %d arguments not handled! Kernel programming error!", scn);
+			kpanic("Syscall error (%d): %d arguments not handled! Kernel programming error!", scn, syscalls[scn].nargs);
 			break;
 	}
 
