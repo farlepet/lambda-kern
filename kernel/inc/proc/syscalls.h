@@ -17,6 +17,15 @@
 #define SYSCALL_IPC_DELETE_MSG        10
 #define SYSCALL_IPC_BLOCK_PID         11
 
+#define SYSCALL_FS_READ    12
+#define SYSCALL_FS_WRITE   13
+#define SYSCALL_FS_OPEN    14
+#define SYSCALL_FS_CLOSE   15
+#define SYSCALL_FS_READDIR 16
+#define SYSCALL_FS_FINDDIR 17
+#define SYSCALL_FS_MKDIR   18
+#define SYSCALL_FS_CREATE  19
+#define SYSCALL_FS_IOCTL   20
 
 #define SYSCALL_INT       0xFF
 
