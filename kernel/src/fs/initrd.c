@@ -189,7 +189,7 @@ void initrd_init(struct multiboot_header* mboot_head)
 		memset(file->name, 0, FILE_NAME_MAX);
 		memcpy(file->name, filenames[cidx], strlen(filenames[cidx]));
 		file->length     = cfile->c_filesize;
-		file->impl       = 0; // FIXME
+		file->impl       = fs_root->inode; // FIXME
 		file->uid        = cfile->c_uid;
 		file->gid        = cfile->c_gid;
 		file->link       = 0; // FIXME
