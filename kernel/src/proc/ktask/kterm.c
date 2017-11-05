@@ -281,6 +281,10 @@ static int run(int argc, char **argv)
 		return 1;
 	}
 
+	fs_open(stdin,  OFLAGS_READ | OFLAGS_WRITE);
+	fs_open(stdout, OFLAGS_READ | OFLAGS_WRITE);
+	fs_open(stderr, OFLAGS_READ | OFLAGS_WRITE);
+
 	procs[idx].open_files[0] = stdin;
 	procs[idx].open_files[1] = stdout;
 	procs[idx].open_files[2] = stderr;
@@ -297,7 +301,8 @@ static int run(int argc, char **argv)
 				ipc_user_delete_message(umsg.message_id);
 			} else {
 				ipc_user_copy_message(umsg.message_id, &t);
-				fs_write(stdin, 0, 1, (uint8_t *)&t);			
+				fs_write(stdin, 0, 1, (uint8_t *)&t);
+				kput(t); // TODO: Handle this better		
 			}
 		}
 

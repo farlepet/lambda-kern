@@ -24,7 +24,7 @@ u32 proc_fs_read_blk(int desc, u32 off, u32 sz, u8 *buff) {
     struct kproc *proc = &procs[idx];
 
     if(proc->open_files[desc]) {
-        if((proc->open_files[desc]->flags & FS_STREAM) && (proc->open_files[desc]->open_flags & OFLAGS_NONBLOCK)) {
+        if((proc->open_files[desc]->flags & FS_STREAM) && !(proc->open_files[desc]->open_flags & OFLAGS_NONBLOCK)) {
             uint32_t count = 0;
             while(count < sz) {
                 uint32_t ret = fs_read(proc->open_files[desc], off, sz - count, buff + count);
