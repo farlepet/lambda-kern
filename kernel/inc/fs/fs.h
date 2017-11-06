@@ -10,17 +10,20 @@
 
 struct kfile *fs_root;
 
-int fs_add_file(struct kfile *file);
+int fs_add_file(struct kfile *file, struct kfile *parent);
 
 uint32_t       fs_read   (struct kfile *f, uint32_t off, uint32_t sz, u8 *buff);
 uint32_t       fs_write  (struct kfile *f, uint32_t off, uint32_t sz, u8 *buff);
 void           fs_open   (struct kfile *f, uint32_t flags);
 void           fs_close  (struct kfile *f);
-struct dirent *fs_readdir(struct kfile *f, uint32_t idx);
+struct dirent *fs_readdir(DIR *d);
 struct kfile  *fs_finddir(struct kfile *f, char *name);
+DIR           *fs_opendir(struct kfile *f);
 int            fs_mkdir  (struct kfile *f, char *name, uint32_t perms);
 int            fs_create (struct kfile *f, char *name, uint32_t perms);
 int            fs_ioctl  (struct kfile *f, int req, void *args);
+
+struct kfile *fs_dirfile(DIR *d);
 
 void fs_init(void);
 

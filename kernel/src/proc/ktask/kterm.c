@@ -351,10 +351,16 @@ static int ls(int argc, char **argv)
 	(void)argv;
 	
 	// TODO: allow for more than just the root directory!
-	struct kfile *f = fs_root->next_file;
+	struct kfile *f;
+	DIR *dir = fs_opendir(fs_root);
+	f = fs_dirfile(dir);
+
+	kprintf("ls: dir: {%08X, %08X, %08X}\n", dir->dir, dir->current, dir->prev);
 	
-	while(f != fs_root)
+	while(fs_readdir(dir))
 	{
+		f = fs_dirfile(dir);
+
 		kprintf("%c%c%c%c%c%c%c%c%c%c%s %02d %05d %s\n",
 			   ((f->flags & FS_DIR)?'d':'-'),
 			   ((f->pflags&0400)?'r':'-'), ((f->pflags&0200)?'w':'-'), ((f->pflags&04000)?'s':((f->pflags&0100)?'x':'-')),
@@ -362,8 +368,6 @@ static int ls(int argc, char **argv)
 			   ((f->pflags&04)?'r':'-'), ((f->pflags&02)?'w':'-'), ((f->pflags&01)?'x':'-'),
 			   ((f->pflags&01000)?"T":" "),
 			   f->inode, f->length, f->name);
-		
-		f = f->next_file;
 	}
 	
 	return 0;

@@ -81,18 +81,18 @@ void proc_fs_close(int desc) {
     }
 }
 
-struct dirent *proc_fs_readdir(int desc, u32 idx) {
-    if(desc > MAX_OPEN_FILES) return NULL;
+struct dirent *proc_fs_readdir(DIR *d) {
+    if(d == NULL) return NULL;
+    /*if(desc > MAX_OPEN_FILES) return NULL;
     
     int _idx = proc_by_pid(current_pid);
     if(_idx < 0) return NULL;
     struct kproc *proc = &procs[_idx];
+    */
 
-    if(proc->open_files[desc]) {
-        return fs_readdir(proc->open_files[desc], idx);
-    }
-
-    return NULL;
+    //if(proc->open_files[desc]) {
+        return fs_readdir(d);
+    //}
 }
 
 struct kfile *proc_fs_finddir(int desc, char *name) {

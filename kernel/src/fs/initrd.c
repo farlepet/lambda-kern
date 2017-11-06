@@ -5,6 +5,8 @@
 #include <string.h>
 #include <fs/fs.h>
 
+#include <libgen.h>
+
 #if defined(ARCH_X86)
 #include <mm/paging.h>
 #endif
@@ -50,7 +52,7 @@ static u32 initrd_write(struct kfile *f, u32 off, u32 sz, u8 *buff)
 	return 0; // There should be no reason to write to the files in the initrd
 }
 
-static void initrd_open(struct kfile *f, u32 flags)
+/*static void initrd_open(struct kfile *f, u32 flags)
 {
 	lock(&f->file_lock);
 	if(f->open) return; // TODO: Notify the process that the file could not be opened
@@ -63,50 +65,7 @@ static void initrd_close(struct kfile *f)
 	lock(&f->file_lock);
 	f->open = 0;
 	unlock(&f->file_lock);
-}
-
-static struct dirent *initrd_readdir(struct kfile *f, u32 idx)
-{
-	u32 i = 0;
-	u32 inode = f->inode;
-
-	struct dirent *dent = kmalloc(sizeof(struct dirent));
-
-	struct kfile *file = fs_root->next_file;
-	while(file != fs_root)
-	{
-		if(file->impl == inode) i++;
-		if(i == idx)
-		{
-			dent->ino = file->inode;
-			memcpy(dent->name, file->name, FILE_NAME_MAX);
-			return dent;
-		}
-		file = file->next_file;
-	}
-
-	kfree(dent);
-
-	return NULL; // File could not be found
-}
-
-static struct kfile *initrd_finddir(struct kfile *f, char *name)
-{
-	struct kfile *file = fs_root;
-
-	int i = 0;
-	while(file != fs_root || !i)
-	{
-		if(file->impl == f->inode)
-			if(!strcmp((char *)file->name, name))
-				return file;
-		i++; // We passed root
-		file = file->next_file;
-	}
-
-	return NULL; // File not found
-}
-
+}*/
 
 
 
@@ -185,11 +144,42 @@ void initrd_init(struct multiboot_header* mboot_head)
 
 
 		struct kfile *file = (struct kfile *)kmalloc(sizeof(struct kfile));
+		memset(file, 0, sizeof(struct kfile));
 
-		memset(file->name, 0, FILE_NAME_MAX);
-		memcpy(file->name, filenames[cidx], strlen(filenames[cidx]));
+		char *name = basename(filenames[cidx]);
+		//memset(file->name, 0, FILE_NAME_MAX);
+		memcpy(file->name, name, strlen(name));
+
+		//char tmp[64];
+		char *path = dirname(filenames[cidx]);
+		struct kfile *dir = fs_root;
+		while(1) {
+			for(uint32_t i = 0; i < strlen(path); i++) {
+				if(path[i] == '/') {
+					char *nextPath = &path[i+1];
+					path[i] = '\0';
+
+					kerror(ERR_BOOTINFO, "initrd: looking for dir: [%s]", path);
+					dir = fs_finddir(dir, path);
+					kerror(ERR_BOOTINFO, "  -> %08X", dir);
+					if(dir == NULL) { // Default to '/'
+						dir = fs_root;
+						break;
+					}
+
+					if(*nextPath) {
+						path = nextPath;
+						continue;
+					}
+				}
+			}
+			break;
+		}
+		
+		//kerror(ERR_BOOTINFO, "initrd: containing dir: ")
+
 		file->length     = cfile->c_filesize;
-		file->impl       = fs_root->inode; // FIXME
+		file->impl       = dir->inode; //fs_root->inode; // FIXME
 		file->uid        = cfile->c_uid;
 		file->gid        = cfile->c_gid;
 		file->link       = 0; // FIXME
@@ -231,14 +221,14 @@ void initrd_init(struct multiboot_header* mboot_head)
 		
 		file->read      = &initrd_read;
 		file->write     = &initrd_write;
-		file->open      = &initrd_open;
+		/*file->open      = &initrd_open;
 		file->close     = &initrd_close;
 		file->finddir   = &initrd_finddir;
-		file->readdir   = &initrd_readdir;
+		file->readdir   = &initrd_readdir;*/
 
 		file->info      = (void *)cfile;
 
-		cfile->c_ino    = fs_add_file(file);
+		cfile->c_ino    = fs_add_file(file, dir);
 
 		cfile = (struct header_old_cpio *)(data + cfile->c_filesize + (cfile->c_filesize & 1));
 

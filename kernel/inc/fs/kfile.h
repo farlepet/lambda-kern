@@ -6,6 +6,7 @@
 #include <time/time.h>
 #include <fs/dirent.h>
 #include <proc/atomic.h>
+#include <fs/dirstream.h>
 
 #define OFLAGS_OPEN     1
 #define OFLAGS_WRITE    2
@@ -55,7 +56,7 @@ struct kfile //!< Kernel representation of a file
 	uint32_t (*write)(struct kfile *, uint32_t, uint32_t, u8 *);     //!< Write to a file
 	void     (*open) (struct kfile *, uint32_t);                //!< Open a file
 	void     (*close)(struct kfile *);                     //!< Close a file
-	struct dirent *(*readdir)(struct kfile *, uint32_t);    //!< Request a dirent structure
+	struct dirent *(*readdir)(DIR *);    //!< Request a dirent structure
 	struct kfile  *(*finddir)(struct kfile *, char *); //!< Find a file using a filename
 	int (*mkdir) (struct kfile *, char *, uint32_t);        //!< Create a directory
 	int (*create)(struct kfile *, char *, uint32_t);        //!< Create a file
@@ -66,8 +67,12 @@ struct kfile //!< Kernel representation of a file
 	lock_t file_lock;        //!< Make sure only one process can access this at a time
 
 	uint32_t magic;               //!< Verify this is a valid file entry (0xF11E0000)
-	struct kfile *prev_file; //!< Next file in the linked-list
-	struct kfile *next_file; //!< Previous file in the linked-list
+
+	struct kfile *parent;
+	struct kfile *child;
+
+	struct kfile *prev; //!< Previous file in the linked-list
+	struct kfile *next; //!< Next file in the linked-list
 };
 
 #endif
