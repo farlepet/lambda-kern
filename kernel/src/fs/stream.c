@@ -34,7 +34,7 @@ struct kfile *stream_create(int length) {
     file->close = stream_close;
     // TODO: Possibly implement IOCTL?
 
-    fs_add_file(file);
+    fs_add_file(file, NULL);
 
     return file;
 }
