@@ -323,6 +323,21 @@ static int run(int argc, char **argv)
 		}
 	}
 
+	// Flush remaining output:
+	if(stdout->length > 0) {
+		int sz = fs_read(stdout, 0, stdout->length, (uint8_t *)&buffer);
+		for(int i = 0; i < sz; i++) {
+			kput(buffer[i]);
+		}
+	}
+
+	if(stderr->length > 0) {
+		int sz = fs_read(stderr, 0, stderr->length, (uint8_t *)&buffer);
+		for(int i = 0; i < sz; i++) {
+			kput(buffer[i]);
+		}
+	}
+
 
 	return 0;
 }

@@ -59,16 +59,26 @@ u32 proc_fs_write(int desc, u32 off, u32 sz, u8 *buff) {
     return 0;
 }
 
-void proc_fs_open(int desc, u32 flags) {
-    if(desc > MAX_OPEN_FILES) return;
-    
+int proc_fs_open(char *name, u32 flags) {
     int idx = proc_by_pid(current_pid);
-    if(idx < 0) return;
+    if(idx < 0) return -1;
     struct kproc *proc = &procs[idx];
 
-    if(proc->open_files[desc]) {
-        fs_open(proc->open_files[desc], flags);
+    if(proc->cwd) {
+        struct kfile *file = fs_finddir(proc->cwd, name);
+        if(file) {
+            // TODO: Check if file is open!!!
+            // TODO: Handle errors!
+            // TODO: Make sure flags match up!
+            fs_open(file, flags);
+            // TODO: Handle errors!
+            return proc_add_file(proc, file);
+        } else {
+            return -1;
+        }
     }
+    
+    return -1;
 }
 
 void proc_fs_close(int desc) {

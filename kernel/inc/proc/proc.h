@@ -62,6 +62,8 @@ struct kproc //!< Structure of a process as seen by the kernel
 	struct cbuff messages;      //!< Message buffer structure
 	u8 msg_buff[MSG_BUFF_SIZE]; //!< Actual buffer
 
+	struct kfile *cwd; //!< Current working directory
+
 	struct kfile *open_files[MAX_OPEN_FILES]; //!< Open file descriptors
 
 	// New IPC:
@@ -100,6 +102,16 @@ struct uproc //!< Structure of a process as seen by a user process
 
 
 void kproc_to_uproc(struct kproc *kp, struct uproc *up);
+
+/**
+ * \brief Adds file to process
+ * 
+ * @param proc Process to add file to
+ * @param file File to add
+ * 
+ * @return New file descriptor if applicable, -1 otherwise
+ */
+int proc_add_file(struct kproc *proc, struct kfile *file);
 
 void sched_processes(void);
 

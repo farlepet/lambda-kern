@@ -9,6 +9,7 @@
 #include <string.h>
 #include <mm/mm.h>
 #include <video.h>
+#include <fs/fs.h>
 
 #if  defined(ARCH_X86)
 #include <mm/paging.h>
@@ -122,6 +123,8 @@ int add_kernel_task(void *process, char *name, u32 stack_size, int pri)
 	procs[p].messages.size  = MSG_BUFF_SIZE;
 	procs[p].messages.buff  = procs[p].msg_buff;
 
+	procs[p].cwd = fs_root;
+
 	unlock(&creat_task);
 
 	kerror(ERR_INFO, "Added process %s as pid %d to slot %d", name, procs[p].pid, p);
@@ -207,6 +210,8 @@ int add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u32
 	procs[p].messages.count = 0;
 	procs[p].messages.size  = MSG_BUFF_SIZE;
 	procs[p].messages.buff  = procs[p].msg_buff;
+
+	procs[p].cwd = fs_root;
 
 	kerror(ERR_BOOTINFO, "PID: %d EIP: %08X CR3: %08X ESP: %08X", procs[p].pid, procs[p].eip, procs[p].cr3, procs[p].esp);
 

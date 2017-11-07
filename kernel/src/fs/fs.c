@@ -61,12 +61,25 @@ void fs_open(struct kfile *f, u32 flags)
 {
 	if(f && f->open)
 		f->open(f, flags);
+	
+	else {
+		lock(&f->file_lock);
+		if(f->open) return; // TODO: Notify the process that the file could not be opened
+		f->open_flags = flags | OFLAGS_OPEN;
+		unlock(&f->file_lock);
+	}
 }
 
 void fs_close(struct kfile *f)
 {
 	if(f && f->close)
 		f->close(f);
+	
+	else {
+		lock(&f->file_lock);
+		f->open = 0;
+		unlock(&f->file_lock);
+	}
 }
 
 struct dirent *fs_readdir(DIR *d)

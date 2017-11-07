@@ -24,6 +24,16 @@ void kproc_to_uproc(struct kproc *kp, struct uproc *up)
 }
 
 
+int proc_add_file(struct kproc *proc, struct kfile *file) {
+	for(int i = 0; i < MAX_OPEN_FILES; i++) {
+		if(proc->open_files[i] == NULL) {
+			proc->open_files[i] = file;
+			return i;
+		}
+	}
+
+	return -1;
+}
 
 
 __hot void sched_processes()
