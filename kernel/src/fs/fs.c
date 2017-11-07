@@ -86,51 +86,15 @@ struct dirent *fs_readdir(DIR *d)
 		}
 
 		return dent;
-		//u32 inode = f->inode;
-
-		/*if(f->next == f->parent->child) return NULL; // Same as first directory entry
-
-		struct dirent *dent = kmalloc(sizeof(struct dirent));
-
-		dent->ino = f->next->inode;
-		memcpy(dent->name, f->next->name, FILE_NAME_MAX);
-
-		return dent;*/
-
-		/*struct kfile *file = fs_root->next_file;
-		while(file != fs_root)
-		{
-			if(file->impl == inode) i++;
-			if(i == idx)
-			{
-				dent->ino = file->inode;
-				memcpy(dent->name, file->name, FILE_NAME_MAX);
-				kerror(ERR_BOOTINFO, "<ino, name, len>: %d, %s, %d", file->inode, file->name, file->length);
-				return dent; 
-			}
-			file = file->next_file;
-		}*/
 	}
 	return NULL;
 }
 
 struct kfile *fs_finddir(struct kfile *f, char *name)
 {
-	if(f && f->finddir)
-		return f->finddir(f, name);
-	else if(f)
+	if(f)
 	{
-		struct kfile *file = f->child; //fs_root;
-
-		/*int i = 0;
-		while(file != fs_root || i == 0)
-		{
-			if(file->impl == f->inode)
-				if(!strcmp((char *)file->name, name))
-					return file;
-			i++;
-			file = file->next_file;
-		}*/
+		struct kfile *file = f->child;
 
 		do {
 			if(!strcmp((char *)file->name, name)) {

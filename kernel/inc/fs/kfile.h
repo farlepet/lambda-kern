@@ -56,8 +56,8 @@ struct kfile //!< Kernel representation of a file
 	uint32_t (*write)(struct kfile *, uint32_t, uint32_t, u8 *);     //!< Write to a file
 	void     (*open) (struct kfile *, uint32_t);                //!< Open a file
 	void     (*close)(struct kfile *);                     //!< Close a file
-	struct dirent *(*readdir)(DIR *);    //!< Request a dirent structure
-	struct kfile  *(*finddir)(struct kfile *, char *); //!< Find a file using a filename
+	//struct dirent *(*readdir)(DIR *);    //!< Request a dirent structure
+	//struct kfile  *(*finddir)(struct kfile *, char *); //!< Find a file using a filename
 	int (*mkdir) (struct kfile *, char *, uint32_t);        //!< Create a directory
 	int (*create)(struct kfile *, char *, uint32_t);        //!< Create a file
 	int (*ioctl) (struct kfile *, int, void *);        //!< I/O control

@@ -1,6 +1,8 @@
 #include <fs/fs.h>
 #include <fs/procfs.h>
 #include <proc/mtask.h>
+#include <fs/dirinfo.h>
+#include <string.h>
 
 u32 proc_fs_read(int desc, u32 off, u32 sz, u8 *buff) {
     if(desc > MAX_OPEN_FILES) return 0;
@@ -81,34 +83,6 @@ void proc_fs_close(int desc) {
     }
 }
 
-struct dirent *proc_fs_readdir(DIR *d) {
-    if(d == NULL) return NULL;
-    /*if(desc > MAX_OPEN_FILES) return NULL;
-    
-    int _idx = proc_by_pid(current_pid);
-    if(_idx < 0) return NULL;
-    struct kproc *proc = &procs[_idx];
-    */
-
-    //if(proc->open_files[desc]) {
-        return fs_readdir(d);
-    //}
-}
-
-struct kfile *proc_fs_finddir(int desc, char *name) {
-    if(desc > MAX_OPEN_FILES) return NULL;
-    
-    int idx = proc_by_pid(current_pid);
-    if(idx < 0) return NULL;
-    struct kproc *proc = &procs[idx];
-
-    if(proc->open_files[desc]) {
-        return fs_finddir(proc->open_files[desc], name);
-    }
-
-    return NULL;
-}
-
 int proc_fs_mkdir(int desc, char *name, u32 perms) {
     if(desc > MAX_OPEN_FILES) return -1;
     
@@ -149,4 +123,36 @@ int proc_fs_ioctl(int desc, int req, void *args) {
     }
 
     return -1;
+}
+
+int proc_fs_getdirinfo(int desc, struct dirinfo *dinfo) {
+    if(desc > MAX_OPEN_FILES) return -1;
+    if(dinfo == NULL) return -1;
+
+    int idx = proc_by_pid(current_pid);
+    if(idx < 0) return -1;
+    struct kproc *proc = &procs[idx];
+
+    struct kfile *file = proc->open_files[desc];
+
+    if(file) {
+        dinfo->ino        = file->inode;
+        if(file->parent) {
+            dinfo->parent_ino = file->parent->inode;
+        } else {
+            dinfo->parent_ino = 0;
+        }
+        // Count children
+        struct kfile *tmp = file->child;
+        if(tmp) {
+            do {
+                dinfo->n_children++;
+                tmp = tmp->next;
+            } while(tmp && tmp != file->child);
+        }
+
+        memcpy(dinfo->name, file->name, FILE_NAME_MAX);
+    }
+
+    return 0;
 }
