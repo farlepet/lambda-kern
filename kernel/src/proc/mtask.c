@@ -53,96 +53,34 @@ static int get_next_open_proc()
 
 int add_kernel_task(void *process, char *name, u32 stack_size, int pri)
 {
-	lock(&creat_task);
-
-	int parent = 0;
-	if(tasking) parent = proc_by_pid(current_pid);
-
-	int p = get_next_open_proc();
-	if(p == -1) kpanic("Could not add a kernel process to process list.");
-
-	if(tasking)
-	{
-		int i = 0;
-		for(; i < MAX_CHILDREN; i++)
-		{
-			if(procs[parent].children[i]) continue;
-			procs[parent].children[i] = p;
-			break;
-		}
-		if(i == MAX_CHILDREN)
-		{
-			kerror(ERR_MEDERR, "Process %d has run out of child slots", procs[parent].pid);
-			unlock(&creat_task);
-			return 0;
-		}
-	}
-
-
-	memcpy(procs[p].name, name, strlen(name) + 1);
-	procs[p].pid  = next_kernel_pid--;
-	procs[p].uid  = 0;
-	procs[p].gid  = 0;
-	procs[p].type = TYPE_RUNNABLE | TYPE_KERNEL | TYPE_VALID | TYPE_RANONCE;
-
-	procs[p].prio = pri;
-
-#if  defined(ARCH_X86)
-	procs[p].eip = (u32)process;
-	procs[p].cr3 = kernel_cr3;
-
-
-#ifdef STACK_PROTECTOR
-	procs[p].ebp = (u32)kmalloc((stack_size ? stack_size : STACK_SIZE) + 0x2000);
-	procs[p].ebp +=            ((stack_size ? stack_size : STACK_SIZE) + 0x1000);
-#else // STACK_PROTECTOR
-	procs[p].ebp = (u32)kmalloc((stack_size ? stack_size : STACK_SIZE));
-	procs[p].ebp +=            ((stack_size ? stack_size : STACK_SIZE));
-#endif // !STACK_PROTECTOR
-
-	//procs[p].ebp += 0x10; procs[p].ebp &= 0xFFFFFFF0; // Small alignment
-
-	procs[p].esp = procs[p].ebp;
-
-
-	procs[p].stack_end = procs[p].ebp - STACK_SIZE;
-	procs[p].stack_beg = procs[p].ebp;
-
-#ifdef STACK_PROTECTOR
-// TODO: Fix stack guarding:
-	//block_page(procs[p].stack_end - 0x1000); // <-- Problematic line
-	//block_page(procs[p].stack_beg + 0x1000);
-#endif // STACK_PROTECTOR
-
-#endif // ARCH_X86
-
-// Set up message buffer
-	procs[p].messages.head  = 0;
-	procs[p].messages.tail  = 0;
-	procs[p].messages.count = 0;
-	procs[p].messages.size  = MSG_BUFF_SIZE;
-	procs[p].messages.buff  = procs[p].msg_buff;
-
-	procs[p].cwd = fs_root;
-
-	unlock(&creat_task);
-
-	kerror(ERR_INFO, "Added process %s as pid %d to slot %d", name, procs[p].pid, p);
-
-	return procs[p].pid;
+	return add_task(process, name, stack_size, pri, (void *)kernel_cr3, 1, 0);
 }
 
 int add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *pagedir)
 {
-	lock(&creat_task);
+	return add_task(process, name, stack_size, pri, pagedir, 1, 0);
+}
 
-	kerror(ERR_BOOTINFO, "mtask:aktp(%08X, %s, %dK, %d, %08X)", process, name, (stack_size ? (stack_size / 1024) : (STACK_SIZE / 1024)), pri, pagedir);
+int add_user_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *pagedir)
+{
+	return add_task(process, name, stack_size, pri, pagedir, 0, 3);
+}
+
+
+
+
+int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *pagedir, int kernel, int ring) {
+	lock(&creat_task);
+	
+	kerror(ERR_BOOTINFO, "mtask:add_task(%08X, %s, %dK, %d, %08X, %d, %d)", process, name, (stack_size ? (stack_size / 1024) : (STACK_SIZE / 1024)), pri, pagedir, kernel, ring);
+
+	if(ring > 3) kerror(ERR_MEDERR, "mtask:add_task: Ring is out of range (0-3): %d", ring);
 
 	int parent = 0;
 	if(tasking) parent = proc_by_pid(current_pid);
 
 	int p = get_next_open_proc();
-	if(p == -1) kerror(ERR_SMERR, "Could not add kernel task to the process list");
+	if(p == -1) kerror(ERR_MEDERR, "mtask:add_task: Too many processes, could not create new one.s");
 
 	if(tasking)
 	{
@@ -157,7 +95,7 @@ int add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u32
 		}
 		if(i == MAX_CHILDREN)
 		{
-			kerror(ERR_SMERR, "Process %d has run out of children slots", procs[parent].pid);
+			kerror(ERR_SMERR, "mtask:add_task: Process %d has run out of children slots", procs[parent].pid);
 			unlock(&creat_task);
 			return 0;
 		}
@@ -165,22 +103,30 @@ int add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u32
 
 	memcpy(procs[p].name, name, strlen(name));
 
-	procs[p].pid  = next_kernel_pid--;
+	if(kernel) procs[p].pid = next_kernel_pid--;
+	else       procs[p].pid = next_user_pid++;
+
+	// TODO:
 	procs[p].uid  = 0;
 	procs[p].gid  = 0;
-	procs[p].type = TYPE_RUNNABLE | TYPE_KERNEL | TYPE_VALID | TYPE_RANONCE;
+
+	procs[p].type = TYPE_RUNNABLE | TYPE_VALID | TYPE_RANONCE;
+
+	if(kernel) procs[p].type |= TYPE_KERNEL;
+
 	procs[p].prio = pri;
 
 #if defined(ARCH_X86)
-	procs[p].eip = (u32)process;
-	procs[p].cr3 = (u32)pagedir;
+	procs[p].ring = ring;
+	procs[p].eip  = (u32)process;
+	procs[p].cr3  = (u32)pagedir;
 
 #ifdef STACK_PROTECTOR
-	procs[p].ebp = (u32)kmalloc((stack_size ? stack_size : STACK_SIZE) + 0x2000);
-	procs[p].ebp +=            ((stack_size ? stack_size : STACK_SIZE) + 0x1000);
+	procs[p].ebp  = (u32)kmalloc((stack_size ? stack_size : STACK_SIZE) + 0x2000);
+	procs[p].ebp +=             ((stack_size ? stack_size : STACK_SIZE) + 0x1000);
 #else // STACK_PROTECTOR
-	procs[p].ebp = ((u32)kmalloc((stack_size ? stack_size : STACK_SIZE)) & ~0x10) + 0x10;
-	procs[p].ebp +=            ((stack_size ? stack_size : STACK_SIZE)) & ~0x10;
+	procs[p].ebp  = ((u32)kmalloc((stack_size ? stack_size : STACK_SIZE)) & ~0x10) + 0x10;
+	procs[p].ebp +=              ((stack_size ? stack_size : STACK_SIZE)) & ~0x10;
 #endif // !STACK_PROTECTOR
 
 	//procs[p].ebp += 0x10; procs[p].ebp &= 0xFFFFFFF0; // Small alignment
@@ -219,6 +165,13 @@ int add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u32
 
 	return procs[p].pid;
 }
+
+
+
+
+
+
+
 
 #ifdef ARCH_X86
 extern void sched_run(void);

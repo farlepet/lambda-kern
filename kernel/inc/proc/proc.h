@@ -50,6 +50,8 @@ struct kproc //!< Structure of a process as seen by the kernel
 	int children[MAX_CHILDREN]; //!< Indexes of direct child processes (ex: NOT children's children)
 
 #if  defined(ARCH_X86)
+	int ring;      //!< Ring to run in (0-3)
+
 	u32 esp;       //!< Stack pointer
 	u32 ebp;       //!< Stack base pointer
 	u32 eip;       //!< Instruction pointer
