@@ -65,7 +65,10 @@ int proc_fs_open(char *name, u32 flags) {
     struct kproc *proc = &procs[idx];
 
     if(proc->cwd) {
-        struct kfile *file = fs_finddir(proc->cwd, name);
+        char tmp[256];
+        memcpy(tmp, name, strlen(name)+1);
+        //struct kfile *file = fs_finddir(proc->cwd, name);
+        struct kfile *file = fs_find_file(proc->cwd, tmp);
         if(file) {
             // TODO: Check if file is open!!!
             // TODO: Handle errors!
@@ -81,16 +84,20 @@ int proc_fs_open(char *name, u32 flags) {
     return -1;
 }
 
-void proc_fs_close(int desc) {
-    if(desc > MAX_OPEN_FILES) return;
+int proc_fs_close(int desc) {
+    if(desc > MAX_OPEN_FILES) return -1;
     
     int idx = proc_by_pid(current_pid);
-    if(idx < 0) return;
+    if(idx < 0) return -1;
     struct kproc *proc = &procs[idx];
 
     if(proc->open_files[desc]) {
         fs_close(proc->open_files[desc]);
+        proc->open_files[desc] = NULL;
+        return 0; // TODO: Error checking!
     }
+
+    return -1;
 }
 
 int proc_fs_mkdir(int desc, char *name, u32 perms) {

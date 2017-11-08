@@ -44,6 +44,16 @@ int strncmp(const char *str1, const char *str2, u32 num)
 	return *(const u8 *)str1 - *(const u8 *)str2;
 }
 
+
+char *strchr(const char *s, int c) {
+	while(*s) {
+		if(*s == (char)c) return (char *)s;
+		s++;
+	}
+	return NULL;
+}
+
+
 void *memcpy(void *dest, const void *src, u32 n)
 {
 	u8 *dp = dest;

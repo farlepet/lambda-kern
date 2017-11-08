@@ -24,6 +24,8 @@ int fs_add_file(struct kfile *file, struct kfile *parent)
 	} else {
 		if(parent == NULL) parent = fs_root;
 
+		file->parent = parent;
+
 		// This assumes that the parent is in the filesystem already
 		if(parent->child == NULL) {
 			parent->child = file;
@@ -160,6 +162,53 @@ int fs_ioctl(struct kfile *f, int req, void *args)
 	if(f && f->ioctl)
 		return f->ioctl(f, req, args);
 	return -1;
+}
+
+
+struct kfile *fs_find_file(struct kfile *f, char *path) {
+	if(f == NULL) return NULL;
+	if(path == NULL) return NULL;
+	if(*path == 0) return NULL; // No path given
+
+
+	if(path[0] == '.') {
+		if(path[1] == '.') { // [..]
+			if(strlen(path) > 2) {
+				if(path[2] == '/') path += 3;
+				else               path += 2;
+				return fs_find_file(f->parent, path);
+			} else {
+				return f->parent;
+			}
+		} else { // [.]
+			if(strlen(path) > 1) {
+				if(path[1] == '/') path += 2;
+				else               path += 1;
+				return fs_find_file(f, path);
+			} else {
+				return f;
+			}
+		} 
+	} else if(path[0] == '/') {
+		if(strlen(path) > 1) {
+			return fs_find_file(fs_root, path + 1);
+		} else {
+			return fs_root;
+		}
+	} else {
+		char *dir_sep = strchr(path, '/');
+		if(dir_sep != NULL) {
+			*dir_sep = '\0';
+			dir_sep++;
+			f = fs_finddir(f, path);
+			// TODO: Check that file is a directory!
+			return fs_find_file(f, dir_sep);
+		} else {
+			return fs_finddir(f, path);
+		}
+	}
+
+	return NULL;
 }
 
 

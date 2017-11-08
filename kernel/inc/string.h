@@ -29,6 +29,7 @@ int strcmp(const char *str1, const char *str2);
 
 int strncmp(const char *str1, const char *str2, u32 num);
 
+char *strchr(const char *s, int c);
 
 void *memcpy(void *dest, const void *src, u32 n);
 

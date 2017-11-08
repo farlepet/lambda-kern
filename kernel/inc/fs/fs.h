@@ -25,6 +25,16 @@ int            fs_ioctl  (struct kfile *f, int req, void *args);
 
 struct kfile *fs_dirfile(DIR *d);
 
+/**
+ * \brief Find a file relative to the given directory
+ * 
+ * @param f Directory for path to be relative to
+ * @param path Path
+ * 
+ * @return kfile representing requested file/directory, NULL if not found
+ */
+struct kfile *fs_find_file(struct kfile *f, char *path);
+
 void fs_init(void);
 
 void fs_debug(int nfiles);
