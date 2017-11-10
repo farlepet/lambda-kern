@@ -368,6 +368,8 @@ void paging_init(u32 eom)
 	u32 alloc_mem = (u32)page_alloc(0x1000000 + 0x2000) & ~0xFFF; // 16 MB should be good for now
 	init_alloc(alloc_mem, 0x1000000);
 
+	block_page(0x00000000); // Catch NULL pointers and jumps
+
 	kerror(ERR_BOOTINFO, "      -> %08X -> %08X (%08X)", alloc_mem, alloc_mem + 0x1000000, 0x1000000);
 }
 

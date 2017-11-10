@@ -57,6 +57,8 @@ struct kproc //!< Structure of a process as seen by the kernel
 	u32 eip;       //!< Instruction pointer
 	u32 cr3;       //!< Page directory
 
+	u32 entrypoint; //!< Program start
+
 	u32 stack_beg; //!< Beginning of stack
 	u32 stack_end; //!< Current end of stack
 #endif

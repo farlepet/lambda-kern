@@ -34,4 +34,9 @@ void exit(int code);
 
 //#define STACK_PROTECTOR //!< Whether or not to enable stack protectors (currently broken)
 
+#define STACK_PUSH(esp, data) do { \
+        esp = esp - 4; \
+        *((uint32_t *)esp) = (uint32_t)data; \
+    } while(0);
+
 #endif

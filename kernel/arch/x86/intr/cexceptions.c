@@ -6,7 +6,23 @@
 #include <intr/int.h>
 #include <types.h>
 
-void handle_page_fault(u32, u32, u32, u32 *ebp);
+struct pusha_regs {
+	uint32_t edi, esi;
+	uint32_t ebp, esp;
+	uint32_t ebx, edx, ecx, eax;
+};
+
+struct iret_regs {
+	uint32_t eip, cs;
+	uint32_t eflags;
+	uint32_t esp, ds;
+};
+
+void handle_page_fault(u32, u32,/* u32 *ebp, */struct pusha_regs, struct iret_regs iregs);
+void handle_gpf(uint32_t, uint32_t, struct pusha_regs, uint32_t);
+void handle_invalid_op(struct pusha_regs regs, struct iret_regs iregs);
+static void dump_regs(struct pusha_regs regs);
+static void dump_iregs(struct iret_regs iregs);
 
 /**
  * C side of page fault handler.
@@ -14,7 +30,7 @@ void handle_page_fault(u32, u32, u32, u32 *ebp);
  * @param errcode errorcode pushed on stack by the fault
  * @param cr3 value of cr3 register (location of fault)
  */
-void handle_page_fault(u32 errcode, u32 cr2, u32 eip, u32 *ebp)
+void handle_page_fault(u32 errcode, u32 cr2,/* u32 *ebp, */struct pusha_regs regs, struct iret_regs iregs)
 {
 	u32 *cr3 = get_pagedir();
 	kerror(ERR_MEDERR, "Page fault at 0x%08X --> 0x%08X (%s%s%s%s%s)", cr2, pgdir_get_page_entry(cr3, (void *)cr2) & 0xFFFFF000,
@@ -24,8 +40,8 @@ void handle_page_fault(u32 errcode, u32 cr2, u32 eip, u32 *ebp)
 				((errcode & 0x08) ? ", modified reserved field" : ""),
 				((errcode & 0x10) ? ", instruction fetch"       : ""));
 
-	kerror(ERR_MEDERR, "  -> EIP: %08X", eip);
-
+	dump_iregs(iregs);
+	dump_regs(regs);
 
 	if(cr2 >= (u32)firstframe)
 	{
@@ -57,22 +73,64 @@ void handle_page_fault(u32 errcode, u32 cr2, u32 eip, u32 *ebp)
 			kerror(ERR_MEDERR, "       -> Caused a stack overflow and is being dealt with", pid);
 		}
 	
-		if(ebp != NULL) { stack_trace(5, ebp, eip); }
+		if(regs.ebp != 0) { stack_trace(5, (uint32_t *)regs.ebp, iregs.eip); }
 
 		exit(1);
 	}
 
-	if(ebp != NULL) { stack_trace(5, ebp, eip); }
+	if(regs.ebp != 0) { stack_trace(5, (uint32_t *)regs.ebp, iregs.eip); }
 
 	kpanic("Page fault, multitasking not enabled, nothing to do to fix this.");
 
 	for(;;);
 }
 
+static char *gpf_table_names[] = { "GDT", "IDT", "LDT", "IDT" };
+
+void handle_gpf(uint32_t errcode, uint32_t eip, struct pusha_regs regs, uint32_t cs) {
+	kerror(ERR_MEDERR, "<===============================[GPF]==============================>");
+	kerror(ERR_MEDERR, "General Protection Fault at 0x%08X, code seg selector %02X", eip, cs);
+	kerror(ERR_MEDERR, "  -> Error code: 0x%08X", errcode);
+	kerror(ERR_MEDERR, "      -> (%s) Table: %s, Sel: %04X, ",
+		((errcode & 0x00000001) ? "External" : "Internal"),
+		gpf_table_names[(errcode >> 1) & 0b11],
+		(errcode >> 3) & 0b1111111111111
+	);
+	
+	dump_regs(regs);
+
+	kpanic("GPF, halting");
+	for(;;);
+}
+
+void handle_invalid_op(struct pusha_regs regs, struct iret_regs iregs) {
+	kerror(ERR_MEDERR, "<==============[Invalid Opcode Exception]====================>");
+
+	dump_iregs(iregs);
+	dump_regs(regs);
+
+	kpanic("INVOP, halting");
+	for(;;);
+}
 
 void stub_error()
 {
 	kerror(ERR_MEDERR, "stub_error() has been called");
 
 	//for(;;);
+}
+
+
+static void dump_regs(struct pusha_regs regs) {
+	kerror(ERR_MEDERR, "  -> EAX: %08X EBX: %08X ECX: %08X EDX: %08X",
+		regs.eax, regs.ebx, regs.ecx, regs.edx);
+	kerror(ERR_MEDERR, "  -> ESP: %08X EBP: %08X EDI: %08X ESI: %08X",
+		regs.esp, regs.ebp, regs.edi, regs.esi);
+}
+
+static void dump_iregs(struct iret_regs iregs) {
+	kerror(ERR_MEDERR, "  -> EIP: %08X CS: %02X EFLAGS: %08X",
+		iregs.eip, iregs.cs, iregs.eflags);
+	kerror(ERR_MEDERR, "  -> ESP: %08X DS: %02X",
+		iregs.esp, iregs.ds);
 }

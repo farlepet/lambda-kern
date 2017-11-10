@@ -74,7 +74,8 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 			for(; p < shdr->sh_size; p += 0x1000)
 			{
 				kerror(ERR_BOOTINFO, "  -> MAP_PAGE<%08X>[%08X, %08X]", pgdir, (phys + p), (shdr->sh_addr + p));
-				pgdir_map_page(pgdir, (phys + p), (void *)(shdr->sh_addr + p), 0x03);
+				pgdir_map_page(pgdir, (phys + p), (void *)(shdr->sh_addr + p), 0x07);
+				//pgdir_map_page(pgdir, (phys + p), (void *)(shdr->sh_addr + p), 0x03);
 				//map_page((phys + p), (void *)(shdr->sh_addr + p), 0x03);
 				kerror(ERR_BOOTINFO, "      -> DONE");
 			}
