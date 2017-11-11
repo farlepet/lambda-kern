@@ -137,14 +137,15 @@ e_devavail:
 
 	jmp hang
 
+extern handle_double_fault
 e_doublefault:
 	cli
-	call stub_error
+	;call stub_error
 
 	pusha
-	print m_doublefault
+	;print m_doublefault
 	popa
-	pop dword [errcode]
+	;pop dword [errcode]
 
 	jmp hang
 

@@ -11,7 +11,7 @@ static u32 c_inode = 1;
 
 int fs_add_file(struct kfile *file, struct kfile *parent)
 {
-	//kerror(ERR_BOOTINFO, "  -> fs_add_file: %s, %d", file->name, file->length);
+	kerror(ERR_BOOTINFO, "  -> fs_add_file: %s, %d", file->name, file->length);
 	file->inode     = c_inode++;
 	file->file_lock = 0;
 
@@ -86,15 +86,18 @@ void fs_close(struct kfile *f)
 
 struct dirent *fs_readdir(DIR *d)
 {
-	if(d) {
-		if(d->current == NULL) return NULL;
+	if(d && d->dir) {
+		if(d->current == NULL) {d->prev = NULL; return NULL; }
 
 		struct dirent *dent = kmalloc(sizeof(struct dirent));
 
 		dent->ino = d->current->inode;
 		memcpy(dent->name, d->current->name, FILE_NAME_MAX);
 
-		if(d->current->next == d->dir->child) d->current = NULL;
+		if(d->current->next == d->dir->child) {
+			d->prev = d->current;
+			d->current = NULL;
+		}
 		else {
 			d->prev = d->current;
 			d->current = d->current->next;
@@ -116,7 +119,7 @@ struct kfile *fs_finddir(struct kfile *f, char *name)
 				return file;
 			}
 			file = file->next;
-		} while(file != f->child->prev);
+		} while(file != f->child);
 	}
 	return NULL;
 }

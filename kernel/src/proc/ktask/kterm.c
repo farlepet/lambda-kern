@@ -373,11 +373,14 @@ static int ls(int argc, char **argv)
 	struct kfile *f;
 	DIR *dir = fs_opendir(fs_root);
 	f = fs_dirfile(dir);
+	struct dirent *d;
 
 	kprintf("ls: dir: {%08X, %08X, %08X}\n", dir->dir, dir->current, dir->prev);
 	
-	while(fs_readdir(dir))
+	while((d = fs_readdir(dir)))
 	{
+		kfree(d);
+
 		f = fs_dirfile(dir);
 
 		kprintf("%c%c%c%c%c%c%c%c%c%c%s %02d %05d %s\n",

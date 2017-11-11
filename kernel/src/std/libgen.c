@@ -13,7 +13,7 @@ char *dirname(char *path) {
         path[0] = '.';
         path[1] = '\0';
     } else {
-        p2[1] = '\0';
+        p2[0] = '\0';
     }
     return path;
 }
