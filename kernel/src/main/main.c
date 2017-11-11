@@ -58,10 +58,9 @@ int kmain(struct multiboot_header *mboot_head, u32 magic)
 
 	kerror(ERR_BOOTINFO, "Kernel occupies this memory space: %08X - %08X", &kern_start, &kern_end);
 	
-	interrupts_init();
-
 	mm_init(mboot_head);
 
+	interrupts_init();
 
 	serial_init(SERIAL_COM1); // Initialize it a second time to enable it's interrupts
 

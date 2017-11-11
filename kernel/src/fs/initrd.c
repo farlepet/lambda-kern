@@ -29,12 +29,7 @@ static u32 initrd_read(struct kfile *f, u32 off, u32 sz, u8 *buff)
 	if(!f->info | !cpio) return 0; // We must know where the CPIO file is
 	if(off >= f->length) return 0; // We cannot read past the end of the file
 
-	//struct header_old_cpio *cfile = (struct header_old_cpio *)f->info;
-	//u8 *data = (u8 *)((uint32_t)cfile + sizeof(struct header_old_cpio) + cfile->c_namesize + (cfile->c_namesize&1));
-	//u8 *data = (uint8_t *)((u32)cfile + sizeof(struct header_old_cpio) + cfile->c_namesize + (cfile->c_namesize & 1));
 	u8 *data = f->info;
-
-	kerror(ERR_BOOTINFO, "initrd-read: data: %08X" /*", cfile: %08X, filesize: %d"*/, data/*, cfile, cfile->c_filesize*/);
 
 	u32 i = off;
 	for(; i < (((sz + off) > f->length) ? (u32)(sz + buff) : (f->length)); i++)
@@ -154,12 +149,12 @@ void initrd_init(struct multiboot_header* mboot_head)
 		//memset(file->name, 0, FILE_NAME_MAX);
 		memcpy(file->name, name, strlen(name));
 
-		kerror(ERR_BOOTINFO, "INITRD: File: %s [CFILE: %08X, DATA: %08X]", filenames[cidx], cfile, data);
+		//kerror(ERR_BOOTINFO, "INITRD: File: %s [CFILE: %08X, DATA: %08X]", filenames[cidx], cfile, data);
 
 		//char tmp[64];
 		char *path = dirname(filenames[cidx]);
 
-		kerror(ERR_BOOTINFO, "INITRD: Path: %s Name: %s", path, file->name);
+		//kerror(ERR_BOOTINFO, "INITRD: Path: %s Name: %s", path, file->name);
 
 		struct kfile *dir = fs_root;
 		if(path[0] != '.') {
@@ -169,7 +164,7 @@ void initrd_init(struct multiboot_header* mboot_head)
 						char *nextPath = &path[i+1];
 						path[i] = '\0';
 
-						kerror(ERR_BOOTINFO, "initrd: looking for dir: [%s]", path);
+						//kerror(ERR_BOOTINFO, "initrd: looking for dir: [%s]", path);
 						dir = fs_finddir(dir, path);
 						kerror(ERR_BOOTINFO, "  -> %08X", dir);
 						if(dir == NULL) { // Default to '/'
@@ -192,7 +187,7 @@ void initrd_init(struct multiboot_header* mboot_head)
 		}
 		
 		
-		kerror(ERR_BOOTINFO, " -> containing dir: [%s]", dir->name);
+		//kerror(ERR_BOOTINFO, " -> containing dir: [%s]", dir->name);
 
 		file->length     = cfile->c_filesize;
 		file->impl       = dir->inode; //fs_root->inode; // FIXME

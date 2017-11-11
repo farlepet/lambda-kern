@@ -76,7 +76,7 @@ int add_user_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *
 int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *pagedir, int kernel, int ring) {
 	lock(&creat_task);
 	
-	kerror(ERR_BOOTINFO, "mtask:add_task(%08X, %s, %dK, %d, %08X, %d, %d)", process, name, (stack_size ? (stack_size / 1024) : (STACK_SIZE / 1024)), pri, pagedir, kernel, ring);
+	//kerror(ERR_BOOTINFO, "mtask:add_task(%08X, %s, %dK, %d, %08X, %d, %d)", process, name, (stack_size ? (stack_size / 1024) : (STACK_SIZE / 1024)), pri, pagedir, kernel, ring);
 
 	if(ring > 3 || ring < 0) { kerror(ERR_MEDERR, "mtask:add_task: Ring is out of range (0-3): %d", ring); return 0; }
 
@@ -192,10 +192,10 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 
 	procs[p].cwd = fs_root;
 
-	kerror(ERR_BOOTINFO, "PID: %d EIP: %08X CR3: %08X ESP: %08X", procs[p].pid, procs[p].eip, procs[p].cr3, procs[p].esp);
+	//kerror(ERR_BOOTINFO, "PID: %d EIP: %08X CR3: %08X ESP: %08X", procs[p].pid, procs[p].eip, procs[p].cr3, procs[p].esp);
 
-	uint32_t page = pgdir_get_page_entry(pagedir, process);
-	kerror(ERR_BOOTINFO, "Page %08X: LOC: %08X FLAGS: %03X", process, page & 0xFFFFF000, page & 0x0FFF);
+	//uint32_t page = pgdir_get_page_entry(pagedir, process);
+	//kerror(ERR_BOOTINFO, "Page %08X: LOC: %08X FLAGS: %03X", process, page & 0xFFFFF000, page & 0x0FFF);
 
 	unlock(&creat_task);
 

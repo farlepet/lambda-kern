@@ -11,7 +11,7 @@ static u32 c_inode = 1;
 
 int fs_add_file(struct kfile *file, struct kfile *parent)
 {
-	kerror(ERR_BOOTINFO, "  -> fs_add_file: %s, %d", file->name, file->length);
+	//kerror(ERR_BOOTINFO, "  -> fs_add_file: %s, %d", file->name, file->length);
 	file->inode     = c_inode++;
 	file->file_lock = 0;
 

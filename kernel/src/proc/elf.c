@@ -11,7 +11,8 @@
 
 ptr_t load_elf(void *file, u32 length, u32 **pdir)
 {
-	kerror(ERR_BOOTINFO, "Loading elf from %08X of length %08X", file, length);
+	//kerror(ERR_BOOTINFO, "Loading elf from %08X of length %08X", file, length);
+	(void)length; // TODO: Error-check with this
 
 	Elf32_Ehdr *head = file;
 
@@ -52,14 +53,14 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 
 	//u32 used_addresses[32][2];
 
-	kerror(ERR_BOOTINFO, "Section Header offset: %08X, size: %08X, #: %d", head->e_shoff, head->e_shentsize, head->e_shnum);
+	//kerror(ERR_BOOTINFO, "Section Header offset: %08X, size: %08X, #: %d", head->e_shoff, head->e_shentsize, head->e_shnum);
 
 	ptr_t i = 0;
 	for(; i < (ptr_t)(head->e_shentsize * head->e_shnum); i += head->e_shentsize)
 	{
 		Elf32_Shdr *shdr = (Elf32_Shdr *)((ptr_t)head + (head->e_shoff + i));
 
-		kerror(ERR_BOOTINFO, "shdr[%X/%X] N:%s T:%s OFF: %08X ADDR:%08X SZ:%08X", (i/head->e_shentsize)+1, head->e_shnum, sht_strings[shdr->sh_name], sht_strings[shdr->sh_type], shdr->sh_offset, shdr->sh_addr, shdr->sh_size);
+		//kerror(ERR_BOOTINFO, "shdr[%X/%X] N:%s T:%s OFF: %08X ADDR:%08X SZ:%08X", (i/head->e_shentsize)+1, head->e_shnum, sht_strings[shdr->sh_name], sht_strings[shdr->sh_type], shdr->sh_offset, shdr->sh_addr, shdr->sh_size);
 
 		if(shdr->sh_addr) // Check if there is a destination address
 		{
@@ -75,17 +76,17 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 			ptr_t p = 0;
 			for(; p < shdr->sh_size; p += 0x1000)
 			{
-				kerror(ERR_BOOTINFO, "  -> MAP_PAGE<%08X>[%08X, %08X]", pgdir, (phys + p), (shdr->sh_addr + p));
+				//kerror(ERR_BOOTINFO, "  -> MAP_PAGE<%08X>[%08X, %08X]", pgdir, (phys + p), (shdr->sh_addr + p));
 				pgdir_map_page(pgdir, (phys + p), (void *)(shdr->sh_addr + p), 0x07);
 				//pgdir_map_page(pgdir, (phys + p), (void *)(shdr->sh_addr + p), 0x03);
 				//map_page((phys + p), (void *)(shdr->sh_addr + p), 0x03);
-				kerror(ERR_BOOTINFO, "      -> DONE");
+				//kerror(ERR_BOOTINFO, "      -> DONE");
 			}
 
 		}
 	}
 
-	kerror(ERR_BOOTINFO, "ELF Loaded");
+	//kerror(ERR_BOOTINFO, "ELF Loaded");
 
 	*pdir = pgdir;
 	return head->e_entry;
