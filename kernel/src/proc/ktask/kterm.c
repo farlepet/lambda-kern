@@ -183,6 +183,8 @@ static int load(int argc, char **argv)
 	exec_data = kmalloc(exec->length);
 	fs_read(exec, 0, exec->length, exec_data);
 
+	kprintf("First 4 bytes of file: %02x, %02x, %02x, %02x\n", exec_data[0], exec_data[1], exec_data[2], exec_data[3]);
+
 	if(*(u32 *)exec_data == ELF_IDENT)
 	{
 		exec_type = EXEC_ELF;
