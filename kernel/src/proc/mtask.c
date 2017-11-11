@@ -15,6 +15,7 @@
 #include <mm/paging.h>
 #include <intr/int.h>
 #include <proc/user.h>
+#include <mm/gdt.h>
 #endif
 
 int current_pid = 0; //!< The PID of the currently running process
@@ -66,7 +67,7 @@ int add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u32
 
 int add_user_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *pagedir)
 {
-	return add_task(process, name, stack_size, pri, pagedir, 0, 2);
+	return add_task(process, name, stack_size, pri, pagedir, 0, 3);
 }
 
 
@@ -141,6 +142,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 
 	//procs[p].ebp += 0x10; procs[p].ebp &= 0xFFFFFFF0; // Small alignment
 
+
 	procs[p].esp = procs[p].ebp;
 
 	u32 i = 0;
@@ -149,6 +151,11 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 		if(kernel) pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
 		else       pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
 			//(void *)(procs[p].esp - i), (void *)(procs[p].esp - i), 0x03);
+	}
+
+	procs[p].kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE) + PROC_KERN_STACK_SIZE;
+	for(i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
+		pgdir_map_page(pagedir, (void *)(procs[p].kernel_stack + i), (void *)(procs[p].kernel_stack + i), 0x03);
 	}
 
 	procs[p].stack_end = procs[p].ebp - (stack_size ? stack_size : STACK_SIZE);
@@ -186,6 +193,9 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 	procs[p].cwd = fs_root;
 
 	kerror(ERR_BOOTINFO, "PID: %d EIP: %08X CR3: %08X ESP: %08X", procs[p].pid, procs[p].eip, procs[p].cr3, procs[p].esp);
+
+	uint32_t page = pgdir_get_page_entry(pagedir, process);
+	kerror(ERR_BOOTINFO, "Page %08X: LOC: %08X FLAGS: %03X", process, page & 0xFFFFF000, page & 0x0FFF);
 
 	unlock(&creat_task);
 
@@ -270,7 +280,10 @@ __hot void do_task_switch()
 	// Switch to next process here...
 	c_proc = sched_next_process();
 
+
 #if  defined(ARCH_X86)
+	tss_set_kern_stack(procs[c_proc].kernel_stack);
+
 	esp = procs[c_proc].esp;
 	ebp = procs[c_proc].ebp;
 	eip = procs[c_proc].eip;

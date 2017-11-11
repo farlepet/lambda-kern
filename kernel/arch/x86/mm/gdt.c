@@ -34,7 +34,7 @@ extern void load_tss();           //!< Sets the TSS descriptor
  */
 void gdt_init()
 {
-	GDT[9] = GDT_ENTRY((u32)&TSS, sizeof(TSS), 0x4089/*0x0089*/); // Or should it be 0x00E9?
+	GDT[9] = GDT_ENTRY((u32)&TSS, sizeof(TSS), 0x00E9/*0x4089*//*0x0089*/); // Or should it be 0x00E9?
 	
 	TSS[2]  = 0x10; // SS0
 	//TSS[4]  = 0x21; // SS1
@@ -56,4 +56,8 @@ void gdt_init()
 	load_gdt(GDT, sizeof(GDT));
 	seg_reload();
 	load_tss();
+}
+
+void tss_set_kern_stack(uint32_t stack) {
+	TSS[1] = stack;
 }

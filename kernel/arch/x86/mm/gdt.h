@@ -54,4 +54,6 @@
  */
 void gdt_init(void);
 
+void tss_set_kern_stack(uint32_t stack);
+
 #endif

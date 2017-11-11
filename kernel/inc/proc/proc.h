@@ -12,6 +12,8 @@
 
 #define MSG_BUFF_SIZE 512 //!< Size of the message buffer in bytes
 
+#define PROC_KERN_STACK_SIZE 2048 //!< Size of kernel stack allocated to process
+
 #define TYPE_RUNNABLE 0x00000001 //!< Is this process runnable?
 #define TYPE_RANONCE  0x00000002 //!< Can this process save its registers yet?
 #define TYPE_VALID    0x00000004 //!< Is this a valid process? Can it be overwritten?
@@ -56,6 +58,9 @@ struct kproc //!< Structure of a process as seen by the kernel
 	u32 ebp;       //!< Stack base pointer
 	u32 eip;       //!< Instruction pointer
 	u32 cr3;       //!< Page directory
+
+	u32 kernel_stack;      //!< Kernel stack
+	u32 kernel_stack_size; //!< Size of kernel stack
 
 	u32 entrypoint; //!< Program start
 

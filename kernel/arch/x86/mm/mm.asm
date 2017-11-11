@@ -30,6 +30,6 @@ seg_reload:
 
 ; Let the computer know which GDT descriptor contains TSS info
 load_tss:
-   mov ax, 0x48
+   mov ax, 0x4B
    ltr ax
    ret

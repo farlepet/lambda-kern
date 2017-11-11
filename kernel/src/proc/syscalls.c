@@ -96,7 +96,7 @@ extern void syscall_int();
 void init_syscalls()
 {
 	//set_interrupt(SYSCALL_INT, &syscall_int);
-	set_idt(SYSCALL_INT, 0x08, IDT_ATTR(1, 3, 0, trap32), &syscall_int);
+	set_idt(SYSCALL_INT, 0x08, IDT_ATTR(1, 3, 0, int32), &syscall_int);
 }
 
 extern void call_syscall_int();
