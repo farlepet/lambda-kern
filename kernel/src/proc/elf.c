@@ -52,12 +52,14 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 
 	//u32 used_addresses[32][2];
 
+	kerror(ERR_BOOTINFO, "Section Header offset: %08X, size: %08X, #: %d", head->e_shoff, head->e_shentsize, head->e_shnum);
+
 	ptr_t i = 0;
 	for(; i < (ptr_t)(head->e_shentsize * head->e_shnum); i += head->e_shentsize)
 	{
 		Elf32_Shdr *shdr = (Elf32_Shdr *)((ptr_t)head + (head->e_shoff + i));
 
-		kerror(ERR_BOOTINFO, "shdr[%X/%X] T:%s ADDR:%08X SZ:%08X", (i/head->e_shentsize)+1, head->e_shnum, sht_strings[shdr->sh_type], shdr->sh_addr, shdr->sh_size);
+		kerror(ERR_BOOTINFO, "shdr[%X/%X] N:%s T:%s OFF: %08X ADDR:%08X SZ:%08X", (i/head->e_shentsize)+1, head->e_shnum, sht_strings[shdr->sh_name], sht_strings[shdr->sh_type], shdr->sh_offset, shdr->sh_addr, shdr->sh_size);
 
 		if(shdr->sh_addr) // Check if there is a destination address
 		{

@@ -187,7 +187,7 @@ extern handle_gpf
 e_gpf:
 	cli
 	pop dword [errcode]
-	pop dword [address]
+	;pop dword [address]
 	;push dword [address]
 	
 	;push eax
@@ -198,17 +198,17 @@ e_gpf:
 	pusha
 	;print m_gpf
 	;push 16
-	push dword [address]
+	;push dword [address]
 	push dword [errcode]
 	call handle_gpf
-	add esp, 8
+	add esp, 4
 	popa
 	;call vga_printnum
 	;add esp, 8
 	;popa
 	;pop dword [errcode]
 
-	jmp hang
+	iret
 
 extern handle_page_fault
 e_pagefault:

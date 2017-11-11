@@ -19,7 +19,7 @@ struct iret_regs {
 };
 
 void handle_page_fault(u32, u32,/* u32 *ebp, */struct pusha_regs, struct iret_regs iregs);
-void handle_gpf(uint32_t, uint32_t, struct pusha_regs, uint32_t);
+void handle_gpf(uint32_t errcode, struct pusha_regs regs, struct iret_regs iregs);
 void handle_invalid_op(struct pusha_regs regs, struct iret_regs iregs);
 static void dump_regs(struct pusha_regs regs);
 static void dump_iregs(struct iret_regs iregs);
@@ -87,9 +87,9 @@ void handle_page_fault(u32 errcode, u32 cr2,/* u32 *ebp, */struct pusha_regs reg
 
 static char *gpf_table_names[] = { "GDT", "IDT", "LDT", "IDT" };
 
-void handle_gpf(uint32_t errcode, uint32_t eip, struct pusha_regs regs, uint32_t cs) {
+void handle_gpf(uint32_t errcode, struct pusha_regs regs, struct iret_regs iregs) {
 	kerror(ERR_MEDERR, "<===============================[GPF]==============================>");
-	kerror(ERR_MEDERR, "General Protection Fault at 0x%08X, code seg selector %02X", eip, cs);
+	kerror(ERR_MEDERR, "General Protection Fault at 0x%08X, code seg selector %02X", iregs.eip, iregs.cs);
 	kerror(ERR_MEDERR, "  -> Error code: 0x%08X", errcode);
 	kerror(ERR_MEDERR, "      -> (%s) Table: %s, Sel: %04X, ",
 		((errcode & 0x00000001) ? "External" : "Internal"),
@@ -97,6 +97,7 @@ void handle_gpf(uint32_t errcode, uint32_t eip, struct pusha_regs regs, uint32_t
 		(errcode >> 3) & 0b1111111111111
 	);
 	
+	dump_iregs(iregs);
 	dump_regs(regs);
 
 	kpanic("GPF, halting");

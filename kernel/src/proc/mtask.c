@@ -66,7 +66,7 @@ int add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u32
 
 int add_user_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *pagedir)
 {
-	return add_task(process, name, stack_size, pri, pagedir, 0, 0);
+	return add_task(process, name, stack_size, pri, pagedir, 0, 2);
 }
 
 
@@ -77,7 +77,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 	
 	kerror(ERR_BOOTINFO, "mtask:add_task(%08X, %s, %dK, %d, %08X, %d, %d)", process, name, (stack_size ? (stack_size / 1024) : (STACK_SIZE / 1024)), pri, pagedir, kernel, ring);
 
-	if(ring > 3) kerror(ERR_MEDERR, "mtask:add_task: Ring is out of range (0-3): %d", ring);
+	if(ring > 3 || ring < 0) { kerror(ERR_MEDERR, "mtask:add_task: Ring is out of range (0-3): %d", ring); return 0; }
 
 	int parent = 0;
 	if(tasking) parent = proc_by_pid(current_pid);
@@ -126,8 +126,8 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 	procs[p].cr3  = (u32)pagedir;
 
 	uint32_t stack_begin, virt_stack_begin;
-	if(!kernel) virt_stack_begin = 0xC0000000;
-	else        virt_stack_begin = 0x70000000;
+	if(!kernel) virt_stack_begin = 0xFF000000;
+	else        virt_stack_begin = 0x7F000000;
 
 #ifdef STACK_PROTECTOR
 	stack_begin = (u32)kmalloc((stack_size ? stack_size : STACK_SIZE) + 0x2000);

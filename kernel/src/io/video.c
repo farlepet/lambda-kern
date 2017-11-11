@@ -296,12 +296,16 @@ static int print(char *out, const char *format, __builtin_va_list varg)
 			case 's': if(size > 0)
 					  {
 						  temp = (ptr_t)va_arg(varg, s16 *);
+						  if(temp == 0) { temp = (ptr_t)L"(null)"; }
+						  else if(!mm_check_addr((void *)temp)) { temp = (ptr_t)L"(badaddr)"; }
 						  nchars += wcslen((s16 *)temp);
 						  while(*(s16 *)temp) *out++ = (char)*(s16 *)temp++;
 					  }
 					  else
 					  {
 						  temp = (ptr_t)va_arg(varg, char *);
+						  if(temp == 0) { temp = (ptr_t)"(null)"; }
+						  else if(!mm_check_addr((void *)temp)) { temp = (ptr_t)"(badaddr)"; }
 						  nchars += strlen((char *)temp);
 						  while(*(char *)temp) *out++ = *(char *)temp++;
 					  }
