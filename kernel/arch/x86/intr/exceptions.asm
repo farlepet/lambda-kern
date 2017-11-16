@@ -118,13 +118,16 @@ e_boundr:
 
 	jmp hang
 
+extern handle_invalid_op
 e_invalidop:
 	cli
 	pusha
-	print m_invalidop
+	call handle_invalid_op
+	;print m_invalidop
 	popa
-
-	jmp hang
+	sti
+	iret
+	;jmp hang
 
 e_devavail:
 	cli
@@ -134,14 +137,15 @@ e_devavail:
 
 	jmp hang
 
+extern handle_double_fault
 e_doublefault:
 	cli
-	call stub_error
+	;call stub_error
 
 	pusha
-	print m_doublefault
+	;print m_doublefault
 	popa
-	pop dword [errcode]
+	;pop dword [errcode]
 
 	jmp hang
 
@@ -180,41 +184,49 @@ e_stacksegfault:
 
 	jmp hang
 
+extern handle_gpf
 e_gpf:
 	cli
-	push eax
-	mov eax, [esp + 8]
-	mov dword [errcode], eax
-	pop eax
+	pop dword [errcode]
+	;pop dword [address]
+	;push dword [address]
+	
+	;push eax
+	;mov eax, [esp + 8]
+	;mov dword [errcode], eax
+	;pop eax
 
 	pusha
-	print m_gpf
-	push 16
+	;print m_gpf
+	;push 16
+	;push dword [address]
 	push dword [errcode]
-	call vga_printnum
-	add esp, 8
+	call handle_gpf
+	add esp, 4
 	popa
-	pop dword [errcode]
+	;call vga_printnum
+	;add esp, 8
+	;popa
+	;pop dword [errcode]
 
-	jmp hang
+	iret
 
 extern handle_page_fault
 e_pagefault:
 	cli
 	pop dword [errcode]
-	pop dword [address]
+	;pop dword [address]
 
-	push ebp
-	push dword [address]
 	pusha
-	push dword [address]
+	;push dword [address]
 	mov eax, cr2
 	push eax
 	push dword [errcode]
 	call handle_page_fault
-	add esp, 16
+	add esp, 8
 	popa
-	pop eax
+
+	;push dword [address]
 	iret
 
 

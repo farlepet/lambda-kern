@@ -125,11 +125,13 @@ void *get_phys_page(void *virtaddr)
 }
 
 int page_present(u32 virtaddr) {
+	uint32_t *pgdir = get_pagedir();
+
 	u32 pdindex = (u32)virtaddr >> 22;
 	u32 ptindex = (u32)virtaddr >> 12 & 0x03FF;
 
-    if(pagedir[pdindex] & 0x01) {
-		return ((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] & 0x01;
+    if(pgdir[pdindex] & 0x01) {
+		return ((u32 *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] & 0x01;
 	}
 
 	return 0;
@@ -156,6 +158,12 @@ u32 pgdir_get_page_entry(u32 *pgdir, void *virtaddr) {
 	return 0;
 }
 
+u32 pgdir_get_page_table(u32 *pgdir, void *virtaddr) {
+	u32 pdindex = (u32)virtaddr >> 22;
+	
+	return pgdir[pdindex];
+}
+
 /**
  * Map a virtual address to a physical one.
  * 
@@ -165,40 +173,13 @@ u32 pgdir_get_page_entry(u32 *pgdir, void *virtaddr) {
  */
 void map_page(void *physaddr, void *virtualaddr, u32 flags)
 {
-	kerror(ERR_BOOTINFO, "Mapping %8X to %8X (%03X)", physaddr, virtualaddr, flags);
-	virtualaddr = (void *)((u32)virtualaddr & 0xFFFFF000);
-	physaddr    = (void *)((u32)physaddr    & 0xFFFFF000);
-
-	u32 pdindex = (u32)virtualaddr >> 22;
-	u32 ptindex = (u32)virtualaddr >> 12 & 0x03FF;
-
-	
-
-	// Should I check if it is already present? I don't know...
-	if(pagedir[pdindex] & 0x01)
-	{
-		kerror(ERR_BOOTINFO, "  -> Page table exists");
-		((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
-	}
-
-	else
-	{
-		kerror(ERR_BOOTINFO, "  -> Creating new page table");
-		pagedir[pdindex] = (((u32)kmalloc(0x2000) + 0x1000) & ~0xFFF) | 0x03;
-
-		int i = 0;
-		for(; i < 1024; i++)
-			((u32 *)(pagedir[pdindex] & 0xFFFFF000))[i] = 0x00000000;
-
-		((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
-	}
-
+	pgdir_map_page(pagedir, physaddr, virtualaddr, flags);
 	__invlpg(virtualaddr);
 }
 
 void pgdir_map_page(u32 *pgdir, void *physaddr, void *virtualaddr, u32 flags)
 {
-	kerror(ERR_BOOTINFO, "Mapping %8X to %8X (%03X) in %8X", physaddr, virtualaddr, flags, pgdir);
+	//kerror(ERR_BOOTINFO, "Mapping %8X to %8X (%03X) in %8X", physaddr, virtualaddr, flags, pgdir);
 
 	virtualaddr = (void *)((u32)virtualaddr & 0xFFFFF000);
 	physaddr    = (void *)((u32)physaddr    & 0xFFFFF000);
@@ -206,24 +187,16 @@ void pgdir_map_page(u32 *pgdir, void *physaddr, void *virtualaddr, u32 flags)
 	u32 pdindex = (u32)virtualaddr >> 22;
 	u32 ptindex = (u32)virtualaddr >> 12 & 0x03FF;
 
-	// Should I check if it is already present? I don't know...
-	if(pgdir[pdindex] & 0x01)
-	{
-		kerror(ERR_BOOTINFO, "  -> Page table exists");
-		((u32 *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
-	}
-
-	else
-	{
-		kerror(ERR_BOOTINFO, "  -> Creating new page table");
+	if(!(pgdir[pdindex] & 0x01)) {
 		pgdir[pdindex] = (((u32)kmalloc(0x2000) + 0x1000) & ~0xFFF) | 0x03;
 
 		int i = 0;
 		for(; i < 1024; i++)
 			((u32 *)(pgdir[pdindex] & 0xFFFFF000))[i] = 0x00000000;
-
-		((u32 *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
 	}
+
+	pgdir[pdindex] |= flags & 0x04;
+	((u32 *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;	
 }
 
 /**
@@ -248,7 +221,7 @@ void clear_pagedir(u32 *dir)
 	int i = 0;
 	for(i = 0; i < 1024; i++)
 	{
-		kerror(ERR_INFO, "      -> PDIRENT %X", i);
+	//	kerror(ERR_INFO, "      -> PDIRENT %X", i);
 		dir[i] = 2; // supervisor, rw, not present.
 	}
 }
@@ -318,14 +291,15 @@ extern struct multiboot_module_tag *initrd;
  * first page table as the newly created one. Then it sets the page directory,
  * and enables paging.
  * 
+ * @param som start of usable memory
  * @param eom end of memory
  * @see clear_pagedir
  * @see fill_pagetable
  * @see enable_paging
  */
-void paging_init(u32 eom)
+void paging_init(u32 som, u32 eom)
 {
-	firstframe = (u32 *)FRAMES_START;
+	firstframe = (u32 *)som;
 
 	lastframe  = (u32 *)(eom & 0xFFFFF000);
 
@@ -363,9 +337,13 @@ void paging_init(u32 eom)
 
 	enable_paging();
 
-	kerror(ERR_BOOTINFO, "  -> Initializing `malloc`");
+	block_page(0x00000000); // Catch NULL pointers and jumps
 
+	kerror(ERR_BOOTINFO, "  -> Initializing `malloc`");
+	kerror(ERR_BOOTINFO, "      -> Allocating page frames");
 	u32 alloc_mem = (u32)page_alloc(0x1000000 + 0x2000) & ~0xFFF; // 16 MB should be good for now
+
+	kerror(ERR_BOOTINFO, "      -> Initializing allocation system");
 	init_alloc(alloc_mem, 0x1000000);
 
 	kerror(ERR_BOOTINFO, "      -> %08X -> %08X (%08X)", alloc_mem, alloc_mem + 0x1000000, 0x1000000);

@@ -23,7 +23,7 @@ endif
 
 link:   $(OBJS) CD/boot/grub/stage2_eltorito
 	@echo -e "\033[33m  \033[1mBuilding x86-specific bits\033[0m"
-	@cd $(MAINDIR)/kernel/arch/x86; make CC=$(CC)
+	@cd $(MAINDIR)/kernel/arch/x86; $(MAKE) CC=$(CC)
 	@echo -e "\033[33m  \033[1mLinking sources\033[0m"
 
 	@ld $(LDFLAGS) -r -o lambda.o $(OBJS) kernel/arch/x86/arch.a

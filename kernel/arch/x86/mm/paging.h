@@ -59,6 +59,8 @@ u32 get_page_entry(void *virtaddr);
 
 u32 pgdir_get_page_entry(u32 *pgdir, void *virtaddr);
 
+u32 pgdir_get_page_table(u32 *pgdir, void *virtaddr);
+
 /**
  * \brief Clear a page directory to it's default values.
  * Clear the page directory marking every page table as non-existant.
@@ -103,17 +105,18 @@ void enable_paging(void);
 void disable_paging(void);
 
 /**
- * \brief Initialize paging.
  * Creates a new page directory, and clears it. Thes creates a new page table,
  * and fills it with addresses starting at 0. Then it sets the page tables
  * first page table as the newly created one. Then it sets the page directory,
  * and enables paging.
+ * 
+ * @param som start of usable memory
  * @param eom end of memory
  * @see clear_pagedir
  * @see fill_pagetable
  * @see enable_paging
  */
-void paging_init(u32 eom);
+void paging_init(u32 som, u32 eom);
 
 
 static inline void __invlpg(u32 *addr)

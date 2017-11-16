@@ -29,8 +29,7 @@ static u32 initrd_read(struct kfile *f, u32 off, u32 sz, u8 *buff)
 	if(!f->info | !cpio) return 0; // We must know where the CPIO file is
 	if(off >= f->length) return 0; // We cannot read past the end of the file
 
-	struct header_old_cpio *cfile = (struct header_old_cpio *)f->info;
-	u8 *data = (u8 *)((ptr_t)cfile + sizeof(struct header_old_cpio) + cfile->c_namesize + (cfile->c_namesize&1));
+	u8 *data = f->info;
 
 	u32 i = off;
 	for(; i < (((sz + off) > f->length) ? (u32)(sz + buff) : (f->length)); i++)
@@ -150,33 +149,45 @@ void initrd_init(struct multiboot_header* mboot_head)
 		//memset(file->name, 0, FILE_NAME_MAX);
 		memcpy(file->name, name, strlen(name));
 
+		//kerror(ERR_BOOTINFO, "INITRD: File: %s [CFILE: %08X, DATA: %08X]", filenames[cidx], cfile, data);
+
 		//char tmp[64];
 		char *path = dirname(filenames[cidx]);
+
+		//kerror(ERR_BOOTINFO, "INITRD: Path: %s Name: %s", path, file->name);
+
 		struct kfile *dir = fs_root;
-		while(1) {
-			for(uint32_t i = 0; i < strlen(path); i++) {
-				if(path[i] == '/') {
-					char *nextPath = &path[i+1];
-					path[i] = '\0';
+		if(path[0] != '.') {
+			while(1) {
+				for(uint32_t i = 0; i < strlen(path); i++) {
+					if(path[i] == '/') {
+						char *nextPath = &path[i+1];
+						path[i] = '\0';
 
-					kerror(ERR_BOOTINFO, "initrd: looking for dir: [%s]", path);
-					dir = fs_finddir(dir, path);
-					kerror(ERR_BOOTINFO, "  -> %08X", dir);
-					if(dir == NULL) { // Default to '/'
-						dir = fs_root;
-						break;
-					}
+						//kerror(ERR_BOOTINFO, "initrd: looking for dir: [%s]", path);
+						dir = fs_finddir(dir, path);
+						kerror(ERR_BOOTINFO, "  -> %08X", dir);
+						if(dir == NULL) { // Default to '/'
+							dir = fs_root;
+							break;
+						}
 
-					if(*nextPath) {
-						path = nextPath;
-						continue;
+						if(*nextPath) {
+							path = nextPath;
+							continue;
+						}
 					}
 				}
+				dir = fs_finddir(dir, path);
+				if(dir == NULL) {
+					dir = fs_root;
+				}
+				break;
 			}
-			break;
 		}
 		
-		//kerror(ERR_BOOTINFO, "initrd: containing dir: ")
+		
+		//kerror(ERR_BOOTINFO, " -> containing dir: [%s]", dir->name);
 
 		file->length     = cfile->c_filesize;
 		file->impl       = dir->inode; //fs_root->inode; // FIXME
@@ -221,12 +232,9 @@ void initrd_init(struct multiboot_header* mboot_head)
 		
 		file->read      = &initrd_read;
 		file->write     = &initrd_write;
-		/*file->open      = &initrd_open;
-		file->close     = &initrd_close;
-		file->finddir   = &initrd_finddir;
-		file->readdir   = &initrd_readdir;*/
 
-		file->info      = (void *)cfile;
+		//file->info      = (void *)cfile;
+		file->info      = (void *)data;
 
 		cfile->c_ino    = fs_add_file(file, dir);
 

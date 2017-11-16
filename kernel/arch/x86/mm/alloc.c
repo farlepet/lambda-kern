@@ -240,7 +240,8 @@ void kfree(void *ptr)
  */
 void init_alloc(u32 base, u32 size)
 {
-	lock(&alloc_lock);
+	// Initialized before multitasking, this shouldn't be needed
+	//lock(&alloc_lock);
 
 	struct alcent ae = { .valid = 1, .used = 0, .addr = base, .size = size };
 

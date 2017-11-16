@@ -2,6 +2,8 @@
 #include <intr/intr.h>
 #include <err/error.h>
 #include <err/panic.h>
+// TODO: Abstraction:
+#include <intr/idt.h>
 
 // Includes that include syscalls
 #include <proc/ktasks.h>
@@ -93,7 +95,8 @@ void handle_syscall(u32 scn, u32 *args)
 extern void syscall_int();
 void init_syscalls()
 {
-	set_interrupt(SYSCALL_INT, &syscall_int);
+	//set_interrupt(SYSCALL_INT, &syscall_int);
+	set_idt(SYSCALL_INT, 0x08, IDT_ATTR(1, 3, 0, int32), &syscall_int);
 }
 
 extern void call_syscall_int();

@@ -49,6 +49,7 @@ int kmain(struct multiboot_header *mboot_head, u32 magic)
 
 #ifdef ARCH_X86
 	vga_clear();
+	disable_interrupts();
 #endif
 
 	serial_init(SERIAL_COM1);
@@ -56,7 +57,7 @@ int kmain(struct multiboot_header *mboot_head, u32 magic)
 	check_commandline(mboot_head);
 
 	kerror(ERR_BOOTINFO, "Kernel occupies this memory space: %08X - %08X", &kern_start, &kern_end);
-
+	
 	mm_init(mboot_head);
 
 	interrupts_init();

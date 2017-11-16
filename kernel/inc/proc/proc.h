@@ -3,6 +3,7 @@
 
 #include <mm/cbuff.h>
 #include <fs/kfile.h>
+#include <mm/symbols.h>
 
 #define MAX_PROCESSES        16 //!< Maximum amount of running processes
 #define MAX_CHILDREN         8  //!< Maximum number of children a parent can handle
@@ -11,6 +12,8 @@
 #define MAX_OPEN_FILES       8  //!< Maximum number of files opened by any particular process, including 0-2
 
 #define MSG_BUFF_SIZE 512 //!< Size of the message buffer in bytes
+
+#define PROC_KERN_STACK_SIZE 2048 //!< Size of kernel stack allocated to process
 
 #define TYPE_RUNNABLE 0x00000001 //!< Is this process runnable?
 #define TYPE_RANONCE  0x00000002 //!< Can this process save its registers yet?
@@ -50,10 +53,17 @@ struct kproc //!< Structure of a process as seen by the kernel
 	int children[MAX_CHILDREN]; //!< Indexes of direct child processes (ex: NOT children's children)
 
 #if  defined(ARCH_X86)
+	int ring;      //!< Ring to run in (0-3)
+
 	u32 esp;       //!< Stack pointer
 	u32 ebp;       //!< Stack base pointer
 	u32 eip;       //!< Instruction pointer
 	u32 cr3;       //!< Page directory
+
+	u32 kernel_stack;      //!< Kernel stack
+	u32 kernel_stack_size; //!< Size of kernel stack
+
+	u32 entrypoint; //!< Program start
 
 	u32 stack_beg; //!< Beginning of stack
 	u32 stack_end; //!< Current end of stack
@@ -65,6 +75,9 @@ struct kproc //!< Structure of a process as seen by the kernel
 	struct kfile *cwd; //!< Current working directory
 
 	struct kfile *open_files[MAX_OPEN_FILES]; //!< Open file descriptors
+
+	symbol_t *symbols;   //!< Symbol names used to display a stack trace
+	char     *symStrTab; //!< Strings used for symbol table
 
 	// New IPC:
 	struct ipc_message *ipc_messages[MAX_PROCESS_MESSAGES]; //!< IPC message pointers

@@ -183,6 +183,8 @@ static int load(int argc, char **argv)
 	exec_data = kmalloc(exec->length);
 	fs_read(exec, 0, exec->length, exec_data);
 
+	//kprintf("First 4 bytes of file: %02x, %02x, %02x, %02x\n", exec_data[0], exec_data[1], exec_data[2], exec_data[3]);
+
 	if(*(u32 *)exec_data == ELF_IDENT)
 	{
 		exec_type = EXEC_ELF;
@@ -216,14 +218,16 @@ static int run(int argc, char **argv)
 	if(exec_type == EXEC_ELF)
 	{
 		u32 *pagedir;
-		ptr_t exec_ep = load_elf(exec_data, exec->length, &pagedir);
-		if(!exec_ep)
+		//ptr_t exec_ep =
+		pid = load_elf(exec_data, exec->length, &pagedir);
+		if(!pid)
 		{
 			kerror(ERR_MEDERR, "Could not load executable");
 			return 1;
 		}
 
-		pid = add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
+		//pid = add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
+		//pid = add_user_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
 	}
 
 	else if(exec_type == EXEC_BIN)
@@ -249,7 +253,8 @@ static int run(int argc, char **argv)
 		pgdir_map_page(pagedir, phys, (void *)exec_ep, 0x03);
 		kerror(ERR_BOOTINFO, "Page entry: 0x%08X", pgdir_get_page_entry(pagedir, (void *)exec_ep));
 
-		pid = add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
+		//pid = add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
+		pid = add_user_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
 		//int pid = add_kernel_task((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG);
 		
 	}
@@ -369,11 +374,14 @@ static int ls(int argc, char **argv)
 	struct kfile *f;
 	DIR *dir = fs_opendir(fs_root);
 	f = fs_dirfile(dir);
+	struct dirent *d;
 
-	kprintf("ls: dir: {%08X, %08X, %08X}\n", dir->dir, dir->current, dir->prev);
+	//kprintf("ls: dir: {%08X, %08X, %08X}\n", dir->dir, dir->current, dir->prev);
 	
-	while(fs_readdir(dir))
+	while((d = fs_readdir(dir)))
 	{
+		kfree(d);
+
 		f = fs_dirfile(dir);
 
 		kprintf("%c%c%c%c%c%c%c%c%c%c%s %02d %05d %s\n",
