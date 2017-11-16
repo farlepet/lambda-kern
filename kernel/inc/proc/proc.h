@@ -3,6 +3,7 @@
 
 #include <mm/cbuff.h>
 #include <fs/kfile.h>
+#include <mm/symbols.h>
 
 #define MAX_PROCESSES        16 //!< Maximum amount of running processes
 #define MAX_CHILDREN         8  //!< Maximum number of children a parent can handle
@@ -74,6 +75,9 @@ struct kproc //!< Structure of a process as seen by the kernel
 	struct kfile *cwd; //!< Current working directory
 
 	struct kfile *open_files[MAX_OPEN_FILES]; //!< Open file descriptors
+
+	symbol_t *symbols;   //!< Symbol names used to display a stack trace
+	char     *symStrTab; //!< Strings used for symbol table
 
 	// New IPC:
 	struct ipc_message *ipc_messages[MAX_PROCESS_MESSAGES]; //!< IPC message pointers

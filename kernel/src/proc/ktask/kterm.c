@@ -218,15 +218,16 @@ static int run(int argc, char **argv)
 	if(exec_type == EXEC_ELF)
 	{
 		u32 *pagedir;
-		ptr_t exec_ep = load_elf(exec_data, exec->length, &pagedir);
-		if(!exec_ep)
+		//ptr_t exec_ep =
+		pid = load_elf(exec_data, exec->length, &pagedir);
+		if(!pid)
 		{
 			kerror(ERR_MEDERR, "Could not load executable");
 			return 1;
 		}
 
 		//pid = add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
-		pid = add_user_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
+		//pid = add_user_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
 	}
 
 	else if(exec_type == EXEC_BIN)

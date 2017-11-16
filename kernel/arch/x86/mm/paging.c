@@ -125,11 +125,13 @@ void *get_phys_page(void *virtaddr)
 }
 
 int page_present(u32 virtaddr) {
+	uint32_t *pgdir = get_pagedir();
+
 	u32 pdindex = (u32)virtaddr >> 22;
 	u32 ptindex = (u32)virtaddr >> 12 & 0x03FF;
 
-    if(pagedir[pdindex] & 0x01) {
-		return ((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] & 0x01;
+    if(pgdir[pdindex] & 0x01) {
+		return ((u32 *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] & 0x01;
 	}
 
 	return 0;
@@ -156,6 +158,12 @@ u32 pgdir_get_page_entry(u32 *pgdir, void *virtaddr) {
 	return 0;
 }
 
+u32 pgdir_get_page_table(u32 *pgdir, void *virtaddr) {
+	u32 pdindex = (u32)virtaddr >> 22;
+	
+	return pgdir[pdindex];
+}
+
 /**
  * Map a virtual address to a physical one.
  * 
@@ -165,35 +173,7 @@ u32 pgdir_get_page_entry(u32 *pgdir, void *virtaddr) {
  */
 void map_page(void *physaddr, void *virtualaddr, u32 flags)
 {
-	//kerror(ERR_BOOTINFO, "Mapping %8X to %8X (%03X)", physaddr, virtualaddr, flags);
-	virtualaddr = (void *)((u32)virtualaddr & 0xFFFFF000);
-	physaddr    = (void *)((u32)physaddr    & 0xFFFFF000);
-
-	u32 pdindex = (u32)virtualaddr >> 22;
-	u32 ptindex = (u32)virtualaddr >> 12 & 0x03FF;
-
-	
-
-	// Should I check if it is already present? I don't know...
-	if(pagedir[pdindex] & 0x01)
-	{
-	//	kerror(ERR_BOOTINFO, "  -> Page table exists");
-		((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
-	}
-
-	else
-	{
-	//	kerror(ERR_BOOTINFO, "  -> Creating new page table");
-		pagedir[pdindex] = (((u32)kmalloc(0x2000) + 0x1000) & ~0xFFF) | 0x03;
-
-		int i = 0;
-		for(; i < 1024; i++)
-			((u32 *)(pagedir[pdindex] & 0xFFFFF000))[i] = 0x00000000;
-
-		((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
-	}
-
-	pagedir[pdindex] |= flags & 0x04;
+	pgdir_map_page(pagedir, physaddr, virtualaddr, flags);
 	__invlpg(virtualaddr);
 }
 
@@ -207,24 +187,16 @@ void pgdir_map_page(u32 *pgdir, void *physaddr, void *virtualaddr, u32 flags)
 	u32 pdindex = (u32)virtualaddr >> 22;
 	u32 ptindex = (u32)virtualaddr >> 12 & 0x03FF;
 
-	// Should I check if it is already present? I don't know...
-	if(pgdir[pdindex] & 0x01)
-	{
-	//	kerror(ERR_BOOTINFO, "  -> Page table exists");
-		((u32 *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
-	} else
-	{
-	//	kerror(ERR_BOOTINFO, "  -> Creating new page table");
+	if(!(pgdir[pdindex] & 0x01)) {
 		pgdir[pdindex] = (((u32)kmalloc(0x2000) + 0x1000) & ~0xFFF) | 0x03;
 
 		int i = 0;
 		for(; i < 1024; i++)
 			((u32 *)(pgdir[pdindex] & 0xFFFFF000))[i] = 0x00000000;
-
-		((u32 *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;
 	}
 
-	pagedir[pdindex] |= flags & 0x04;
+	pgdir[pdindex] |= flags & 0x04;
+	((u32 *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;	
 }
 
 /**

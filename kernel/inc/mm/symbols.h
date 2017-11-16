@@ -14,6 +14,6 @@ typedef struct symbol {
 extern symbol_t sym_objects[];
 extern symbol_t sym_functions[];
 
-symbol_t *sym_find_object(u32 addr);
+symbol_t *sym_find_object(u32 addr, symbol_t *symbols);
 
 #endif

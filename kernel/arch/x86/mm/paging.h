@@ -59,6 +59,8 @@ u32 get_page_entry(void *virtaddr);
 
 u32 pgdir_get_page_entry(u32 *pgdir, void *virtaddr);
 
+u32 pgdir_get_page_table(u32 *pgdir, void *virtaddr);
+
 /**
  * \brief Clear a page directory to it's default values.
  * Clear the page directory marking every page table as non-existant.

@@ -51,7 +51,8 @@ void handle_page_fault(u32 errcode, u32 cr2,/* u32 *ebp, */struct pusha_regs reg
 	}
 	else kerror(ERR_MEDERR, "  -> Occurred in kernel-space, not in the page frames");
 
-	kerror(ERR_MEDERR, "  -> Page flags: 0x%03X", pgdir_get_page_entry(cr3, (void *)cr2) & 0xFFF);
+	kerror(ERR_MEDERR, "  -> Page flags:  0x%03X", pgdir_get_page_entry(cr3, (void *)cr2) & 0xFFF);
+	kerror(ERR_MEDERR, "  -> Table flags: 0x%03X", pgdir_get_page_table(cr3, (void *)cr2) & 0xFFF);
 	kerror(ERR_MEDERR, "  -> Page Directory: 0x%08X", cr3);
 	kerror(ERR_MEDERR, "  -> Kernel pagedir: 0x%08X", kernel_cr3);
 
@@ -74,12 +75,14 @@ void handle_page_fault(u32 errcode, u32 cr2,/* u32 *ebp, */struct pusha_regs reg
 			kerror(ERR_MEDERR, "       -> Caused a stack overflow and is being dealt with", pid);
 		}
 	
-		if(regs.ebp != 0) { stack_trace(5, (uint32_t *)regs.ebp, iregs.eip); }
+		if(regs.ebp != 0) {
+			stack_trace(15, (uint32_t *)regs.ebp, iregs.eip, procs[p].symbols);
+		}
 
 		exit(1);
 	}
 
-	if(regs.ebp != 0) { stack_trace(5, (uint32_t *)regs.ebp, iregs.eip); }
+	if(regs.ebp != 0) { stack_trace(5, (uint32_t *)regs.ebp, iregs.eip, NULL); }
 
 	kpanic("Page fault, multitasking not enabled, nothing to do to fix this.");
 
