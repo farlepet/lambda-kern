@@ -5,6 +5,7 @@
 #include <err/panic.h>
 #include <intr/int.h>
 #include <types.h>
+#include <video.h>
 
 struct pusha_regs {
 	uint32_t edi, esi;
@@ -77,6 +78,17 @@ void handle_page_fault(u32 errcode, u32 cr2,/* u32 *ebp, */struct pusha_regs reg
 	
 		if(regs.ebp != 0) {
 			stack_trace(15, (uint32_t *)regs.ebp, iregs.eip, procs[p].symbols);
+		}
+
+		if(page_present(regs.esp)) {
+			kerror(ERR_MEDERR, "      -> Stack contents:");
+			uint32_t *stack = (uint32_t *)regs.esp;
+			for(int i = -4; i < 8; i++) {
+				if(i == -4 || i == 0 || i == 4) {
+					kprintf("\n<%8X(%d)>: ", &stack[i], i);
+				}
+				kprintf("[%08X] ", stack[i]);
+			}
 		}
 
 		exit(1);

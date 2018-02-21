@@ -31,13 +31,14 @@ static u32 initrd_read(struct kfile *f, u32 off, u32 sz, u8 *buff)
 
 	u8 *data = f->info;
 
-	u32 i = off;
-	for(; i < (((sz + off) > f->length) ? (u32)(sz + buff) : (f->length)); i++)
+	u32 i   = 0;
+	u32 end = (sz + off) > f->length ? (f->length - off) : sz;
+	for(; i < end; i++)
 	{
-		buff[i] = data[i]; 
+		buff[i] = data[off + i];
 	}
 
-	return i - off;
+	return i;
 }
 
 static u32 initrd_write(struct kfile *f, u32 off, u32 sz, u8 *buff)

@@ -75,6 +75,7 @@ struct kproc //!< Structure of a process as seen by the kernel
 	struct kfile *cwd; //!< Current working directory
 
 	struct kfile *open_files[MAX_OPEN_FILES]; //!< Open file descriptors
+	uint32_t      file_position[MAX_OPEN_FILES]; //!< Current position in open files
 
 	symbol_t *symbols;   //!< Symbol names used to display a stack trace
 	char     *symStrTab; //!< Strings used for symbol table

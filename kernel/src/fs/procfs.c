@@ -38,7 +38,10 @@ u32 proc_fs_read_blk(int desc, u32 off, u32 sz, u8 *buff) {
             }
             return count;
         } else {
-            return fs_read(proc->open_files[desc], off, sz, buff);
+            off = proc->file_position[desc];
+            u32 n = fs_read(proc->open_files[desc], off, sz, buff);
+            proc->file_position[desc] += n;
+            return n;
         }
     }
 

@@ -105,6 +105,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 		}
 	}
 
+	memset(&procs[p], 0, sizeof(struct kproc));
 
 	memcpy(procs[p].name, name, strlen(name));
 
