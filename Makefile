@@ -17,8 +17,14 @@ CFLAGS    += -m32 -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/
 			 -pipe -g -fno-stack-protector
 LDFLAGS    = -melf_i386 -T link_x86.ld
 
+CFLAGS    += -march=i586
+
+
 ifeq ($(CC), clang)
 CFLAGS += -Wno-incompatible-library-redeclaration 
+else
+# Temporary(?) fix for syscall function casting in GCC
+CFLAGS += -Wno-cast-function-type
 endif
 
 link:   $(OBJS) CD/boot/grub/stage2_eltorito
@@ -39,14 +45,16 @@ link:   $(OBJS) CD/boot/grub/stage2_eltorito
 	@cd initrd; find . | cpio -o -v -O../CD/initrd.cpio &> /dev/null
 	@echo -e "\033[33m  \033[1mCreating ISO\033[0m"
 
-	@genisoimage -R -b boot/grub/stage2_eltorito -no-emul-boot -boot-load-size 4 \
-		-boot-info-table -o lambda-os.iso CD
+	@grub-mkrescue -o lambda-os.iso CD
+
+#	@genisoimage -R -b boot/grub/stage2_eltorito -no-emul-boot -boot-load-size 4 \
+#		-boot-info-table -o lambda-os.iso CD
 
 endif # x86
 
-CD/boot/grub/stage2_eltorito:
-	@echo -e "\033[33m	\033[1mDownloading GRUB stage 2 binary\033[0m"
-	@curl -o CD/boot/grub/stage2_eltorito https://arabos.googlecode.com/files/stage2_eltorito
+#CD/boot/grub/stage2_eltorito:
+#	@echo -e "\033[33m	\033[1mDownloading GRUB stage 2 binary\033[0m"
+#	@curl -o CD/boot/grub/stage2_eltorito https://arabos.googlecode.com/files/stage2_eltorito
 
 all: printinfo link
 

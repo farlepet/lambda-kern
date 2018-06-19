@@ -20,6 +20,8 @@ CFLAGS     = -m32 -I$(KERNDIR)/inc -I$(MAINDIR) -nostdlib -nostdinc -Wall -Wextr
 ASFLAGS    = -m32
 NASMFLAGS  = -f elf
 
+CFLAGS    += -march=i586
+
 ifeq ($(CC), clang)
 CFLAGS += -Wno-incompatible-library-redeclaration
 endif
