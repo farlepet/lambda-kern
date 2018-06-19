@@ -16,6 +16,8 @@ To be able to build Lambda OS, you need the following tools:
   - `nasm`
   - `make`
   - `curl`
+  - `cpio`
+  - `eu-readelf` (elfutils)
   - `genisoimage`
 
 To build Lambda OS:
