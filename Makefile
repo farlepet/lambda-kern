@@ -52,7 +52,7 @@ all: printinfo link
 
 
 emu:
-	@qemu-system-i386 -cdrom lambda-os.iso -serial stdio -machine pc -no-reboot
+	@qemu-system-x86_64 -cdrom lambda-os.iso -serial stdio -machine pc -no-reboot
 
 
 printinfo:
