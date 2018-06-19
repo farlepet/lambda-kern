@@ -20,7 +20,7 @@ static int n_files = 0;
 static struct header_old_cpio *files[0x1000]; // Table of initrd file locations
 static char filenames[0x1000][128];           // Table of initrd filenames
 
-char *cpio_name = NULL; 
+char *cpio_name = NULL;
 
 #define n(x) ((x << 16) | (x >> 16))
 
@@ -96,7 +96,7 @@ void initrd_init(struct multiboot_header* mboot_head)
 			map_page((b * 0x1000) + firstframe, (b * 0x1000) + firstframe, 3);
 		}
 	#endif
-		
+
 		if(!strcmp((char *)mod->string, cpio_name)) initrd = mod;
 		i++;
 		mod++;
