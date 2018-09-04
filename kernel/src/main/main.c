@@ -78,6 +78,8 @@ int kmain(struct multiboot_header *mboot_head, u32 magic)
 	iloop();
 }
 
+void fork_test(void);
+
 /**
  * The main kernel task, spawns a few other tasks, then busy-waits.
  */
@@ -125,6 +127,21 @@ __noreturn void kernel_task()
 		}
 	}
 
+	fork_test();
 
 	for(;;) busy_wait();
+}
+
+void fork_test(void) {
+	kerror(ERR_BOOTINFO, "Fork test...");
+
+	int pid = fork();
+
+	if(pid == -1) {
+		kerror(ERR_BOOTINFO, "Spawned process");
+	} else {
+		kerror(ERR_BOOTINFO, "Spawner process (spawned %d)", pid);
+	}
+
+	kerror(ERR_BOOTINFO, "Fork test completed.");
 }

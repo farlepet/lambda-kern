@@ -160,7 +160,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 
 	procs[p].kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE) + PROC_KERN_STACK_SIZE;
 	for(i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
-		pgdir_map_page(pagedir, (void *)(procs[p].kernel_stack + i), (void *)(procs[p].kernel_stack + i), 0x03);
+		pgdir_map_page(pagedir, (void *)(procs[p].kernel_stack - i), (void *)(procs[p].kernel_stack - i), 0x03);
 	}
 
 	procs[p].stack_end = procs[p].ebp - (stack_size ? stack_size : STACK_SIZE);
@@ -287,15 +287,17 @@ int fork(void) {
 	procs[p].ebp = virt_stack_begin + 0x1000;
 	procs[p].ebp +=             ((stack_size ? stack_size : STACK_SIZE) + 0x1000);
 #else // STACK_PROTECTOR
-	stack_begin = ((u32)kmalloc((stack_size ? stack_size : STACK_SIZE)) & ~0x10) + 0x10;
+	stack_begin = ((u32)kmalloc(stack_size ? stack_size : STACK_SIZE));
 	procs[p].ebp = virt_stack_begin;
-	procs[p].ebp +=              ((stack_size ? stack_size : STACK_SIZE)) & ~0x10;
+	procs[p].ebp +=              (stack_size ? stack_size : STACK_SIZE);
 #endif // !STACK_PROTECTOR
 
 
 	//procs[p].ebp += 0x10; procs[p].ebp &= 0xFFFFFFF0; // Small alignment
 
-	procs[p].esp = procs[p].ebp;
+	//procs[p].esp = procs[p].ebp;
+	procs[p].esp = cproc->esp;
+	procs[p].ebp = cproc->ebp;
 
 	i = 0;
 	for(; i < (stack_size ? stack_size : STACK_SIZE); i+= 0x1000)
@@ -307,8 +309,9 @@ int fork(void) {
 
 	procs[p].kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE) + PROC_KERN_STACK_SIZE;
 	for(i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
-		pgdir_map_page(pagedir, (void *)(procs[p].kernel_stack + i), (void *)(procs[p].kernel_stack + i), 0x03);
+		pgdir_map_page(pagedir, (void *)(procs[p].kernel_stack - i), (void *)(procs[p].kernel_stack - i), 0x03);
 	}
+	memcpy((void *)(procs[p].kernel_stack - PROC_KERN_STACK_SIZE), (void *)(cproc->kernel_stack - PROC_KERN_STACK_SIZE), PROC_KERN_STACK_SIZE);
 
 	procs[p].stack_end = procs[p].ebp - (stack_size ? stack_size : STACK_SIZE);
 	procs[p].stack_beg = procs[p].ebp;
@@ -319,7 +322,7 @@ int fork(void) {
 	block_page(procs[p].stack_beg + 0x1000);
 #endif // STACK_PROTECTOR
 
-	if(kernel == 0) {
+	//if(kernel == 0) {
 		/*STACK_PUSH(stack_begin, 0xFFFFAAAA);//process);
 		kerror(ERR_BOOTINFO, "STACK_PEEK[%08X]: %08X", stack_begin, *(uint32_t *)stack_begin);
 		STACK_PUSH(stack_begin, ring);
@@ -328,11 +331,35 @@ int fork(void) {
 		kerror(ERR_BOOTINFO, "STACK_PEEK[%08X]: %08X", stack_begin, *(uint32_t *)stack_begin);
 		procs[p].eip = (uint32_t)enter_ring;
 		procs[p].esp -= 12;*/
-		procs[p].eip = (uint32_t)proc_jump_to_ring;
-	}
+	//	procs[p].eip = (uint32_t)proc_jump_to_ring;
+	//}
+
 
 	// TODO: Maybe make this more effecient if stack size is large? i.e. only copy used portion?
-	memcpy((void *)procs[p].stack_end, (void *)cproc->stack_end, cproc->stack_beg - cproc->stack_end);
+	// ERROR: Page fault occurs here!!!
+	/*
+[000000008 ] Page fault at 0x00000000  --> 0x00000000  (non-present, write, kernel-mode)
+[000000008 ]   -> EIP: 00101494  CS: 08  EFLAGS: 00000246 
+[000000008 ]   -> ESP: 00000000  DS: 1A7808
+[000000008 ]   -> EAX: 00000000  EBX: 00000000  ECX: 00010000  EDX: 7F000000
+[000000008 ]   -> ESP: 7F00FF6C EBP: 001AA0AC  EDI: 00001E68  ESI: 00000000 
+[000000008 ]   -> Occurred in kernel-space, not in the page frames
+[000000008 ]   -> Page flags:  0x000 
+[000000008 ]   -> Table flags: 0x023 
+[000000008 ]   -> Page Directory: 0x00293000 
+[000000008 ]   -> Kernel pagedir: 0x00289000 
+[000000008 ]   -> Caused by process -1 [kern]
+Stack Trace:
+  [00101494 ] <0x00101470  + 36 > memcpy
+[000000008 ]       -> Stack contents:
+
+<7F00FF5C(-4)>: [00000000 ] [7F000000] [00010000 ] [00000000 ] 
+<7F00FF6C(0)>: [00101494 ] [00000008 ] [00000246 ] [00000000 ] 
+<7F00FF7C(4)>: [001A7808 ] [00105687 ] [00000000 ] [7F000000]
+	*/
+	kerror(ERR_BOOTINFO, " -- memcpy: pgent(%08X, %08X), %08X, %04X", procs[p].cr3, procs[p].stack_end, cproc->stack_end, cproc->stack_beg - cproc->stack_end);
+	memcpy((void *)pgdir_get_page_entry((uint32_t *)procs[p].cr3, (void *)virt_stack_begin), (void *)cproc->stack_end, cproc->stack_beg - cproc->stack_end);
+	//memcpy((void *)procs[p].stack_end, (void *)cproc->stack_end, cproc->stack_beg - cproc->stack_end);
 
 #endif // ARCH_X86
 
