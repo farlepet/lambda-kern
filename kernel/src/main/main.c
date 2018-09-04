@@ -107,10 +107,7 @@ __noreturn void kernel_task()
 		kpm.ktm.type   = KVID_PRINT;
 		kpm.kpm.string = "Hello via kvid!\n";
 
-		// Old System
-		//send_message(kvid, &kpm, sizeof(struct kvid_print_m));
-
-		// New System
+		
 		struct ipc_message *msg;
 		int ret;
 
@@ -127,34 +124,6 @@ __noreturn void kernel_task()
 			kerror(ERR_BOOTINFO, "kernel_task: Message sent to KVID!");
 		}
 	}
-
-	//fs_debug(8);
-/*
-	kerror(ERR_BOOTINFO, "Opening test.elf");
-
-	struct kfile *elf = fs_finddir(fs_root, "test.elf");
-	if(elf)
-	{
-		kerror(ERR_BOOTINFO, "  -> Found test.elf!");
-		u32 size = elf->length;
-		u8 *elfd = kmalloc(size);
-		fs_read(elf, 0, size, elfd);
-		u32 *pdir;
-		ptr_t elfe = load_elf(elfd, size, &pdir);
-		if(!elfe) goto ELF_ERR_BRA;
-
-		kerror(ERR_BOOTINFO, "  -> Entrypoint: 0x%08X", elfe);
-		add_kernel_task_pdir((void *)elfe, "test.elf", 0x1000, PRIO_DRIVER, pdir);
-		//add_kernel_task((void *)elfe, "test.elf", 0x1000, PRIO_KERNEL);
-		kerror(ERR_BOOTINFO, "      -> Created task");
-	}
-	else
-	{
-		kerror(ERR_BOOTINFO, "  -> Could not find test.elf!");
-	}
-
-ELF_ERR_BRA:
-*/
 
 
 	for(;;) busy_wait();

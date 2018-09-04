@@ -84,7 +84,10 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 	if(tasking) parent = proc_by_pid(current_pid);
 
 	int p = get_next_open_proc();
-	if(p == -1) kerror(ERR_MEDERR, "mtask:add_task: Too many processes, could not create new one.s");
+	if(p == -1) {
+		kerror(ERR_MEDERR, "mtask:add_task: Too many processes, could not create new one.");
+		return -1;
+	}
 
 	if(tasking)
 	{
@@ -202,6 +205,154 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 	unlock(&creat_task);
 
 	return procs[p].pid;
+}
+
+
+
+int fork(void) {
+	if(!tasking) {
+		kerror(ERR_MEDERR, "mtask:fork: Attempted to fork before multitasking enabled!!!");
+		return -1;
+	}
+
+
+	lock(&creat_task);
+	
+	kerror(ERR_BOOTINFO, "mtask:fork()");
+
+	// TODO: Is the current task really the parent? or is the parent of the
+	// current task the parent task?
+	int parent = 0;
+	if(tasking) parent = proc_by_pid(current_pid);
+
+	struct kproc *cproc = &procs[proc_by_pid(current_pid)];
+
+	uint32_t stack_size = cproc->stack_beg - cproc->stack_end;
+	int kernel = (current_pid < 0);
+
+	int p = get_next_open_proc();
+	if(p == -1) {
+		kerror(ERR_MEDERR, "mtask:fork: Too many processes, could not create new one.");
+		return -1;
+	}
+
+	uint32_t i = 0;
+	for(; i < MAX_CHILDREN; i++)
+	{
+		if(!procs[parent].children[i])
+		{
+			procs[parent].children[i] = p;
+			break;
+		}
+	}
+	if(i == MAX_CHILDREN)
+	{
+		kerror(ERR_SMERR, "mtask:add_task: Process %d has run out of children slots", procs[parent].pid);
+		unlock(&creat_task);
+		return 0;
+	}
+
+	// Doing a memcpy might be more efficient removing some instructions, but it
+	// may also introduce bugs/security flaws if certain info isn't cleared properly.
+	memset(&procs[p], 0, sizeof(struct kproc));
+
+	memcpy(procs[p].name, cproc->name, strlen(cproc->name));
+
+	if(kernel) procs[p].pid = next_kernel_pid--;
+	else       procs[p].pid = next_user_pid++;
+
+	procs[p].uid  = cproc->uid;
+	procs[p].gid  = cproc->gid;
+
+	procs[p].type = TYPE_VALID | TYPE_RANONCE;
+
+	if(kernel) procs[p].type |= TYPE_KERNEL;
+
+	procs[p].prio = cproc->prio;
+
+	uint32_t *pagedir = clone_kpagedir(cproc->cr3);
+
+#ifdef ARCH_X86
+	procs[p].ring = cproc->ring;
+	procs[p].eip  = cproc->eip;
+	procs[p].entrypoint = cproc->entrypoint;
+	procs[p].cr3  = (uint32_t)pagedir;
+
+	uint32_t stack_begin, virt_stack_begin;
+	if(!kernel) virt_stack_begin = 0xFF000000;
+	else        virt_stack_begin = 0x7F000000;
+
+#ifdef STACK_PROTECTOR
+	stack_begin = (u32)kmalloc((stack_size ? stack_size : STACK_SIZE) + 0x2000);
+	procs[p].ebp = virt_stack_begin + 0x1000;
+	procs[p].ebp +=             ((stack_size ? stack_size : STACK_SIZE) + 0x1000);
+#else // STACK_PROTECTOR
+	stack_begin = ((u32)kmalloc((stack_size ? stack_size : STACK_SIZE)) & ~0x10) + 0x10;
+	procs[p].ebp = virt_stack_begin;
+	procs[p].ebp +=              ((stack_size ? stack_size : STACK_SIZE)) & ~0x10;
+#endif // !STACK_PROTECTOR
+
+
+	//procs[p].ebp += 0x10; procs[p].ebp &= 0xFFFFFFF0; // Small alignment
+
+	procs[p].esp = procs[p].ebp;
+
+	i = 0;
+	for(; i < (stack_size ? stack_size : STACK_SIZE); i+= 0x1000)
+	{
+		if(kernel) pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
+		else       pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
+			//(void *)(procs[p].esp - i), (void *)(procs[p].esp - i), 0x03);
+	}
+
+	procs[p].kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE) + PROC_KERN_STACK_SIZE;
+	for(i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
+		pgdir_map_page(pagedir, (void *)(procs[p].kernel_stack + i), (void *)(procs[p].kernel_stack + i), 0x03);
+	}
+
+	procs[p].stack_end = procs[p].ebp - (stack_size ? stack_size : STACK_SIZE);
+	procs[p].stack_beg = procs[p].ebp;
+
+#ifdef STACK_PROTECTOR
+// TODO: Fix stack guarding:
+	block_page(procs[p].stack_end - 0x1000); // <-- Problematic line
+	block_page(procs[p].stack_beg + 0x1000);
+#endif // STACK_PROTECTOR
+
+	if(kernel == 0) {
+		/*STACK_PUSH(stack_begin, 0xFFFFAAAA);//process);
+		kerror(ERR_BOOTINFO, "STACK_PEEK[%08X]: %08X", stack_begin, *(uint32_t *)stack_begin);
+		STACK_PUSH(stack_begin, ring);
+		kerror(ERR_BOOTINFO, "STACK_PEEK[%08X]: %08X", stack_begin, *(uint32_t *)stack_begin);
+		STACK_PUSH(stack_begin, 0xFEAFBEEF); // Return Address
+		kerror(ERR_BOOTINFO, "STACK_PEEK[%08X]: %08X", stack_begin, *(uint32_t *)stack_begin);
+		procs[p].eip = (uint32_t)enter_ring;
+		procs[p].esp -= 12;*/
+		procs[p].eip = (uint32_t)proc_jump_to_ring;
+	}
+
+	// TODO: Maybe make this more effecient if stack size is large? i.e. only copy used portion?
+	memcpy((void *)procs[p].stack_end, (void *)cproc->stack_end, cproc->stack_beg - cproc->stack_end);
+
+#endif // ARCH_X86
+
+	
+	// TODO: Copy other process-mapped memory!
+
+	// Set up message buffer
+	procs[p].messages.head  = 0;
+	procs[p].messages.tail  = 0;
+	procs[p].messages.count = 0;
+	procs[p].messages.size  = MSG_BUFF_SIZE;
+	procs[p].messages.buff  = procs[p].msg_buff;
+
+	procs[p].cwd = cproc->cwd;
+
+	procs[p].type |= TYPE_RUNNABLE;
+
+	unlock(&creat_task);
+
+	return -1; // TODO
 }
 
 
