@@ -81,16 +81,28 @@ global syscall_int
 syscall_int:
 	pusha
 
-	push ebx ; Arguments pointer
-	push eax ; Syscall number
+	;push ebx ; Arguments pointer
+	;push eax ; Syscall number
+	push esp
 
 	call handle_syscall
 
-	add esp, 8
+	;add esp, 8
+	add esp, 4
 
 	popa
 	iret
 
+extern restore_syscall_regs
+global return_from_syscall
+return_from_syscall:
+	;pusha
+	;push esp
+	; Modifies stack space created by `pusha`:
+	;call restore_syscall_regs
+	;add esp, 4
+	popa
+	iret
 
 global call_syscall_int
 ; Call interrupt for a syscall

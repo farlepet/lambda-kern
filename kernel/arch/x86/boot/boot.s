@@ -50,8 +50,9 @@ endloop:
 
 .global get_eip
 get_eip:
-	pop %eax
-	push %eax
+	;pop %eax
+	;push %eax
+	mov (%esp), %eax
 	ret
 
 

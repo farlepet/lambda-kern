@@ -4,6 +4,7 @@
 #include <mm/cbuff.h>
 #include <fs/kfile.h>
 #include <mm/symbols.h>
+#include <proc/syscalls.h>
 
 #define MAX_PROCESSES        16 //!< Maximum amount of running processes
 #define MAX_CHILDREN         8  //!< Maximum number of children a parent can handle
@@ -67,6 +68,8 @@ struct kproc //!< Structure of a process as seen by the kernel
 
 	u32 stack_beg; //!< Beginning of stack
 	u32 stack_end; //!< Current end of stack
+
+	//struct pusha_regs syscall_regs;
 #endif
 
 	struct cbuff messages;      //!< Message buffer structure

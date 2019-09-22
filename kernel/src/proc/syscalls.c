@@ -4,6 +4,7 @@
 #include <err/panic.h>
 // TODO: Abstraction:
 #include <intr/idt.h>
+#include <string.h>
 
 // Includes that include syscalls
 #include <proc/ktasks.h>
@@ -43,11 +44,20 @@ struct syscall syscalls[] =
 	[SYSCALL_FS_IOCTL]    = { (func0_t)proc_fs_ioctl,    3, 0 },
 
 	[SYSCALL_FS_READ_BLK]   = { (func0_t)proc_fs_read_blk,   4, 0 },
-	[SYSCALL_FS_GETDIRINFO] = { (func0_t)proc_fs_getdirinfo, 2, 0 }
+	[SYSCALL_FS_GETDIRINFO] = { (func0_t)proc_fs_getdirinfo, 2, 0 },
+
+	[SYSCALL_FORK] = { (func0_t)fork, 0, 0 }
 };
 
-void handle_syscall(u32 scn, u32 *args)
+//void handle_syscall(u32 scn, u32 *args)
+void handle_syscall(struct pusha_regs *regs)
 {
+	struct kproc *proc = &procs[proc_by_pid(current_pid)];
+	//memcpy(&(proc->syscall_regs), regs, sizeof(struct pusha_regs));
+	proc->esp = (u32)regs;
+
+	uint32_t  scn  = regs->eax;
+	uint32_t *args = (uint32_t *)regs->ebx;
 	//kerror(ERR_BOOTINFO, "Syscall %d called with args at %08X", scn, args);
 	if(scn >= ARRAY_SZ(syscalls))
 	{
@@ -90,6 +100,11 @@ void handle_syscall(u32 scn, u32 *args)
 
 	//kerror(ERR_BOOTINFO, "  -> Retval [0] = %d", args[0]);
 }
+
+/*void restore_syscall_regs(struct pusha_regs *regs) {
+	struct kproc *parent = &procs[proc_by_pid(current_pid)];
+	memcpy(regs, &(parent->syscall_regs), sizeof(struct pusha_regs));
+}*/
 
 
 extern void syscall_int();

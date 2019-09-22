@@ -7,17 +7,7 @@
 #include <types.h>
 #include <video.h>
 
-struct pusha_regs {
-	uint32_t edi, esi;
-	uint32_t ebp, esp;
-	uint32_t ebx, edx, ecx, eax;
-};
 
-struct iret_regs {
-	uint32_t eip, cs;
-	uint32_t eflags;
-	uint32_t esp, ds;
-};
 
 void handle_page_fault(u32, u32,/* u32 *ebp, */struct pusha_regs, struct iret_regs iregs);
 void handle_gpf(uint32_t errcode, struct pusha_regs regs, struct iret_regs iregs);

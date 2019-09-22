@@ -140,9 +140,9 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 	procs[p].ebp = virt_stack_begin + 0x1000;
 	procs[p].ebp +=             ((stack_size ? stack_size : STACK_SIZE) + 0x1000);
 #else // STACK_PROTECTOR
-	stack_begin = ((u32)kmalloc((stack_size ? stack_size : STACK_SIZE)) & ~0x10) + 0x10;
+	stack_begin = ((u32)kmalloc(stack_size ? stack_size : STACK_SIZE));
 	procs[p].ebp = virt_stack_begin;
-	procs[p].ebp +=              ((stack_size ? stack_size : STACK_SIZE)) & ~0x10;
+	procs[p].ebp +=              (stack_size ? stack_size : STACK_SIZE);
 #endif // !STACK_PROTECTOR
 
 	//procs[p].ebp += 0x10; procs[p].ebp &= 0xFFFFFFF0; // Small alignment
@@ -207,6 +207,122 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 	return procs[p].pid;
 }
 
+static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_idx) {
+	// TODO: Sort out X86-specific bits!
+
+
+
+	struct kproc *child  = &procs[child_idx];
+	struct kproc *parent = &procs[parent_idx];
+
+	uint32_t i = 0;
+	for(; i < MAX_CHILDREN; i++)
+	{
+		if(!parent->children[i])
+		{
+			parent->children[i] = child_idx;
+			break;
+		}
+	}
+	if(i == MAX_CHILDREN)
+	{
+		kerror(ERR_SMERR, "mtask:add_task: Process %d has run out of children slots", parent->pid);
+		unlock(&creat_task);
+		return -1;
+	}
+
+	int kernel = (current_pid < 0);
+
+	// Doing a memcpy might be more efficient removing some instructions, but it
+	// may also introduce bugs/security flaws if certain info isn't cleared properly.
+	memset(child, 0, sizeof(struct kproc));
+
+	memcpy(child->name, parent->name, strlen(parent->name));
+
+	if(kernel) child->pid = next_kernel_pid--;
+	else       child->pid = next_user_pid++;
+
+
+	child->uid  = parent->uid;
+	child->gid  = parent->gid;
+
+	child->type = TYPE_VALID | TYPE_RANONCE;
+
+	if(kernel) child->type |= TYPE_KERNEL;
+
+	child->prio = parent->prio;
+
+	uint32_t *pagedir = clone_kpagedir(parent->cr3);
+
+	child->ring       = parent->ring;
+	child->eip        = parent->eip;
+	child->entrypoint = parent->entrypoint;
+	child->cr3        = (uint32_t)pagedir;
+
+	uint32_t stack_size = parent->stack_beg - parent->stack_end;
+	uint32_t stack_begin, virt_stack_begin;
+	if(!kernel) virt_stack_begin = 0xFF000000;
+	else        virt_stack_begin = 0x7F000000;
+
+#ifdef STACK_PROTECTOR
+	stack_begin = (u32)kmalloc((stack_size ? stack_size : STACK_SIZE) + 0x2000);
+	//child->ebp = virt_stack_begin + 0x1000;
+	//child->ebp +=             ((stack_size ? stack_size : STACK_SIZE) + 0x1000);
+#else // STACK_PROTECTOR
+	stack_begin = ((u32)kmalloc(stack_size ? stack_size : STACK_SIZE));
+	//child->ebp = virt_stack_begin;
+	//child->ebp +=              (stack_size ? stack_size : STACK_SIZE);
+#endif // !STACK_PROTECTOR
+
+	child->esp = parent->esp;
+	child->ebp = parent->ebp;
+
+	for(i = 0; i < (stack_size ? stack_size : STACK_SIZE); i+= 0x1000)
+	{
+		if(kernel) pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
+		else       pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
+	}
+
+	child->kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE) + PROC_KERN_STACK_SIZE;
+	for(i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
+		pgdir_map_page(pagedir, (void *)(child->kernel_stack - i), (void *)(child->kernel_stack - i), 0x03);
+	}
+	memcpy((void *)(child->kernel_stack - PROC_KERN_STACK_SIZE), (void *)(parent->kernel_stack - PROC_KERN_STACK_SIZE), PROC_KERN_STACK_SIZE);
+
+
+	child->stack_end = child->ebp - (stack_size ? stack_size : STACK_SIZE);
+	child->stack_beg = child->ebp;
+
+#ifdef STACK_PROTECTOR
+// TODO: Fix stack guarding:
+	block_page(child->stack_end - 0x1000); // <-- Problematic line
+	block_page(child->stack_beg + 0x1000);
+#endif // STACK_PROTECTOR
+
+	
+	// TODO: Maybe make this more effecient if stack size is large? i.e. only copy used portion?
+	memcpy((void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)virt_stack_begin), (void *)pgdir_get_page_entry((uint32_t *)parent->cr3, (void *)virt_stack_begin), parent->stack_beg - parent->stack_end);
+	//memcpy((void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)virt_stack_begin), (void *)parent->stack_end, parent->stack_beg - parent->stack_end);
+	//memcpy((void *)child->stack_end, (void *)parent->stack_end, parent->stack_beg - parent->stack_end);
+
+	kerror(ERR_BOOTINFO, " -- eip: %08X esp: %08X ebp: %08X", child->eip, child->esp, child->ebp);
+
+	//memcpy(&child->syscall_regs, &parent->syscall_regs, sizeof(struct pusha_regs));
+
+	// TODO: Copy other process-mapped memory!
+
+	// Set up message buffer
+	child->messages.head  = 0;
+	child->messages.tail  = 0;
+	child->messages.count = 0;
+	child->messages.size  = MSG_BUFF_SIZE;
+	child->messages.buff  = child->msg_buff;
+
+	child->cwd = parent->cwd;
+
+	return 0;
+}
+
 
 
 int fork(void) {
@@ -220,166 +336,49 @@ int fork(void) {
 	
 	kerror(ERR_BOOTINFO, "mtask:fork()");
 
-	// TODO: Is the current task really the parent? or is the parent of the
-	// current task the parent task?
-	int parent = 0;
-	if(tasking) parent = proc_by_pid(current_pid);
-
-	struct kproc *cproc = &procs[proc_by_pid(current_pid)];
-
-	uint32_t stack_size = cproc->stack_beg - cproc->stack_end;
-	int kernel = (current_pid < 0);
-
 	int p = get_next_open_proc();
 	if(p == -1) {
 		kerror(ERR_MEDERR, "mtask:fork: Too many processes, could not create new one.");
 		return -1;
 	}
 
-	uint32_t i = 0;
-	for(; i < MAX_CHILDREN; i++)
-	{
-		if(!procs[parent].children[i])
-		{
-			procs[parent].children[i] = p;
-			break;
-		}
-	}
-	if(i == MAX_CHILDREN)
-	{
-		kerror(ERR_SMERR, "mtask:add_task: Process %d has run out of children slots", procs[parent].pid);
+	//int kernel = (current_pid < 0);
+
+	struct kproc *child  = &procs[p];
+	struct kproc *parent = &procs[proc_by_pid(current_pid)];
+
+	fork_clone_process(p, proc_by_pid(current_pid));
+
+	//asm volatile ("mov %%esp, %0" : "=r" (child->esp));
+	//asm volatile ("mov %%ebp, %0" : "=r" (child->ebp));
+
+	//ptr_t eip = (ptr_t)get_eip();
+	//ptr_t eip = parent->eip;
+
+	// ERROR: PF occurs here in spawnee:
+	if(current_pid == parent->pid) { // Parent process
+		kerror(ERR_BOOTINFO, " -- Parent process");
+
+		/*if(kernel == 0) {
+			child->eip        = (uint32_t)proc_jump_to_ring;
+			child->entrypoint = eip;
+		} else {
+			child->eip = eip;
+		}*/
+
+		child->eip = (u32)return_from_syscall;
+
+		kerror(ERR_BOOTINFO, " -- Child Stack: %08X %08X", child->esp, child->ebp);
+
+		child->type |= TYPE_RUNNABLE;
+
 		unlock(&creat_task);
+
+		return child->pid;
+	} else { // Child process
+		kerror(ERR_BOOTINFO, " -- Child process");
 		return 0;
 	}
-
-	// Doing a memcpy might be more efficient removing some instructions, but it
-	// may also introduce bugs/security flaws if certain info isn't cleared properly.
-	memset(&procs[p], 0, sizeof(struct kproc));
-
-	memcpy(procs[p].name, cproc->name, strlen(cproc->name));
-
-	if(kernel) procs[p].pid = next_kernel_pid--;
-	else       procs[p].pid = next_user_pid++;
-
-	procs[p].uid  = cproc->uid;
-	procs[p].gid  = cproc->gid;
-
-	procs[p].type = TYPE_VALID | TYPE_RANONCE;
-
-	if(kernel) procs[p].type |= TYPE_KERNEL;
-
-	procs[p].prio = cproc->prio;
-
-	uint32_t *pagedir = clone_kpagedir(cproc->cr3);
-
-#ifdef ARCH_X86
-	procs[p].ring = cproc->ring;
-	procs[p].eip  = cproc->eip;
-	procs[p].entrypoint = cproc->entrypoint;
-	procs[p].cr3  = (uint32_t)pagedir;
-
-	uint32_t stack_begin, virt_stack_begin;
-	if(!kernel) virt_stack_begin = 0xFF000000;
-	else        virt_stack_begin = 0x7F000000;
-
-#ifdef STACK_PROTECTOR
-	stack_begin = (u32)kmalloc((stack_size ? stack_size : STACK_SIZE) + 0x2000);
-	procs[p].ebp = virt_stack_begin + 0x1000;
-	procs[p].ebp +=             ((stack_size ? stack_size : STACK_SIZE) + 0x1000);
-#else // STACK_PROTECTOR
-	stack_begin = ((u32)kmalloc(stack_size ? stack_size : STACK_SIZE));
-	procs[p].ebp = virt_stack_begin;
-	procs[p].ebp +=              (stack_size ? stack_size : STACK_SIZE);
-#endif // !STACK_PROTECTOR
-
-
-	//procs[p].ebp += 0x10; procs[p].ebp &= 0xFFFFFFF0; // Small alignment
-
-	//procs[p].esp = procs[p].ebp;
-	procs[p].esp = cproc->esp;
-	procs[p].ebp = cproc->ebp;
-
-	i = 0;
-	for(; i < (stack_size ? stack_size : STACK_SIZE); i+= 0x1000)
-	{
-		if(kernel) pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
-		else       pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
-			//(void *)(procs[p].esp - i), (void *)(procs[p].esp - i), 0x03);
-	}
-
-	procs[p].kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE) + PROC_KERN_STACK_SIZE;
-	for(i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
-		pgdir_map_page(pagedir, (void *)(procs[p].kernel_stack - i), (void *)(procs[p].kernel_stack - i), 0x03);
-	}
-	memcpy((void *)(procs[p].kernel_stack - PROC_KERN_STACK_SIZE), (void *)(cproc->kernel_stack - PROC_KERN_STACK_SIZE), PROC_KERN_STACK_SIZE);
-
-	procs[p].stack_end = procs[p].ebp - (stack_size ? stack_size : STACK_SIZE);
-	procs[p].stack_beg = procs[p].ebp;
-
-#ifdef STACK_PROTECTOR
-// TODO: Fix stack guarding:
-	block_page(procs[p].stack_end - 0x1000); // <-- Problematic line
-	block_page(procs[p].stack_beg + 0x1000);
-#endif // STACK_PROTECTOR
-
-	//if(kernel == 0) {
-		/*STACK_PUSH(stack_begin, 0xFFFFAAAA);//process);
-		kerror(ERR_BOOTINFO, "STACK_PEEK[%08X]: %08X", stack_begin, *(uint32_t *)stack_begin);
-		STACK_PUSH(stack_begin, ring);
-		kerror(ERR_BOOTINFO, "STACK_PEEK[%08X]: %08X", stack_begin, *(uint32_t *)stack_begin);
-		STACK_PUSH(stack_begin, 0xFEAFBEEF); // Return Address
-		kerror(ERR_BOOTINFO, "STACK_PEEK[%08X]: %08X", stack_begin, *(uint32_t *)stack_begin);
-		procs[p].eip = (uint32_t)enter_ring;
-		procs[p].esp -= 12;*/
-	//	procs[p].eip = (uint32_t)proc_jump_to_ring;
-	//}
-
-
-	// TODO: Maybe make this more effecient if stack size is large? i.e. only copy used portion?
-	// ERROR: Page fault occurs here!!!
-	/*
-[000000008 ] Page fault at 0x00000000  --> 0x00000000  (non-present, write, kernel-mode)
-[000000008 ]   -> EIP: 00101494  CS: 08  EFLAGS: 00000246 
-[000000008 ]   -> ESP: 00000000  DS: 1A7808
-[000000008 ]   -> EAX: 00000000  EBX: 00000000  ECX: 00010000  EDX: 7F000000
-[000000008 ]   -> ESP: 7F00FF6C EBP: 001AA0AC  EDI: 00001E68  ESI: 00000000 
-[000000008 ]   -> Occurred in kernel-space, not in the page frames
-[000000008 ]   -> Page flags:  0x000 
-[000000008 ]   -> Table flags: 0x023 
-[000000008 ]   -> Page Directory: 0x00293000 
-[000000008 ]   -> Kernel pagedir: 0x00289000 
-[000000008 ]   -> Caused by process -1 [kern]
-Stack Trace:
-  [00101494 ] <0x00101470  + 36 > memcpy
-[000000008 ]       -> Stack contents:
-
-<7F00FF5C(-4)>: [00000000 ] [7F000000] [00010000 ] [00000000 ] 
-<7F00FF6C(0)>: [00101494 ] [00000008 ] [00000246 ] [00000000 ] 
-<7F00FF7C(4)>: [001A7808 ] [00105687 ] [00000000 ] [7F000000]
-	*/
-	kerror(ERR_BOOTINFO, " -- memcpy: pgent(%08X, %08X), %08X, %04X", procs[p].cr3, procs[p].stack_end, cproc->stack_end, cproc->stack_beg - cproc->stack_end);
-	memcpy((void *)pgdir_get_page_entry((uint32_t *)procs[p].cr3, (void *)virt_stack_begin), (void *)cproc->stack_end, cproc->stack_beg - cproc->stack_end);
-	//memcpy((void *)procs[p].stack_end, (void *)cproc->stack_end, cproc->stack_beg - cproc->stack_end);
-
-#endif // ARCH_X86
-
-	
-	// TODO: Copy other process-mapped memory!
-
-	// Set up message buffer
-	procs[p].messages.head  = 0;
-	procs[p].messages.tail  = 0;
-	procs[p].messages.count = 0;
-	procs[p].messages.size  = MSG_BUFF_SIZE;
-	procs[p].messages.buff  = procs[p].msg_buff;
-
-	procs[p].cwd = cproc->cwd;
-
-	procs[p].type |= TYPE_RUNNABLE;
-
-	unlock(&creat_task);
-
-	return -1; // TODO
 }
 
 
@@ -477,7 +476,7 @@ __hot void do_task_switch()
 				 "sti\n"
 				 "jmp *%%ebx"
 				 : : "r" (eip), "r" (esp), "r" (ebp), "r" (cr3)
-				 : "%ebx", "%esp", "%eax");
+				 : "%ebx", /*"%esp", */"%eax");
 #endif
 }
 

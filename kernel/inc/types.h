@@ -31,8 +31,9 @@ typedef unsigned long long int max_ptr_t; //!< Maximum pointer size that can be 
 
 #define __pure           __attribute__((__pure__))                //!< Return value depends soely on arguments
 
-#define __align(A)       __attribute__((__aligned__(A)))         //!< Aligns the data A bytes
+#define __align(A)       __attribute__((__aligned__(A)))          //!< Aligns the data A bytes
 #define __inline_flat    __attribute__((__flatten__))             //!< Tries to inline ALL function calls
+#define __no_inline      __attribute__ ((__noinline__))           //!< Prevents inlining of function
 
 #define __error(E)       __attribute__((__error__(#E)))           //!< Throws an error is this is reached in preprocessing
 #define __warning(E)     __attribute__((__warning__(#E)))         //!< Throws a warning is this is reached in preprocessing

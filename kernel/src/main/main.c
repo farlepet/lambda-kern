@@ -135,13 +135,18 @@ __noreturn void kernel_task()
 void fork_test(void) {
 	kerror(ERR_BOOTINFO, "Fork test...");
 
-	int pid = fork();
+	//int pid = fork();
+	uint32_t args[1] = {0};
+	call_syscall(SYSCALL_FORK, args);
+	int pid = (int)args[0];
 
-	if(pid == -1) {
+	if(pid == 0) {
 		kerror(ERR_BOOTINFO, "Spawned process");
 	} else {
 		kerror(ERR_BOOTINFO, "Spawner process (spawned %d)", pid);
 	}
 
 	kerror(ERR_BOOTINFO, "Fork test completed.");
+
+	enable_interrupts();
 }
