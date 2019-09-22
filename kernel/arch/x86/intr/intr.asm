@@ -96,11 +96,6 @@ syscall_int:
 extern restore_syscall_regs
 global return_from_syscall
 return_from_syscall:
-	;pusha
-	;push esp
-	; Modifies stack space created by `pusha`:
-	;call restore_syscall_regs
-	;add esp, 4
 	popa
 	iret
 

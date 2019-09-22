@@ -68,8 +68,6 @@ struct kproc //!< Structure of a process as seen by the kernel
 
 	u32 stack_beg; //!< Beginning of stack
 	u32 stack_end; //!< Current end of stack
-
-	//struct pusha_regs syscall_regs;
 #endif
 
 	struct cbuff messages;      //!< Message buffer structure

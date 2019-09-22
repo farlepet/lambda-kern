@@ -141,7 +141,7 @@ void fork_test(void) {
 	int pid = (int)args[0];
 
 	if(pid == 0) {
-		kerror(ERR_BOOTINFO, "Spawned process");
+		kerror(ERR_BOOTINFO, "Spawned process (pid %d)", get_pid());
 	} else {
 		kerror(ERR_BOOTINFO, "Spawner process (spawned %d)", pid);
 	}

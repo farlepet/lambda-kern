@@ -53,7 +53,6 @@ struct syscall syscalls[] =
 void handle_syscall(struct pusha_regs *regs)
 {
 	struct kproc *proc = &procs[proc_by_pid(current_pid)];
-	//memcpy(&(proc->syscall_regs), regs, sizeof(struct pusha_regs));
 	proc->esp = (u32)regs;
 
 	uint32_t  scn  = regs->eax;
@@ -100,11 +99,6 @@ void handle_syscall(struct pusha_regs *regs)
 
 	//kerror(ERR_BOOTINFO, "  -> Retval [0] = %d", args[0]);
 }
-
-/*void restore_syscall_regs(struct pusha_regs *regs) {
-	struct kproc *parent = &procs[proc_by_pid(current_pid)];
-	memcpy(regs, &(parent->syscall_regs), sizeof(struct pusha_regs));
-}*/
 
 
 extern void syscall_int();

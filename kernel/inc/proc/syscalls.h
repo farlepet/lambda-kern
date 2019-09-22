@@ -43,6 +43,5 @@ void call_syscall(u32 scn, u32 *arg);
 void handle_syscall(struct pusha_regs *regs);
 
 extern void return_from_syscall();
-//void restore_syscall_regs();
 
 #endif

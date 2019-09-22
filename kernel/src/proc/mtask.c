@@ -305,9 +305,7 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 	//memcpy((void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)virt_stack_begin), (void *)parent->stack_end, parent->stack_beg - parent->stack_end);
 	//memcpy((void *)child->stack_end, (void *)parent->stack_end, parent->stack_beg - parent->stack_end);
 
-	kerror(ERR_BOOTINFO, " -- eip: %08X esp: %08X ebp: %08X", child->eip, child->esp, child->ebp);
-
-	//memcpy(&child->syscall_regs, &parent->syscall_regs, sizeof(struct pusha_regs));
+	//kerror(ERR_BOOTINFO, " -- eip: %08X esp: %08X ebp: %08X", child->eip, child->esp, child->ebp);
 
 	// TODO: Copy other process-mapped memory!
 
@@ -331,10 +329,9 @@ int fork(void) {
 		return -1;
 	}
 
-
 	lock(&creat_task);
 	
-	kerror(ERR_BOOTINFO, "mtask:fork()");
+	//kerror(ERR_BOOTINFO, "mtask:fork()");
 
 	int p = get_next_open_proc();
 	if(p == -1) {
@@ -342,43 +339,20 @@ int fork(void) {
 		return -1;
 	}
 
-	//int kernel = (current_pid < 0);
-
 	struct kproc *child  = &procs[p];
-	struct kproc *parent = &procs[proc_by_pid(current_pid)];
+	//struct kproc *parent = &procs[proc_by_pid(current_pid)];
 
 	fork_clone_process(p, proc_by_pid(current_pid));
 
-	//asm volatile ("mov %%esp, %0" : "=r" (child->esp));
-	//asm volatile ("mov %%ebp, %0" : "=r" (child->ebp));
+	child->eip = (u32)return_from_syscall;
 
-	//ptr_t eip = (ptr_t)get_eip();
-	//ptr_t eip = parent->eip;
+	//kerror(ERR_BOOTINFO, " -- Child Stack: %08X %08X", child->esp, child->ebp);
 
-	// ERROR: PF occurs here in spawnee:
-	if(current_pid == parent->pid) { // Parent process
-		kerror(ERR_BOOTINFO, " -- Parent process");
+	child->type |= TYPE_RUNNABLE;
 
-		/*if(kernel == 0) {
-			child->eip        = (uint32_t)proc_jump_to_ring;
-			child->entrypoint = eip;
-		} else {
-			child->eip = eip;
-		}*/
+	unlock(&creat_task);
 
-		child->eip = (u32)return_from_syscall;
-
-		kerror(ERR_BOOTINFO, " -- Child Stack: %08X %08X", child->esp, child->ebp);
-
-		child->type |= TYPE_RUNNABLE;
-
-		unlock(&creat_task);
-
-		return child->pid;
-	} else { // Child process
-		kerror(ERR_BOOTINFO, " -- Child process");
-		return 0;
-	}
+	return child->pid;
 }
 
 
