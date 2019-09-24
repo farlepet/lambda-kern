@@ -33,7 +33,7 @@ int execve(const char *filename, const char **argv, const char **envp) {
     } else if(*(u16 *)execdata == 0x3335) { // SHEBANG, NOTE: Byte order might be wrong!
         kerror(ERR_MEDERR, "execve: No support for shebang yet!");
     } else { // UNKNOWN
-        kerror(ERR_MEDERR, "execve: Unknow executable file type: %08X", *(u32 *)execdata);
+        kerror(ERR_MEDERR, "execve: Unknown executable file type: %08X", *(u32 *)execdata);
     }
 
     return -1;

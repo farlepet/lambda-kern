@@ -7,6 +7,7 @@
 
 #ifdef ARCH_X86
 #include <mm/paging.h>
+#include <proc/user.h>
 #endif
 
 
@@ -48,7 +49,11 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 		return 0;
 	}
 
-	u32 *pgdir = clone_kpagedir();
+	int p = proc_by_pid(current_pid);
+
+	//u32 *pgdir = clone_kpagedir();
+	u32 *pgdir = (u32 *)procs[p].cr3;
+	
 	//u32 *phys_pgdir = get_phys_page(pgdir);
 	//u32 *pgdir = (u32 *)kernel_cr3;
 
@@ -119,13 +124,18 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 
 	*pdir = pgdir;
 	//return head->e_entry;
-	int pid = add_user_task_pdir((void *)head->e_entry, "UNNAMED_ELF", 0x2000, PRIO_USERPROG, pgdir);
+	
+	// Old way of creating new process:
+	//int pid = add_user_task_pdir((void *)head->e_entry, "UNNAMED_ELF", 0x2000, PRIO_USERPROG, pgdir);
 
-	int p = proc_by_pid(pid);
+	//int p = proc_by_pid(pid);
 	procs[p].symbols   = symbols;
 	procs[p].symStrTab = symStrTab;
 	
-	return pid;
+	enter_ring(procs[p].ring, (void *)head->e_entry);
+
+	//return pid;
+	return -1;
 }
 
 
