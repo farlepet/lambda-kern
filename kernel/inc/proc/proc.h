@@ -1,10 +1,8 @@
 #ifndef PROC_H
 #define PROC_H
 
-#include <mm/cbuff.h>
-#include <fs/kfile.h>
-#include <mm/symbols.h>
-#include <proc/syscalls.h>
+struct kproc;
+struct uproc;
 
 #define MAX_PROCESSES        16 //!< Maximum amount of running processes
 #define MAX_CHILDREN         8  //!< Maximum number of children a parent can handle
@@ -32,6 +30,11 @@
 #define PRIO_KERNELPROG 2 //!< Priority for kernel programs
 #define PRIO_DRIVER     3 //!< Priority for kernel drivers
 #define PRIO_KERNEL     4 //!< Priority for main kernel tasks
+
+#include <mm/cbuff.h>
+#include <fs/kfile.h>
+#include <mm/symbols.h>
+#include <proc/syscalls.h>
 
 struct proc_book //!< Structure for process `book-keeping`
 {

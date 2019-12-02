@@ -83,12 +83,12 @@ syscall_int:
 
 	;push ebx ; Arguments pointer
 	;push eax ; Syscall number
-	push esp
+	;push esp
 
 	call handle_syscall
 
 	;add esp, 8
-	add esp, 4
+	;add esp, 4
 
 	popa
 	iret

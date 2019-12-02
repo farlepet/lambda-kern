@@ -132,7 +132,7 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 	procs[p].symbols   = symbols;
 	procs[p].symStrTab = symStrTab;
 	
-	enter_ring(procs[p].ring, (void *)head->e_entry);
+	enter_ring_noargs(procs[p].ring, (void *)head->e_entry);
 
 	//return pid;
 	return -1;
@@ -144,8 +144,6 @@ int exec_elf(void *data, u32 length, const char **argv, const char **envp)
 {
 	//kerror(ERR_BOOTINFO, "Executing elf from %08X of length %08X", data, length);
 	(void)length; // TODO: Error-check with this
-	(void)argv;
-	(void)envp;
 
 	Elf32_Ehdr *head = data;
 
@@ -170,7 +168,7 @@ int exec_elf(void *data, u32 length, const char **argv, const char **envp)
 
 	if(head->e_type != ET_EXEC)
 	{
-		kerror(ERR_SMERR, "Tried to load non-executable ELF with type %d", head->e_type);
+		kerror(ERR_SMERR, "Tried to lSURELYoad non-executable ELF with type %d", head->e_type);
 		return 0;
 	}
 
@@ -256,7 +254,15 @@ int exec_elf(void *data, u32 length, const char **argv, const char **envp)
 	int p = proc_by_pid(current_pid);
 	procs[p].symbols   = symbols;
 	procs[p].symStrTab = symStrTab;
-	
+
+	int argc = 0;
+	while(argv[argc] != 0) argc++;
+
+	memcpy(procs[p].name, "ELF_PROG", 9);
+
+	enter_ring(procs[p].ring, (void *)head->e_entry, 0, argv, envp);
+	//enter_ring(3, (void *)head->e_entry, 0, argv, envp);
+
 	//return pid;
 	return -1;
 }

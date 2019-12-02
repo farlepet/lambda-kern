@@ -4,10 +4,14 @@
 #include <fs/procfs.h>
 #include <proc/elf.h>
 #include <mm/alloc.h>
+#include <mm/mm.h>
 
 
 int execve(const char *filename, const char **argv, const char **envp) {
-	kerror(ERR_INFO, "execve: %s (%08X, %08X)", filename, argv, envp);
+    int idx = proc_by_pid(current_pid);
+    if(idx < 0) return -1;
+    struct kproc *proc = &procs[idx];
+    kerror(ERR_BOOTINFO, "execve: %s (%08X, %08X)", mm_translate_proc_addr(proc, filename), argv, envp);
 
     int _exec = proc_fs_open(filename, OFLAGS_READ); //NOTE: The flag here may be wrong
     if(_exec < 0) {
@@ -16,10 +20,8 @@ int execve(const char *filename, const char **argv, const char **envp) {
     }
 
     // TODO: Find size in a more formal manner
-    int idx = proc_by_pid(current_pid);
-    if(idx < 0) return -1;
-    struct kproc *proc = &procs[idx];
     int execsz = proc->open_files[_exec]->length;
+
 
     void *execdata = kmalloc(execsz);
     proc_fs_read(_exec, 0, execsz, execdata);

@@ -18,6 +18,8 @@
 #include <mm/gdt.h>
 #endif
 
+struct kproc procs[MAX_PROCESSES];
+
 int current_pid = 0; //!< The PID of the currently running process
 
 int tasking = 0; //!< Has multitasking started yet?
@@ -363,7 +365,7 @@ void proc_jump_to_ring(void) {
 	if(p > 0) {
 #if defined(ARCH_X86)
 		if(procs[c_proc].entrypoint) {
-			enter_ring(procs[c_proc].ring, (void *)procs[c_proc].entrypoint);
+			enter_ring_noargs(procs[c_proc].ring, (void *)procs[c_proc].entrypoint);
 		}
 #endif
 	}

@@ -54,12 +54,12 @@ void pgdir_map_page(u32 *pgdir, void *physaddr, void *virtualaddr, u32 flags);
 
 void *get_phys_page(void *virtaddr);
 
-u32 get_page_entry(void *virtaddr);
+u32 get_page_entry(const void *virtaddr);
 
 
-u32 pgdir_get_page_entry(u32 *pgdir, void *virtaddr);
+u32 pgdir_get_page_entry(u32 *pgdir, const void *virtaddr);
 
-u32 pgdir_get_page_table(u32 *pgdir, void *virtaddr);
+u32 pgdir_get_page_table(u32 *pgdir, const void *virtaddr);
 
 /**
  * \brief Clear a page directory to it's default values.

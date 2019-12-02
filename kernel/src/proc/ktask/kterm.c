@@ -224,13 +224,12 @@ static int run(int argc, char **argv)
 		call_syscall(SYSCALL_FORK, args);
 		int _pid = (int)args[0];
 
-		//pid = load_elf(exec_data, exec->length, &pagedir);
 		if(_pid == 0) {
 			load_elf(exec_data, exec->length, &pagedir);
 		} else {
 			pid = _pid;
 		}
-		
+
 		if(!pid)
 		{
 			kerror(ERR_MEDERR, "Could not load executable");

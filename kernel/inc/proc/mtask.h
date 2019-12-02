@@ -6,7 +6,7 @@ void run_sched(void);
 #include <types.h>
 #include <proc/proc.h>
 
-struct kproc procs[MAX_PROCESSES];
+extern struct kproc procs[MAX_PROCESSES];
 
 int  current_pid; //!< The PID of the currently running process
 

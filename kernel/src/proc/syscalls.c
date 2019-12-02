@@ -1,3 +1,4 @@
+#include <mm/stack_trace.h>
 #include <proc/syscalls.h>
 #include <intr/intr.h>
 #include <err/error.h>
@@ -8,19 +9,18 @@
 
 // Includes that include syscalls
 #include <proc/ktasks.h>
-#include <proc/ipc.h>
 #include <proc/mtask.h>
+#include <proc/exec.h>
+#include <proc/ipc.h>
 #include <fs/procfs.h>
 
-struct syscall
-{
+struct syscall {
 	func0_t func;	// Pointer to function
 	int nargs;		// Number of arguments
-	u64 ncalls;		// Number of times this syscall was called
+	uint64_t ncalls;		// Number of times this syscall was called
 };
 
-struct syscall syscalls[] =
-{
+struct syscall syscalls[] = {
 	[SYSCALL_GET_KTASK] = { (func0_t)get_ktask,    2, 0 },
 	[SYSCALL_SEND_MSG]  = { (func0_t)send_message, 3, 0 },
 	[SYSCALL_RECV_MSG]  = { (func0_t)recv_message, 2, 0 },
@@ -46,22 +46,22 @@ struct syscall syscalls[] =
 	[SYSCALL_FS_READ_BLK]   = { (func0_t)proc_fs_read_blk,   4, 0 },
 	[SYSCALL_FS_GETDIRINFO] = { (func0_t)proc_fs_getdirinfo, 2, 0 },
 
-	[SYSCALL_FORK] = { (func0_t)fork, 0, 0 }
+	[SYSCALL_FORK]   = { (func0_t)fork,   0, 0 },
+	[SYSCALL_EXECVE] = { (func0_t)execve, 3, 0 }
 };
 
 //void handle_syscall(u32 scn, u32 *args)
-void handle_syscall(struct pusha_regs *regs)
-{
+void handle_syscall(struct pusha_regs regs, struct iret_regs iregs) {
 	struct kproc *proc = &procs[proc_by_pid(current_pid)];
-	proc->esp = (u32)regs;
+	proc->esp = (uint32_t)&regs;
 
-	uint32_t  scn  = regs->eax;
-	uint32_t *args = (uint32_t *)regs->ebx;
+	uint32_t  scn  = regs.eax;
+	uint32_t *args = (uint32_t *)regs.ebx;
 	//kerror(ERR_BOOTINFO, "Syscall %d called with args at %08X", scn, args);
-	if(scn >= ARRAY_SZ(syscalls))
-	{
+	if(scn >= ARRAY_SZ(syscalls)) {
 		int pid = get_pid();
-		kerror(ERR_MEDERR, "Process %d has tried to call an invalid syscall: %d", pid, scn);
+		kerror(ERR_MEDERR, "Process %d (%s) has tried to call an invalid syscall: %u Args: %08X", pid, proc->name, scn, args);
+		stack_trace(15, (uint32_t *)regs.ebp, iregs.eip, proc->symbols);
 		exit(1);
 	}
 
@@ -70,26 +70,25 @@ void handle_syscall(struct pusha_regs *regs)
 	func0_t func = syscalls[scn].func;
 
 	// This could be made better, but it is more complicated if another architecture is supported
-	switch(syscalls[scn].nargs)
-	{
+	switch(syscalls[scn].nargs) {
 		case 0:
 			args[0] = func();
 			break;
 
 		case 1:
-			args[0] = (u32)((func1_t)func(args[0]));
+			args[0] = (uint32_t)((func1_t)func(args[0]));
 			break;
 
 		case 2:
-			args[0] = (u32)((func2_t)func(args[0], args[1]));
+			args[0] = (uint32_t)((func2_t)func(args[0], args[1]));
 			break;
 
 		case 3:
-			args[0] = (u32)((func3_t)func(args[0], args[1], args[2]));
+			args[0] = (uint32_t)((func3_t)func(args[0], args[1], args[2]));
 			break;
 		
 		case 4:
-			args[0] = (u32)((func4_t)func(args[0], args[1], args[2], args[3]));
+			args[0] = (uint32_t)((func4_t)func(args[0], args[1], args[2], args[3]));
 			break;
 
 		default:
