@@ -137,7 +137,7 @@ int page_present(u32 virtaddr) {
 	return 0;
 }
 
-u32 get_page_entry(void *virtaddr) {
+u32 get_page_entry(const void *virtaddr) {
 	u32 pdindex = (u32)virtaddr >> 22;
 	u32 ptindex = (u32)virtaddr >> 12 & 0x03FF;
 
@@ -148,7 +148,7 @@ u32 get_page_entry(void *virtaddr) {
 }
 
 
-u32 pgdir_get_page_entry(u32 *pgdir, void *virtaddr) {
+u32 pgdir_get_page_entry(u32 *pgdir, const void *virtaddr) {
 	u32 pdindex = (u32)virtaddr >> 22;
 	u32 ptindex = (u32)virtaddr >> 12 & 0x03FF;
 
@@ -158,7 +158,7 @@ u32 pgdir_get_page_entry(u32 *pgdir, void *virtaddr) {
 	return 0;
 }
 
-u32 pgdir_get_page_table(u32 *pgdir, void *virtaddr) {
+u32 pgdir_get_page_table(u32 *pgdir, const void *virtaddr) {
 	u32 pdindex = (u32)virtaddr >> 22;
 	
 	return pgdir[pdindex];
@@ -352,7 +352,7 @@ void paging_init(u32 som, u32 eom)
 
 u32 *clone_kpagedir()
 {
-	u32 *pgd = (u32 *)(((ptr_t)kmalloc(sizeof(pagedir) + 0x1000) + 0x1000) & 0xFFFFF000);
+	u32 *pgd = (u32 *)(((ptr_t)kmalloc((sizeof(pagedir)) + 0x1000) + 0x1000) & 0xFFFFF000);
 
 	// kmalloc doesn't always gaive us mapped pages
 	u32 i = 0;
@@ -363,7 +363,18 @@ u32 *clone_kpagedir()
 	return pgd;
 }
 
+uint32_t *clone_pagedir(uint32_t *pgdir) {
+	// TODO: Make 1024 an actual constant:
+	uint32_t *pgd = (uint32_t *)(((ptr_t)kmalloc((1024 + sizeof(uint32_t)) + 0x1000) + 0x1000) & 0xFFFFF000);
 
+	// kmalloc doesn't always gaive us mapped pages
+	uint32_t i = 0;
+	for(; i < sizeof(pgdir); i += 0x1000)
+		map_page((void *)((uint32_t)pgd + i), (void *)((uint32_t)pgd + i), 0x03);
+
+	memcpy(pgd, pgdir, 1024 * sizeof(uint32_t));
+	return pgd;
+}
 
 
 

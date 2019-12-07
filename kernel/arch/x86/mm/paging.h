@@ -146,5 +146,6 @@ void page_free(void *ptr);
 
 
 u32 *clone_kpagedir();
+uint32_t *clone_pagedir(uint32_t * pgdir);
 
 #endif
