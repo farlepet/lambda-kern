@@ -56,7 +56,7 @@ void idt_init()
 	int i = 0;
 	for(; i < 256; i++)
 	{
-		kerror(ERR_INFO, "        -> INT %02X", i);
+		//kerror(ERR_INFO, "        -> INT %02X", i);
 		IDT[i] = IDT_ENTRY((u32)&dummy_int, 0x08, 0x8E);
 	}
 

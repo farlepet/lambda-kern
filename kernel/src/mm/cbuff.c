@@ -34,7 +34,7 @@ int get_cbuff(struct cbuff *buff)
 
 int write_cbuff(u8 *data, int size, struct cbuff *buff)
 {
-	kerror(ERR_INFO, "write_cbuff: count = %d size = %d", buff->count, size);
+	//kerror(ERR_INFO, "write_cbuff: count = %d size = %d", buff->count, size);
 	if(!data) return CBUFF_INVLD; // Invalid data
 	if(!buff->buff | !buff) return CBUFF_INVAL; // Invalid buffer
 	if(size > buff->size) return CBUFF_FULL; // Not enough room in buffer
@@ -52,7 +52,7 @@ int write_cbuff(u8 *data, int size, struct cbuff *buff)
 
 int read_cbuff(u8 *data, int size, struct cbuff *buff)
 {
-	kerror(ERR_INFO, "read_cbuff: count = %d size = %d", buff->count, size);
+	//kerror(ERR_INFO, "read_cbuff: count = %d size = %d", buff->count, size);
 	if(!data) return CBUFF_INVLD; // Invalid data
 	if(!buff->buff | !buff) return CBUFF_INVAL; // Invalid buffer
 	if(size > buff->size) return CBUFF_NENOD; // Not enough readable data
