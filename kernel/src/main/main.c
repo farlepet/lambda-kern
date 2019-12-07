@@ -21,7 +21,6 @@
 
 #ifdef ARCH_X86
 // TODO: Move these to another file:
-#include <io/pci.h>
 #include <io/serial.h>
 #include <dev/keyb/input.h>
 #include <dev/vga/print.h>
@@ -78,8 +77,6 @@ int kmain(struct multiboot_header *mboot_head, u32 magic)
 	iloop();
 }
 
-void fork_test(void);
-
 /**
  * The main kernel task, spawns a few other tasks, then busy-waits.
  */
@@ -89,64 +86,5 @@ __noreturn void kernel_task()
 
 	init_ktasks();
 
-	pci_enumerate();
-	pci_init();
-
-
-	u32 args[4];
-
-	int pid = get_pid();
-
-	args[0] = KVID_TASK_SLOT;
-	args[1] = 50;
-	//int kvid = get_ktask(KVID_TASK_SLOT, 50);
-	call_syscall(SYSCALL_GET_KTASK, args);
-	int kvid = args[0];
-	if(kvid) // A quick message-passing test
-	{
-		struct kvid_print_m kpm;
-		kpm.ktm.pid    = current_pid;
-		kpm.ktm.type   = KVID_PRINT;
-		kpm.kpm.string = "Hello via kvid!\n";
-
-		
-		struct ipc_message *msg;
-		int ret;
-
-		if((ret = ipc_create_message(&msg, pid, kvid, &kpm, sizeof(struct kvid_print_m))) < 0) 
-		{
-			kerror(ERR_SMERR, "kernel_task: ipc_create_message returned %d", ret);
-		}
-		else if((ret = ipc_send_message(msg)) < 0)
-		{
-			kerror(ERR_SMERR, "kernel_task: ipc_send_message returned %d", ret);
-		}
-		else
-		{
-			kerror(ERR_BOOTINFO, "kernel_task: Message sent to KVID!");
-		}
-	}
-
-	fork_test();
-
 	for(;;) busy_wait();
-}
-
-void fork_test(void) {
-	kerror(ERR_BOOTINFO, "Fork test...");
-
-	//int pid = fork();
-	uint32_t args[1] = {0};
-	call_syscall(SYSCALL_FORK, args);
-	int pid = (int)args[0];
-
-	if(pid == 0) {
-		kerror(ERR_BOOTINFO, "Spawned process (pid %d)", get_pid());
-	} else {
-		kerror(ERR_BOOTINFO, "Spawner process (spawned %d)", pid);
-	}
-
-	kerror(ERR_BOOTINFO, "Fork test completed.");
-
-	enable_interrupts();
 }
