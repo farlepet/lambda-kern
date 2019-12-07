@@ -25,6 +25,7 @@ static void dump_iregs(struct iret_regs iregs);
 void handle_page_fault(u32 errcode, u32 cr2,/* u32 *ebp, */struct pusha_regs regs, struct iret_regs iregs)
 {
 	u32 *cr3 = get_pagedir();
+
 	kerror(ERR_MEDERR, "Page fault at 0x%08X --> 0x%08X (%s%s%s%s%s)", cr2, pgdir_get_page_entry(cr3, (void *)cr2) & 0xFFFFF000,
 				((errcode & 0x01) ? "present"                   : "non-present"),
 				((errcode & 0x02) ? ", write"                   : ", read"),
@@ -105,6 +106,24 @@ void handle_gpf(uint32_t errcode, struct pusha_regs regs, struct iret_regs iregs
 	
 	dump_iregs(iregs);
 	dump_regs(regs);
+
+	if(tasking) {
+		int pid = current_pid;
+		int p = proc_by_pid(pid);
+		if(p == -1) {
+			kerror(ERR_MEDERR, "  -> Failed to get process index from pid (%d)", pid);
+			kpanic("GPF, halting");
+			for(;;);
+		}
+
+		kerror(ERR_MEDERR, "  -> Caused by process %d [%s]", pid, procs[p].name);
+	
+		if(regs.ebp != 0) {
+			stack_trace(15, (uint32_t *)regs.ebp, iregs.eip, procs[p].symbols);
+		}
+		
+		exit(1);
+	}
 
 	kpanic("GPF, halting");
 	for(;;);
