@@ -13,17 +13,14 @@ int ktask_pids[KTASK_SLOTS]; //!< PID's of these tasks
  * @param n kernel task number
  * @param time max number of clock ticks to wait (0 = infinite)
  */
-int get_ktask(int n, u64 time)
-{
-	if(n >= KTASK_SLOTS)
-	{
+int get_ktask(int n, uint64_t time) {
+	if(n >= KTASK_SLOTS) {
 		kerror(ERR_MEDERR, "Kernel requested pid of invalid ktask: %d", n);
 		return 0;
 	}
 	
-	u64 end = kerneltime + time;
-	while((kerneltime < end) || (time == 0))
-	{
+	uint64_t end = kerneltime + time;
+	while((kerneltime < end) || (time == 0)) {
 		if(ktask_pids[n]) return ktask_pids[n];
 		busy_wait();
 	}
@@ -31,8 +28,7 @@ int get_ktask(int n, u64 time)
 	return 0;
 }
 
-void init_ktasks()
-{
+void init_ktasks() {
 	kerror(ERR_BOOTINFO, "Starting kernel idle task");
 	add_kernel_task((void *)&idle_task, "_idle_", 0x100, PRIO_IDLE);
 

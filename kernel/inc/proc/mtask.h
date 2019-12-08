@@ -6,6 +6,8 @@ void run_sched(void);
 #include <types.h>
 #include <proc/proc.h>
 
+// TODO: Documentation
+
 extern struct kproc procs[MAX_PROCESSES];
 
 int  current_pid; //!< The PID of the currently running process
@@ -22,6 +24,7 @@ void do_task_switch(void);
 
 int add_kernel_task(void *process, char *name, u32 stack_size, int pri);
 int add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *pagedir);
+int add_user_task(void *process, char *name, u32 stack_size, int pri);
 int add_user_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *pagedir);
 
 int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *pagedir, int kernel, int ring);

@@ -13,4 +13,7 @@
  */
 int execve(const char *filename, const char **argv, const char **envp);
 
+// TODO: Document
+void exec_replace_process_image(void *entryp, const char *name, void *pagedir, symbol_t *symbols, char *symbol_string_table, const char **argv, const char **envp);
+
 #endif

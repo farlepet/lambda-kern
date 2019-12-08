@@ -6,6 +6,12 @@
 #include <mm/alloc.h>
 #include <mm/mm.h>
 
+#include <string.h>
+
+#if defined(ARCH_X86)
+#include <intr/int.h>
+#include <proc/user.h>
+#endif
 
 int execve(const char *filename, const char **argv, const char **envp) {
     int idx = proc_by_pid(current_pid);
@@ -39,4 +45,121 @@ int execve(const char *filename, const char **argv, const char **envp) {
     }
 
     return -1;
+}
+
+void exec_replace_process_image(void *entryp, const char *name, void *pagedir, symbol_t *symbols, char *symbol_string_table, const char **argv, const char **envp) {
+    kerror(ERR_INFO, "exec_replace_process_image @ %08X", entryp);
+
+    int p = proc_by_pid(current_pid);
+    struct kproc *proc = &procs[p];
+    struct kproc tmp_proc;
+    
+    // Copy data to temporary struct for easy copying of requred portions
+    // Probably innefecient, and could be done better
+    memcpy(&tmp_proc, proc, sizeof(struct kproc));
+
+#if defined(ARCH_X86) // Ensure we do not get interrupted
+    disable_interrupts();
+#endif
+
+    // Clear out old data:
+    memset(proc, 0, sizeof(struct kproc));
+
+    memcpy(proc->name, name, strlen(name) + 1);
+
+    proc->pid = tmp_proc.pid;
+    proc->uid = tmp_proc.uid;
+    proc->gid = tmp_proc.gid;
+
+    proc->type = tmp_proc.type;
+    // Not sure whether or not these should carry over:
+    memcpy(proc->children, tmp_proc.children, sizeof(proc->children));
+
+    proc->entrypoint = (uint32_t)entryp;
+
+    proc->cwd = tmp_proc.cwd;
+    memcpy(proc->open_files, tmp_proc.open_files, sizeof(proc->open_files));
+    memcpy(proc->file_position, tmp_proc.file_position, sizeof(proc->file_position));
+
+    proc->symbols = symbols;
+    proc->symStrTab = symbol_string_table;
+
+    proc->prio = tmp_proc.prio;
+
+    uint32_t argc = 0;
+    while(argv[argc]) argc++;
+
+#if defined(ARCH_X86)
+    // Copy architecture-specific bits:
+    proc->ring = tmp_proc.ring;
+    proc->eip  = (uint32_t)entryp;
+
+    // TODO: Free unused frames
+    // TODO: Only keep required portions of pagedir
+    //proc->cr3 = tmp_proc.cr3;
+    proc->cr3 = (uint32_t)pagedir;
+
+    int kernel = (proc->type & TYPE_KERNEL);
+
+    uint32_t stack_size = tmp_proc.stack_beg - tmp_proc.stack_end;
+
+    uint32_t stack_begin, virt_stack_begin;
+    if(!kernel) virt_stack_begin = 0xFF000000;
+    else        virt_stack_begin = 0x7F000000;
+
+    #ifdef STACK_PROTECTOR
+        stack_begin = (u32)kmalloc(stack_size + 0x2000);
+        proc->ebp   = virt_stack_begin + 0x1000;
+        proc->ebp  +=             (stack_size + 0x1000);
+    #else // STACK_PROTECTOR
+        stack_begin = ((u32)kmalloc(stack_size));
+        proc->ebp   = virt_stack_begin;
+        proc->ebp  +=              stack_size;
+    #endif // !STACK_PROTECTOR
+
+    procs[p].esp = procs[p].ebp;
+
+    uint32_t i = 0;
+    for(; i < stack_size; i+= 0x1000) {
+        if(kernel) pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
+        else       pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
+            //(void *)(procs[p].esp - i), (void *)(procs[p].esp - i), 0x03);
+    }
+
+    procs[p].kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE) + PROC_KERN_STACK_SIZE;
+    for(i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
+        pgdir_map_page(pagedir, (void *)(procs[p].kernel_stack - i), (void *)(procs[p].kernel_stack - i), 0x03);
+    }
+
+    procs[p].stack_end = procs[p].ebp - stack_size;
+    procs[p].stack_beg = procs[p].ebp;
+
+    #ifdef STACK_PROTECTOR
+    // TODO: Fix stack guarding:
+        block_page(procs[p].stack_end - 0x1000); // <-- Problematic line
+        block_page(procs[p].stack_beg + 0x1000);
+    #endif // STACK_PROTECTOR
+
+    /*proc->kernel_stack      = tmp_proc.kernel_stack;
+    proc->kernel_stack_size = tmp_proc.kernel_stack_size;
+
+    proc->stack_beg = tmp_proc.stack_beg;
+    proc->stack_end = tmp_proc.stack_end;*/
+    // Reset stack:
+    //proc->ebp = proc->esp = proc->stack_beg;
+
+    //enable_interrupts();
+
+    //enable_interrupts();
+
+    set_pagedir(pagedir);
+
+    kerror(ERR_INFO, "exec_replace_process_image(): Jumping into process");
+
+    STACK_PUSH(proc->esp, argc);
+    STACK_PUSH(proc->esp, argv);
+    STACK_PUSH(proc->esp, envp);
+
+    enter_ring_newstack(proc->ring, entryp, 0, argv, envp, (void *)proc->esp);
+#endif
 }

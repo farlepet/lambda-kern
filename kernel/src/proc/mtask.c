@@ -31,44 +31,41 @@ lock_t creat_task = 0; //!< Lock used when creating tasks
 
 void proc_jump_to_ring(void);
 
-int proc_by_pid(int pid)
-{
+int proc_by_pid(int pid) {
 	int i = 0;
 	for(; i < MAX_PROCESSES; i++)
 		if(procs[i].pid == pid) return i;
 	return -1;
 }
 
-int get_pid()
-{
+int get_pid() {
 	return current_pid;
 }
 
 struct kproc procs[MAX_PROCESSES]; //!< Processes
 
-static int get_next_open_proc()
-{
+static int get_next_open_proc() {
 	int p = 0;
-	while(procs[p].type & TYPE_VALID)
-	{
+	while(procs[p].type & TYPE_VALID) {
 		p++;
 		if(p >= MAX_PROCESSES) return -1;
 	}
 	return p;
 }
 
-int add_kernel_task(void *process, char *name, u32 stack_size, int pri)
-{
+int add_kernel_task(void *process, char *name, u32 stack_size, int pri) {
 	return add_task(process, name, stack_size, pri, clone_kpagedir(), 1, 0);
 }
 
-int add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *pagedir)
-{
+int add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *pagedir) {
 	return add_task(process, name, stack_size, pri, pagedir, 1, 0);
 }
 
-int add_user_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *pagedir)
-{
+int add_user_task(void *process, char *name, u32 stack_size, int pri) {
+	return add_task(process, name, stack_size, pri, clone_kpagedir(), 0, 3);
+}
+
+int add_user_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *pagedir) {
 	return add_task(process, name, stack_size, pri, pagedir, 0, 3);
 }
 
@@ -91,19 +88,15 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 		return -1;
 	}
 
-	if(tasking)
-	{
+	if(tasking) {
 		int i = 0;
-		for(; i < MAX_CHILDREN; i++)
-		{
-			if(!procs[parent].children[i])
-			{
+		for(; i < MAX_CHILDREN; i++) {
+			if(!procs[parent].children[i]) {
 				procs[parent].children[i] = p;
 				break;
 			}
 		}
-		if(i == MAX_CHILDREN)
-		{
+		if(i == MAX_CHILDREN) {
 			kerror(ERR_SMERR, "mtask:add_task: Process %d has run out of children slots", procs[parent].pid);
 			unlock(&creat_task);
 			return 0;
@@ -137,15 +130,15 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 	if(!kernel) virt_stack_begin = 0xFF000000;
 	else        virt_stack_begin = 0x7F000000;
 
-#ifdef STACK_PROTECTOR
-	stack_begin = (u32)kmalloc((stack_size ? stack_size : STACK_SIZE) + 0x2000);
-	procs[p].ebp = virt_stack_begin + 0x1000;
-	procs[p].ebp +=             ((stack_size ? stack_size : STACK_SIZE) + 0x1000);
-#else // STACK_PROTECTOR
-	stack_begin = ((u32)kmalloc(stack_size ? stack_size : STACK_SIZE));
-	procs[p].ebp = virt_stack_begin;
-	procs[p].ebp +=              (stack_size ? stack_size : STACK_SIZE);
-#endif // !STACK_PROTECTOR
+	#ifdef STACK_PROTECTOR
+		stack_begin   = (u32)kmalloc((stack_size ? stack_size : STACK_SIZE) + 0x2000);
+		procs[p].ebp  = virt_stack_begin + 0x1000;
+		procs[p].ebp +=             ((stack_size ? stack_size : STACK_SIZE) + 0x1000);
+	#else // STACK_PROTECTOR
+		stack_begin   = ((u32)kmalloc(stack_size ? stack_size : STACK_SIZE));
+		procs[p].ebp  = virt_stack_begin;
+		procs[p].ebp +=              (stack_size ? stack_size : STACK_SIZE);
+	#endif // !STACK_PROTECTOR
 
 	//procs[p].ebp += 0x10; procs[p].ebp &= 0xFFFFFFF0; // Small alignment
 
@@ -153,8 +146,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 	procs[p].esp = procs[p].ebp;
 
 	u32 i = 0;
-	for(; i < (stack_size ? stack_size : STACK_SIZE); i+= 0x1000)
-	{
+	for(; i < (stack_size ? stack_size : STACK_SIZE); i+= 0x1000) {
 		if(kernel) pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
 		else       pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
 			//(void *)(procs[p].esp - i), (void *)(procs[p].esp - i), 0x03);
@@ -168,11 +160,11 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 	procs[p].stack_end = procs[p].ebp - (stack_size ? stack_size : STACK_SIZE);
 	procs[p].stack_beg = procs[p].ebp;
 
-#ifdef STACK_PROTECTOR
-// TODO: Fix stack guarding:
-	block_page(procs[p].stack_end - 0x1000); // <-- Problematic line
-	block_page(procs[p].stack_beg + 0x1000);
-#endif // STACK_PROTECTOR
+	#ifdef STACK_PROTECTOR
+	// TODO: Fix stack guarding:
+		block_page(procs[p].stack_end - 0x1000); // <-- Problematic line
+		block_page(procs[p].stack_beg + 0x1000);
+	#endif // STACK_PROTECTOR
 
 
 	if(kernel == 0) {
@@ -212,22 +204,17 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_idx) {
 	// TODO: Sort out X86-specific bits!
 
-
-
 	struct kproc *child  = &procs[child_idx];
 	struct kproc *parent = &procs[parent_idx];
 
 	uint32_t i = 0;
-	for(; i < MAX_CHILDREN; i++)
-	{
-		if(!parent->children[i])
-		{
+	for(; i < MAX_CHILDREN; i++) {
+		if(!parent->children[i]) {
 			parent->children[i] = child_idx;
 			break;
 		}
 	}
-	if(i == MAX_CHILDREN)
-	{
+	if(i == MAX_CHILDREN) {
 		kerror(ERR_SMERR, "mtask:add_task: Process %d has run out of children slots", parent->pid);
 		unlock(&creat_task);
 		return -1;
@@ -254,7 +241,7 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 
 	child->prio = parent->prio;
 
-	uint32_t *pagedir = clone_kpagedir(parent->cr3);
+	uint32_t *pagedir = clone_pagedir((void *)parent->cr3);
 
 	child->ring       = parent->ring;
 	child->eip        = parent->eip;
@@ -279,8 +266,7 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 	child->esp = parent->esp;
 	child->ebp = parent->ebp;
 
-	for(i = 0; i < (stack_size ? stack_size : STACK_SIZE); i+= 0x1000)
-	{
+	for(i = 0; i < (stack_size ? stack_size : STACK_SIZE); i+= 0x1000) {
 		if(kernel) pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
 		else       pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
 	}
@@ -307,7 +293,7 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 	//memcpy((void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)virt_stack_begin), (void *)parent->stack_end, parent->stack_beg - parent->stack_end);
 	//memcpy((void *)child->stack_end, (void *)parent->stack_end, parent->stack_beg - parent->stack_end);
 
-	//kerror(ERR_BOOTINFO, " -- eip: %08X esp: %08X ebp: %08X", child->eip, child->esp, child->ebp);
+	kerror(ERR_INFO, " -- eip: %08X esp: %08X ebp: %08X", child->eip, child->esp, child->ebp);
 
 	// TODO: Copy other process-mapped memory!
 
@@ -318,11 +304,15 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 	child->messages.size  = MSG_BUFF_SIZE;
 	child->messages.buff  = child->msg_buff;
 
+	// Copy open file descriptors:
+	memcpy(child->open_files, parent->open_files, sizeof(child->open_files));
+	memcpy(child->file_position, parent->file_position, sizeof(child->file_position));
+
+	// Set working directory:
 	child->cwd = parent->cwd;
 
 	return 0;
 }
-
 
 
 int fork(void) {
@@ -333,7 +323,7 @@ int fork(void) {
 
 	lock(&creat_task);
 	
-	//kerror(ERR_BOOTINFO, "mtask:fork()");
+	kerror(ERR_INFO, "mtask:fork()");
 
 	int p = get_next_open_proc();
 	if(p == -1) {
@@ -348,7 +338,7 @@ int fork(void) {
 
 	child->eip = (u32)return_from_syscall;
 
-	//kerror(ERR_BOOTINFO, " -- Child Stack: %08X %08X", child->esp, child->ebp);
+	kerror(ERR_INFO, " -- Child Stack: %08X %08X", child->esp, child->ebp);
 
 	child->type |= TYPE_RUNNABLE;
 
@@ -378,8 +368,7 @@ void proc_jump_to_ring(void) {
 extern void sched_run(void);
 #endif
 
-void init_multitasking(void *process, char *name)
-{
+void init_multitasking(void *process, char *name) {
 	kerror(ERR_BOOTINFO, "Initializing multitasking");
 
 	add_kernel_task(process, name, 0x10000, PRIO_KERNEL);
@@ -396,14 +385,12 @@ void init_multitasking(void *process, char *name)
 	kerror(ERR_BOOTINFO, "Multitasking enabled");
 }
 
-void run_sched(void)
-{
+void run_sched(void) {
 	INTERRUPT(SCHED_INT);
 }
 
 
-__hot void do_task_switch()
-{
+__hot void do_task_switch() {
 	if(!tasking)   return;
 	if(creat_task) return; // We don't want to interrupt process creation
 
@@ -414,16 +401,14 @@ __hot void do_task_switch()
 	asm volatile ("mov %%ebp, %0" : "=r" (ebp));
 	eip = (u32)get_eip();
 
-	if(eip == 0xFFFFFFFF)
-	{
+	if(eip == 0xFFFFFFFF) {
 		sched_processes();
 		return;
 	}
 #endif
 
 
-	if(procs[c_proc].type & TYPE_RANONCE)
-	{
+	if(procs[c_proc].type & TYPE_RANONCE) {
 #if  defined(ARCH_X86)
 		procs[c_proc].esp = esp;
 		procs[c_proc].ebp = ebp;
@@ -457,11 +442,9 @@ __hot void do_task_switch()
 }
 
 
-void exit(int code)
-{
+void exit(int code) {
 	int p = proc_by_pid(current_pid);
-	if(p == -1)
-	{
+	if(p == -1) {
 		kerror(ERR_MEDERR, "Could not find process by pid (%d)", current_pid);
 		enable_interrupts();
 		run_sched();
@@ -470,8 +453,7 @@ void exit(int code)
 	procs[p].type |= TYPE_ZOMBIE; // It isn't removed unless it's parent inquires on it
 	procs[p].exitcode = code;
 
-	for(;;)
-	{
+	for(;;) {
 		run_sched();
 	}
 }

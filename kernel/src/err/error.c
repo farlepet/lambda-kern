@@ -7,7 +7,7 @@
 #include <types.h>
 #include <video.h>
 
-error_level minlvl = ERR_BOOTINFO; //!< Minimal level where messages are shown
+error_level minlvl = ERR_INFO; //!< Minimal level where messages are shown
 
 lock_t kerror_lock = 0; //!< Only 1 message can be printed at a time
 /**

@@ -220,15 +220,17 @@ static int run(int argc, char **argv)
 		u32 *pagedir;
 		//ptr_t exec_ep =
 
-		uint32_t args[1] = {0};
+		/*uint32_t args[1] = {0};
 		call_syscall(SYSCALL_FORK, args);
-		int _pid = (int)args[0];
+		int _pid = (int)args[0];*/
 
-		if(_pid == 0) {
+		/*if(_pid == 0) {
 			load_elf(exec_data, exec->length, &pagedir);
 		} else {
 			pid = _pid;
-		}
+		}*/
+
+		pid = load_elf(exec_data, exec->length, &pagedir);
 
 		if(!pid)
 		{
