@@ -69,12 +69,52 @@ int add_user_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *
 	return add_task(process, name, stack_size, pri, pagedir, 0, 3);
 }
 
+static int proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel) {
+#if defined(ARCH_X86)
+	uintptr_t stack_begin = (uintptr_t)kmalloc(stack_size);
 
+/*#ifdef STACK_PROTECTOR
+	stack_begin = (uintptr_t)kmalloc(stack_size + 0x2000);
+#else // STACK_PROTECTOR
+	stack_begin = (uintptr_t)kmalloc(stack_size);
+#endif // !STACK_PROTECTOR*/
+
+
+	for(size_t i = 0; i < stack_size; i+= 0x1000) {
+		if(is_kernel) pgdir_map_page((uint32_t *)proc->cr3, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
+		else          pgdir_map_page((uint32_t *)proc->cr3, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
+	}
+
+	proc->stack_end = virt_stack_begin;
+	proc->stack_beg = virt_stack_begin + stack_size;
+
+#ifdef STACK_PROTECTOR
+// TODO: Fix stack guarding:
+	block_page(proc->stack_end - 0x1000); // <-- Problematic line
+	block_page(proc->stack_beg + 0x1000);
+#endif // STACK_PROTECTOR
+#endif // ARCH_X86
+
+	return 0;
+}
+
+static int proc_create_kernel_stack(struct kproc *proc) {
+#if defined(ARCH_X86)
+	proc->kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE) + PROC_KERN_STACK_SIZE;
+	for(size_t i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
+		pgdir_map_page((uint32_t *)proc->cr3, (void *)(proc->kernel_stack - i), (void *)(proc->kernel_stack - i), 0x03);
+	}
+#endif // ARCH_X86
+
+	return 0;
+}
 
 
 int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *pagedir, int kernel, int ring) {
 	lock(&creat_task);
 	
+	if(!stack_size) stack_size = STACK_SIZE;
+
 	//kerror(ERR_BOOTINFO, "mtask:add_task(%08X, %s, %dK, %d, %08X, %d, %d)", process, name, (stack_size ? (stack_size / 1024) : (STACK_SIZE / 1024)), pri, pagedir, kernel, ring);
 
 	if(ring > 3 || ring < 0) { kerror(ERR_MEDERR, "mtask:add_task: Ring is out of range (0-3): %d", ring); return 0; }
@@ -120,52 +160,20 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 
 	procs[p].prio = pri;
 
-#if defined(ARCH_X86)
-	procs[p].ring = ring;
-	procs[p].eip  = (u32)process;
+#if 1// defined(ARCH_X86)
+	procs[p].ring       = ring;
+	procs[p].eip        = (u32)process;
 	procs[p].entrypoint = (u32)process;
-	procs[p].cr3  = (u32)pagedir;
+	procs[p].cr3        = (u32)pagedir;
 
-	uint32_t stack_begin, virt_stack_begin;
+	uint32_t /*stack_begin, */virt_stack_begin;
 	if(!kernel) virt_stack_begin = 0xFF000000;
 	else        virt_stack_begin = 0x7F000000;
 
-	#ifdef STACK_PROTECTOR
-		stack_begin   = (u32)kmalloc((stack_size ? stack_size : STACK_SIZE) + 0x2000);
-		procs[p].ebp  = virt_stack_begin + 0x1000;
-		procs[p].ebp +=             ((stack_size ? stack_size : STACK_SIZE) + 0x1000);
-	#else // STACK_PROTECTOR
-		stack_begin   = ((u32)kmalloc(stack_size ? stack_size : STACK_SIZE));
-		procs[p].ebp  = virt_stack_begin;
-		procs[p].ebp +=              (stack_size ? stack_size : STACK_SIZE);
-	#endif // !STACK_PROTECTOR
+	proc_create_stack(&procs[p], stack_size, virt_stack_begin, kernel);
+	proc_create_kernel_stack(&procs[p]);
 
-	//procs[p].ebp += 0x10; procs[p].ebp &= 0xFFFFFFF0; // Small alignment
-
-
-	procs[p].esp = procs[p].ebp;
-
-	u32 i = 0;
-	for(; i < (stack_size ? stack_size : STACK_SIZE); i+= 0x1000) {
-		if(kernel) pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
-		else       pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
-			//(void *)(procs[p].esp - i), (void *)(procs[p].esp - i), 0x03);
-	}
-
-	procs[p].kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE) + PROC_KERN_STACK_SIZE;
-	for(i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
-		pgdir_map_page(pagedir, (void *)(procs[p].kernel_stack - i), (void *)(procs[p].kernel_stack - i), 0x03);
-	}
-
-	procs[p].stack_end = procs[p].ebp - (stack_size ? stack_size : STACK_SIZE);
-	procs[p].stack_beg = procs[p].ebp;
-
-	#ifdef STACK_PROTECTOR
-	// TODO: Fix stack guarding:
-		block_page(procs[p].stack_end - 0x1000); // <-- Problematic line
-		block_page(procs[p].stack_beg + 0x1000);
-	#endif // STACK_PROTECTOR
-
+	procs[p].esp = procs[p].ebp = virt_stack_begin + stack_size;
 
 	if(kernel == 0) {
 		/*STACK_PUSH(stack_begin, 0xFFFFAAAA);//process);
@@ -200,6 +208,8 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 
 	return procs[p].pid;
 }
+
+
 
 static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_idx) {
 	// TODO: Sort out X86-specific bits!
@@ -237,9 +247,6 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 	child->gid  = parent->gid;
 
 	child->type = TYPE_VALID | TYPE_RANONCE;
-	child->messages.tail  = 0;
-	
-
 	if(kernel) child->type |= TYPE_KERNEL;
 
 	child->prio = parent->prio;
@@ -252,40 +259,21 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 	child->cr3        = (uint32_t)pagedir;
 
 	uint32_t stack_size = parent->stack_beg - parent->stack_end;
-	uint32_t stack_begin, virt_stack_begin;
+	uint32_t /*stack_begin, */virt_stack_begin;
 	if(!kernel) virt_stack_begin = 0xFF000000;
 	else        virt_stack_begin = 0x7F000000;
-
-#ifdef STACK_PROTECTOR
-	stack_begin = (uint32_t)kmalloc(stack_size + 0x2000);
-#else // STACK_PROTECTOR
-	stack_begin = (uint32_t)kmalloc(stack_size);
-#endif // !STACK_PROTECTOR
 
 	child->esp = parent->esp;
 	child->ebp = parent->ebp;
 
-	for(i = 0; i < stack_size; i+= 0x1000) {
-		if(kernel) pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
-		else       pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
-	}
+	proc_create_stack(child, stack_size, virt_stack_begin, kernel);
+	proc_create_kernel_stack(child);
 
-	child->kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE) + PROC_KERN_STACK_SIZE;
-	for(i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
-		pgdir_map_page(pagedir, (void *)(child->kernel_stack - i), (void *)(child->kernel_stack - i), 0x03);
-	}
+
+	//child->stack_end = child->ebp - stack_size;
+	//child->stack_beg = child->ebp;
+
 	memcpy((void *)(child->kernel_stack - PROC_KERN_STACK_SIZE), (void *)(parent->kernel_stack - PROC_KERN_STACK_SIZE), PROC_KERN_STACK_SIZE);
-
-
-	child->stack_end = child->ebp - stack_size;
-	child->stack_beg = child->ebp;
-
-#ifdef STACK_PROTECTOR
-// TODO: Fix stack guarding:
-	block_page(child->stack_end - 0x1000); // <-- Problematic line
-	block_page(child->stack_beg + 0x1000);
-#endif // STACK_PROTECTOR
-
 	
 	// TODO: Maybe make this more effecient if stack size is large? i.e. only copy used portion?
 	memcpy((void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)virt_stack_begin), (void *)pgdir_get_page_entry((uint32_t *)parent->cr3, (void *)virt_stack_begin), stack_size);
@@ -297,9 +285,6 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 	// TODO: Copy other process-mapped memory!
 
 	// Set up message buffer
-	child->messages.head  = 0;
-	child->messages.tail  = 0;
-	child->messages.count = 0;
 	child->messages.size  = MSG_BUFF_SIZE;
 	child->messages.buff  = child->msg_buff;
 

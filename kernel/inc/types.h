@@ -71,11 +71,11 @@ typedef enum BOOL { FALSE, TRUE } bool;
 
 void __builtin_ia32_pause(); //!< Energy-saving alternative to `nop`
 
-typedef u32 (*func0_t)();
-typedef u32 (*func1_t)(u32);
-typedef u32 (*func2_t)(u32, u32);
-typedef u32 (*func3_t)(u32, u32, u32);
-typedef u32 (*func4_t)(u32, u32, u32, u32);
-typedef u32 (*func5_t)(u32, u32, u32, u32, u32);
+typedef uint32_t (*func0_t)();
+typedef uint32_t (*func1_t)(uint32_t);
+typedef uint32_t (*func2_t)(uint32_t, uint32_t);
+typedef uint32_t (*func3_t)(uint32_t, uint32_t, uint32_t);
+typedef uint32_t (*func4_t)(uint32_t, uint32_t, uint32_t, uint32_t);
+typedef uint32_t (*func5_t)(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
 
 #endif
