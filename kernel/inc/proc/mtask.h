@@ -20,6 +20,10 @@ void *get_eip(); //!< Get the EIP value of the instruction after the call to thi
 
 int get_pid(); //!< Get the PID of the currently running task
 
+int get_next_pid(int kernel);
+
+int get_next_open_proc();
+
 void init_multitasking(void *process, char *name);
 
 void do_task_switch(struct pusha_regs pregs, struct iret_regs iregs);
@@ -36,6 +40,9 @@ int proc_by_pid(int pid);
 void exit(int code);
 
 int fork(void);
+
+int proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel);
+int proc_create_kernel_stack(struct kproc *proc);
 
 #define STACK_SIZE 0x8000 //!< Size of user stack or if kernel task has a unspecified stack size
 
