@@ -8,6 +8,47 @@
 
 extern lock_t creat_task;
 
+static int proc_copy_stack(struct kproc *dest, const struct kproc *src) {
+    // Must be done in 4K increments in case allocated blocks are not sequential
+
+    const size_t stack_size = src->stack_beg - src->stack_end;
+
+    /*for(size_t i = 0; i < stack_size; i += 0x1000) {
+        memcpy(
+            (void *)pgdir_get_page_entry((void *)dest->cr3, (void *)(dest->stack_end - i)),
+            (void *)pgdir_get_page_entry((void *)src->cr3,  (void *)(src->stack_end  - i)),
+            0x1000
+        );
+
+        //memcpy((void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)virt_stack_begin), (void *)pgdir_get_page_entry((uint32_t *)parent->cr3, (void *)virt_stack_begin), stack_size);
+        //memcpy((void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)(child->kernel_stack - PROC_KERN_STACK_SIZE)), (void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)(parent->kernel_stack - PROC_KERN_STACK_SIZE)), PROC_KERN_STACK_SIZE);
+    }*/
+
+    memcpy((void *)pgdir_get_page_entry((uint32_t *)dest->cr3, (void *)dest->stack_end), (void *)pgdir_get_page_entry((uint32_t *)src->cr3, (void *)src->stack_end), stack_size);
+
+    return 0;
+}
+
+static int proc_copy_kernel_stack(struct kproc *dest, const struct kproc *src) {
+    // Must be done in 4K increments in case allocated blocks are not sequential
+
+    /*for(size_t i = 0; i < PROC_KERN_STACK_SIZE; i += 0x1000) {
+        memcpy(
+            (void *)pgdir_get_page_entry((void *)dest->cr3, (void *)((dest->kernel_stack + PROC_KERN_STACK_SIZE) - i)),
+            (void *)pgdir_get_page_entry((void *)src->cr3,  (void *)((src->kernel_stack  + PROC_KERN_STACK_SIZE) - i)),
+            0x1000
+        );
+
+        //memcpy((void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)virt_stack_begin), (void *)pgdir_get_page_entry((uint32_t *)parent->cr3, (void *)virt_stack_begin), stack_size);
+        //memcpy((void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)(child->kernel_stack - PROC_KERN_STACK_SIZE)), (void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)(parent->kernel_stack - PROC_KERN_STACK_SIZE)), PROC_KERN_STACK_SIZE);
+    }*/
+
+    memcpy((void *)pgdir_get_page_entry((uint32_t *)dest->cr3, (void *)(dest->kernel_stack - PROC_KERN_STACK_SIZE)), (void *)pgdir_get_page_entry((uint32_t *)src->cr3, (void *)(src->kernel_stack - PROC_KERN_STACK_SIZE)), PROC_KERN_STACK_SIZE);
+
+    return 0;
+}
+
+
 static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_idx) {
     // TODO: Sort out X86-specific bits!
     // TODO: Clean up!
@@ -64,12 +105,8 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
     proc_create_stack(child, stack_size, virt_stack_begin, kernel);
     proc_create_kernel_stack(child);
 
-    memcpy((void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)(child->kernel_stack - PROC_KERN_STACK_SIZE)), (void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)(parent->kernel_stack - PROC_KERN_STACK_SIZE)), PROC_KERN_STACK_SIZE);
-	
-    // TODO: Maybe make this more effecient if stack size is large? i.e. only copy used portion?
-    memcpy((void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)virt_stack_begin), (void *)pgdir_get_page_entry((uint32_t *)parent->cr3, (void *)virt_stack_begin), stack_size);
-    //memcpy((void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)virt_stack_begin), (void *)parent->stack_end, stack_size);
-    //memcpy((void *)child->stack_end, (void *)parent->stack_end, stack_size);
+    proc_copy_stack(child, parent);
+    proc_copy_kernel_stack(child, parent);
 
     kerror(ERR_INFO, " -- eip: %08X esp: %08X ebp: %08X", child->eip, child->esp, child->ebp);
 
@@ -110,7 +147,7 @@ int fork(void) {
 
     fork_clone_process(p, proc_by_pid(current_pid));
 
-    child->eip = (u32)return_from_syscall;
+    child->eip = (uintptr_t)return_from_syscall;
 
     kerror(ERR_INFO, " -- Child Stack: %08X %08X", child->esp, child->ebp);
 

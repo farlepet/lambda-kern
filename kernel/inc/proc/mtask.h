@@ -8,6 +8,12 @@ void run_sched(void);
 
 #include <intr/int.h>
 
+
+#define STACK_SIZE 0x8000 //!< Size of user stack or if kernel task has a unspecified stack size
+
+#define STACK_PROTECTOR //!< Whether or not to enable stack protectors (currently broken)
+
+
 // TODO: Documentation
 
 extern struct kproc procs[MAX_PROCESSES];
@@ -43,10 +49,6 @@ int fork(void);
 
 int proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel);
 int proc_create_kernel_stack(struct kproc *proc);
-
-#define STACK_SIZE 0x8000 //!< Size of user stack or if kernel task has a unspecified stack size
-
-//#define STACK_PROTECTOR //!< Whether or not to enable stack protectors (currently broken)
 
 #define STACK_PUSH(esp, data) do { \
         esp = esp - 4; \

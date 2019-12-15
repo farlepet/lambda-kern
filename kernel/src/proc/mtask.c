@@ -94,8 +94,8 @@ int proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt_stac
 
 #ifdef STACK_PROTECTOR
 // TODO: Fix stack guarding:
-	block_page(proc->stack_end - 0x1000); // <-- Problematic line
-	block_page(proc->stack_beg + 0x1000);
+	block_page(proc->stack_end - 0x1000);
+	block_page(proc->stack_beg);
 #endif // STACK_PROTECTOR
 #endif // ARCH_X86
 
@@ -153,8 +153,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 
 	memcpy(procs[p].name, name, strlen(name));
 
-	if(kernel) procs[p].pid = next_kernel_pid--;
-	else       procs[p].pid = next_user_pid++;
+	procs[p].pid = get_next_pid(kernel);
 
 	// TODO:
 	procs[p].uid  = 0;

@@ -129,7 +129,7 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 	//return head->e_entry;
 	
 	// Old way of creating new process:
-	int pid = add_user_task_pdir((void *)head->e_entry, "UNNAMED_ELF", 0x2000, PRIO_USERPROG, pgdir);
+	int pid = add_user_task_pdir((void *)head->e_entry, "UNNAMED_ELF", 0, PRIO_USERPROG, pgdir);
 
 	p = proc_by_pid(pid);
 	procs[p].symbols   = symbols;
