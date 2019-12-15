@@ -203,6 +203,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 
 static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_idx) {
 	// TODO: Sort out X86-specific bits!
+	// TODO: Clean up!
 
 	struct kproc *child  = &procs[child_idx];
 	struct kproc *parent = &procs[parent_idx];
@@ -236,6 +237,8 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 	child->gid  = parent->gid;
 
 	child->type = TYPE_VALID | TYPE_RANONCE;
+	child->messages.tail  = 0;
+	
 
 	if(kernel) child->type |= TYPE_KERNEL;
 
@@ -254,19 +257,15 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 	else        virt_stack_begin = 0x7F000000;
 
 #ifdef STACK_PROTECTOR
-	stack_begin = (u32)kmalloc((stack_size ? stack_size : STACK_SIZE) + 0x2000);
-	//child->ebp = virt_stack_begin + 0x1000;
-	//child->ebp +=             ((stack_size ? stack_size : STACK_SIZE) + 0x1000);
+	stack_begin = (uint32_t)kmalloc(stack_size + 0x2000);
 #else // STACK_PROTECTOR
-	stack_begin = ((u32)kmalloc(stack_size ? stack_size : STACK_SIZE));
-	//child->ebp = virt_stack_begin;
-	//child->ebp +=              (stack_size ? stack_size : STACK_SIZE);
+	stack_begin = (uint32_t)kmalloc(stack_size);
 #endif // !STACK_PROTECTOR
 
 	child->esp = parent->esp;
 	child->ebp = parent->ebp;
 
-	for(i = 0; i < (stack_size ? stack_size : STACK_SIZE); i+= 0x1000) {
+	for(i = 0; i < stack_size; i+= 0x1000) {
 		if(kernel) pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
 		else       pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
 	}
@@ -278,7 +277,7 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 	memcpy((void *)(child->kernel_stack - PROC_KERN_STACK_SIZE), (void *)(parent->kernel_stack - PROC_KERN_STACK_SIZE), PROC_KERN_STACK_SIZE);
 
 
-	child->stack_end = child->ebp - (stack_size ? stack_size : STACK_SIZE);
+	child->stack_end = child->ebp - stack_size;
 	child->stack_beg = child->ebp;
 
 #ifdef STACK_PROTECTOR
@@ -289,9 +288,9 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 
 	
 	// TODO: Maybe make this more effecient if stack size is large? i.e. only copy used portion?
-	memcpy((void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)virt_stack_begin), (void *)pgdir_get_page_entry((uint32_t *)parent->cr3, (void *)virt_stack_begin), parent->stack_beg - parent->stack_end);
-	//memcpy((void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)virt_stack_begin), (void *)parent->stack_end, parent->stack_beg - parent->stack_end);
-	//memcpy((void *)child->stack_end, (void *)parent->stack_end, parent->stack_beg - parent->stack_end);
+	memcpy((void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)virt_stack_begin), (void *)pgdir_get_page_entry((uint32_t *)parent->cr3, (void *)virt_stack_begin), stack_size);
+	//memcpy((void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)virt_stack_begin), (void *)parent->stack_end, stack_size);
+	//memcpy((void *)child->stack_end, (void *)parent->stack_end, stack_size);
 
 	kerror(ERR_INFO, " -- eip: %08X esp: %08X ebp: %08X", child->eip, child->esp, child->ebp);
 
@@ -332,7 +331,6 @@ int fork(void) {
 	}
 
 	struct kproc *child  = &procs[p];
-	//struct kproc *parent = &procs[proc_by_pid(current_pid)];
 
 	fork_clone_process(p, proc_by_pid(current_pid));
 
@@ -390,10 +388,11 @@ void run_sched(void) {
 }
 
 
-__hot void do_task_switch() {
+__hot void do_task_switch(struct pusha_regs pregs, struct iret_regs iregs) {
 	if(!tasking)   return;
 	if(creat_task) return; // We don't want to interrupt process creation
 
+	(void)pregs;
 
 #if  defined(ARCH_X86)
 	u32 esp, ebp, eip, cr3;
@@ -413,6 +412,8 @@ __hot void do_task_switch() {
 		procs[c_proc].esp = esp;
 		procs[c_proc].ebp = ebp;
 		procs[c_proc].eip = eip;
+
+		procs[c_proc].last_eip = iregs.eip;
 #endif
 	}
 	else procs[c_proc].type |= TYPE_RANONCE;

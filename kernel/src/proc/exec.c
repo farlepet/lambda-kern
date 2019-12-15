@@ -48,6 +48,7 @@ int execve(const char *filename, const char **argv, const char **envp) {
 }
 
 void exec_replace_process_image(void *entryp, const char *name, void *pagedir, symbol_t *symbols, char *symbol_string_table, const char **argv, const char **envp) {
+    // TODO: Clean this up, separate out portions where possible/sensical
     kerror(ERR_INFO, "exec_replace_process_image @ %08X", entryp);
 
     int p = proc_by_pid(current_pid);

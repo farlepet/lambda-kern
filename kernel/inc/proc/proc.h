@@ -45,6 +45,9 @@ struct proc_book //!< Structure for process `book-keeping`
 
 	uint32_t recvd_msgs;  //!< Number of received messages
 	uint32_t recvd_bytes; //!< Number of received bytes
+
+	uint32_t schedule_count; //!< Number of times this process has been scheduled
+	uint32_t syscall_count;  //!< Number of times this process has invoked a syscall
 };
 
 struct kproc //!< Structure of a process as seen by the kernel
@@ -65,6 +68,8 @@ struct kproc //!< Structure of a process as seen by the kernel
 	uint32_t ebp;       //!< Stack base pointer
 	uint32_t eip;       //!< Instruction pointer
 	uint32_t cr3;       //!< Page directory
+
+	uint32_t last_eip;  //!< Last recorded position outside of kernel code
 
 	uint32_t kernel_stack;      //!< Kernel stack
 	uint32_t kernel_stack_size; //!< Size of kernel stack

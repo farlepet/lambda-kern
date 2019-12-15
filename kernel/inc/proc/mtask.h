@@ -6,6 +6,8 @@ void run_sched(void);
 #include <types.h>
 #include <proc/proc.h>
 
+#include <intr/int.h>
+
 // TODO: Documentation
 
 extern struct kproc procs[MAX_PROCESSES];
@@ -20,7 +22,7 @@ int get_pid(); //!< Get the PID of the currently running task
 
 void init_multitasking(void *process, char *name);
 
-void do_task_switch(void);
+void do_task_switch(struct pusha_regs pregs, struct iret_regs iregs);
 
 int add_kernel_task(void *process, char *name, u32 stack_size, int pri);
 int add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *pagedir);

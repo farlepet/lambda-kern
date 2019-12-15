@@ -62,5 +62,7 @@ __hot int sched_next_process()
 	}
 	current_pid = procs[c_proc].pid;
 
+	procs[c_proc].book.schedule_count++;
+
 	return c_proc;
 }

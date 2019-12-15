@@ -54,6 +54,7 @@ struct syscall syscalls[] = {
 void handle_syscall(struct pusha_regs regs, struct iret_regs iregs) {
 	struct kproc *proc = &procs[proc_by_pid(current_pid)];
 	proc->esp = (uint32_t)&regs;
+	proc->book.syscall_count++;
 
 	uint32_t  scn  = regs.eax;
 	uint32_t *args = (uint32_t *)regs.ebx;
