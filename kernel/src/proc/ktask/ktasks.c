@@ -5,7 +5,7 @@
 #include <intr/int.h>
 #include <video.h>
 
-int ktask_pids[KTASK_SLOTS]; //!< PID's of these tasks
+int ktask_pids[KTASK_SLOTS] = { 0 }; //!< PID's of these tasks
 
 /**
  * Get a kernel task PID
@@ -31,22 +31,22 @@ int get_ktask(int n, uint64_t time) {
 void init_ktasks() {
 	// Small stack size here was effecting interrupts?
 	kerror(ERR_BOOTINFO, "Starting kernel idle task");
-	add_kernel_task((void *)&idle_task, "_idle_", 0x1000, PRIO_IDLE);
+	ktask_pids[IDLE_TASK_SLOT] = add_kernel_task((void *)&idle_task, "_idle_", 0x1000, PRIO_IDLE);
 
 	kerror(ERR_BOOTINFO, "Starting kernel video task");
-	add_kernel_task((void *)&kvid_task, "kvid", 0x1000, PRIO_DRIVER);
+	ktask_pids[KVID_TASK_SLOT] = add_kernel_task((void *)&kvid_task, "kvid", 0x1000, PRIO_DRIVER);
+
+	kerror(ERR_BOOTINFO, "Starting kernel terminal task");
+	ktask_pids[KTERM_TASK_SLOT] = add_kernel_task((void *)&kterm_task, "kterm", 0x2000, PRIO_DRIVER);
 
 #ifdef DEBUGGER
 	kerror(ERR_BOOTINFO, "Starting kernel debug task");
-	add_kernel_task((void *)&kbug_task, "kbug", 0x2000, PRIO_KERNEL);
+	ktask_pids[KBUG_TASK_SLOT] = add_kernel_task((void *)&kbug_task, "kbug", 0x2000, PRIO_KERNEL);
 #endif // DEBUGGER
 
 	kerror(ERR_BOOTINFO, "Starting kernel input task");
-	add_kernel_task((void *)&kinput_task, "kinput", 0x1000, PRIO_DRIVER);
+	ktask_pids[KINPUT_TASK_SLOT] = add_kernel_task((void *)&kinput_task, "kinput", 0x1000, PRIO_DRIVER);
 
 	kerror(ERR_BOOTINFO, "Starting kernel RNG task");
-	add_kernel_task((void *)&krng_task, "krng", 0x1000, PRIO_DRIVER);
-
-	kerror(ERR_BOOTINFO, "Starting kernel terminal task");
-	add_kernel_task((void *)&kterm_task, "kterm", 0x2000, PRIO_DRIVER);
+	ktask_pids[KRNG_TASK_SLOT] = add_kernel_task((void *)&krng_task, "krng", 0x1000, PRIO_DRIVER);
 }
