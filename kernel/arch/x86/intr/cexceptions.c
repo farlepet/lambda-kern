@@ -9,10 +9,10 @@
 
 
 
-void handle_page_fault(u32, u32,/* u32 *ebp, */struct pusha_regs, struct iret_regs iregs);
-void handle_gpf(uint32_t errcode, struct pusha_regs regs, struct iret_regs iregs);
-void handle_invalid_op(struct pusha_regs regs, struct iret_regs iregs);
-void handle_double_fault(struct pusha_regs regs, uint32_t errcode, struct iret_regs iregs);
+__noreturn void handle_page_fault(u32, u32,/* u32 *ebp, */struct pusha_regs, struct iret_regs iregs);
+__noreturn void handle_gpf(uint32_t errcode, struct pusha_regs regs, struct iret_regs iregs);
+__noreturn void handle_invalid_op(struct pusha_regs regs, struct iret_regs iregs);
+__noreturn void handle_double_fault(struct pusha_regs regs, uint32_t errcode, struct iret_regs iregs);
 static void dump_regs(struct pusha_regs regs);
 static void dump_iregs(struct iret_regs iregs);
 

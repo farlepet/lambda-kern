@@ -92,8 +92,10 @@ __noreturn void kterm_task()
 				continue;
 			}
 
-			input[iloc++] = t;
-			kprintf("%c", t);
+			if(t != 0) {
+				input[iloc++] = t;
+				kprintf("%c", t);
+			}
 		}
 
 		kprintf("\n");

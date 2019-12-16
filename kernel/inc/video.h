@@ -48,7 +48,7 @@ void kwprint(u16 *str);
 		signspace  = 0; \
 		leftalign  = 0; \
 		padzeros   = 0; \
-	} while(0);
+	} while(0)
 
 
 /**

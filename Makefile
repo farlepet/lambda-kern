@@ -13,7 +13,7 @@ OBJS       = $(patsubst %.c,%.o,$(SRCS))
 
 ifeq ($(ARCH), X86)
 CFLAGS    += -m32 -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/x86/ \
-			 -nostdlib -nostdinc -ffreestanding -Wall -Wextra -Werror -DARCH_X86 -O0 \
+			 -nostdlib -nostdinc -ffreestanding -Wall -Wextra -Werror -DARCH_X86 -O2 \
 			 -pipe -g -fno-stack-protector
 LDFLAGS    = -melf_i386 -T link_x86.ld
 
@@ -21,7 +21,24 @@ CFLAGS    += -march=i586
 
 
 ifeq ($(CC), clang)
-CFLAGS += -Wno-incompatible-library-redeclaration 
+# TODO: Take the time to go through all these -Wno- commands to fix easy-to-fix errors
+CFLAGS += -Weverything -Wno-incompatible-library-redeclaration -Wno-reserved-id-macro -Wno-newline-eof \
+-Wno-language-extension-token \
+-Wno-strict-prototypes \
+-Wno-missing-variable-declarations \
+-Wno-padded \
+-Wno-sign-conversion \
+-Wno-documentation \
+-Wno-missing-prototypes \
+-Wno-comma \
+-Wno-cast-qual \
+-Wno-pedantic \
+-Wno-shadow \
+-Wno-implicit-int-conversion \
+-Wno-atomic-implicit-seq-cst \
+-Wno-bad-function-cast \
+-Wno-cast-align
+
 else
 # Temporary(?) fix for syscall function casting in GCC
 CFLAGS += -Wno-cast-function-type

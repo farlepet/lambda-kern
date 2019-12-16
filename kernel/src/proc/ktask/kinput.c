@@ -79,19 +79,14 @@ static int add_subscriber(int pid) {
 // TODO: Default to 0, add kernel flag to set it to 1, or something else
 static int to_kterm = 1; //!< When 1, send all serial input to kterm
 
-__noreturn void kinput_task()
-{
+__noreturn void kinput_task() {
 	ktask_pids[KINPUT_TASK_SLOT] = current_pid;
-	for(;;)
-	{
+	for(;;) {
 		struct input_event iev;
 		recv_message(&iev, sizeof(struct input_event));
-		if(iev.type == EVENT_KEYPRESS)
-		{
-			if(iev.data == 0x01) // ESC -> DEBUG for now
-			{
-				if(ktask_pids[KBUG_TASK_SLOT])
-				{
+		if(iev.type == EVENT_KEYPRESS) {
+			if(iev.data == 0x01) { // ESC -> DEBUG for now
+				if(ktask_pids[KBUG_TASK_SLOT]) {
 					struct kbug_type_msg ktm;
 					ktm.type = KBUG_IDEBUG;
 					//while(!ktask_pids[KBUG_TASK_SLOT]);
@@ -103,27 +98,18 @@ __noreturn void kinput_task()
 				}
 			}
 			// TODO: Send char to some other process
-			else
-			{
-				if(ktask_pids[KVID_TASK_SLOT])
-				{
-					struct kvid_print_m kpm;
-					kpm.ktm.pid    = current_pid;
-					kpm.ktm.type   = KVID_PRINT;
-					kpm.kpm.string = " ";
-					kpm.kpm.string[0] = keycode_to_char(&iev);
-					
-					
-					struct ipc_message *msg;
-					ipc_create_message(&msg, current_pid, ktask_pids[KVID_TASK_SLOT], &kpm, sizeof(struct kvid_print_m));
-					ipc_send_message(msg);
+			else {
+				if(to_kterm) {
+					if(ktask_pids[KTERM_TASK_SLOT]) {
+						// Add kterm PID, and if it was added, clear to_kterm
+						to_kterm = (add_subscriber(ktask_pids[KTERM_TASK_SLOT]) < 0);
+					}
 				}
+				send_input_char(keycode_to_char(&iev));
 			}
 		}
-		else if(iev.type == EVENT_CHAR)
-		{
-			if(to_kterm)
-			{
+		else if(iev.type == EVENT_CHAR) {
+			if(to_kterm) {
 				if(ktask_pids[KTERM_TASK_SLOT]) {
 					// Add kterm PID, and if it was added, clear to_kterm
 					to_kterm = (add_subscriber(ktask_pids[KTERM_TASK_SLOT]) < 0);

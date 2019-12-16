@@ -3,7 +3,7 @@
 
 #include <types.h>
 
-void krng_task(void);
+__noreturn void krng_task(void);
 
 /**
  * Types of KRNG messages

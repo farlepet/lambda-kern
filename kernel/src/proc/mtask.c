@@ -204,7 +204,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 
 	procs[p].cwd = fs_root;
 
-	//kerror(ERR_BOOTINFO, "PID: %d EIP: %08X CR3: %08X ESP: %08X", procs[p].pid, procs[p].eip, procs[p].cr3, procs[p].esp);
+	kerror(ERR_BOOTINFO, "PID: %d EIP: %08X CR3: %08X ESP: %08X", procs[p].pid, procs[p].eip, procs[p].cr3, procs[p].esp);
 
 	//uint32_t page = pgdir_get_page_entry(pagedir, process);
 	//kerror(ERR_BOOTINFO, "Page %08X: LOC: %08X FLAGS: %03X", process, page & 0xFFFFF000, page & 0x0FFF);
@@ -312,7 +312,7 @@ __hot void do_task_switch(struct pusha_regs pregs, struct iret_regs iregs) {
 }
 
 
-void exit(int code) {
+__noreturn void exit(int code) {
 	int p = proc_by_pid(current_pid);
 	if(p == -1) {
 		kerror(ERR_MEDERR, "Could not find process by pid (%d)", current_pid);

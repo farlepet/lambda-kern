@@ -26,7 +26,7 @@
 #include <dev/vga/print.h>
 #endif
 
-void kernel_task(void);
+__noreturn void kernel_task(void);
 __noreturn int kmain(struct multiboot_header *, u32);
 
 __noreturn static void iloop()
@@ -41,7 +41,7 @@ __noreturn static void iloop()
  * @param mboot_head pointer to multiboot structure
  * @param magic magic number telling us this is a multiboot-compliant bootloader
  */
-int kmain(struct multiboot_header *mboot_head, u32 magic)
+__noreturn int kmain(struct multiboot_header *mboot_head, u32 magic)
 {
 	if(magic != 0x2BADB002)
 		kpanic("Invalid magic number given by the bootloader: 0x%08X", magic);

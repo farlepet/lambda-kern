@@ -29,8 +29,9 @@ int get_ktask(int n, uint64_t time) {
 }
 
 void init_ktasks() {
+	// Small stack size here was effecting interrupts?
 	kerror(ERR_BOOTINFO, "Starting kernel idle task");
-	add_kernel_task((void *)&idle_task, "_idle_", 0x100, PRIO_IDLE);
+	add_kernel_task((void *)&idle_task, "_idle_", 0x1000, PRIO_IDLE);
 
 	kerror(ERR_BOOTINFO, "Starting kernel video task");
 	add_kernel_task((void *)&kvid_task, "kvid", 0x1000, PRIO_DRIVER);

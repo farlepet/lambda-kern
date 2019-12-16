@@ -55,7 +55,7 @@ struct kbug_type_mem_msg
 	struct kbug_mem_msg kmm;
 };
 
-void kbug_task(void);
+__noreturn void kbug_task(void);
 
 #endif // DEBUGGER
 

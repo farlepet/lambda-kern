@@ -12,7 +12,7 @@ struct uproc;
 
 #define MSG_BUFF_SIZE 512 //!< Size of the message buffer in bytes
 
-#define PROC_KERN_STACK_SIZE 2048 //!< Size of kernel stack allocated to process
+#define PROC_KERN_STACK_SIZE 4096 //!< Size of kernel stack allocated to process
 
 #define TYPE_RUNNABLE 0x00000001 //!< Is this process runnable?
 #define TYPE_RANONCE  0x00000002 //!< Can this process save its registers yet?

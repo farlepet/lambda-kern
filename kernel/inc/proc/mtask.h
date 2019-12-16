@@ -11,7 +11,7 @@ void run_sched(void);
 
 #define STACK_SIZE 0x8000 //!< Size of user stack or if kernel task has a unspecified stack size
 
-#define STACK_PROTECTOR //!< Whether or not to enable stack protectors (currently broken)
+//#define STACK_PROTECTOR //!< Whether or not to enable stack protectors (currently broken)
 
 
 // TODO: Documentation
@@ -43,7 +43,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 
 int proc_by_pid(int pid);
 
-void exit(int code);
+__noreturn void exit(int code);
 
 int fork(void);
 
@@ -53,6 +53,6 @@ int proc_create_kernel_stack(struct kproc *proc);
 #define STACK_PUSH(esp, data) do { \
         esp = esp - 4; \
         *((uint32_t *)esp) = (uint32_t)data; \
-    } while(0);
+    } while(0)
 
 #endif
