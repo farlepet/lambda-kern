@@ -2,6 +2,7 @@
 #include <err/error.h>
 #include <err/panic.h>
 #include <proc/proc.h>
+#include <mm/alloc.h>
 #include <string.h>
 
 void kproc_to_uproc(struct kproc *kp, struct uproc *up)
@@ -33,6 +34,22 @@ int proc_add_file(struct kproc *proc, struct kfile *file) {
 	}
 
 	return -1;
+}
+
+int proc_add_mmap_ent(struct kproc *proc, uintptr_t virt_address, size_t length) {
+	struct kproc_mem_map_ent *ent = (struct kproc_mem_map_ent *)kmalloc(sizeof(struct kproc_mem_map_ent));
+
+	ent->virt_address = virt_address;
+	ent->length       = length;
+	ent->next         = NULL;
+
+	if(proc->mmap == NULL) {
+		proc->mmap = ent;
+	} else {
+		struct kproc_mem_map_ent *last = proc->mmap;
+		while(last->next != NULL) last = last->next;
+		last->next = ent;
+	}
 }
 
 

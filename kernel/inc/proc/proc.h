@@ -50,6 +50,13 @@ struct proc_book //!< Structure for process `book-keeping`
 	uint32_t syscall_count;  //!< Number of times this process has invoked a syscall
 };
 
+struct kproc_mem_map_ent {
+	uintptr_t virt_address;
+	uintptr_t length;
+
+	struct kproc_mem_map_ent *next;
+};
+
 struct kproc //!< Structure of a process as seen by the kernel
 {
 	char name[64]; //!< Name of the process
@@ -102,6 +109,8 @@ struct kproc //!< Structure of a process as seen by the kernel
 	int prio;      //!< Task priority
 
 	struct proc_book book; //!< Bookkeeping stuff
+
+	struct kproc_mem_map_ent *mmap; //!< Memory map
 };
 
 
