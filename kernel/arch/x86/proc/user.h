@@ -6,4 +6,6 @@ extern void enter_ring_newstack(int ring, void *address, int argc, const char **
 
 #define enter_ring_noargs(RING, ADDRESS) enter_ring(RING, ADDRESS, 0, 0, 0)
 
+extern void return_from_fork();
+
 #endif

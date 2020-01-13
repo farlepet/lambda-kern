@@ -4,32 +4,53 @@
 
 #if  defined(ARCH_X86)
 #include <mm/paging.h>
+#include <proc/user.h>
 #endif
 
 extern lock_t creat_task;
 
+// Assuming SRC is this process
 static int proc_copy_stack(struct kproc *dest, const struct kproc *src) {
+    kerror(ERR_BOOTINFO, "proc_copy_stack %08X (%08X) -> %08X (%08X)",
+        src->stack_beg, (pgdir_get_page_entry((uint32_t *)src->cr3, (void *)(src->stack_beg - 4096)) & (~0xFFF)) + 4096,
+        dest->stack_beg, (pgdir_get_page_entry((uint32_t *)dest->cr3, (void *)(dest->stack_beg - 4096)) & (~0xFFF)) + 4096
+    );
+
     // Must be done in 4K increments in case allocated blocks are not sequential
 
     const size_t stack_size = src->stack_beg - src->stack_end;
 
-    /*for(size_t i = 0; i < stack_size; i += 0x1000) {
-        memcpy(
-            (void *)pgdir_get_page_entry((void *)dest->cr3, (void *)(dest->stack_end - i)),
-            (void *)pgdir_get_page_entry((void *)src->cr3,  (void *)(src->stack_end  - i)),
-            0x1000
+    for(size_t i = 0; i < stack_size; i += 0x1000) {
+        pgdir_map_page(
+            (uint32_t *)src->cr3,
+            (void *)(pgdir_get_page_entry((uint32_t *)dest->cr3, (void *)(dest->stack_end + i)) & 0xFFFFF000),
+            (void *)(pgdir_get_page_entry((uint32_t *)dest->cr3, (void *)(dest->stack_end + i)) & 0xFFFFF000),
+            0x03
         );
 
-        //memcpy((void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)virt_stack_begin), (void *)pgdir_get_page_entry((uint32_t *)parent->cr3, (void *)virt_stack_begin), stack_size);
-        //memcpy((void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)(child->kernel_stack - PROC_KERN_STACK_SIZE)), (void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)(parent->kernel_stack - PROC_KERN_STACK_SIZE)), PROC_KERN_STACK_SIZE);
-    }*/
+        memcpy(
+            (void *)(pgdir_get_page_entry((void *)dest->cr3, (void *)(dest->stack_end + i)) & 0xFFFFF000),
+            (void *)(src->stack_end + i),
+            0x1000
+        );
+    }
 
-    memcpy((void *)pgdir_get_page_entry((uint32_t *)dest->cr3, (void *)dest->stack_end), (void *)pgdir_get_page_entry((uint32_t *)src->cr3, (void *)src->stack_end), stack_size);
+    //memcpy((void *)(pgdir_get_page_entry((uint32_t *)dest->cr3, (void *)dest->stack_end) & 0xFFFFF000), (void *)(pgdir_get_page_entry((uint32_t *)src->cr3, (void *)src->stack_end) & 0xFFFFF000), stack_size);
 
     return 0;
 }
 
 static int proc_copy_kernel_stack(struct kproc *dest, const struct kproc *src) {
+    kerror(ERR_BOOTINFO, "proc_copy_kernel_stack %08X (%08X) -> %08X (%08X)",
+        src->kernel_stack, (pgdir_get_page_entry((uint32_t *)src->cr3, (void *)(src->kernel_stack - 4096)) & (~0xFFF)) + 4096,
+        dest->kernel_stack, (pgdir_get_page_entry((uint32_t *)dest->cr3, (void *)(dest->kernel_stack - 4096)) & (~0xFFF)) + 4096
+    );
+    
+    // Kernel stack guaranteed to be linearly mapped:
+    for(size_t i = 0; i < PROC_KERN_STACK_SIZE; i += 0x1000) {
+        pgdir_map_page((uint32_t *)src->cr3, (void *)(dest->kernel_stack - PROC_KERN_STACK_SIZE + i), (void *)(dest->kernel_stack - PROC_KERN_STACK_SIZE + i), 0x03);
+    }
+
     // Must be done in 4K increments in case allocated blocks are not sequential
 
     /*for(size_t i = 0; i < PROC_KERN_STACK_SIZE; i += 0x1000) {
@@ -43,7 +64,7 @@ static int proc_copy_kernel_stack(struct kproc *dest, const struct kproc *src) {
         //memcpy((void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)(child->kernel_stack - PROC_KERN_STACK_SIZE)), (void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)(parent->kernel_stack - PROC_KERN_STACK_SIZE)), PROC_KERN_STACK_SIZE);
     }*/
 
-    memcpy((void *)pgdir_get_page_entry((uint32_t *)dest->cr3, (void *)(dest->kernel_stack - PROC_KERN_STACK_SIZE)), (void *)pgdir_get_page_entry((uint32_t *)src->cr3, (void *)(src->kernel_stack - PROC_KERN_STACK_SIZE)), PROC_KERN_STACK_SIZE);
+    memcpy((void *)(dest->kernel_stack - PROC_KERN_STACK_SIZE), (void *)(src->kernel_stack - PROC_KERN_STACK_SIZE), PROC_KERN_STACK_SIZE);
 
     return 0;
 }
@@ -87,26 +108,43 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 
     child->prio = parent->prio;
 
-    uint32_t *pagedir = clone_pagedir((void *)parent->cr3);
+    uint32_t *pagedir = clone_pagedir_full((void *)parent->cr3);
 
     child->ring       = parent->ring;
-    child->eip        = parent->eip;
+    //child->eip        = parent->eip;
     child->entrypoint = parent->entrypoint;
     child->cr3        = (uint32_t)pagedir;
 
     uint32_t stack_size = parent->stack_beg - parent->stack_end;
     uint32_t /*stack_begin, */virt_stack_begin;
+
     if(!kernel) virt_stack_begin = 0xFF000000;
     else        virt_stack_begin = 0x7F000000;
 
-    child->esp = parent->esp;
+    //child->esp = parent->esp;
     child->ebp = parent->ebp;
 
     proc_create_stack(child, stack_size, virt_stack_begin, kernel);
     proc_create_kernel_stack(child);
 
+    // POPAD: 8 DWORDS, IRETD: 5 DWORDS
+    child->esp = child->kernel_stack - 52;
+    child->eip = (uint32_t)return_from_fork;
+
     proc_copy_stack(child, parent);
     proc_copy_kernel_stack(child, parent);
+
+    kerror(ERR_INFO, "IRETD_VALS: %08X %08X %08X %08X %08X",
+        *(uint32_t *)(child->kernel_stack - 4), *(uint32_t *)(child->kernel_stack - 8), *(uint32_t *)(child->kernel_stack - 12), *(uint32_t *)(child->kernel_stack - 16),
+        *(uint32_t *)(child->kernel_stack - 20)
+    );
+
+    kerror(ERR_INFO, "POPAD_VALS: %08X %08X %08X %08X %08X %08X %08X %08X",
+        *(uint32_t *)(child->kernel_stack - 24), *(uint32_t *)(child->kernel_stack - 28), *(uint32_t *)(child->kernel_stack - 32),
+        *(uint32_t *)(child->kernel_stack - 36), *(uint32_t *)(child->kernel_stack - 40), *(uint32_t *)(child->kernel_stack - 44), *(uint32_t *)(child->kernel_stack - 48),
+        *(uint32_t *)(child->kernel_stack - 52)
+    );
+
 
     kerror(ERR_INFO, " -- eip: %08X esp: %08X ebp: %08X", child->eip, child->esp, child->ebp);
 
@@ -147,7 +185,7 @@ int fork(void) {
 
     fork_clone_process(p, proc_by_pid(current_pid));
 
-    child->eip = (uintptr_t)return_from_syscall;
+    //child->eip = (uintptr_t)return_from_syscall;
 
     kerror(ERR_INFO, " -- Child Stack: %08X %08X", child->esp, child->ebp);
 

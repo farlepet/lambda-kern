@@ -172,7 +172,6 @@ static int load(int argc, char **argv) {
 	if(*(u32 *)exec_data == ELF_IDENT) {
 		exec_type = EXEC_ELF;
 		kprintf("Executable is an ELF executable.\n");
-		kprintf("NOTE: ELF executables are not fully supported, so don't expect it to work.\n");
 	} else {
 		exec_type = EXEC_BIN;
 		kprintf("Executable is a raw binary executable.\n");

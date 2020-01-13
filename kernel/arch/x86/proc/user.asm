@@ -134,6 +134,10 @@ enter_ring_newstack:
 
 .loop: jmp .loop
 
+global return_from_fork
+return_from_fork:
+    popa
+    iret
 
 
 exit_data:

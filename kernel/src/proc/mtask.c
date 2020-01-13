@@ -76,7 +76,12 @@ int add_user_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *
 
 int proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel) {
 #if defined(ARCH_X86)
-	uintptr_t stack_begin = (uintptr_t)kmalloc(stack_size);
+	uintptr_t stack_begin = (uintptr_t)kmalloc(stack_size + 4096);
+	stack_begin = (stack_begin + 4096) & 0xFFFFF000;
+
+	kerror(ERR_BOOTINFO, "proc_create_stack [size: %d] [end: %08X, beg: %08X]",
+		stack_size, stack_begin, stack_begin + stack_size
+	);
 
 /*#ifdef STACK_PROTECTOR
 	stack_begin = (uintptr_t)kmalloc(stack_size + 0x2000);
@@ -104,7 +109,13 @@ int proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt_stac
 
 int proc_create_kernel_stack(struct kproc *proc) {
 #if defined(ARCH_X86)
-	proc->kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE);
+	proc->kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE + 4096);
+	proc->kernel_stack = (proc->kernel_stack + 4096) & 0xFFFFF000;
+
+	kerror(ERR_BOOTINFO, "proc_create_kernel_stack [size: %d] [end: %08X, beg: %08X]",
+		PROC_KERN_STACK_SIZE, proc->kernel_stack, proc->kernel_stack + PROC_KERN_STACK_SIZE
+	);
+
 	for(size_t i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
 		pgdir_map_page((uint32_t *)proc->cr3, (void *)(proc->kernel_stack + i), (void *)(proc->kernel_stack + i), 0x03);
 	}
