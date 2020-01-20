@@ -67,6 +67,9 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 
 	Elf32_Shdr *sections = (Elf32_Shdr *)((ptr_t)head + head->e_shoff);
 
+	struct kproc_mem_map_ent *mmap_entries;
+	struct kproc_mem_map_ent **mmap_next = &mmap_entries;
+
 	uint32_t i = 0;
 	for(; i < head->e_shnum; i ++)
 	{
@@ -94,6 +97,15 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 				//map_page((phys + p), (void *)(shdr->sh_addr + p), 0x03);
 				//kerror(ERR_BOOTINFO, "      -> DONE");
 			}
+
+			// Create MMAP entry:
+			*mmap_next = (struct kproc_mem_map_ent *)kmalloc(sizeof(struct kproc_mem_map_ent));
+			(*mmap_next)->virt_address = shdr->sh_addr;
+			(*mmap_next)->phys_address = (uintptr_t)phys;
+			(*mmap_next)->length       = shdr->sh_size;
+			(*mmap_next)->next         = NULL;
+			mmap_next = &((*mmap_next)->next);
+
 		} else if(shdr->sh_type == SHT_SYMTAB) {
 			Elf32_Sym *syms = (Elf32_Sym *)((ptr_t)head + shdr->sh_offset);
 
@@ -134,6 +146,7 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 	p = proc_by_pid(pid);
 	procs[p].symbols   = symbols;
 	procs[p].symStrTab = symStrTab;
+	proc_add_mmap_ents(&procs[p], mmap_entries);
 	
 	//enter_ring_noargs(procs[p].ring, (void *)head->e_entry);
 

@@ -52,7 +52,8 @@ struct proc_book //!< Structure for process `book-keeping`
 
 struct kproc_mem_map_ent {
 	uintptr_t virt_address;
-	uintptr_t length;
+	uintptr_t phys_address;
+	size_t    length;
 
 	struct kproc_mem_map_ent *next;
 };
@@ -150,5 +151,18 @@ int proc_add_file(struct kproc *proc, struct kfile *file);
 void sched_processes(void);
 
 int sched_next_process(void);
+
+/**
+ * @brief Add memory map record to process
+ * 
+ * @param proc Process to add record to
+ * @param virt_address Virtual address memory is mapped to
+ * @param phys_address Physical address
+ * @param length Length of contiguous region, in bytes
+ * @return int 0 if successful
+ */
+int proc_add_mmap_ent(struct kproc *proc, uintptr_t virt_address, uintptr_t phys_address, size_t length);
+
+int proc_add_mmap_ents(struct kproc *proc, struct kproc_mem_map_ent *entries);
 
 #endif

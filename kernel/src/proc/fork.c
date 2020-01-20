@@ -1,5 +1,6 @@
 #include <proc/mtask.h>
 #include <err/error.h>
+#include <mm/alloc.h>
 #include <string.h>
 
 #if  defined(ARCH_X86)
@@ -35,8 +36,6 @@ static int proc_copy_stack(struct kproc *dest, const struct kproc *src) {
         );
     }
 
-    //memcpy((void *)(pgdir_get_page_entry((uint32_t *)dest->cr3, (void *)dest->stack_end) & 0xFFFFF000), (void *)(pgdir_get_page_entry((uint32_t *)src->cr3, (void *)src->stack_end) & 0xFFFFF000), stack_size);
-
     return 0;
 }
 
@@ -51,20 +50,73 @@ static int proc_copy_kernel_stack(struct kproc *dest, const struct kproc *src) {
         pgdir_map_page((uint32_t *)src->cr3, (void *)(dest->kernel_stack - PROC_KERN_STACK_SIZE + i), (void *)(dest->kernel_stack - PROC_KERN_STACK_SIZE + i), 0x03);
     }
 
-    // Must be done in 4K increments in case allocated blocks are not sequential
-
-    /*for(size_t i = 0; i < PROC_KERN_STACK_SIZE; i += 0x1000) {
-        memcpy(
-            (void *)pgdir_get_page_entry((void *)dest->cr3, (void *)((dest->kernel_stack + PROC_KERN_STACK_SIZE) - i)),
-            (void *)pgdir_get_page_entry((void *)src->cr3,  (void *)((src->kernel_stack  + PROC_KERN_STACK_SIZE) - i)),
-            0x1000
-        );
-
-        //memcpy((void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)virt_stack_begin), (void *)pgdir_get_page_entry((uint32_t *)parent->cr3, (void *)virt_stack_begin), stack_size);
-        //memcpy((void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)(child->kernel_stack - PROC_KERN_STACK_SIZE)), (void *)pgdir_get_page_entry((uint32_t *)child->cr3, (void *)(parent->kernel_stack - PROC_KERN_STACK_SIZE)), PROC_KERN_STACK_SIZE);
-    }*/
-
     memcpy((void *)(dest->kernel_stack - PROC_KERN_STACK_SIZE), (void *)(src->kernel_stack - PROC_KERN_STACK_SIZE), PROC_KERN_STACK_SIZE);
+
+    return 0;
+}
+
+static int proc_copy_data(struct kproc *dest, const struct kproc *src) {
+    kerror(ERR_BOOTINFO, "proc_copy_data");
+
+    struct kproc_mem_map_ent const *pent = src->mmap;
+    struct kproc_mem_map_ent *cent = src->mmap;
+
+    // TODO: Split out architecture-dependant portions
+
+    size_t n_ents = 0;
+    while(pent != NULL) {
+        n_ents++;
+        pent = pent->next;
+    }
+    pent = src->mmap;
+
+    dest->mmap = (struct kproc_mem_map_ent *)kmalloc(sizeof(struct kproc_mem_map_ent) * n_ents);
+    cent = dest->mmap;
+
+    while(pent != NULL) {
+        if(pent->next != NULL) {
+            cent->next = cent + sizeof(struct kproc_mem_map_ent);
+        }
+
+        // Copy values that will be maintained:
+        cent->virt_address = pent->virt_address;
+        cent->length       = pent->length;
+
+        kerror(ERR_BOOTINFO, "  -> %08X (%d B)", cent->virt_address, cent->length);
+
+        // Allocate new memory:
+        cent->phys_address = (uintptr_t)kmalloc(cent->length + 0x1000);
+
+        // Ensure memory has same alignment:
+        if((cent->phys_address & 0xFFF) <= (pent->phys_address & 0xFFF)) {
+            cent->phys_address = (cent->phys_address & ~0xFFF) | (pent->phys_address & 0xFFF);
+        } else {
+            cent->phys_address += (0x1000 - ((cent->phys_address & 0xFFF) - (pent->phys_address & 0xFFF)));
+        }
+
+        // Map memory (TODO: Optimize):
+        for(size_t offset = 0; offset < pent->length; offset += 0x1000) {
+            pgdir_map_page((uint32_t *)dest->cr3,
+                (void *)(cent->phys_address & ~0xFFF) + offset,
+                (void *)(cent->virt_address & ~0xFFF) + offset,
+                0x7 // TODO: Check flags of origional map, or add flag to kproc_mem_map_ent to determine type
+            );
+
+            // May not be necessary, map memory to itself before we copy:
+            map_page(
+                (void *)(cent->phys_address & ~0xFFF) + offset,
+                (void *)(cent->phys_address & ~0xFFF) + offset,
+                0x7 // TODO: Check flags of origional map, or add flag to kproc_mem_map_ent to determine type
+            );
+        }
+
+        // Copy data:
+        memcpy((void *)cent->phys_address, (void *)pent->virt_address, pent->length);
+
+        // Move on to next memory map entry:
+        cent = cent->next;
+        pent = pent->next;
+    }
 
     return 0;
 }
@@ -134,6 +186,8 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
     proc_copy_stack(child, parent);
     proc_copy_kernel_stack(child, parent);
 
+    proc_copy_data(child, parent);
+
     kerror(ERR_INFO, "IRETD_VALS: %08X %08X %08X %08X %08X",
         *(uint32_t *)(child->kernel_stack - 4), *(uint32_t *)(child->kernel_stack - 8), *(uint32_t *)(child->kernel_stack - 12), *(uint32_t *)(child->kernel_stack - 16),
         *(uint32_t *)(child->kernel_stack - 20)
@@ -147,8 +201,6 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 
 
     kerror(ERR_INFO, " -- eip: %08X esp: %08X ebp: %08X", child->eip, child->esp, child->ebp);
-
-    // TODO: Copy other process-mapped memory!
 
     // Set up message buffer
     child->messages.size  = MSG_BUFF_SIZE;
