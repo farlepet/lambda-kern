@@ -158,6 +158,10 @@ uint32_t pgdir_get_page_entry(uint32_t *pgdir, const void *virtaddr) {
 	return 0;
 }
 
+uint32_t pgdir_get_phys_addr(uint32_t *pgdir, const void *virtaddr) {
+	return (pgdir_get_page_entry(pgdir, virtaddr) & ~(0xFFF)) | ((uint32_t)virtaddr & 0xFFF);
+}
+
 uint32_t pgdir_get_page_table(uint32_t *pgdir, const void *virtaddr) {
 	uint32_t pdindex = (uint32_t)virtaddr >> 22;
 	

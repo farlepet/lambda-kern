@@ -173,12 +173,13 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
     if(!kernel) virt_stack_begin = 0xFF000000;
     else        virt_stack_begin = 0x7F000000;
 
-    //child->esp = parent->esp;
-    child->ebp = parent->ebp;
 
     proc_create_stack(child, stack_size, virt_stack_begin, kernel);
     proc_create_kernel_stack(child);
 
+    //child->esp = parent->esp;
+    child->ebp = parent->ebp;
+    
     // POPAD: 8 DWORDS, IRETD: 5 DWORDS
     child->esp = child->kernel_stack - 52;
     child->eip = (uint32_t)return_from_fork;
@@ -188,16 +189,14 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 
     proc_copy_data(child, parent);
 
-    kerror(ERR_INFO, "IRETD_VALS: %08X %08X %08X %08X %08X",
-        *(uint32_t *)(child->kernel_stack - 4), *(uint32_t *)(child->kernel_stack - 8), *(uint32_t *)(child->kernel_stack - 12), *(uint32_t *)(child->kernel_stack - 16),
-        *(uint32_t *)(child->kernel_stack - 20)
-    );
+    struct iret_regs *iret_stack   = (struct iret_regs *)(child->kernel_stack - sizeof(struct iret_regs));
+    struct pusha_regs *pusha_stack = (struct pusha_regs *)((uintptr_t)iret_stack - sizeof(struct pusha_regs));
 
-    kerror(ERR_INFO, "POPAD_VALS: %08X %08X %08X %08X %08X %08X %08X %08X",
-        *(uint32_t *)(child->kernel_stack - 24), *(uint32_t *)(child->kernel_stack - 28), *(uint32_t *)(child->kernel_stack - 32),
-        *(uint32_t *)(child->kernel_stack - 36), *(uint32_t *)(child->kernel_stack - 40), *(uint32_t *)(child->kernel_stack - 44), *(uint32_t *)(child->kernel_stack - 48),
-        *(uint32_t *)(child->kernel_stack - 52)
-    );
+    uint32_t *syscall_args_virt = (uint32_t *)pusha_stack->ebx;
+    uint32_t *syscall_args_phys = (uint32_t *)pgdir_get_phys_addr((uint32_t *)child->cr3, syscall_args_virt);
+    kerror(ERR_INFO, "ARGS_LOC: %08X -> %08X -> %08X", syscall_args_virt, syscall_args_phys, *(uint32_t *)syscall_args_phys);
+    syscall_args_phys[0] = 0; // <- Return 0 indicating child process
+
 
 
     kerror(ERR_INFO, " -- eip: %08X esp: %08X ebp: %08X", child->eip, child->esp, child->ebp);

@@ -33,12 +33,12 @@ struct pusha_regs {
 	uint32_t edi, esi;
 	uint32_t ebp, esp;
 	uint32_t ebx, edx, ecx, eax;
-};
+} __packed;
 
 struct iret_regs {
 	uint32_t eip, cs;
 	uint32_t eflags;
 	uint32_t esp, ds;
-};
+} __packed;
 
 #endif
