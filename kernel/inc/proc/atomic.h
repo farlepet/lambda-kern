@@ -7,7 +7,6 @@ typedef _Atomic(int) lock_t;
 typedef int lock_t;
 #endif
 
-#include <proc/mtask.h>
 #include <time/time.h>
 #include <intr/int.h>
 #include <types.h>
@@ -33,28 +32,7 @@ static inline void unlock(lock_t *lock)
 	a_store(lock, 0, __ATOMIC_RELEASE);
 }
 
-static inline void lock(lock_t *lock)
-{
-	int old = 0;
-	while(!a_cmp_chx_weak(lock, &old, 1, __ATOMIC_ACQUIRE, __ATOMIC_RELAXED))
-	{
-		run_sched();
-		old = 0;
-	}
-}
-
-static inline int lock_for(lock_t *lock, u32 ticks)
-{
-	int old = 0;
-	u64 endticks = kerneltime + ticks;
-	
-	while(!a_cmp_chx_weak(lock, &old, 1, __ATOMIC_ACQUIRE, __ATOMIC_RELAXED))
-	{
-		run_sched();
-		old = 0;
-		if(kerneltime >= endticks) return 1;
-	}
-	return 0;
-}
+void lock(lock_t *lock);
+int lock_for(lock_t *lock, u32 ticks);
 
 #endif

@@ -23,7 +23,19 @@ NASMFLAGS  = -f elf
 CFLAGS    += -march=i586
 
 ifeq ($(CC), clang)
-CFLAGS += -Wno-incompatible-library-redeclaration
+CFLAGS += -Weverything -Wno-incompatible-library-redeclaration -Wno-reserved-id-macro -Wno-newline-eof \
+-Wno-strict-prototypes \
+-Wno-language-extension-token \
+-Wno-padded \
+-Wno-missing-variable-declarations \
+-Wno-flexible-array-extensions \
+-Wno-sign-conversion \
+-Wno-documentation \
+-Wno-pedantic \
+-Wno-missing-prototypes \
+-Wno-shadow \
+-Wno-bad-function-cast \
+-Wno-implicit-int-conversion
 endif
 
 all:     link

@@ -1,9 +1,8 @@
 #ifndef PROC_H
 #define PROC_H
 
-#include <mm/cbuff.h>
-#include <fs/kfile.h>
-#include <mm/symbols.h>
+struct kproc;
+struct uproc;
 
 #define MAX_PROCESSES        16 //!< Maximum amount of running processes
 #define MAX_CHILDREN         8  //!< Maximum number of children a parent can handle
@@ -13,7 +12,7 @@
 
 #define MSG_BUFF_SIZE 512 //!< Size of the message buffer in bytes
 
-#define PROC_KERN_STACK_SIZE 2048 //!< Size of kernel stack allocated to process
+#define PROC_KERN_STACK_SIZE 4096 //!< Size of kernel stack allocated to process
 
 #define TYPE_RUNNABLE 0x00000001 //!< Is this process runnable?
 #define TYPE_RANONCE  0x00000002 //!< Can this process save its registers yet?
@@ -32,13 +31,31 @@
 #define PRIO_DRIVER     3 //!< Priority for kernel drivers
 #define PRIO_KERNEL     4 //!< Priority for main kernel tasks
 
+#include <stdint.h>
+
+#include <mm/cbuff.h>
+#include <fs/kfile.h>
+#include <mm/symbols.h>
+#include <proc/syscalls.h>
+
 struct proc_book //!< Structure for process `book-keeping`
 {
-	u32 sent_msgs;   //!< Number of sent messages
-	u32 sent_bytes;  //!< Number of sent bytes
+	uint32_t sent_msgs;   //!< Number of sent messages
+	uint32_t sent_bytes;  //!< Number of sent bytes
 
-	u32 recvd_msgs;  //!< Number of received messages
-	u32 recvd_bytes; //!< Number of received bytes
+	uint32_t recvd_msgs;  //!< Number of received messages
+	uint32_t recvd_bytes; //!< Number of received bytes
+
+	uint32_t schedule_count; //!< Number of times this process has been scheduled
+	uint32_t syscall_count;  //!< Number of times this process has invoked a syscall
+};
+
+struct kproc_mem_map_ent {
+	uintptr_t virt_address;
+	uintptr_t phys_address;
+	size_t    length;
+
+	struct kproc_mem_map_ent *next;
 };
 
 struct kproc //!< Structure of a process as seen by the kernel
@@ -48,29 +65,31 @@ struct kproc //!< Structure of a process as seen by the kernel
 	int uid;       //!< User who `owns` the process
 	int gid;       //!< Group who `owns` the process
 
-	u32 type;      //!< Type of process
+	uint32_t type;      //!< Type of process
 
 	int children[MAX_CHILDREN]; //!< Indexes of direct child processes (ex: NOT children's children)
 
 #if  defined(ARCH_X86)
 	int ring;      //!< Ring to run in (0-3)
 
-	u32 esp;       //!< Stack pointer
-	u32 ebp;       //!< Stack base pointer
-	u32 eip;       //!< Instruction pointer
-	u32 cr3;       //!< Page directory
+	uint32_t esp;       //!< Stack pointer
+	uint32_t ebp;       //!< Stack base pointer
+	uint32_t eip;       //!< Instruction pointer
+	uint32_t cr3;       //!< Page directory
 
-	u32 kernel_stack;      //!< Kernel stack
-	u32 kernel_stack_size; //!< Size of kernel stack
+	uint32_t last_eip;  //!< Last recorded position outside of kernel code
 
-	u32 entrypoint; //!< Program start
+	uint32_t kernel_stack;      //!< Kernel stack
+	uint32_t kernel_stack_size; //!< Size of kernel stack
 
-	u32 stack_beg; //!< Beginning of stack
-	u32 stack_end; //!< Current end of stack
+	uint32_t stack_beg; //!< Beginning of stack
+	uint32_t stack_end; //!< Current end of stack
 #endif
 
+	uint32_t entrypoint; //!< Program start
+
 	struct cbuff messages;      //!< Message buffer structure
-	u8 msg_buff[MSG_BUFF_SIZE]; //!< Actual buffer
+	uint8_t msg_buff[MSG_BUFF_SIZE]; //!< Actual buffer
 
 	struct kfile *cwd; //!< Current working directory
 
@@ -84,13 +103,15 @@ struct kproc //!< Structure of a process as seen by the kernel
 	struct ipc_message *ipc_messages[MAX_PROCESS_MESSAGES]; //!< IPC message pointers
 	int blocked_ipc_pids[MAX_BLOCKED_PIDS]; //!< PIDs blocked from sending messages to this process
 
-	u32 blocked;   //!< Contains flags telling whether or not this process is blocked, and by what
+	uint32_t blocked;   //!< Contains flags telling whether or not this process is blocked, and by what
 
 	int exitcode;  //!< Exit code
 
 	int prio;      //!< Task priority
 
 	struct proc_book book; //!< Bookkeeping stuff
+
+	struct kproc_mem_map_ent *mmap; //!< Memory map
 };
 
 
@@ -101,13 +122,13 @@ struct uproc //!< Structure of a process as seen by a user process
 	int uid;       //!< User who `owns` the process
 	int gid;       //!< Group who `owns` the process
 
-	u32 type;      //!< Type of process
+	uint32_t type;      //!< Type of process
 
 	int children[MAX_CHILDREN]; //!< Indexes of direct child processes (ex: NOT children's children)
 
-	u32 ip;        //!< Instruction pointer
+	uint32_t ip;        //!< Instruction pointer
 
-	u32 blocked;   //!< Contains flags telling whether or not this process is blocked, and by what
+	uint32_t blocked;   //!< Contains flags telling whether or not this process is blocked, and by what
 
 	int exitcode;  //!< Exit code
 
@@ -130,5 +151,18 @@ int proc_add_file(struct kproc *proc, struct kfile *file);
 void sched_processes(void);
 
 int sched_next_process(void);
+
+/**
+ * @brief Add memory map record to process
+ * 
+ * @param proc Process to add record to
+ * @param virt_address Virtual address memory is mapped to
+ * @param phys_address Physical address
+ * @param length Length of contiguous region, in bytes
+ * @return int 0 if successful
+ */
+int proc_add_mmap_ent(struct kproc *proc, uintptr_t virt_address, uintptr_t phys_address, size_t length);
+
+int proc_add_mmap_ents(struct kproc *proc, struct kproc_mem_map_ent *entries);
 
 #endif

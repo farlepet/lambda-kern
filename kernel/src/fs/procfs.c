@@ -62,13 +62,14 @@ u32 proc_fs_write(int desc, u32 off, u32 sz, u8 *buff) {
     return 0;
 }
 
-int proc_fs_open(char *name, u32 flags) {
+int proc_fs_open(const char *name, u32 flags) {
     int idx = proc_by_pid(current_pid);
     if(idx < 0) return -1;
     struct kproc *proc = &procs[idx];
 
     if(proc->cwd) {
         char tmp[256];
+        // TODO: Check for name length!
         memcpy(tmp, name, strlen(name)+1);
         //struct kfile *file = fs_finddir(proc->cwd, name);
         struct kfile *file = fs_find_file(proc->cwd, tmp);

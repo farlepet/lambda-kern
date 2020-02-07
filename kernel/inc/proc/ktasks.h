@@ -23,7 +23,7 @@
 
 #define KTASK_SLOTS      6
 
-int ktask_pids[KTASK_SLOTS];
+extern int ktask_pids[KTASK_SLOTS];
 
 int get_ktask(int n, u64 time);
 

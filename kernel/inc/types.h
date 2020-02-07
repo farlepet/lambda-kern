@@ -31,8 +31,9 @@ typedef unsigned long long int max_ptr_t; //!< Maximum pointer size that can be 
 
 #define __pure           __attribute__((__pure__))                //!< Return value depends soely on arguments
 
-#define __align(A)       __attribute__((__aligned__(A)))         //!< Aligns the data A bytes
+#define __align(A)       __attribute__((__aligned__(A)))          //!< Aligns the data A bytes
 #define __inline_flat    __attribute__((__flatten__))             //!< Tries to inline ALL function calls
+#define __no_inline      __attribute__ ((__noinline__))           //!< Prevents inlining of function
 
 #define __error(E)       __attribute__((__error__(#E)))           //!< Throws an error is this is reached in preprocessing
 #define __warning(E)     __attribute__((__warning__(#E)))         //!< Throws a warning is this is reached in preprocessing
@@ -70,11 +71,11 @@ typedef enum BOOL { FALSE, TRUE } bool;
 
 void __builtin_ia32_pause(); //!< Energy-saving alternative to `nop`
 
-typedef u32 (*func0_t)();
-typedef u32 (*func1_t)(u32);
-typedef u32 (*func2_t)(u32, u32);
-typedef u32 (*func3_t)(u32, u32, u32);
-typedef u32 (*func4_t)(u32, u32, u32, u32);
-typedef u32 (*func5_t)(u32, u32, u32, u32, u32);
+typedef uint32_t (*func0_t)();
+typedef uint32_t (*func1_t)(uint32_t);
+typedef uint32_t (*func2_t)(uint32_t, uint32_t);
+typedef uint32_t (*func3_t)(uint32_t, uint32_t, uint32_t);
+typedef uint32_t (*func4_t)(uint32_t, uint32_t, uint32_t, uint32_t);
+typedef uint32_t (*func5_t)(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
 
 #endif

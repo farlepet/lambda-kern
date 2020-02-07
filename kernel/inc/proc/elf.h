@@ -189,4 +189,7 @@ typedef struct
 
 ptr_t load_elf(void *file, u32 length, u32 **pdir);
 
+
+int exec_elf(void *data, u32 length, const char **argv, const char **envp);
+
 #endif

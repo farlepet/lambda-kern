@@ -12,7 +12,12 @@ typedef unsigned short     uint16_t; //!< Unsigned 16 bit value
 typedef unsigned int       uint32_t; //!< Unsigned 32 bit value
 typedef unsigned long long uint64_t; //!< Unsigned 64 bit value
 
-typedef unsigned int ptr_t; //!< Pointer
+typedef unsigned int ptr_t;  //!< Pointer
+
+typedef unsigned int uintptr_t;  //!< Unsigned pointer
+typedef int          intptr_t;   //!< Signed pointer
+
+typedef unsigned int size_t; //!< Size/length
 #endif
 
 #endif

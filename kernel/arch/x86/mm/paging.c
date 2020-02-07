@@ -9,16 +9,16 @@
 #include <video.h>
 #include "mem.h"
 
-static u32 pagedir[1024]      __align(0x1000); //!< Main kernel pagedirectory
-static u32 init_tbls[4][1024] __align(0x1000); //!< First 4 page tables
-static u32 frames[0x10000]    __align(0x1000); //!< Table stating which frames are available, takes up 256KiB
-static u32 prealloc_frames[20];                //!< 20 frames that are free, used by alloc_frame
-static u32 nframes;                            //!< Number of frames in the table
+static uint32_t pagedir[1024]      __align(0x1000); //!< Main kernel pagedirectory
+static uint32_t init_tbls[4][1024] __align(0x1000); //!< First 4 page tables
+static uint32_t frames[0x10000]    __align(0x1000); //!< Table stating which frames are available, takes up 256KiB
+static uint32_t prealloc_frames[20];                //!< 20 frames that are free, used by alloc_frame
+static uint32_t nframes;                            //!< Number of frames in the table
 
-u32 kernel_cr3;        //!< Page directory used by the kernel
+uint32_t kernel_cr3;        //!< Page directory used by the kernel
 
-u32 *firstframe;       //!< The location of the first page frame
-static u32 *lastframe; //!< The location of the last page frame
+uint32_t *firstframe;       //!< The location of the first page frame
+static uint32_t *lastframe; //!< The location of the last page frame
 
 /**
  * Sets the current frame to be used or unused, depending on `val`.
@@ -26,7 +26,7 @@ static u32 *lastframe; //!< The location of the last page frame
  * @param frame the frame to be set
  * @param val wether the frame is used or unused
  */
-void set_frame(u32 frame, u32 val)
+void set_frame(uint32_t frame, uint32_t val)
 {
 	//kerror(ERR_BOOTINFO, "  set_frame(%08X, %08X)", frame, val);
 	if(val == 1)
@@ -37,17 +37,17 @@ void set_frame(u32 frame, u32 val)
 	else if(val == 0xFFFFFFFF) // BLOCK this page from use
 	{
 		frames[frame / 32] |= (1 << (frame % 32));
-		u32 addr = (((frame * 0x1000) + (u32)firstframe) & 0xFFFFF000);
-		u32 pdindex = addr >> 22;
-		u32 ptindex = addr >> 12 & 0x03FF;
-		((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] = 0x00000000; // Invalidate the page
+		uint32_t addr = (((frame * 0x1000) + (uint32_t)firstframe) & 0xFFFFF000);
+		uint32_t pdindex = addr >> 22;
+		uint32_t ptindex = addr >> 12 & 0x03FF;
+		((uint32_t *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] = 0x00000000; // Invalidate the page
 	}
 	else kerror(ERR_MEDERR, "invalid value to set_frame: %d", val);
 }
 
-void block_page(u32 page)
+void block_page(uint32_t page)
 {
-	set_frame((page - (u32)firstframe) / 0x1000, 0xFFFFFFFF);
+	set_frame((page - (uint32_t)firstframe) / 0x1000, 0xFFFFFFFF);
 }
 
 /**
@@ -55,7 +55,7 @@ void block_page(u32 page)
  * 
  * @param frame the frame to be tested
  */
-static u32 test_frame(u32 frame)
+static uint32_t test_frame(uint32_t frame)
 {
 	return ((frames[frame / 32] & (1 << (frame % 32))) != 0);
 }
@@ -65,7 +65,7 @@ static u32 test_frame(u32 frame)
  */
 static void *get_free_frame()
 {
-	u32 i = 0;
+	uint32_t i = 0;
 	while(test_frame(i) != 0)
 	{
 		if(frames[i/32] == 0xFFFFFFFF)
@@ -90,14 +90,14 @@ static void *get_free_frame()
  */
 void *alloc_frame()
 {
-		static u32 pframe = 20;
+		static uint32_t pframe = 20;
  
 		if(pframe == 20)
 		{
 			int i = 0;
 			for(; i < 20; i++)
 			{
-				prealloc_frames[i] = (u32)get_free_frame();
+				prealloc_frames[i] = (uint32_t)get_free_frame();
 				if(prealloc_frames[i] == 0xFFFFFFFF) return (void *)0xFFFFFFFF; // TODO: Add some type of handling system here
 			}
 			pframe = 0;
@@ -107,16 +107,16 @@ void *alloc_frame()
 
 void *get_phys_page(void *virtaddr)
 {
-	void *off = (void *)((u32)virtaddr & 0x00000FFF);
-	virtaddr = (void *)((u32)virtaddr & 0xFFFFF000);
+	void *off = (void *)((uint32_t)virtaddr & 0x00000FFF);
+	virtaddr = (void *)((uint32_t)virtaddr & 0xFFFFF000);
 
-	u32 pdindex = (u32)virtaddr >> 22;
-	u32 ptindex = (u32)virtaddr >> 12 & 0x03FF;
+	uint32_t pdindex = (uint32_t)virtaddr >> 22;
+	uint32_t ptindex = (uint32_t)virtaddr >> 12 & 0x03FF;
 
 	if(pagedir[pdindex] & 0x01)
 	{
-		if(((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] & 0x01)
-			return (void *)((((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] & 0xFFFFF000) | (u32)off);
+		if(((uint32_t *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] & 0x01)
+			return (void *)((((uint32_t *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] & 0xFFFFF000) | (uint32_t)off);
 		else
 			return NULL;
 	}
@@ -124,42 +124,46 @@ void *get_phys_page(void *virtaddr)
 	else return NULL;
 }
 
-int page_present(u32 virtaddr) {
+int page_present(uint32_t virtaddr) {
 	uint32_t *pgdir = get_pagedir();
 
-	u32 pdindex = (u32)virtaddr >> 22;
-	u32 ptindex = (u32)virtaddr >> 12 & 0x03FF;
+	uint32_t pdindex = (uint32_t)virtaddr >> 22;
+	uint32_t ptindex = (uint32_t)virtaddr >> 12 & 0x03FF;
 
     if(pgdir[pdindex] & 0x01) {
-		return ((u32 *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] & 0x01;
+		return ((uint32_t *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] & 0x01;
 	}
 
 	return 0;
 }
 
-u32 get_page_entry(void *virtaddr) {
-	u32 pdindex = (u32)virtaddr >> 22;
-	u32 ptindex = (u32)virtaddr >> 12 & 0x03FF;
+uint32_t get_page_entry(const void *virtaddr) {
+	uint32_t pdindex = (uint32_t)virtaddr >> 22;
+	uint32_t ptindex = (uint32_t)virtaddr >> 12 & 0x03FF;
 
 	if(pagedir[pdindex] & 0x01) {
-		return ((u32 *)(pagedir[pdindex] & 0xFFFFF000))[ptindex];
+		return ((uint32_t *)(pagedir[pdindex] & 0xFFFFF000))[ptindex];
 	}
 	return 0;
 }
 
 
-u32 pgdir_get_page_entry(u32 *pgdir, void *virtaddr) {
-	u32 pdindex = (u32)virtaddr >> 22;
-	u32 ptindex = (u32)virtaddr >> 12 & 0x03FF;
+uint32_t pgdir_get_page_entry(uint32_t *pgdir, const void *virtaddr) {
+	uint32_t pdindex = (uint32_t)virtaddr >> 22;
+	uint32_t ptindex = (uint32_t)virtaddr >> 12 & 0x03FF;
 
 	if(pgdir[pdindex] & 0x01) {
-		return ((u32 *)(pgdir[pdindex] & 0xFFFFF000))[ptindex];
+		return ((uint32_t *)(pgdir[pdindex] & 0xFFFFF000))[ptindex];
 	}
 	return 0;
 }
 
-u32 pgdir_get_page_table(u32 *pgdir, void *virtaddr) {
-	u32 pdindex = (u32)virtaddr >> 22;
+uint32_t pgdir_get_phys_addr(uint32_t *pgdir, const void *virtaddr) {
+	return (pgdir_get_page_entry(pgdir, virtaddr) & ~(0xFFF)) | ((uint32_t)virtaddr & 0xFFF);
+}
+
+uint32_t pgdir_get_page_table(uint32_t *pgdir, const void *virtaddr) {
+	uint32_t pdindex = (uint32_t)virtaddr >> 22;
 	
 	return pgdir[pdindex];
 }
@@ -171,32 +175,32 @@ u32 pgdir_get_page_table(u32 *pgdir, void *virtaddr) {
  * @param virtualaddr virtual address to map
  * @param flags information about the page mapping
  */
-void map_page(void *physaddr, void *virtualaddr, u32 flags)
+void map_page(void *physaddr, void *virtualaddr, uint32_t flags)
 {
 	pgdir_map_page(pagedir, physaddr, virtualaddr, flags);
 	__invlpg(virtualaddr);
 }
 
-void pgdir_map_page(u32 *pgdir, void *physaddr, void *virtualaddr, u32 flags)
+void pgdir_map_page(uint32_t *pgdir, void *physaddr, void *virtualaddr, uint32_t flags)
 {
 	//kerror(ERR_BOOTINFO, "Mapping %8X to %8X (%03X) in %8X", physaddr, virtualaddr, flags, pgdir);
 
-	virtualaddr = (void *)((u32)virtualaddr & 0xFFFFF000);
-	physaddr    = (void *)((u32)physaddr    & 0xFFFFF000);
+	virtualaddr = (void *)((uint32_t)virtualaddr & 0xFFFFF000);
+	physaddr    = (void *)((uint32_t)physaddr    & 0xFFFFF000);
 
-	u32 pdindex = (u32)virtualaddr >> 22;
-	u32 ptindex = (u32)virtualaddr >> 12 & 0x03FF;
+	uint32_t pdindex = (uint32_t)virtualaddr >> 22;
+	uint32_t ptindex = (uint32_t)virtualaddr >> 12 & 0x03FF;
 
 	if(!(pgdir[pdindex] & 0x01)) {
-		pgdir[pdindex] = (((u32)kmalloc(0x2000) + 0x1000) & ~0xFFF) | 0x03;
+		pgdir[pdindex] = (((uint32_t)kmalloc(0x2000) + 0x1000) & ~0xFFF) | 0x03;
 
 		int i = 0;
 		for(; i < 1024; i++)
-			((u32 *)(pgdir[pdindex] & 0xFFFFF000))[i] = 0x00000000;
+			((uint32_t *)(pgdir[pdindex] & 0xFFFFF000))[i] = 0x00000000;
 	}
 
 	pgdir[pdindex] |= flags & 0x04;
-	((u32 *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] = ((u32)physaddr) | (flags & 0xFFF) | 0x01;	
+	((uint32_t *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] = ((uint32_t)physaddr) | (flags & 0xFFF) | 0x01;	
 }
 
 /**
@@ -206,7 +210,7 @@ void pgdir_map_page(u32 *pgdir, void *physaddr, void *virtualaddr, u32 flags)
  */
 void free_frame(void *frame)
 {
-	set_frame(((u32)frame - (u32)firstframe) / 0x1000, 0);
+	set_frame(((uint32_t)frame - (uint32_t)firstframe) / 0x1000, 0);
 }
 
 
@@ -216,7 +220,7 @@ void free_frame(void *frame)
  * 
  * @dir Directory to clear
  */
-void clear_pagedir(u32 *dir)
+void clear_pagedir(uint32_t *dir)
 {
 	int i = 0;
 	for(i = 0; i < 1024; i++)
@@ -232,9 +236,9 @@ void clear_pagedir(u32 *dir)
  * @param table pointer to the page table
  * @param addr address to start at
  */
-void fill_pagetable(u32 *table, u32 addr)
+void fill_pagetable(uint32_t *table, uint32_t addr)
 {
-	u32 i;
+	uint32_t i;
 	for(i = 0; i < 1024; i++, addr += 0x1000)
 		table[i] = addr | 3;  // supervisor, rw, present.
 }
@@ -244,7 +248,7 @@ void fill_pagetable(u32 *table, u32 addr)
  * 
  * @param dir the page directory
  */
-void set_pagedir(u32 *dir)
+void set_pagedir(uint32_t *dir)
 {
 	if(!dir)
 	{
@@ -255,9 +259,9 @@ void set_pagedir(u32 *dir)
 	asm volatile("mov %0, %%cr3":: "b"(dir));
 }
 
-u32 *get_pagedir()
+uint32_t *get_pagedir()
 {
-	u32 *dir;
+	uint32_t *dir;
 	asm volatile("mov %%cr3, %0": "=a"(dir));
 	return dir;
 }
@@ -267,7 +271,7 @@ u32 *get_pagedir()
  */
 void enable_paging()
 {
-	u32 cr0;
+	uint32_t cr0;
 	asm volatile("mov %%cr0, %0": "=b"(cr0));
 	cr0 |= 0x80000000;
 	asm volatile("mov %0, %%cr0":: "b"(cr0));
@@ -278,7 +282,7 @@ void enable_paging()
  */
 void disable_paging()
 {
-	u32 cr0;
+	uint32_t cr0;
 	asm volatile("mov %%cr0, %0": "=b"(cr0));
 	cr0 &= ~0x80000000;
 	asm volatile("mov %0, %%cr0":: "b"(cr0));
@@ -297,17 +301,17 @@ extern struct multiboot_module_tag *initrd;
  * @see fill_pagetable
  * @see enable_paging
  */
-void paging_init(u32 som, u32 eom)
+void paging_init(uint32_t som, uint32_t eom)
 {
-	firstframe = (u32 *)som;
+	firstframe = (uint32_t *)som;
 
-	lastframe  = (u32 *)(eom & 0xFFFFF000);
+	lastframe  = (uint32_t *)(eom & 0xFFFFF000);
 
-	nframes = (u32)(eom - (u32)firstframe) / 0x1000;
+	nframes = (uint32_t)(eom - (uint32_t)firstframe) / 0x1000;
 	
 	kerror(ERR_BOOTINFO, "  -> Clearing page frame table"); 
 	
-	u32 i = 0;
+	uint32_t i = 0;
 	for(; i < nframes; i += 32, frames[i] = 0);
 
 	kerror(ERR_BOOTINFO, "  -> Clearing page directory");
@@ -323,14 +327,14 @@ void paging_init(u32 som, u32 eom)
 
 	kerror(ERR_BOOTINFO, "  -> Setting page directory entries");
 
-	pagedir[0] = (u32)init_tbls[0] | 3;
-	pagedir[1] = (u32)init_tbls[1] | 3;
-	pagedir[2] = (u32)init_tbls[2] | 3;
-	pagedir[3] = (u32)init_tbls[3] | 3;
+	pagedir[0] = (uint32_t)init_tbls[0] | 3;
+	pagedir[1] = (uint32_t)init_tbls[1] | 3;
+	pagedir[2] = (uint32_t)init_tbls[2] | 3;
+	pagedir[3] = (uint32_t)init_tbls[3] | 3;
 
 	kerror(ERR_BOOTINFO, "  -> Setting page directory");
 
-	kernel_cr3 = (u32)pagedir;
+	kernel_cr3 = (uint32_t)pagedir;
 	set_pagedir(pagedir);
 
 	kerror(ERR_BOOTINFO, "  -> Enabling paging");
@@ -341,7 +345,7 @@ void paging_init(u32 som, u32 eom)
 
 	kerror(ERR_BOOTINFO, "  -> Initializing `malloc`");
 	kerror(ERR_BOOTINFO, "      -> Allocating page frames");
-	u32 alloc_mem = (u32)page_alloc(0x1000000 + 0x2000) & ~0xFFF; // 16 MB should be good for now
+	uint32_t alloc_mem = (uint32_t)page_alloc(0x1000000 + 0x2000) & ~0xFFF; // 16 MB should be good for now
 
 	kerror(ERR_BOOTINFO, "      -> Initializing allocation system");
 	init_alloc(alloc_mem, 0x1000000);
@@ -350,21 +354,63 @@ void paging_init(u32 som, u32 eom)
 }
 
 
-u32 *clone_kpagedir()
+uint32_t *clone_kpagedir()
 {
-	u32 *pgd = (u32 *)(((ptr_t)kmalloc(sizeof(pagedir) + 0x1000) + 0x1000) & 0xFFFFF000);
+	uint32_t *pgd = (uint32_t *)(((ptr_t)kmalloc((sizeof(pagedir)) + 0x1000) + 0x1000) & 0xFFFFF000);
 
 	// kmalloc doesn't always gaive us mapped pages
-	u32 i = 0;
+	uint32_t i = 0;
 	for(; i < sizeof(pagedir); i += 0x1000)
-		map_page((void *)((u32)pgd + i), (void *)((u32)pgd + i), 0x03);
+		map_page((void *)((uint32_t)pgd + i), (void *)((uint32_t)pgd + i), 0x03);
 
 	memcpy(pgd, pagedir, sizeof(pagedir));
 	return pgd;
 }
 
+uint32_t *clone_pagedir(uint32_t *pgdir) {
+	// TODO: Make 1024 an actual constant:
+	uint32_t *pgd = (uint32_t *)(((ptr_t)kmalloc((1024 * sizeof(uint32_t)) + 0x1000) + 0x1000) & 0xFFFFF000);
 
+	// kmalloc doesn't always gaive us mapped pages
+	uint32_t i = 0;
+	for(; i < sizeof(pgdir); i += 0x1000)
+		map_page((void *)((uint32_t)pgd + i), (void *)((uint32_t)pgd + i), 0x03);
 
+	memcpy(pgd, pgdir, 1024 * sizeof(uint32_t));
+	return pgd;
+}
+
+uint32_t *clone_pagedir_full(uint32_t *pgdir) {
+	// Count how many tables we need to allocate:
+	size_t n_tables = 0;
+	for(size_t i = 0; i < 1024; i++) {
+		if(pgdir[i] & 1) {
+			n_tables++;
+		}
+	}
+
+	// TODO: Make 1024 an actual constant:
+	uint32_t *pgd = (uint32_t *)(((ptr_t)kmalloc((0x1000 + (0x1000 * n_tables)) + 0x1000) + 0x1000) & 0xFFFFF000);
+
+	// kmalloc doesn't always gaive us mapped pages
+	uint32_t i = 0;
+	for(; i < sizeof(pgdir); i += 0x1000)
+		map_page((void *)((uint32_t)pgd + i), (void *)((uint32_t)pgd + i), 0x03);
+
+	memcpy(pgd, pgdir, 1024 * sizeof(uint32_t));
+
+	size_t idx = 1;
+	for(size_t i = 0; i < 1024; i++) {
+		if(pgd[i] & 1) {
+			// Modify entry and copy table:
+			pgd[i] = (pgd[i] & 0xFFF) | ((uint32_t)pgd + (0x1000 * idx));
+			memcpy((void *)(pgd[i] & 0xFFFFF000), (void *)(pgdir[i] & 0xFFFFF000), 0x1000);
+			idx++;
+		}
+	}
+
+	return pgd;
+}
 
 
 
@@ -391,13 +437,13 @@ u32 *clone_kpagedir()
  * @param size the minimum size of the hole
  * @return the location of the memory hole
  */
-static void *get_first_avail_hole(u32 size)
+static void *get_first_avail_hole(uint32_t size)
 {
 	int num_4k = 0;
 	int size4k = size / 0x1000;
 	if(size & 0x0FFF) size4k += 1;
-	u32 i = 0;
-	u32 base_i = 0;
+	uint32_t i = 0;
+	uint32_t base_i = 0;
 
 	for(; i < nframes; i++)
 	{
@@ -407,7 +453,7 @@ static void *get_first_avail_hole(u32 size)
 			num_4k++;
 			if(num_4k >= size4k)
 			{
-				u32 q = base_i;
+				uint32_t q = base_i;
 				for(; q <= i; q++)
 				{
 					set_frame(q, 1);
@@ -416,7 +462,7 @@ static void *get_first_avail_hole(u32 size)
 					//
 					//
 					//
-					//map_page((void *)((q * 0x1000) + (u32)firstframe), (void *)((q * 0x1000) + (u32)firstframe), 3);
+					//map_page((void *)((q * 0x1000) + (uint32_t)firstframe), (void *)((q * 0x1000) + (uint32_t)firstframe), 3);
 				}
 				return (void *)((base_i * 0x1000) + firstframe);
 			}
@@ -429,9 +475,9 @@ static void *get_first_avail_hole(u32 size)
 
 struct alloc_head //!< Header for allocated blocks
 {
-	u32 addr;  //!< Address of block
-	u32 size;  //!< Size of block, including this header, AND padding
-	u32 magic; //!< 0xA110CA1E
+	uint32_t addr;  //!< Address of block
+	uint32_t size;  //!< Size of block, including this header, AND padding
+	uint32_t magic; //!< 0xA110CA1E
 } __align(16);
 
 /**
@@ -440,13 +486,13 @@ struct alloc_head //!< Header for allocated blocks
  * @param size size of the memory region
  * @return address of the memory region
  */
-void *page_alloc(u32 size)
+void *page_alloc(uint32_t size)
 {
 	int ints_en = interrupts_enabled();
 	disable_interrupts();
 
 	size += sizeof(struct alloc_head);
-	u32 rsize = ((size & 0x0FFF) ? (size + 0x1000) : (size)) & 0xFFFFF000;
+	uint32_t rsize = ((size & 0x0FFF) ? (size + 0x1000) : (size)) & 0xFFFFF000;
 
 	void *base = get_first_avail_hole(rsize);
 	if(!base)
@@ -456,7 +502,7 @@ void *page_alloc(u32 size)
 	}
 
 	struct alloc_head *header = (struct alloc_head *)base;
-	header->addr  = (u32)base + sizeof(struct alloc_head);
+	header->addr  = (uint32_t)base + sizeof(struct alloc_head);
 	header->size  = rsize;
 	header->magic = 0xA110CA1E;
 
@@ -479,15 +525,15 @@ void page_free(void *ptr)
 		return;
 	}
 	struct alloc_head *header = (struct alloc_head *)(ptr - sizeof(struct alloc_head));
-	if((header->magic != 0xA110CA1E) || (header->addr != (u32)ptr))
+	if((header->magic != 0xA110CA1E) || (header->addr != (uint32_t)ptr))
 	{
 		kerror(ERR_SMERR, "Pointer given to `kfree` is invalid");
 		return;
 	}
 
-	u32 i = 0;
+	uint32_t i = 0;
 	for(; i < header->size / 0x1000; i++)
-		set_frame(i + (((u32)header - (u32)firstframe) / 0x1000), 0);
+		set_frame(i + (((uint32_t)header - (uint32_t)firstframe) / 0x1000), 0);
 
 	// Invalidate header
 	header->magic = 0;

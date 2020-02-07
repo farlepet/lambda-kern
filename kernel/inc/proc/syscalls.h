@@ -3,6 +3,8 @@
 
 #include <types.h>
 
+#include <intr/int.h>
+
 enum syscalls {
     SYSCALL_GET_KTASK = 0,
     SYSCALL_SEND_MSG  = 1,
@@ -27,7 +29,10 @@ enum syscalls {
     SYSCALL_FS_IOCTL   = 18,
 
     SYSCALL_FS_READ_BLK   = 19,
-    SYSCALL_FS_GETDIRINFO = 20
+    SYSCALL_FS_GETDIRINFO = 20,
+
+    SYSCALL_FORK   = 21,
+    SYSCALL_EXECVE = 22
 };
 
 
@@ -36,5 +41,8 @@ enum syscalls {
 void init_syscalls();
 
 void call_syscall(u32 scn, u32 *arg);
+void handle_syscall(struct pusha_regs regs, struct iret_regs iregs);
+
+extern void return_from_syscall();
 
 #endif

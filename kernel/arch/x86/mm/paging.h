@@ -11,14 +11,14 @@
 #include <types.h>
 
 
-extern u32 kern_start; //!< Start address of the kernel
-extern u32 kern_end;   //!< End address of the kernel
+extern uint32_t kern_start; //!< Start address of the kernel
+extern uint32_t kern_end;   //!< End address of the kernel
 
-u32 kernel_cr3;        //!< Page directory used by the kernel
+uint32_t kernel_cr3;        //!< Page directory used by the kernel
 
-u32 *firstframe;       //!< The location of the first page frame
+uint32_t *firstframe;       //!< The location of the first page frame
 
-void block_page(u32 page);
+void block_page(uint32_t page);
 
 
 /**
@@ -27,7 +27,7 @@ void block_page(u32 page);
  * @param frame the frame to be set
  * @param val wether the frame is used or unused
  */
-void set_frame(u32 frame, u32 val);
+void set_frame(uint32_t frame, uint32_t val);
 
 /**
  * \brief Allocate a frame.
@@ -48,24 +48,26 @@ void free_frame(void *frame);
  * @param virtualaddr virtual address to map
  * @param flags information about the page mapping
  */
-void map_page(void *physaddr, void *virtualaddr, u32 flags);
+void map_page(void *physaddr, void *virtualaddr, uint32_t flags);
 
-void pgdir_map_page(u32 *pgdir, void *physaddr, void *virtualaddr, u32 flags);
+void pgdir_map_page(uint32_t *pgdir, void *physaddr, void *virtualaddr, uint32_t flags);
 
 void *get_phys_page(void *virtaddr);
 
-u32 get_page_entry(void *virtaddr);
+uint32_t get_page_entry(const void *virtaddr);
 
 
-u32 pgdir_get_page_entry(u32 *pgdir, void *virtaddr);
+uint32_t pgdir_get_page_entry(uint32_t *pgdir, const void *virtaddr);
 
-u32 pgdir_get_page_table(u32 *pgdir, void *virtaddr);
+uint32_t pgdir_get_page_table(uint32_t *pgdir, const void *virtaddr);
+
+uint32_t pgdir_get_phys_addr(uint32_t *pgdir, const void *virtaddr);
 
 /**
  * \brief Clear a page directory to it's default values.
  * Clear the page directory marking every page table as non-existant.
  */
-void clear_pagedir(u32 *dir);
+void clear_pagedir(uint32_t *dir);
 
 /**
  * \brief Fill a page table with pages.
@@ -73,23 +75,23 @@ void clear_pagedir(u32 *dir);
  * @param table pointer to the page table
  * @param addr address to start at
  */
-void fill_pagetable(u32 *table, u32 addr);
+void fill_pagetable(uint32_t *table, uint32_t addr);
 
 /**
  * \brief Set the current page directory
  * Sets the current page directory by setting cr3 to `dir`
  * @param dir the page directory
  */
-void set_pagedir(u32 *dir);
+void set_pagedir(uint32_t *dir);
 
-u32 *get_pagedir();
+uint32_t *get_pagedir();
 
 /**
  * \brief Checks if the page corresponding to the virtual address exists
  *
  * @return 1 if exists, else 0
  */
-int page_present(u32 virtaddr);
+int page_present(uint32_t virtaddr);
 
 
 /**
@@ -116,10 +118,10 @@ void disable_paging(void);
  * @see fill_pagetable
  * @see enable_paging
  */
-void paging_init(u32 som, u32 eom);
+void paging_init(uint32_t som, uint32_t eom);
 
 
-static inline void __invlpg(u32 *addr)
+static inline void __invlpg(uint32_t *addr)
 {
 	asm volatile("invlpg (%0)" ::"r" (addr) : "memory");
 }
@@ -132,7 +134,7 @@ static inline void __invlpg(u32 *addr)
  * @param size size of the memory region
  * @return address of the memory region
  */
-void *page_alloc(u32 size);
+void *page_alloc(uint32_t size);
 
 /**
  * Free a region of memory that was allocated by page_alloc earlier.
@@ -145,6 +147,8 @@ void page_free(void *ptr);
 
 
 
-u32 *clone_kpagedir();
+uint32_t *clone_kpagedir();
+uint32_t *clone_pagedir(uint32_t * pgdir);
+uint32_t *clone_pagedir_full(uint32_t *pgdir);
 
 #endif

@@ -18,15 +18,13 @@ static int run(int, char **);
 static int unload(int, char **);
 static int ls(int, char **);
 
-struct kterm_entry
-{
+struct kterm_entry {
 	u32   hash;
 	char *string;
 	int (*function)(int, char **);
 };
 
-struct kterm_entry kterm_ents[] =
-{
+struct kterm_entry kterm_ents[] = {
 	{ 0, "help",   &help   },
 	{ 0, "load",   &load   },
 	{ 0, "run",    &run    },
@@ -34,8 +32,7 @@ struct kterm_entry kterm_ents[] =
 	{ 0, "ls",     &ls     },
 };
 
-u32 hash(char *str)
-{
+u32 hash(char *str) {
 	u32 hash = 5381;
 	while (*str)
 		hash = ((hash << 5) + hash) + (u8)*str++;
@@ -43,10 +40,7 @@ u32 hash(char *str)
 	return hash;
 }
 
-__noreturn void kterm_task()
-{
-	ktask_pids[KTERM_TASK_SLOT] = current_pid;
-
+__noreturn void kterm_task() {
 	u32 i = 0;
 	for(; i < (sizeof(kterm_ents)/sizeof(kterm_ents[0])); i++)
 		kterm_ents[i].hash = hash(kterm_ents[i].string);
@@ -55,8 +49,7 @@ __noreturn void kterm_task()
 
 	int retval = 0;
 
-	for(;;)
-	{
+	for(;;) {
 		kprintf(prompt);
 
 		char input[512];
@@ -67,12 +60,10 @@ __noreturn void kterm_task()
 		memset(argv,  0, sizeof(char *)*32);
 
 		char t = 0;
-		while(1)
-		{
+		while(1) {
 			int ret;
 			struct ipc_message_user umsg;
-			while((ret = ipc_user_recv_message_blocking(&umsg)) < 0)
-			{
+			while((ret = ipc_user_recv_message_blocking(&umsg)) < 0) {
 				kerror(ERR_MEDERR, "KTERM: IPC error: %d", ret);
 			}
 
@@ -83,7 +74,6 @@ __noreturn void kterm_task()
 
 			ipc_user_copy_message(umsg.message_id, &t);
 
-			//recv_message(&t, sizeof(char));
 			if(t == '\n' || t == '\r') break;
 			if(t == '\b') {
 				iloc--;
@@ -92,8 +82,10 @@ __noreturn void kterm_task()
 				continue;
 			}
 
-			input[iloc++] = t;
-			kprintf("%c", t);
+			if(t != 0) {
+				input[iloc++] = t;
+				kprintf("%c", t);
+			}
 		}
 
 		kprintf("\n");
@@ -101,10 +93,8 @@ __noreturn void kterm_task()
 		u32 inlen   = strlen(input);
 		int cstring = 0;
 		int argidx  = 0;
-		for(i = 0; i <= inlen; i++)
-		{
-			if(input[i] == ' ' || input[i] == '\t' || input[i] == '\0')
-			{
+		for(i = 0; i <= inlen; i++) {
+			if(input[i] == ' ' || input[i] == '\t' || input[i] == '\0') {
 				argv[argidx++] = &input[cstring];
 				input[i] = 0;
 				cstring = i+1;
@@ -116,11 +106,9 @@ __noreturn void kterm_task()
 		//kprintf("%s\n", input);
 		u32 h = hash(argv[0]);
 		int fnd = 0;
-		for(i = 0; i < (sizeof(kterm_ents)/sizeof(kterm_ents[0])); i++)
-		{
+		for(i = 0; i < (sizeof(kterm_ents)/sizeof(kterm_ents[0])); i++) {
 			if(kterm_ents[i].hash == h)
-				if(!strcmp(kterm_ents[i].string, argv[0]))
-				{
+				if(!strcmp(kterm_ents[i].string, argv[0])) {
 					retval = kterm_ents[i].function(argidx, argv);
 					fnd = 1;
 					break;
@@ -132,8 +120,7 @@ __noreturn void kterm_task()
 }
 
 
-static int help(int argc, char **argv)
-{
+static int help(int argc, char **argv) {
 	(void)argc;
 	(void)argv;
 	kprintf("Kterm help:\n");
@@ -161,10 +148,8 @@ struct kfile *exec      = NULL;
 u8			 *exec_data = NULL;
 int           exec_type = 0;
 
-static int load(int argc, char **argv)
-{
-	if(argc < 2)
-	{
+static int load(int argc, char **argv) {
+	if(argc < 2) {
 		kprintf("No executable specified\n");
 		return 1;
 	}
@@ -172,8 +157,7 @@ static int load(int argc, char **argv)
 	memcpy(exec_filename, argv[1], strlen(argv[1]));
 
 	exec = fs_finddir(fs_root, argv[1]);
-	if(!exec)
-	{
+	if(!exec) {
 		memset(exec_filename, 0, 128);
 		kprintf("Could not open %s!\n", argv[1]);
 		return 1;
@@ -185,14 +169,10 @@ static int load(int argc, char **argv)
 
 	//kprintf("First 4 bytes of file: %02x, %02x, %02x, %02x\n", exec_data[0], exec_data[1], exec_data[2], exec_data[3]);
 
-	if(*(u32 *)exec_data == ELF_IDENT)
-	{
+	if(*(u32 *)exec_data == ELF_IDENT) {
 		exec_type = EXEC_ELF;
 		kprintf("Executable is an ELF executable.\n");
-		kprintf("NOTE: ELF executables are not fully supported, so don't expect it to work.\n");
-	}
-	else
-	{
+	} else {
 		exec_type = EXEC_BIN;
 		kprintf("Executable is a raw binary executable.\n");
 	}
@@ -202,26 +182,34 @@ static int load(int argc, char **argv)
 	return 0;
 }
 
-static int run(int argc, char **argv)
-{
+static int run(int argc, char **argv) {
 	(void)argc;
 	(void)argv;
 
 	int pid = 0;
 
-	if(!strlen(exec_filename))
-	{
+	if(!strlen(exec_filename)) {
 		kprintf("No loaded executable to run\n");
 		return 1;
 	}
 
-	if(exec_type == EXEC_ELF)
-	{
+	if(exec_type == EXEC_ELF) {
 		u32 *pagedir;
 		//ptr_t exec_ep =
+
+		/*uint32_t args[1] = {0};
+		call_syscall(SYSCALL_FORK, args);
+		int _pid = (int)args[0];*/
+
+		/*if(_pid == 0) {
+			load_elf(exec_data, exec->length, &pagedir);
+		} else {
+			pid = _pid;
+		}*/
+
 		pid = load_elf(exec_data, exec->length, &pagedir);
-		if(!pid)
-		{
+
+		if(!pid) {
 			kerror(ERR_MEDERR, "Could not load executable");
 			return 1;
 		}
@@ -230,8 +218,7 @@ static int run(int argc, char **argv)
 		//pid = add_user_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
 	}
 
-	else if(exec_type == EXEC_BIN)
-	{
+	else if(exec_type == EXEC_BIN) {
 		//u32 *pagedir;
 		//ptr_t exec_ep = load_elf(exec_data, exec->length, &pagedir);
 		ptr_t exec_ep = 0x80000000;
@@ -300,8 +287,7 @@ static int run(int argc, char **argv)
 		char t;
 		struct ipc_message_user umsg;
 
-		if(ipc_user_recv_message(&umsg) >= 0)
-		{
+		if(ipc_user_recv_message(&umsg) >= 0) {
 			if(umsg.length > sizeof(char)) {
 				ipc_user_delete_message(umsg.message_id);
 			} else {
@@ -347,13 +333,11 @@ static int run(int argc, char **argv)
 	return 0;
 }
 
-static int unload(int argc, char **argv)
-{
+static int unload(int argc, char **argv) {
 	(void)argc;
 	(void)argv;
 
-	if(!strlen(exec_filename))
-	{
+	if(!strlen(exec_filename)) {
 		kprintf("No loaded executable to unload");
 		return 1;
 	}
@@ -365,8 +349,7 @@ static int unload(int argc, char **argv)
 	return 0;
 }
 
-static int ls(int argc, char **argv)
-{
+static int ls(int argc, char **argv) {
 	(void)argc;
 	(void)argv;
 	
@@ -378,8 +361,7 @@ static int ls(int argc, char **argv)
 
 	//kprintf("ls: dir: {%08X, %08X, %08X}\n", dir->dir, dir->current, dir->prev);
 	
-	while((d = fs_readdir(dir)))
-	{
+	while((d = fs_readdir(dir))) {
 		kfree(d);
 
 		f = fs_dirfile(dir);

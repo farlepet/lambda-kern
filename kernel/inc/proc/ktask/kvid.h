@@ -1,6 +1,8 @@
 #ifndef KTASK_KVID_H
 #define KTASK_KVID_H
 
+#include <types.h>
+
 enum kvid_types
 {
 	KVID_PRINT  = 0, //!< Print a message to the screen
@@ -36,6 +38,6 @@ struct kvid_kerror_m //!< S structure holding an entire kvid kerror message
 	struct kvid_kerror_msg kkm;
 };
 
-void kvid_task(void);
+__noreturn void kvid_task(void);
 
 #endif // KTASK_KVID_H
