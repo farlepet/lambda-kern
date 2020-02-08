@@ -26,38 +26,38 @@
 
 struct multiboot_header
 {
-	u32 flags;
-	u32 mem_lower;
-	u32 mem_upper;
-	u32 boot_device;
-	u32 cmdline;
-	u32 mod_count;
-	u32 mod_addr;
+	uint32_t flags;
+	uint32_t mem_lower;
+	uint32_t mem_upper;
+	uint32_t boot_device;
+	uint32_t cmdline;
+	uint32_t mod_count;
+	uint32_t mod_addr;
 
-	u8 syms[16];
+	uint8_t syms[16];
 
-	u32 mmap_len;
-	u32 mmap_addr;
-	u32 drives_len;
-	u32 drives_addr;
-	u32 config_table;
-	u32 bootloader_name;
-	u32 apm_table;
+	uint32_t mmap_len;
+	uint32_t mmap_addr;
+	uint32_t drives_len;
+	uint32_t drives_addr;
+	uint32_t config_table;
+	uint32_t bootloader_name;
+	uint32_t apm_table;
 
-	u32 vbe_control_info;
-	u32 vbe_mode_info;
-	u16 vbe_mode;
-	u16 vbe_seg;
-	u16 vbe_off;
-	u16 vbe_len;
+	uint32_t vbe_control_info;
+	uint32_t vbe_mode_info;
+	uint16_t vbe_mode;
+	uint16_t vbe_seg;
+	uint16_t vbe_off;
+	uint16_t vbe_len;
 };
 
 struct mboot_module
 {
-	u32 mod_start;
-	u32 mod_end;
-	u32 string;
-	u32 pad;
+	uint32_t mod_start;
+	uint32_t mod_end;
+	uint32_t string;
+	uint32_t pad;
 };
 
 #pragma pack (pop)

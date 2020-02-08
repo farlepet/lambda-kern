@@ -32,7 +32,7 @@ void kprint(char *str);
  * @param str the input string
  * @see kwput
  */
-void kwprint(u16 *str);
+void kwprint(uint16_t *str);
 
 
 #define FMT_SPEC '%' //!< Format specifier character

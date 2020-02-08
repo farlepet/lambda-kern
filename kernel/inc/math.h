@@ -11,7 +11,7 @@
  * @param sum sum
  * @param size size of number in 4 byte blocks
  */
-int u_arbi_add(u32 *aug, u32 *add, u32 *sum, int size);
+int u_arbi_add(uint32_t *aug, uint32_t *add, uint32_t *sum, int size);
 
 
 /**
@@ -22,6 +22,6 @@ int u_arbi_add(u32 *aug, u32 *add, u32 *sum, int size);
  * @param diff difference
  * @param size size of number in 4 byte blocks
  */
-int u_arbi_sub(u32 *min, u32 *sub, u32 *diff, int size);
+int u_arbi_sub(uint32_t *min, uint32_t *sub, uint32_t *diff, int size);
 
 #endif

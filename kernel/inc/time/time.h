@@ -3,13 +3,13 @@
 
 #include <types.h>
 
-u64 kerneltime; //!< Number of elapsed ticks since the PIT was initialized
+uint64_t kerneltime; //!< Number of elapsed ticks since the PIT was initialized
 
 /**
  * Used when specifying UNIX time (not timer ticks).
  *   - It is signed so it can represent time before January 1, 1970
  */
-typedef s64 time_t; //!< Typedef used when specifying UNIX time (not timer ticks)
+typedef int64_t time_t; //!< Typedef used when specifying UNIX time (not timer ticks)
 
 /**
  * \brief A structure to help with timing.
@@ -19,9 +19,9 @@ typedef s64 time_t; //!< Typedef used when specifying UNIX time (not timer ticks
  */
 struct time_block
 {
-	void (*event)(int pid); //!< Called when `count` = 0
-	u64  count;             //!< The number of ticks left
-	int  pid;               //!< PID of the process using this block
+	void     (*event)(int pid); //!< Called when `count` = 0
+	uint64_t count;             //!< The number of ticks left
+	int      pid;               //!< PID of the process using this block
 };
 
 #define MAX_TIME_BLOCKS 64 //!< Maximum number of timer blocks able to be used. We cannot let this get too high, or we will experience slowdown.
@@ -35,7 +35,7 @@ struct time_block time_blocks[MAX_TIME_BLOCKS]; //!< Array of timeblocks used by
  * @param n the entry within time_blocks
  * @see time_blocks
  */
-void do_time_block_timeup(u32 n);
+void do_time_block_timeup(uint32_t n);
 
 /**
  * \brief Adds a time block to time_blocks[].
@@ -44,7 +44,7 @@ void do_time_block_timeup(u32 n);
  * @param count the number of ticks to wait before calling func()
  * @param pid the pid of the process that is using this time_block
  */
-void add_time_block(void (*func)(int), u64 count, int pid);
+void add_time_block(void (*func)(int), uint64_t count, int pid);
 
 /**
  * \brief Waits for a specified amount of time.
@@ -52,6 +52,6 @@ void add_time_block(void (*func)(int), u64 count, int pid);
  * time has run out.
  * @param delay number of ticks to wait for
  */
-void delay(u64 delay);
+void delay(uint64_t delay);
 
 #endif
