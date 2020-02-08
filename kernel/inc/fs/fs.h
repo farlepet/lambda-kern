@@ -12,8 +12,8 @@ struct kfile *fs_root;
 
 int fs_add_file(struct kfile *file, struct kfile *parent);
 
-uint32_t       fs_read   (struct kfile *f, uint32_t off, uint32_t sz, u8 *buff);
-uint32_t       fs_write  (struct kfile *f, uint32_t off, uint32_t sz, u8 *buff);
+uint32_t       fs_read   (struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff);
+uint32_t       fs_write  (struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff);
 void           fs_open   (struct kfile *f, uint32_t flags);
 void           fs_close  (struct kfile *f);
 struct dirent *fs_readdir(DIR *d);

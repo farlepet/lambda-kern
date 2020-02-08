@@ -86,8 +86,8 @@ struct kproc { //!< Structure of a process as seen by the kernel
 
 	uint32_t entrypoint; //!< Program start
 
-
-// TODO: Documentationf[MSG_BUFF_SIZE]; //!< Actual buffer
+	struct cbuff messages;           //!< Message buffer structure
+	uint8_t msg_buff[MSG_BUFF_SIZE]; //!< Actual buffer
 
 	struct kfile *cwd; //!< Current working directory
 

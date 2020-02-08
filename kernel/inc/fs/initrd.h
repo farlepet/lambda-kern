@@ -4,22 +4,46 @@
 #include <multiboot.h>
 #include <types.h>
 
+/**
+ * @brief Load INITRD
+ * 
+ * @param mboot_head Header provided by bootloader
+ */
 void initrd_init(struct multiboot_header* mboot_head);
 
-struct header_old_cpio
-{
-	u16 c_magic;
-	u16 c_dev;
-	u16 c_ino;
-	u16 c_mode;
-	u16 c_uid;
-	u16 c_gid;
-	u16 c_nlink;
-	u16 c_rdev;
-	u32 c_mtime;
-	u16 c_namesize;
-	u32 c_filesize;
+/**
+ * @brief CPIO header
+ */
+struct header_old_cpio {
+	uint16_t c_magic;    //!< Magic number (070707)
+	uint16_t c_dev;      //!< Device number
+	uint16_t c_ino;      //!< Inode number
+	uint16_t c_mode;     //!< Mode
+	uint16_t c_uid;      //!< UID of owner
+	uint16_t c_gid;      //!< GID of owner
+	uint16_t c_nlink;    //!< Number of links to this file
+	uint16_t c_rdev;     //!< Device number (for block/char devices)
+	uint32_t c_mtime;    //!< Modification time (seconds since epoch)
+	uint16_t c_namesize; //!< Bytes in name, including NULL byte
+	uint32_t c_filesize; //!< Size of file (MAX 4 GiB)
 } __packed;
 
+/**
+ * @brief CPIO c_mode values
+ */
+enum old_cpio_mode {
+	CPIO_MODE_SOCKET    = 0140000, //!< Socket
+	CPIO_MODE_SYMLINK   = 0120000, //!< Symbolic link
+	CPIO_MODE_REGULAR   = 0100000, //!< Regular file
+	CPIO_MODE_BLOCK     = 0060000, //!< Block device
+	CPIO_MODE_DIRECTORY = 0040000, //!< Directory
+	CPIO_MODE_CHAR      = 0020000, //!< Character device
+	CPIO_MODE_PIPE      = 0010000, //!< Named pipe or FIFO
+	CPIO_MODE_SUID      = 0004000, //!< SUID
+	CPIO_MODE_SGID      = 0002000, //!< SGID
+	CPIO_MODE_STICKY    = 0001000, //!< Sticky bit
+
+	CPIO_MODE_PERM_MASK = 0000777  //!< POSIX permissions
+};
 
 #endif // INITRD_H
