@@ -20,7 +20,7 @@ void kput(char c)
 {
 #if defined(ARCH_X86)
 	if(output_serial) {
-		serial_write((u16)output_serial, c);
+		serial_write((uint16_t)output_serial, c);
 	}
 	else vga_put(c);
 #endif
@@ -34,7 +34,7 @@ void kput(char c)
 void kwput(int c)
 {
 #if defined(ARCH_X86)
-	if(output_serial) serial_write((u16)output_serial, (char)c);
+	if(output_serial) serial_write((uint16_t)output_serial, (char)c);
 	else vga_put((char)c);
 #endif
 }
@@ -56,7 +56,7 @@ void kprint(char *str)
  * @param str the input string
  * @see kwput
  */
-void kwprint(u16 *str)
+void kwprint(uint16_t *str)
 {
 	while(*str) kwput(*str++);
 }
@@ -80,7 +80,7 @@ void kwprint(u16 *str)
  * @return the number of characters that have been put in `out`
  * @see print
  */
-static int print_int(u32 num, u8 base, u8 u, u8 pad, u8 padzero, u8 possign, u8 posspace, u8 _case, char *out)
+static int print_int(uint32_t num, uint8_t base, uint8_t u, uint8_t pad, uint8_t padzero, uint8_t possign, uint8_t posspace, uint8_t _case, char *out)
 {
 	int onum = (int)num;
 	if(onum < 0) if(!u) num = (~num) + 1;
@@ -88,7 +88,7 @@ static int print_int(u32 num, u8 base, u8 u, u8 pad, u8 padzero, u8 possign, u8 
 	if(_case) nums = "0123456789ABCDEF";
 	else      nums = "0123456789abcdef";
 	
-	char ans[16] = { '0', };
+	char ans[16] = { '0', 0, };
 	int i = 0;
 	while(num)
 	{
@@ -117,7 +117,7 @@ static int print_int(u32 num, u8 base, u8 u, u8 pad, u8 padzero, u8 possign, u8 
 	{
 		while(p--) *out++ = (padzero ? '0' : ' ');
 		while(--i >= 0) *out++ = ans[i];
-		return (int)((pad > strlen(ans)) ? pad : strlen(ans)) + ((((possign || posspace) && !u) && onum >= 0) || ((onum < 0) && !u)) + 1;
+		return (int)((pad > strlen(ans)) ? pad : strlen(ans)) + ((((possign || posspace) && !u) && onum >= 0) || ((onum < 0) && !u));
 	}
 	else
 	{
@@ -162,14 +162,14 @@ static int get_dec(const char *str, ptr_t *out)
  */
 static int print(char *out, const char *format, __builtin_va_list varg)
 {
-	u8 is_in_spec = 0;
+	uint8_t is_in_spec = 0;
 	s8 size = 0;      // Size of the integer
-	u8 width = 0;     // Width of the number at minimum
-	u8 precision = 0; // Precision
-	u8 showsign = 0;  // Show the sign on positive numbers
-	u8 signspace = 0; // Place a space before positive numbers
-	u8 leftalign = 0; // Align to the left
-	u8 padzeros = 0;  // Use zeros instead of spaces for padding
+	uint8_t width = 0;     // Width of the number at minimum
+	uint8_t precision = 0; // Precision
+	uint8_t showsign = 0;  // Show the sign on positive numbers
+	uint8_t signspace = 0; // Place a space before positive numbers
+	uint8_t leftalign = 0; // Align to the left
+	uint8_t padzeros = 0;  // Use zeros instead of spaces for padding
 	
 	int nchars = 0;    // Number of chars printed so far
 	
@@ -230,12 +230,12 @@ static int print(char *out, const char *format, __builtin_va_list varg)
 			case '6':
 			case '7':
 			case '8':
-			case '9': width = (u8)get_dec(format, &temp);
+			case '9': width = (uint8_t)get_dec(format, &temp);
 					  format = (char *)(temp - 1);
 					  break;
 			
 			case '.': format++;
-					  precision = (u8)get_dec(format, &temp);
+					  precision = (uint8_t)get_dec(format, &temp);
 					  format = (char *)(temp - 1);
 					  break;
 			
@@ -253,7 +253,7 @@ static int print(char *out, const char *format, __builtin_va_list varg)
 					  ZERO_ALL_VID();
 					  break;
 					  
-			case 'u': temp = (ptr_t)va_arg(varg, u32);
+			case 'u': temp = (ptr_t)va_arg(varg, uint32_t);
 					  if(size == -1) temp &= 0xFFFF;
 					  if(size == -2) temp &= 0xFF;
 					  if(size == 2){} // TODO: Handle this!
@@ -273,7 +273,7 @@ static int print(char *out, const char *format, __builtin_va_list varg)
 					  break;
 					  
 			case 'x':
-			case 'X': temp = (ptr_t)va_arg(varg, u32);
+			case 'X': temp = (ptr_t)va_arg(varg, uint32_t);
 					  if(size == -1) temp &= 0xFFFF;
 					  if(size == -2) temp &= 0xFF;
 					  if(size == 2){} // TODO: Handle this!
@@ -283,7 +283,7 @@ static int print(char *out, const char *format, __builtin_va_list varg)
 					  ZERO_ALL_VID();
 					  break;
 			
-			case 'o': temp = (ptr_t)va_arg(varg, u32);
+			case 'o': temp = (ptr_t)va_arg(varg, uint32_t);
 					  if(size == -1) temp &= 0xFFFF;
 					  if(size == -2) temp &= 0xFF;
 					  if(size == 2){} // TODO: Handle this!
