@@ -199,31 +199,31 @@ void initrd_init(struct multiboot_header* mboot_head)
 		file->pflags     = cfile->c_mode & 07777;
 		switch(cfile->c_mode & 0170000)
 		{
-			case 0140000:
+			case CPIO_MODE_SOCKET:
 				file->flags |= 0; // FIXME: Socket
 				break;
 
-			case 0120000:
+			case CPIO_MODE_SYMLINK:
 				file->flags |= FS_SYMLINK;
 				break;
 
-			case 0100000:
+			case CPIO_MODE_REGULAR:
 				file->flags |= FS_FILE;
 				break;
 
-			case 0060000:
+			case CPIO_MODE_BLOCK:
 				file->flags |= FS_BLCKDEV;
 				break;
 
-			case 0040000:
+			case CPIO_MODE_DIRECTORY:
 				file->flags |= FS_DIR;
 				break;
 
-			case 0020000:
+			case CPIO_MODE_CHAR:
 				file->flags |= FS_CHARDEV;
 				break;
 
-			case 0010000:
+			case CPIO_MODE_PIPE:
 				file->flags |= FS_PIPE;
 				break;
 		}
