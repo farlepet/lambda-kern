@@ -23,9 +23,9 @@ int send_message(int dest, void *msg, int size)
 
 	struct cbuff *buff = &(procs[idx].messages);
 
-	u32 err = (u32)write_cbuff((u8 *)msg, size, buff);
+	uint32_t err = (uint32_t)write_cbuff((uint8_t *)msg, size, buff);
 
-	procs[idx].blocked &= (u32)~BLOCK_MESSAGE;
+	procs[idx].blocked &= (uint32_t)~BLOCK_MESSAGE;
 
 	unlock(&send_lock);
 
@@ -36,7 +36,7 @@ int send_message(int dest, void *msg, int size)
 	}
 
 	procs[idx].book.sent_msgs++;
-	procs[idx].book.sent_bytes += (u32)size;
+	procs[idx].book.sent_bytes += (uint32_t)size;
 
 	return 0;
 }
@@ -47,8 +47,8 @@ int recv_message(void *msg, int size)
 
 	struct cbuff *buff = &(procs[idx].messages);
 
-	u32 err;
-	while((err = (u32)read_cbuff((u8 *)msg, size, buff)) & (CBUFF_EMPTY | CBUFF_NENOD))
+	uint32_t err;
+	while((err = (uint32_t)read_cbuff((uint8_t *)msg, size, buff)) & (CBUFF_EMPTY | CBUFF_NENOD))
 	{
 		procs[idx].blocked |= BLOCK_MESSAGE;
 		busy_wait();
@@ -61,7 +61,7 @@ int recv_message(void *msg, int size)
 	}
 
 	procs[idx].book.recvd_msgs++;
-	procs[idx].book.recvd_bytes += (u32)size;
+	procs[idx].book.recvd_bytes += (uint32_t)size;
 
 	return 0;
 }
@@ -138,7 +138,7 @@ int ipc_send_message(struct ipc_message *msg)
 		if(messages[i] == NULL)
 		{
 			messages[i] = msg;
-			procs[idx].blocked &= (u32)~BLOCK_IPC_MESSAGE;
+			procs[idx].blocked &= (uint32_t)~BLOCK_IPC_MESSAGE;
 			return 0;
 		}
 	}

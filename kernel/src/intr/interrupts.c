@@ -16,8 +16,7 @@ extern void exceptions_init(); //!< Initializes basic exception handlers. Found 
  * \brief Initializes interrupts.
  * Initializes based on the target architecture.
  */
-void interrupts_init()
-{
+void interrupts_init() {
 	kerror(ERR_BOOTINFO, "Enabling Interrupts");
 #if  defined(ARCH_X86)
 	kerror(ERR_BOOTINFO, "  -> GDT");
@@ -38,10 +37,9 @@ void interrupts_init()
  * @param n number of the interrupt
  * @param handler the location of the interrupt handler
  */
-void set_interrupt(u32 n, void *handler)
-{
+void set_interrupt(uint32_t n, void *handler) {
 #if   defined(ARCH_X86)
-	set_idt((u8)n, 0x08, 0x8E, handler);
+	set_idt((uint8_t)n, 0x08, 0x8E, handler);
 #endif
 	kerror(ERR_INFO, "Interrupt vector 0x%02X set", n);
 }
@@ -51,8 +49,7 @@ void set_interrupt(u32 n, void *handler)
  * Initializes the timer used by the target architecture.
  * @param quantum the speed in Hz
  */
-void timer_init(u32 quantum)
-{
+void timer_init(uint32_t quantum) {
 #ifdef ARCH_X86
 	pit_init(quantum);
 #else

@@ -7,7 +7,7 @@ static struct kfile *kfiles;
 
 struct kfile *fs_root;
 
-static u32 c_inode = 1;
+static uint32_t c_inode = 1;
 
 int fs_add_file(struct kfile *file, struct kfile *parent)
 {
@@ -45,21 +45,21 @@ int fs_add_file(struct kfile *file, struct kfile *parent)
 	return file->inode;
 }
 
-u32 fs_read(struct kfile *f, u32 off, u32 sz, u8 *buff)
+uint32_t fs_read(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff)
 {
 	if(f && f->read)
 		return f->read(f, off, sz, buff);
 	return 0;
 }
 
-u32 fs_write(struct kfile *f, u32 off, u32 sz, u8 *buff)
+uint32_t fs_write(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff)
 {
 	if(f && f->write)
 		return f->write(f, off, sz, buff);
 	return 0;
 }
 
-void fs_open(struct kfile *f, u32 flags)
+void fs_open(struct kfile *f, uint32_t flags)
 {
 	if(f && f->open)
 		f->open(f, flags);
@@ -142,7 +142,7 @@ DIR *fs_opendir(struct kfile *f) {
 	return stream;
 }
 
-int fs_mkdir(struct kfile *f, char *name, u32 perms)
+int fs_mkdir(struct kfile *f, char *name, uint32_t perms)
 {
 	// TODO: Check name
 
@@ -151,7 +151,7 @@ int fs_mkdir(struct kfile *f, char *name, u32 perms)
 	return -1;
 }
 
-int fs_create(struct kfile *f, char *name, u32 perms)
+int fs_create(struct kfile *f, char *name, uint32_t perms)
 {
 	// TODO: Check name
 

@@ -12,7 +12,7 @@
 #endif
 
 
-ptr_t load_elf(void *file, u32 length, u32 **pdir)
+ptr_t load_elf(void *file, uint32_t length, uint32_t **pdir)
 {
 	//kerror(ERR_BOOTINFO, "Loading elf from %08X of length %08X", file, length);
 	(void)length; // TODO: Error-check with this
@@ -52,13 +52,13 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 
 	int p = proc_by_pid(current_pid);
 
-	u32 *pgdir = clone_kpagedir();
-	//u32 *pgdir = (u32 *)procs[p].cr3;
+	uint32_t *pgdir = clone_kpagedir();
+	//uint32_t *pgdir = (uint32_t *)procs[p].cr3;
 	
-	//u32 *phys_pgdir = get_phys_page(pgdir);
-	//u32 *pgdir = (u32 *)kernel_cr3;
+	//uint32_t *phys_pgdir = get_phys_page(pgdir);
+	//uint32_t *pgdir = (uint32_t *)kernel_cr3;
 
-	//u32 used_addresses[32][2];
+	//uint32_t used_addresses[32][2];
 
 	//kerror(ERR_BOOTINFO, "Section Header offset: %08X, size: %08X, #: %d", head->e_shoff, head->e_shentsize, head->e_shnum);
 
@@ -86,7 +86,7 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 			//set_pagedir(phys_pgdir);
 			if(shdr->sh_type == SHT_NOBITS) memset(phys, 0, shdr->sh_size);
 			else memcpy(phys, (void *)((ptr_t)head + shdr->sh_offset), shdr->sh_size);
-			//set_pagedir((u32 *)kernel_cr3);
+			//set_pagedir((uint32_t *)kernel_cr3);
 
 			ptr_t p = 0;
 			for(; p < shdr->sh_size; p += 0x1000)
@@ -156,7 +156,7 @@ ptr_t load_elf(void *file, u32 length, u32 **pdir)
 
 
 
-int exec_elf(void *data, u32 length, const char **argv, const char **envp) {
+int exec_elf(void *data, uint32_t length, const char **argv, const char **envp) {
 	//kerror(ERR_BOOTINFO, "Executing elf from %08X of length %08X", data, length);
 	(void)length; // TODO: Error-check with this
 
@@ -189,12 +189,12 @@ int exec_elf(void *data, u32 length, const char **argv, const char **envp) {
 		return 0;
 	}
 
-	u32 *pgdir = clone_kpagedir();
-	//u32 *phys_pgdir = get_phys_page(pgdir);
-	//u32 *pgdir = (u32 *)kernel_cr3;
-	//u32 *pgdir = get_pagedir();
+	uint32_t *pgdir = clone_kpagedir();
+	//uint32_t *phys_pgdir = get_phys_page(pgdir);
+	//uint32_t *pgdir = (uint32_t *)kernel_cr3;
+	//uint32_t *pgdir = get_pagedir();
 
-	//u32 used_addresses[32][2];
+	//uint32_t used_addresses[32][2];
 
 	//kerror(ERR_BOOTINFO, "Section Header offset: %08X, size: %08X, #: %d", head->e_shoff, head->e_shentsize, head->e_shnum);
 
@@ -218,7 +218,7 @@ int exec_elf(void *data, u32 length, const char **argv, const char **envp) {
 			//set_pagedir(phys_pgdir);
 			if(shdr->sh_type == SHT_NOBITS) memset(phys, 0, shdr->sh_size);
 			else memcpy(phys, (void *)((ptr_t)head + shdr->sh_offset), shdr->sh_size);
-			//set_pagedir((u32 *)kernel_cr3);
+			//set_pagedir((uint32_t *)kernel_cr3);
 
 			ptr_t p = 0;
 			for(; p < shdr->sh_size; p += 0x1000) {

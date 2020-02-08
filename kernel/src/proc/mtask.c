@@ -58,19 +58,19 @@ int get_next_open_proc() {
 	return p;
 }
 
-int add_kernel_task(void *process, char *name, u32 stack_size, int pri) {
+int add_kernel_task(void *process, char *name, uint32_t stack_size, int pri) {
 	return add_task(process, name, stack_size, pri, clone_kpagedir(), 1, 0);
 }
 
-int add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *pagedir) {
+int add_kernel_task_pdir(void *process, char *name, uint32_t stack_size, int pri, uint32_t *pagedir) {
 	return add_task(process, name, stack_size, pri, pagedir, 1, 0);
 }
 
-int add_user_task(void *process, char *name, u32 stack_size, int pri) {
+int add_user_task(void *process, char *name, uint32_t stack_size, int pri) {
 	return add_task(process, name, stack_size, pri, clone_kpagedir(), 0, 3);
 }
 
-int add_user_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *pagedir) {
+int add_user_task_pdir(void *process, char *name, uint32_t stack_size, int pri, uint32_t *pagedir) {
 	return add_task(process, name, stack_size, pri, pagedir, 0, 3);
 }
 
@@ -178,9 +178,9 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 
 #if defined(ARCH_X86)
 	procs[p].ring       = ring;
-	procs[p].eip        = (u32)process;
-	procs[p].entrypoint = (u32)process;
-	procs[p].cr3        = (u32)pagedir;
+	procs[p].eip        = (uint32_t)process;
+	procs[p].entrypoint = (uint32_t)process;
+	procs[p].cr3        = (uint32_t)pagedir;
 
 	uint32_t /*stack_begin, */virt_stack_begin;
 	if(!kernel) virt_stack_begin = 0xFF000000;
@@ -253,7 +253,7 @@ void init_multitasking(void *process, char *name) {
 
 	kerror(ERR_BOOTINFO, "--");
 
-	procs[0].type &= (u32)~(TYPE_RANONCE); // Don't save registers right away for the first task
+	procs[0].type &= (uint32_t)~(TYPE_RANONCE); // Don't save registers right away for the first task
 
 	set_interrupt(SCHED_INT, sched_run);
 
@@ -275,10 +275,10 @@ __hot void do_task_switch(struct pusha_regs pregs, struct iret_regs iregs) {
 	(void)pregs;
 
 #if  defined(ARCH_X86)
-	u32 esp, ebp, eip, cr3;
+	uint32_t esp, ebp, eip, cr3;
 	asm volatile ("mov %%esp, %0" : "=r" (esp));
 	asm volatile ("mov %%ebp, %0" : "=r" (ebp));
-	eip = (u32)get_eip();
+	eip = (uint32_t)get_eip();
 
 	if(eip == 0xFFFFFFFF) {
 		sched_processes();
@@ -330,7 +330,7 @@ __noreturn void exit(int code) {
 		enable_interrupts();
 		run_sched();
 	}
-	procs[p].type &= (u32)~(TYPE_RUNNABLE);
+	procs[p].type &= (uint32_t)~(TYPE_RUNNABLE);
 	procs[p].type |= TYPE_ZOMBIE; // It isn't removed unless it's parent inquires on it
 	procs[p].exitcode = code;
 

@@ -4,7 +4,7 @@
 #include <fs/dirinfo.h>
 #include <string.h>
 
-u32 proc_fs_read(int desc, u32 off, u32 sz, u8 *buff) {
+uint32_t proc_fs_read(int desc, uint32_t off, uint32_t sz, uint8_t *buff) {
     if(desc > MAX_OPEN_FILES) return 0;
     
     int idx = proc_by_pid(current_pid);
@@ -18,7 +18,7 @@ u32 proc_fs_read(int desc, u32 off, u32 sz, u8 *buff) {
     return 0;
 }
 
-u32 proc_fs_read_blk(int desc, u32 off, u32 sz, u8 *buff) {
+uint32_t proc_fs_read_blk(int desc, uint32_t off, uint32_t sz, uint8_t *buff) {
     if(desc > MAX_OPEN_FILES) return 0;
     
     int idx = proc_by_pid(current_pid);
@@ -39,7 +39,7 @@ u32 proc_fs_read_blk(int desc, u32 off, u32 sz, u8 *buff) {
             return count;
         } else {
             off = proc->file_position[desc];
-            u32 n = fs_read(proc->open_files[desc], off, sz, buff);
+            uint32_t n = fs_read(proc->open_files[desc], off, sz, buff);
             proc->file_position[desc] += n;
             return n;
         }
@@ -48,7 +48,7 @@ u32 proc_fs_read_blk(int desc, u32 off, u32 sz, u8 *buff) {
     return 0;
 }
 
-u32 proc_fs_write(int desc, u32 off, u32 sz, u8 *buff) {
+uint32_t proc_fs_write(int desc, uint32_t off, uint32_t sz, uint8_t *buff) {
     if(desc > MAX_OPEN_FILES) return 0;
     
     int idx = proc_by_pid(current_pid);
@@ -62,7 +62,7 @@ u32 proc_fs_write(int desc, u32 off, u32 sz, u8 *buff) {
     return 0;
 }
 
-int proc_fs_open(const char *name, u32 flags) {
+int proc_fs_open(const char *name, uint32_t flags) {
     int idx = proc_by_pid(current_pid);
     if(idx < 0) return -1;
     struct kproc *proc = &procs[idx];
@@ -104,7 +104,7 @@ int proc_fs_close(int desc) {
     return -1;
 }
 
-int proc_fs_mkdir(int desc, char *name, u32 perms) {
+int proc_fs_mkdir(int desc, char *name, uint32_t perms) {
     if(desc > MAX_OPEN_FILES) return -1;
     
     int idx = proc_by_pid(current_pid);
@@ -118,7 +118,7 @@ int proc_fs_mkdir(int desc, char *name, u32 perms) {
     return -1;
 }
 
-int proc_fs_create(int desc, char *name, u32 perms) {
+int proc_fs_create(int desc, char *name, uint32_t perms) {
     if(desc > MAX_OPEN_FILES) return -1;
     
     int idx = proc_by_pid(current_pid);

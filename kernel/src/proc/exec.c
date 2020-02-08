@@ -35,13 +35,13 @@ int execve(const char *filename, const char **argv, const char **envp) {
     // TODO: Add executable type handlers in the future, so that they can be
     // registered on-the-fly
     // Check for the filetype:
-    if(*(u32 *)execdata == ELF_IDENT) { // ELF
+    if(*(uint32_t *)execdata == ELF_IDENT) { // ELF
         kerror(ERR_INFO, "execve: Determined filetype as ELF");
         return exec_elf(execdata, execsz, argv, envp);
-    } else if(*(u16 *)execdata == 0x3335) { // SHEBANG, NOTE: Byte order might be wrong!
+    } else if(*(uint16_t *)execdata == 0x3335) { // SHEBANG, NOTE: Byte order might be wrong!
         kerror(ERR_MEDERR, "execve: No support for shebang yet!");
     } else { // UNKNOWN
-        kerror(ERR_MEDERR, "execve: Unknown executable file type: %08X", *(u32 *)execdata);
+        kerror(ERR_MEDERR, "execve: Unknown executable file type: %08X", *(uint32_t *)execdata);
     }
 
     return -1;
@@ -109,11 +109,11 @@ void exec_replace_process_image(void *entryp, const char *name, void *pagedir, s
     else        virt_stack_begin = 0x7F000000;
 
     #ifdef STACK_PROTECTOR
-        stack_begin = (u32)kmalloc(stack_size + 0x2000);
+        stack_begin = (uint32_t)kmalloc(stack_size + 0x2000);
         proc->ebp   = virt_stack_begin + 0x1000;
         proc->ebp  +=             (stack_size + 0x1000);
     #else // STACK_PROTECTOR
-        stack_begin = ((u32)kmalloc(stack_size));
+        stack_begin = ((uint32_t)kmalloc(stack_size));
         proc->ebp   = virt_stack_begin;
         proc->ebp  +=              stack_size;
     #endif // !STACK_PROTECTOR

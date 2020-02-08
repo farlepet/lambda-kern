@@ -24,25 +24,22 @@ char *cpio_name = NULL;
 
 #define n(x) ((x << 16) | (x >> 16))
 
-static u32 initrd_read(struct kfile *f, u32 off, u32 sz, u8 *buff)
-{
+static uint32_t initrd_read(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
 	if(!f->info | !cpio) return 0; // We must know where the CPIO file is
 	if(off >= f->length) return 0; // We cannot read past the end of the file
 
-	u8 *data = f->info;
+	uint8_t *data = f->info;
 
-	u32 i   = 0;
-	u32 end = (sz + off) > f->length ? (f->length - off) : sz;
-	for(; i < end; i++)
-	{
+	uint32_t i   = 0;
+	uint32_t end = (sz + off) > f->length ? (f->length - off) : sz;
+	for(; i < end; i++) {
 		buff[i] = data[off + i];
 	}
 
 	return i;
 }
 
-static u32 initrd_write(struct kfile *f, u32 off, u32 sz, u8 *buff)
-{
+static uint32_t initrd_write(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
 	// These go unused
 	(void)f;
 	(void)off;
@@ -52,16 +49,14 @@ static u32 initrd_write(struct kfile *f, u32 off, u32 sz, u8 *buff)
 	return 0; // There should be no reason to write to the files in the initrd
 }
 
-/*static void initrd_open(struct kfile *f, u32 flags)
-{
+/*static void initrd_open(struct kfile *f, uint32_t flags) {
 	lock(&f->file_lock);
 	if(f->open) return; // TODO: Notify the process that the file could not be opened
 	f->open_flags = flags | OFLAGS_OPEN;
 	unlock(&f->file_lock);
 }
 
-static void initrd_close(struct kfile *f)
-{
+static void initrd_close(struct kfile *f) {
 	lock(&f->file_lock);
 	f->open = 0;
 	unlock(&f->file_lock);
@@ -69,29 +64,25 @@ static void initrd_close(struct kfile *f)
 
 
 
-void initrd_init(struct multiboot_header* mboot_head)
-{
+void initrd_init(struct multiboot_header* mboot_head) {
 	kerror(ERR_BOOTINFO, "Loading GRUB modules");
 
-	if(!(mboot_head->flags & MBOOT_MODULES))
-	{
+	if(!(mboot_head->flags & MBOOT_MODULES)) {
 		kerror(ERR_BOOTINFO, "  -> No modules to load");
 		return;
 	}
 
 	struct mboot_module *mod = (struct mboot_module *)mboot_head->mod_addr;
-	u32 modcnt = mboot_head->mod_count;
+	uint32_t modcnt = mboot_head->mod_count;
 
-	u32 i = 0;
-	while(i < modcnt)
-	{
+	uint32_t i = 0;
+	while(i < modcnt) {
 	#if defined(ARCH_X86)
-		ptr_t mod_start = (u32)mod->mod_start;
-		ptr_t mod_end   = (u32)mod->mod_end;
+		ptr_t mod_start = (uint32_t)mod->mod_start;
+		ptr_t mod_end   = (uint32_t)mod->mod_end;
 
-		u32 b = ((mod_start - (u32)firstframe) / 0x1000);
-		for(; b < ((mod_end - (u32)firstframe) / 0x1000) + 1; b++)
-		{
+		uint32_t b = ((mod_start - (uint32_t)firstframe) / 0x1000);
+		for(; b < ((mod_end - (uint32_t)firstframe) / 0x1000) + 1; b++) {
 			set_frame(b, 1); // Make sure that the module is not overwritten
 			map_page((b * 0x1000) + firstframe, (b * 0x1000) + firstframe, 3);
 		}
@@ -102,16 +93,14 @@ void initrd_init(struct multiboot_header* mboot_head)
 		mod++;
 	}
 	
-	if(!initrd)
-	{
+	if(!initrd) {
 		kerror(ERR_MEDERR, "  -> Could not locate InitCPIO module!");
 		return;
 	}
 
 	cpio = (struct header_old_cpio *)initrd->mod_start;
 
-	if(cpio->c_magic != 070707)
-	{
+	if(cpio->c_magic != 070707) {
 		kerror(ERR_MEDERR, "  -> Invalid CPIO magic number");
 		return;
 	}
@@ -119,10 +108,8 @@ void initrd_init(struct multiboot_header* mboot_head)
 	struct header_old_cpio *cfile = (struct header_old_cpio *)cpio;
 	int cidx = 0;
 
-	while (1)
-	{
-		if(cfile->c_magic != 0x71C7)
-		{
+	while (1) {
+		if(cfile->c_magic != 0x71C7) {
 			kerror(ERR_MEDERR, "  -> Invalid or corrupt InitCPIO!\n");
 			return;
 		}
@@ -132,15 +119,14 @@ void initrd_init(struct multiboot_header* mboot_head)
 		cfile->c_mtime    = n(cfile->c_mtime);
 		cfile->c_filesize = n(cfile->c_filesize);
 
-		memcpy(filenames[cidx], (void *)((u32)cfile + sizeof(struct header_old_cpio)), cfile->c_namesize);
+		memcpy(filenames[cidx], (void *)((uint32_t)cfile + sizeof(struct header_old_cpio)), cfile->c_namesize);
 
-		if (!strcmp(filenames[cidx], "TRAILER!!!"))
-		{
+		if (!strcmp(filenames[cidx], "TRAILER!!!")) {
 			memset(&files[cidx], 0, sizeof(struct header_old_cpio));
 			return;
 		}
 
-		u32 data = ((u32)cfile + sizeof(struct header_old_cpio) + cfile->c_namesize + (cfile->c_namesize & 1));
+		uint32_t data = ((uint32_t)cfile + sizeof(struct header_old_cpio) + cfile->c_namesize + (cfile->c_namesize & 1));
 
 
 		struct kfile *file = (struct kfile *)kmalloc(sizeof(struct kfile));
@@ -197,8 +183,7 @@ void initrd_init(struct multiboot_header* mboot_head)
 		file->link       = 0; // FIXME
 		file->open_flags = 0;
 		file->pflags     = cfile->c_mode & 07777;
-		switch(cfile->c_mode & 0170000)
-		{
+		switch(cfile->c_mode & 0170000) {
 			case CPIO_MODE_SOCKET:
 				file->flags |= 0; // FIXME: Socket
 				break;
@@ -245,4 +230,3 @@ void initrd_init(struct multiboot_header* mboot_head)
 		n_files++;
 	}
 }
-

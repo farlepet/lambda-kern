@@ -21,8 +21,7 @@ static void mm_locate_modules(struct multiboot_header *mboot_head) {
 	
 
 	uint32_t i = 0;
-	while(i < modcnt)
-	{
+	while(i < modcnt) {
 	#if defined(ARCH_X86)
 		ptr_t mod_start = mod->mod_start;
 		ptr_t mod_end   = mod->mod_end;
@@ -53,8 +52,7 @@ static void mm_locate_modules(struct multiboot_header *mboot_head) {
  * Initializes memory management for the target archetecture.
  * @param mboot_tag the multiboot header location
  */
-void mm_init(struct multiboot_header *mboot_head)
-{
+void mm_init(struct multiboot_header *mboot_head) {
 	kerror(ERR_BOOTINFO, "Initializing memory management");
 
 	if(!mboot_head)

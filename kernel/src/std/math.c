@@ -9,11 +9,11 @@
  * @param size size of number in 4 byte blocks
  * @return 1 if implemented
  */
-int u_arbi_add(u32 *aug, u32 *add, u32 *sum, int size)
+int u_arbi_add(uint32_t *aug, uint32_t *add, uint32_t *sum, int size)
 #if __has_builtin(__builtin_addc) // This makes our life a LOT easier
 {
-	u32 carry_in  = 0;
-	u32 carry_out = 0;
+	uint32_t carry_in  = 0;
+	uint32_t carry_out = 0;
 	int i = 0;
 	for(; i < size; i++)
 	{
@@ -43,11 +43,11 @@ int u_arbi_add(u32 *aug, u32 *add, u32 *sum, int size)
  * @param size size of number in 4 byte blocks
  * @return 1 if implemented
  */
-int u_arbi_sub(u32 *min, u32 *sub, u32 *diff, int size)
+int u_arbi_sub(uint32_t *min, uint32_t *sub, uint32_t *diff, int size)
 #if __has_builtin(__builtin_subc) // This makes our life a LOT easier
 {
-	u32 carry_in  = 0;
-	u32 carry_out = 0;
+	uint32_t carry_in  = 0;
+	uint32_t carry_out = 0;
 	int i = 0;
 	for(; i < size; i++)
 	{

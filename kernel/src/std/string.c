@@ -6,9 +6,9 @@
  * @param str the string to calculate the length of
  * @return the length of the string
  */
-u32 strlen(const char *str)
+uint32_t strlen(const char *str)
 {
-	register u32 i = 0;
+	register uint32_t i = 0;
 	while(str[i]) i++;
 	return i;
 }
@@ -19,9 +19,9 @@ u32 strlen(const char *str)
  * @param str the wide string to calculate the length of
  * @return the length of the wide string
  */
-u32 wcslen(const short *str)
+uint32_t wcslen(const short *str)
 {
-	register u32 i = 0;
+	register uint32_t i = 0;
 	while(str[i++]);
 	return i;
 }
@@ -38,7 +38,7 @@ int strcmp(const char *str1, const char *str2)
 	return *(const u8 *)str1 - *(const u8 *)str2;
 }
 
-int strncmp(const char *str1, const char *str2, u32 num)
+int strncmp(const char *str1, const char *str2, uint32_t num)
 {
 	while(*str1 && (*str1 == *str2) && num--) str1++, str2++;
 	return *(const u8 *)str1 - *(const u8 *)str2;
@@ -54,7 +54,7 @@ char *strchr(const char *s, int c) {
 }
 
 
-void *memcpy(void *dest, const void *src, u32 n)
+void *memcpy(void *dest, const void *src, uint32_t n)
 {
 	u8 *dp = dest;
 	const u8 *sp = src;
@@ -64,7 +64,7 @@ void *memcpy(void *dest, const void *src, u32 n)
 }
 
 
-void *memset(void *s, int c, u32 n)
+void *memset(void *s, int c, uint32_t n)
 {
 	u8 *p = s;
 	while(n--)
