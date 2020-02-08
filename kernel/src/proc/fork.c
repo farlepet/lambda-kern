@@ -11,6 +11,15 @@
 extern lock_t creat_task;
 
 // Assuming SRC is this process
+/**
+ * @brief Copies stack of calling process to that of the child process.
+ * 
+ * Note: The source process is assumed to be the current process
+ * 
+ * @param dest Destination process
+ * @param src Source process
+ * @return int 0 on success
+ */
 static int proc_copy_stack(struct kproc *dest, const struct kproc *src) {
     kerror(ERR_BOOTINFO, "proc_copy_stack %08X (%08X) -> %08X (%08X)",
         src->stack_beg, (pgdir_get_page_entry((uint32_t *)src->cr3, (void *)(src->stack_beg - 4096)) & (~0xFFF)) + 4096,
@@ -39,6 +48,15 @@ static int proc_copy_stack(struct kproc *dest, const struct kproc *src) {
     return 0;
 }
 
+/**
+ * @brief Copies the kernel stack to that of the child process.
+ * 
+ * Note: The source process is assumed to be the current process
+ * 
+ * @param dest Destination process
+ * @param src Source process
+ * @return int 0 on success
+ */
 static int proc_copy_kernel_stack(struct kproc *dest, const struct kproc *src) {
     kerror(ERR_BOOTINFO, "proc_copy_kernel_stack %08X (%08X) -> %08X (%08X)",
         src->kernel_stack, (pgdir_get_page_entry((uint32_t *)src->cr3, (void *)(src->kernel_stack - 4096)) & (~0xFFF)) + 4096,
@@ -55,6 +73,16 @@ static int proc_copy_kernel_stack(struct kproc *dest, const struct kproc *src) {
     return 0;
 }
 
+/**
+ * @brief Copies process-allocated data (including program data) from source
+ * process to child process
+ * 
+ * Note: The source process is assumed to be the current process
+ * 
+ * @param dest Destination process
+ * @param src Source process
+ * @return int 0 on success
+ */
 static int proc_copy_data(struct kproc *dest, const struct kproc *src) {
     kerror(ERR_BOOTINFO, "proc_copy_data");
 
@@ -121,7 +149,13 @@ static int proc_copy_data(struct kproc *dest, const struct kproc *src) {
     return 0;
 }
 
-
+/**
+ * @brief Clone process as part of a fork() call
+ * 
+ * @param child_idx Index of child process in process array
+ * @param parent_idx Index of parent process in process array
+ * @return int 0 on success 
+ */
 static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_idx) {
     // TODO: Sort out X86-specific bits!
     // TODO: Clean up!
@@ -163,12 +197,11 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
     uint32_t *pagedir = clone_pagedir_full((void *)parent->cr3);
 
     child->ring       = parent->ring;
-    //child->eip        = parent->eip;
     child->entrypoint = parent->entrypoint;
     child->cr3        = (uint32_t)pagedir;
 
     uint32_t stack_size = parent->stack_beg - parent->stack_end;
-    uint32_t /*stack_begin, */virt_stack_begin;
+    uint32_t virt_stack_begin;
 
     if(!kernel) virt_stack_begin = 0xFF000000;
     else        virt_stack_begin = 0x7F000000;
@@ -177,7 +210,6 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
     proc_create_stack(child, stack_size, virt_stack_begin, kernel);
     proc_create_kernel_stack(child);
 
-    //child->esp = parent->esp;
     child->ebp = parent->ebp;
     
     // POPAD: 8 DWORDS, IRETD: 5 DWORDS
@@ -235,8 +267,6 @@ int fork(void) {
     struct kproc *child  = &procs[p];
 
     fork_clone_process(p, proc_by_pid(current_pid));
-
-    //child->eip = (uintptr_t)return_from_syscall;
 
     kerror(ERR_INFO, " -- Child Stack: %08X %08X", child->esp, child->ebp);
 

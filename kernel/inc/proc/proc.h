@@ -38,8 +38,7 @@ struct uproc;
 #include <mm/symbols.h>
 #include <proc/syscalls.h>
 
-struct proc_book //!< Structure for process `book-keeping`
-{
+struct proc_book { //!< Structure for process `book-keeping`
 	uint32_t sent_msgs;   //!< Number of sent messages
 	uint32_t sent_bytes;  //!< Number of sent bytes
 
@@ -50,16 +49,15 @@ struct proc_book //!< Structure for process `book-keeping`
 	uint32_t syscall_count;  //!< Number of times this process has invoked a syscall
 };
 
-struct kproc_mem_map_ent {
-	uintptr_t virt_address;
-	uintptr_t phys_address;
-	size_t    length;
+struct kproc_mem_map_ent { //!< Memory-map entry
+	uintptr_t virt_address; //!< Virtual address of memory location
+	uintptr_t phys_address; //!< Physical address of memory location
+	size_t    length;       //!< Length of memory location
 
-	struct kproc_mem_map_ent *next;
+	struct kproc_mem_map_ent *next; //!< Next memory map entnry in linked-list. NULL if this is the last element
 };
 
-struct kproc //!< Structure of a process as seen by the kernel
-{
+struct kproc { //!< Structure of a process as seen by the kernel
 	char name[64]; //!< Name of the process
 	int pid;       //!< Process ID
 	int uid;       //!< User who `owns` the process
@@ -88,8 +86,8 @@ struct kproc //!< Structure of a process as seen by the kernel
 
 	uint32_t entrypoint; //!< Program start
 
-	struct cbuff messages;      //!< Message buffer structure
-	uint8_t msg_buff[MSG_BUFF_SIZE]; //!< Actual buffer
+
+// TODO: Documentationf[MSG_BUFF_SIZE]; //!< Actual buffer
 
 	struct kfile *cwd; //!< Current working directory
 
@@ -115,8 +113,7 @@ struct kproc //!< Structure of a process as seen by the kernel
 };
 
 
-struct uproc //!< Structure of a process as seen by a user process
-{
+struct uproc { //!< Structure of a process as seen by a user process
 	char name[64]; //!< Name of the process
 	int pid;       //!< Process ID
 	int uid;       //!< User who `owns` the process
@@ -135,7 +132,13 @@ struct uproc //!< Structure of a process as seen by a user process
 	int prio;      //!< Task priority
 };
 
-
+/**
+ * @brief Convert kproc structure to uproc structure for transmission to
+ * userland application.
+ * 
+ * @param kp Source kproc structure
+ * @param up Destination uproc structure
+ */
 void kproc_to_uproc(struct kproc *kp, struct uproc *up);
 
 /**
@@ -148,8 +151,18 @@ void kproc_to_uproc(struct kproc *kp, struct uproc *up);
  */
 int proc_add_file(struct kproc *proc, struct kfile *file);
 
+/**
+ * @brief Reschedule processes
+ * 
+ * NOTE: This function currently does nothing!
+ */
 void sched_processes(void);
 
+/**
+ * @brief Select next process to execute
+ * 
+ * @return int Process index
+ */
 int sched_next_process(void);
 
 /**
@@ -163,6 +176,14 @@ int sched_next_process(void);
  */
 int proc_add_mmap_ent(struct kproc *proc, uintptr_t virt_address, uintptr_t phys_address, size_t length);
 
+/**
+ * @brief Add multiple memory map records to a process
+ * 
+
+// TODO: Documentations to add records to
+ * @param entries Linked-list of memory map entries to add.
+ * @return int 0 on success
+ */
 int proc_add_mmap_ents(struct kproc *proc, struct kproc_mem_map_ent *entries);
 
 #endif
