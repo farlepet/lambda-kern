@@ -34,8 +34,8 @@ start:
 	mov $(new_stack_t + 0x10000), %esp
     mov %esp, %ebp
 
-	pushl %eax
-	pushl %ebx
+	pushl %eax # Bootloader magic number
+	pushl %ebx # Bootloader data header
 
 	cli
 	call kmain

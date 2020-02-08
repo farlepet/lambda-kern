@@ -8,6 +8,6 @@
  * Initialized the PIT using the supplied frequency if possible.
  * @param freq frequency in Hz
  */
-void pit_init(u32 freq);
+void pit_init(uint32_t freq);
 
 #endif

@@ -41,7 +41,7 @@ void vga_print(char *str);
  * @param base base to use when printing the number
  * @see vga_print
  */
-void vga_printnum(u32 n, u32 base);
+void vga_printnum(uint32_t n, uint32_t base);
 
 
 #define is_ansi(x) ((x == 'A') || (x == 'B') || (x == 'C') || (x == 'D') || (x == 's') || (x == 'u') || (x == 'H') || (x == 'J') || (x == 'K') || (x == 'm'))

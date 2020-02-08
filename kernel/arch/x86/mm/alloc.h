@@ -6,10 +6,10 @@
 
 struct alcent //!< Describes a block of memory
 {
-	u8  valid; //!< Is this a valid block? (If not, it can be replaced)
-	u8  used;  //!< Is this describing used memory?
-	u32 addr;  //!< The address of the block of memory
-	u32 size;  //!< Size of the block of memory
+	uint8_t  valid; //!< Is this a valid block? (If not, it can be replaced)
+	uint8_t  used;  //!< Is this describing used memory?
+	uint32_t addr;  //!< The address of the block of memory
+	uint32_t size;  //!< Size of the block of memory
 };
 
 /**
@@ -18,7 +18,7 @@ struct alcent //!< Describes a block of memory
  * @param sz size of the required memory block
  * @returns pointer to memory block
  */
-void *kmalloc(u32 sz);
+void *kmalloc(uint32_t sz);
 
 /**
  * Free an allocated memory block
@@ -33,4 +33,4 @@ void kfree(void *ptr);
  * @param base location of usable memory
  * @param size size of usable memory
  */
-void init_alloc(u32 base, u32 size);
+void init_alloc(uint32_t base, uint32_t size);

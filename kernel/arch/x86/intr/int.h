@@ -23,10 +23,15 @@ static inline void busy_wait() //!< Preform lower-power wait
 	asm volatile("hlt");
 }
 
-#define INTERRUPT(int_n) __INTERRUPT(int_n)
+#define INTERRUPT(int_n) __INTERRUPT(int_n) //!< Call interrupt
 #define __INTERRUPT(int_n) asm volatile("int $" #int_n)
 
-int interrupts_enabled(); //!< in intr.asm
+/**
+ * @brief Checks if interrupts are currently enabled
+ * 
+ * @return int 1 if enabled, else 0.
+ */
+int interrupts_enabled();
 
 
 struct pusha_regs {

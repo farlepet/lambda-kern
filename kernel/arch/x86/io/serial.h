@@ -13,14 +13,14 @@
  * Initialize the serial port.
  * @param port which port to initialize
  */
-void serial_init(u16 port);
+void serial_init(uint16_t port);
 
 /**
  * \brief Check if a byte is waiting to be read.
  * Check if a byte is waiting to be read.
  * @param port serial port to check
  */
-int serial_received(u16 port);
+int serial_received(uint16_t port);
 
 /**
  * \brief Reads a byte from the serial port.
@@ -28,14 +28,14 @@ int serial_received(u16 port);
  * @param port serial port to read from
  * @see serial_received
  */
-char serial_read(u16 port);
+char serial_read(uint16_t port);
 
 /**
  * \brief Checks if it is okay to send a byte to the serial port.
  * Checks if it is okay to send a byte to the specified serial port.
  * @param port serial port to check
  */
-int is_transmit_empty(u16 port);
+int is_transmit_empty(uint16_t port);
 
 /**
  * \brief Writes a byte to a serial port.
@@ -44,14 +44,26 @@ int is_transmit_empty(u16 port);
  * @param a the byte to write to the port
  * @see is_transmit_empty
  */
-void serial_write(u16 port, char a);
+void serial_write(uint16_t port, char a);
 
 
 
 
+/**
+ * @brief Write string to specified serial port
+ * 
+ * @param port Serial port to write to
+ * @param str NULL-terminated string to write to port
+ */
+void serial_print(uint16_t port, char *str);
 
-void serial_print(u16 port, char *str);
-
-void serial_printnum(u16 port, u32 n, int base);
+/**
+ * @brief Conver number to string and write to specified serial port
+ * 
+ * @param port Port to write to
+ * @param n Number to convert to string
+ * @param base Base in which to interpret number
+ */
+void serial_printnum(uint16_t port, u32 n, int base);
 
 #endif
