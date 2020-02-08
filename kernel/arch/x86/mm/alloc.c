@@ -46,8 +46,8 @@ static void add_alloc(struct alcent *al)
  */
 static void rm_alloc(int block, int idx)
 {
-	u32 addr = allocs[block][idx].addr;
-	u32 size = allocs[block][idx].size;
+	uint32_t addr = allocs[block][idx].addr;
+	uint32_t size = allocs[block][idx].size;
 
 	int i, j = 0;
 
@@ -80,10 +80,10 @@ static void rm_alloc(int block, int idx)
  * @param sz amount of memory required
  * @returns index of block
  */
-static u32 find_hole(u32 sz)
+static uint32_t find_hole(uint32_t sz)
 {
-	u32 idx  = 0xFFFFFFFF;
-	u32 size = 0xFFFFFFFF;
+	uint32_t idx  = 0xFFFFFFFF;
+	uint32_t size = 0xFFFFFFFF;
 
 	int i, j = 0;
 
@@ -98,7 +98,7 @@ static u32 find_hole(u32 sz)
 				if(allocs[j][i].size > sz) // Is it big enough?
 					if(allocs[j][i].size < size) // Is it smaller than the previously found block (if any)?
 					{
-						idx = (u16)i | j << 16;
+						idx = (uint16_t)i | j << 16;
 						size = allocs[j][i].size;
 					}
 			}
@@ -135,7 +135,7 @@ static int get_free_block()
  * @param sz size of the required block
  * @returns pointer to block
  */
-void *kmalloc(u32 sz)
+void *kmalloc(uint32_t sz)
 {
 	kerror(ERR_DETAIL, "Allocating %d bytes of memory", sz);
 
@@ -143,7 +143,7 @@ void *kmalloc(u32 sz)
 	lock(&alloc_lock);
 
 	// Find the smallest memory block that we can use
-	u32 idx = find_hole(sz);
+	uint32_t idx = find_hole(sz);
 
 	// Couldn't find one...
 	if(idx == 0xFFFFFFFF) return 0;
@@ -153,9 +153,9 @@ void *kmalloc(u32 sz)
 
 	if(empty_slots(block) == 4) // Get ready ahead of time
 	{
-		u32 asz = ALLOC_BLOCK * sizeof(struct alcent);
+		uint32_t asz = ALLOC_BLOCK * sizeof(struct alcent);
 
-		u32 idx = find_hole(asz);
+		uint32_t idx = find_hole(asz);
 		if(idx == 0xFFFFFFFF) kpanic("Could not create another allocation block!");
 
 		int block = idx >> 16;
@@ -225,7 +225,7 @@ void kfree(void *ptr)
 		if(!allocs[j]) continue;
 		for(i = 0; i < ALLOC_BLOCK; i++)
 			if(allocs[j][i].valid) // Is it valid?
-				if(allocs[j][i].addr == (u32)ptr) // Is it the correct block?
+				if(allocs[j][i].addr == (uint32_t)ptr) // Is it the correct block?
 					rm_alloc(j, i); // Free it!
 	}
 
@@ -238,7 +238,7 @@ void kfree(void *ptr)
  * @param base base of the usable memory
  * @param size amount of usable memory
  */
-void init_alloc(u32 base, u32 size)
+void init_alloc(uint32_t base, uint32_t size)
 {
 	// Initialized before multitasking, this shouldn't be needed
 	//lock(&alloc_lock);

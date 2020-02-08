@@ -17,7 +17,7 @@ struct input_dev *serial_dev;
  * Initialize the serial port.
  * @param port which port to initialize
  */
-void serial_init(u16 port)
+void serial_init(uint16_t port)
 {
 	outb(port + 1, 0x00);
 	outb(port + 3, 0x80);
@@ -71,7 +71,7 @@ void serial_int_handle()
  * Check if a byte is waiting to be read.
  * @param port serial port to check
  */
-int serial_received(u16 port)
+int serial_received(uint16_t port)
 {
 	return inb(port + 5) & 1;
 }
@@ -82,7 +82,7 @@ int serial_received(u16 port)
  * @param port serial port to read from
  * @see serial_received
  */
-char serial_read(u16 port)
+char serial_read(uint16_t port)
 {
 	while (serial_received(port) == 0);
 	
@@ -94,7 +94,7 @@ char serial_read(u16 port)
  * Checks if it is okay to send a byte to the specified serial port.
  * @param port serial port to check
  */
-int is_transmit_empty(u16 port)
+int is_transmit_empty(uint16_t port)
 {
 	return inb(port + 5) & 0x20;
 }
@@ -106,7 +106,7 @@ int is_transmit_empty(u16 port)
  * @param a the byte to write to the port
  * @see is_transmit_empty
  */
-void serial_write(u16 port, char a)
+void serial_write(uint16_t port, char a)
 {
 	while (is_transmit_empty(port) == 0);
 	outb(port, (u8)a);

@@ -17,7 +17,7 @@ void pit_handler()
 {
 	kerneltime++;
 	
-	register u32 i = 0;
+	register uint32_t i = 0;
 	for(; i < MAX_TIME_BLOCKS; i++)
 		if(time_blocks[i].event)
 			if(--time_blocks[i].count == 0x00000000)
@@ -33,7 +33,7 @@ void pit_handler()
  * Creates a PIT reload value from the specified frequency.
  * @param freq frequency in Hz
  */
-static __inline u32 get_reload(u32 freq)
+static __inline uint32_t get_reload(uint32_t freq)
 {
 	if(freq < 18)      return 0x10000;   // Is the frequency too small?
 	if(freq > 1193181) return 0x01;     // Is the frequency too large?
@@ -45,9 +45,9 @@ static __inline u32 get_reload(u32 freq)
  * Initialized the PIT using the supplied frequency if possible.
  * @param freq frequency in Hz
  */
-void pit_init(u32 freq)
+void pit_init(uint32_t freq)
 {
-	u32 reload = get_reload(freq);
+	uint32_t reload = get_reload(freq);
 	outb(0x43, 0x34);
 	outb(0x40, (u8)reload);
 	outb(0x40, (u8)(reload >> 8));

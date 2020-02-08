@@ -9,7 +9,7 @@
 #include "input.h"
 
 extern void keyb_int(); //!< Assembly interrupt handler
-void keyb_handle(u32);
+void keyb_handle(uint32_t);
 
 struct input_dev *keyb_dev; //!< Device struct for the keyboard input handler
 
@@ -18,7 +18,7 @@ struct input_dev *keyb_dev; //!< Device struct for the keyboard input handler
  *
  * @param keycode code that the keyboard has given us
  */
-static void process_code(u32 keycode)
+static void process_code(uint32_t keycode)
 {
 	switch(keycode)
 	{
@@ -27,19 +27,19 @@ static void process_code(u32 keycode)
 					break;
 
 		case 0xAA:
-		case 0xB6:	keyb_dev->state &= (u32)~KEYB_STATE_SHIFT;
+		case 0xB6:	keyb_dev->state &= (uint32_t)~KEYB_STATE_SHIFT;
 					break;
 
 		case 0x1D:	keyb_dev->state |= KEYB_STATE_CTRL;
 					break;
 
-		case 0x9D:	keyb_dev->state &= (u32)~KEYB_STATE_CTRL;
+		case 0x9D:	keyb_dev->state &= (uint32_t)~KEYB_STATE_CTRL;
 					break;
 
 		case 0x38:	keyb_dev->state |= KEYB_STATE_ALT;
 					break;
 
-		case 0xB8:	keyb_dev->state &= (u32)~KEYB_STATE_ALT;
+		case 0xB8:	keyb_dev->state &= (uint32_t)~KEYB_STATE_ALT;
 					break;
 	}
 }
@@ -52,7 +52,7 @@ static void process_code(u32 keycode)
  * 
  * @param keycode key code passed in by assembly interrupt handler
  */
-void keyb_handle(u32 keycode)
+void keyb_handle(uint32_t keycode)
 {
 	// Doesn't do a whole lot... YET...
 	process_code(keycode);
@@ -65,7 +65,7 @@ void keyb_handle(u32 keycode)
 		iev.data = keycode;
 		send_message(ktask_pids[KINPUT_TASK_SLOT], &iev, sizeof(struct input_event));
 	}
-	krng_add_entropy((u8)keycode);
+	krng_add_entropy((uint8_t)keycode);
 }
 
 /**
@@ -91,7 +91,7 @@ void keyb_init()
 	kbd_wait();
 	outb(0x60, 0xFF);
 	kbd_wait();
-	u8 val = 0;
+	uint8_t val = 0;
 	while((val = inb(0x60)) != 0xAA)
 	{
 		if(val == 0xFE)

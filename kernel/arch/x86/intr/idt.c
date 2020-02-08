@@ -3,10 +3,10 @@
 #include "idt.h"
 #include <err/error.h>
 
-extern void load_idt(u64 *, u32); //!< Use `lidt` to set the IDT pointer.
+extern void load_idt(uint64_t *, uint32_t); //!< Use `lidt` to set the IDT pointer.
 extern void dummy_int(); //!< Dummy interrupt se all IRQ's can function, even if not setup.
 
-u64 IDT[256]; //!< Interrupt Descriptor Table. Table of all interrupt handlers and settings.
+uint64_t IDT[256]; //!< Interrupt Descriptor Table. Table of all interrupt handlers and settings.
 
 /**
  * Remaps the PIC so when an IRQ fires, it adds `offx` to the IRQ number.
@@ -16,7 +16,7 @@ u64 IDT[256]; //!< Interrupt Descriptor Table. Table of all interrupt handlers a
  * @param off1 the offset for the master PIC
  * @param off2 the offset for the slave PIC
  */
-static void remap_pic(u8 off1, u8 off2)
+static void remap_pic(uint8_t off1, uint8_t off2)
 {
 	outb(0x20, 0x11);
   	outb(0xA0, 0x11);
@@ -57,7 +57,7 @@ void idt_init()
 	for(; i < 256; i++)
 	{
 		//kerror(ERR_INFO, "        -> INT %02X", i);
-		IDT[i] = IDT_ENTRY((u32)&dummy_int, 0x08, 0x8E);
+		IDT[i] = IDT_ENTRY((uint32_t)&dummy_int, 0x08, 0x8E);
 	}
 
 	for(i = 0; i < 16; i++)
@@ -74,9 +74,9 @@ void idt_init()
  * @param flags the entrys flags (@see IDT_ATTR)
  * @param func the interrupt handler function
  */
-void set_idt(u8 intr, int sel, int flags, void *func)
+void set_idt(uint8_t intr, int sel, int flags, void *func)
 {
-	IDT[intr] = IDT_ENTRY((u32)func, sel, flags);
+	IDT[intr] = IDT_ENTRY((uint32_t)func, sel, flags);
 }
 
 
@@ -88,11 +88,11 @@ void set_idt(u8 intr, int sel, int flags, void *func)
  * @param irq the IRQ to be disabled
  * @return returns 0 if success
  */
-int disable_irq(u8 irq)
+int disable_irq(uint8_t irq)
 {
 	if(irq > 16) return 1;
 	if(irq < 8)  outb(0x21, inb(0x21) | (1 >> irq));
-	else         outb(0xA1, inb(0xA1) | (u8)(0x100 >> irq));
+	else         outb(0xA1, inb(0xA1) | (uint8_t)(0x100 >> irq));
 	return 0;
 }
 
@@ -102,7 +102,7 @@ int disable_irq(u8 irq)
  * @param irq the IRQ to be enabled
  * @return returns 0 if success
  */
-int enable_irq(u8 irq)
+int enable_irq(uint8_t irq)
 {
 	if(irq > 16) return 1;
 	if(irq < 8)  outb(0x21, inb(0x21) & ~(1 >> irq));

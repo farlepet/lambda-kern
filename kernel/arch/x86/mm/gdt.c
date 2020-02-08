@@ -1,11 +1,11 @@
 #include <types.h>
 #include "gdt.h"
 
-static u8 system_stack[0x2000];
+static uint8_t system_stack[0x2000];
 
-u32 TSS[26] = { 0, }; //!< The Task State Segment
+uint32_t TSS[26] = { 0, }; //!< The Task State Segment
 
-u64 GDT[10] =          //!< The Global Descriptor Table
+uint64_t GDT[10] =          //!< The Global Descriptor Table
 {
 	GDT_NULL,       // 00
 
@@ -24,7 +24,7 @@ u64 GDT[10] =          //!< The Global Descriptor Table
 	GDT_NULL        // 48 <- Placeholder for TSS
 };
 
-extern void load_gdt(u64 *, u32); //!< Sets the GDT pointer with `lidt`
+extern void load_gdt(uint64_t *, uint32_t); //!< Sets the GDT pointer with `lidt`
 extern void seg_reload();         //!< Reloads the segment registers
 extern void load_tss();           //!< Sets the TSS descriptor
 
@@ -34,7 +34,7 @@ extern void load_tss();           //!< Sets the TSS descriptor
  */
 void gdt_init()
 {
-	GDT[9] = GDT_ENTRY((u32)&TSS, sizeof(TSS)-1, 0x40E9/*0x4089*//*0x0089*/); // Or should it be 0x00E9?
+	GDT[9] = GDT_ENTRY((uint32_t)&TSS, sizeof(TSS)-1, 0x40E9/*0x4089*//*0x0089*/); // Or should it be 0x00E9?
 	
 	TSS[2]  = 0x10; // SS0
 	//TSS[4]  = 0x21; // SS1
@@ -47,9 +47,9 @@ void gdt_init()
 	TSS[22] = 0x13; // FS
 	TSS[23] = 0x13; // GS
 
-	TSS[1] = (u32)system_stack; // ESP0
-	//TSS[3] = (u32)system_stack; // ESP1
-	//TSS[5] = (u32)system_stack; // ESP2
+	TSS[1] = (uint32_t)system_stack; // ESP0
+	//TSS[3] = (uint32_t)system_stack; // ESP1
+	//TSS[5] = (uint32_t)system_stack; // ESP2
 
 	TSS[25] = sizeof(TSS); // IOPB
 

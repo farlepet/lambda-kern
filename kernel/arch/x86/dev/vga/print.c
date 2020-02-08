@@ -2,8 +2,8 @@
 #include <err/error.h>
 #include <types.h>
 
-static u8 bkgc = 0x00; //!< Background color to use in vga_put
-static u8 forc = 0x07; //!< Foreground color to use in vga_put
+static uint8_t bkgc = 0x00; //!< Background color to use in vga_put
+static uint8_t forc = 0x07; //!< Foreground color to use in vga_put
 
 static int xres = 80; //!< The current width of the VGA screen
 static int yres = 25; //!< The current hight of the VGA screen
@@ -11,7 +11,7 @@ static int yres = 25; //!< The current hight of the VGA screen
 static int xpos = 0; //!< X position of the cursor
 static int ypos = 0; //!< Y position of the cursor
 
-static u8 *vidmem = (u8 *)0xB8000; //!< Pointer to default VGA memory location
+static uint8_t *vidmem = (uint8_t *)0xB8000; //!< Pointer to default VGA memory location
 
 
 /**
@@ -94,8 +94,8 @@ __print:
 					buff_loc = 0;
 					return;
 
-		default:	*(vidmem + (xpos+ypos*xres)*2)     = (u8)c;
-					*(vidmem + (xpos+ypos*xres)*2 + 1) = (u8)((bkgc << 4) | forc);
+		default:	*(vidmem + (xpos+ypos*xres)*2)     = (uint8_t)c;
+					*(vidmem + (xpos+ypos*xres)*2 + 1) = (uint8_t)((bkgc << 4) | forc);
 					xpos++;
 					break;
 	}
@@ -124,7 +124,7 @@ void vga_print(char *str)
  * @param base base to use when printing the number
  * @see vga_print
  */
-void vga_printnum(u32 n, u32 base)
+void vga_printnum(uint32_t n, uint32_t base)
 {
 	char nums[16] = "0123456789ABCDEF";
 	char ans[16] = { '0' };
@@ -171,7 +171,7 @@ static int get_dec(char *str, char **out)
 }
 
 
-static u8 ansi_to_vga[16] = //!< Convert an ansi color to a VGA color
+static uint8_t ansi_to_vga[16] = //!< Convert an ansi color to a VGA color
 {
 	0, 4,  2,  6,  1, 5,  3,  7,
 	8, 12, 10, 14, 9, 13, 11, 15
@@ -204,7 +204,7 @@ static void m_escape()
 
 		case  7:	n = forc;
 					forc = bkgc;
-					bkgc = (u8)n;
+					bkgc = (uint8_t)n;
 					break;
 
 		case  8:	// En Hidden

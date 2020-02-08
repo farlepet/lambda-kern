@@ -9,7 +9,7 @@
 
 
 
-__noreturn void handle_page_fault(u32, u32,/* u32 *ebp, */struct pusha_regs, struct iret_regs iregs);
+__noreturn void handle_page_fault(uint32_t, uint32_t,/* uint32_t *ebp, */struct pusha_regs, struct iret_regs iregs);
 __noreturn void handle_gpf(uint32_t errcode, struct pusha_regs regs, struct iret_regs iregs);
 __noreturn void handle_invalid_op(struct pusha_regs regs, struct iret_regs iregs);
 __noreturn void handle_double_fault(struct pusha_regs regs, uint32_t errcode, struct iret_regs iregs);
@@ -22,9 +22,9 @@ static void dump_iregs(struct iret_regs iregs);
  * @param errcode errorcode pushed on stack by the fault
  * @param cr3 value of cr3 register (location of fault)
  */
-void handle_page_fault(u32 errcode, u32 cr2,/* u32 *ebp, */struct pusha_regs regs, struct iret_regs iregs)
+void handle_page_fault(uint32_t errcode, uint32_t cr2,/* uint32_t *ebp, */struct pusha_regs regs, struct iret_regs iregs)
 {
-	u32 *cr3 = get_pagedir();
+	uint32_t *cr3 = get_pagedir();
 
 	kerror(ERR_MEDERR, "Page fault at 0x%08X --> 0x%08X (%s%s%s%s%s)", cr2, pgdir_get_page_entry(cr3, (void *)cr2) & 0xFFFFF000,
 				((errcode & 0x01) ? "present"                   : "non-present"),
@@ -36,9 +36,9 @@ void handle_page_fault(u32 errcode, u32 cr2,/* u32 *ebp, */struct pusha_regs reg
 	dump_iregs(iregs);
 	dump_regs(regs);
 
-	if(cr2 >= (u32)firstframe)
+	if(cr2 >= (uint32_t)firstframe)
 	{
-		int frame = (cr2 - (u32)firstframe) / 0x1000;
+		int frame = (cr2 - (uint32_t)firstframe) / 0x1000;
 		kerror(ERR_MEDERR, "  -> On frame %08X(%d)", frame, frame);
 	}
 	else kerror(ERR_MEDERR, "  -> Occurred in kernel-space, not in the page frames");
