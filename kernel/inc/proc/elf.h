@@ -19,13 +19,13 @@
 
 
 #define ELFCLASSNONE 0
-#define ELFCLASS32   1
+#define ELFCLASint32_t    1
 #define ELFCLASS64   2
 
 
 #if defined(ARCH_X86)
 #define HOST_MACHINE EM_386
-#define HOST_CLASS   ELFCLASS32
+#define HOST_CLASS   ELFCLASint32_t 
 #endif
 
 
@@ -41,20 +41,20 @@
 
 typedef struct
 {
-	u8  e_ident[16];
-	u16 e_type;
-	u16 e_machine;
-	u32 e_version;
-	u32 e_entry;
-	u32 e_phoff;
-	u32 e_shoff;
-	u32 e_flags;
-	u16 e_ehsize;
-	u16 e_phentsize;
-	u16 e_phnum;
-	u16 e_shentsize;
-	u16 e_shnum;
-	u16 e_shstrndx;
+	uint8_t  e_ident[16];
+	uint16_t e_type;
+	uint16_t e_machine;
+	uint32_t e_version;
+	uint32_t e_entry;
+	uint32_t e_phoff;
+	uint32_t e_shoff;
+	uint32_t e_flags;
+	uint16_t e_ehsize;
+	uint16_t e_phentsize;
+	uint16_t e_phnum;
+	uint16_t e_shentsize;
+	uint16_t e_shnum;
+	uint16_t e_shstrndx;
 } Elf32_Ehdr;
 
 #define ET_NONE   0
@@ -69,28 +69,28 @@ typedef struct
 
 typedef struct
 {
-	u32 p_type;
-	u32 p_offset;
-	u32 p_vaddr;
-	u32 p_paddr;
-	u32 p_filesz;
-	u32 p_memsz;
-	u32 p_flags;
-	u32 p_align;
+	uint32_t p_type;
+	uint32_t p_offset;
+	uint32_t p_vaddr;
+	uint32_t p_paddr;
+	uint32_t p_filesz;
+	uint32_t p_memsz;
+	uint32_t p_flags;
+	uint32_t p_align;
 } Elf32_Phdr;
 
 typedef struct
 {
-	u32 sh_name;
-	u32 sh_type;
-	u32 sh_flags;
-	u32 sh_addr;
-	u32 sh_offset;
-	u32 sh_size;
-	u32 sh_link;
-	u32 sh_info;
-	u32 sh_addralign;
-	u32 sh_entsize;
+	uint32_t sh_name;
+	uint32_t sh_type;
+	uint32_t sh_flags;
+	uint32_t sh_addr;
+	uint32_t sh_offset;
+	uint32_t sh_size;
+	uint32_t sh_link;
+	uint32_t sh_info;
+	uint32_t sh_addralign;
+	uint32_t sh_entsize;
 } Elf32_Shdr;
 
 #define SHT_NONE     0
@@ -105,12 +105,12 @@ char *sht_strings[SHT_NOBITS+1];
 
 typedef struct
 {
-	u32 st_name;
-	u32 st_value;
-	u32 st_size;
-	u8  st_info;
-	u8  st_other;
-	u16 st_shndx;
+	uint32_t st_name;
+	uint32_t st_value;
+	uint32_t st_size;
+	uint8_t  st_info;
+	uint8_t  st_other;
+	uint16_t st_shndx;
 } Elf32_Sym;
 
 #define ELF32_ST_BIND(i) ((i)>>4)
@@ -133,27 +133,27 @@ typedef struct
 
 typedef struct
 {
-	u32 r_offset;
-	u32 r_info;
+	uint32_t r_offset;
+	uint32_t r_info;
 } Elf32_Rel;
 
 typedef struct
 {
-	u32 r_offset;
-	u32 r_info;
-	s32 r_addend;
+	uint32_t r_offset;
+	uint32_t r_info;
+	int32_t  r_addend;
 } Elf32_Rela;
 
 typedef struct
 {
-	u32 d_tag;
-	u32 d_val;
+	uint32_t d_tag;
+	uint32_t d_val;
 } Elf32_Dyn;
 
 typedef struct
 {
-  u32 a_type;
-  u32 a_val;
+  uint32_t a_type;
+  uint32_t a_val;
 } Elf32_auxv_t;
 
 // auxv a_type values:
@@ -187,9 +187,9 @@ typedef struct
 
 
 
-ptr_t load_elf(void *file, u32 length, u32 **pdir);
+ptr_t load_elf(void *file, uint32_t length, uint32_t **pdir);
 
 
-int exec_elf(void *data, u32 length, const char **argv, const char **envp);
+int exec_elf(void *data, uint32_t length, const char **argv, const char **envp);
 
 #endif

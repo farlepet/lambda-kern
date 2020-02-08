@@ -163,7 +163,7 @@ static int get_dec(const char *str, ptr_t *out)
 static int print(char *out, const char *format, __builtin_va_list varg)
 {
 	uint8_t is_in_spec = 0;
-	s8 size = 0;      // Size of the integer
+	int8_t  size = 0;      // Size of the integer
 	uint8_t width = 0;     // Width of the number at minimum
 	uint8_t precision = 0; // Precision
 	uint8_t showsign = 0;  // Show the sign on positive numbers
@@ -295,11 +295,11 @@ static int print(char *out, const char *format, __builtin_va_list varg)
 					 
 			case 's': if(size > 0)
 					  {
-						  temp = (ptr_t)va_arg(varg, s16 *);
+						  temp = (ptr_t)va_arg(varg, int16_t *);
 						  if(temp == 0) { temp = (ptr_t)L"(null)"; }
 						  else if(!mm_check_addr((void *)temp)) { temp = (ptr_t)L"(badaddr)"; }
-						  nchars += wcslen((s16 *)temp);
-						  while(*(s16 *)temp) *out++ = (char)*(s16 *)temp++;
+						  nchars += wcslen((int16_t *)temp);
+						  while(*(int16_t *)temp) *out++ = (char)*(int16_t *)temp++;
 					  }
 					  else
 					  {

@@ -64,6 +64,6 @@ void serial_print(uint16_t port, char *str);
  * @param n Number to convert to string
  * @param base Base in which to interpret number
  */
-void serial_printnum(uint16_t port, u32 n, int base);
+void serial_printnum(uint16_t port, uint32_t n, int base);
 
 #endif

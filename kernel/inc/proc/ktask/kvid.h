@@ -12,7 +12,7 @@ enum kvid_types
 struct kvid_type_msg //!< A type message to be sent to kvid
 {
 	int pid;  //!< Sender's PID
-	u8  type; //!< Type of kvid message
+	uint8_t  type; //!< Type of kvid message
 };
 
 struct kvid_print_msg //!< A message telling kvid to print a string
@@ -22,7 +22,7 @@ struct kvid_print_msg //!< A message telling kvid to print a string
 
 struct kvid_kerror_msg //!< A message telling kvid to print a kernel message
 {
-	u32 error_level; //!< Error level for kerror
+	uint32_t error_level; //!< Error level for kerror
 	char *string;    //!< String for kerror to print
 };
 

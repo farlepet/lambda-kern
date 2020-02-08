@@ -50,7 +50,7 @@ struct syscall syscalls[] = {
 	[SYSCALL_EXECVE] = { (func0_t)execve, 3, 0 }
 };
 
-//void handle_syscall(u32 scn, u32 *args)
+//void handle_syscall(uint32_t scn, uint32_t *args)
 void handle_syscall(struct pusha_regs regs, struct iret_regs iregs) {
 	struct kproc *proc = &procs[proc_by_pid(current_pid)];
 	proc->esp = (uint32_t)&regs;
@@ -109,7 +109,7 @@ void init_syscalls()
 }
 
 extern void call_syscall_int();
-void call_syscall(u32 scn, u32 *args)
+void call_syscall(uint32_t scn, uint32_t *args)
 {
 	//kerror(ERR_BOOTINFO, "call_syscall: %d, %08X", scn, args);
 #ifdef ARCH_X86

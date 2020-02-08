@@ -16,10 +16,10 @@
  * @param attr the IDT entry's attribute byte
  */
 #define IDT_ENTRY(off, sel, attr)    \
-	((((u64)off  & 0xFFFF0000ULL) << 32) | \
-	 (((u64)attr & 0x000000FFULL) << 40) |  \
-	 (((u64)sel  & 0x0000FFFFULL) << 16) |   \
-	 (((u64)off  & 0x0000FFFFULL) << 0))
+	((((uint64_t)off  & 0xFFFF0000ULL) << 32) | \
+	 (((uint64_t)attr & 0x000000FFULL) << 40) |  \
+	 (((uint64_t)sel  & 0x0000FFFFULL) << 16) |   \
+	 (((uint64_t)off  & 0x0000FFFFULL) << 0))
 
 /**
  * \brief Different IDT entry types.

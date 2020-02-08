@@ -35,13 +35,13 @@ uint32_t wcslen(const short *str)
 int strcmp(const char *str1, const char *str2)
 {
 	while(*str1 && (*str1==*str2)) str1++, str2++;
-	return *(const u8 *)str1 - *(const u8 *)str2;
+	return *(const uint8_t *)str1 - *(const uint8_t *)str2;
 }
 
 int strncmp(const char *str1, const char *str2, uint32_t num)
 {
 	while(*str1 && (*str1 == *str2) && num--) str1++, str2++;
-	return *(const u8 *)str1 - *(const u8 *)str2;
+	return *(const uint8_t *)str1 - *(const uint8_t *)str2;
 }
 
 
@@ -56,8 +56,8 @@ char *strchr(const char *s, int c) {
 
 void *memcpy(void *dest, const void *src, uint32_t n)
 {
-	u8 *dp = dest;
-	const u8 *sp = src;
+	uint8_t *dp = dest;
+	const uint8_t *sp = src;
 	while (n--)
 		*dp++ = *sp++;
 	return dest;
@@ -66,8 +66,8 @@ void *memcpy(void *dest, const void *src, uint32_t n)
 
 void *memset(void *s, int c, uint32_t n)
 {
-	u8 *p = s;
+	uint8_t *p = s;
 	while(n--)
-		*p++ = (u8)c;
+		*p++ = (uint8_t)c;
 	return s;
 }

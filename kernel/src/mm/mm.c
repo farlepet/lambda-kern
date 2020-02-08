@@ -74,7 +74,7 @@ void mm_init(struct multiboot_header *mboot_head) {
 
 int mm_check_addr(void *addr) {
 #if defined(ARCH_X86)
-	u32 page = get_page_entry(addr);
+	uint32_t page = get_page_entry(addr);
 
 	if(!(page & 0x01)) return 0; // Page not present
 

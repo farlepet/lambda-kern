@@ -28,7 +28,7 @@ static char keytab_x86_a[2][256] =
 
 static char keycode_to_char(struct input_event *iev)
 {
-	u32 code = iev->data;
+	uint32_t code = iev->data;
 
 	if(iev->origin.s.driver == IDRIVER_KEYBOARD)
 	{

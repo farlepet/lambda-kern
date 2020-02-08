@@ -36,7 +36,7 @@ void interrupts_init(void);
  * @param n number of the interrupt
  * @param handler the location of the interrupt handler
  */
-void set_interrupt(u32 n, void *handler);
+void set_interrupt(uint32_t n, void *handler);
 
 
 /**
@@ -44,6 +44,6 @@ void set_interrupt(u32 n, void *handler);
  * Initializes the timer used by the target architecture.
  * @param quantum the speed in Hz
  */
-void timer_init(u32 quantum);
+void timer_init(uint32_t quantum);
 
 #endif

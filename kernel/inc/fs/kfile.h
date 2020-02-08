@@ -52,8 +52,8 @@ struct kfile //!< Kernel representation of a file
 	time_t  mtime;            //!< Modification time
 	time_t  ctime;            //!< Creation time
 
-	uint32_t (*read) (struct kfile *, uint32_t, uint32_t, u8 *);     //!< Read from a file
-	uint32_t (*write)(struct kfile *, uint32_t, uint32_t, u8 *);     //!< Write to a file
+	uint32_t (*read) (struct kfile *, uint32_t, uint32_t, uint8_t *);     //!< Read from a file
+	uint32_t (*write)(struct kfile *, uint32_t, uint32_t, uint8_t *);     //!< Write to a file
 	void     (*open) (struct kfile *, uint32_t);                //!< Open a file
 	void     (*close)(struct kfile *);                     //!< Close a file
 	//struct dirent *(*readdir)(DIR *);    //!< Request a dirent structure

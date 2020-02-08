@@ -3,6 +3,6 @@
 
 #include "paging.h"
 
-#define FRAMES_START  (((u32)&kern_end & 0xFFFFF000) + 0x1000) //!< Start of page frames
+#define FRAMES_START  (((uint32_t)&kern_end & 0xFFFFF000) + 0x1000) //!< Start of page frames
 
 #endif

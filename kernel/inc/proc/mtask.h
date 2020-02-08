@@ -65,7 +65,7 @@ void do_task_switch(struct pusha_regs pregs, struct iret_regs iregs);
  * 
  * @see add_task
  */
-int add_kernel_task(void *process, char *name, u32 stack_size, int pri);
+int add_kernel_task(void *process, char *name, uint32_t stack_size, int pri);
 
 /**
  * @brief Create and add a kernel task, with a given page directory
@@ -74,14 +74,14 @@ int add_kernel_task(void *process, char *name, u32 stack_size, int pri);
  *
  * @see add_task
  */
-int add_kernel_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *pagedir);
+int add_kernel_task_pdir(void *process, char *name, uint32_t stack_size, int pri, uint32_t *pagedir);
 
 /**
  * @brief Create and add a userland task
  * 
  * @see add_task
  */
-int add_user_task(void *process, char *name, u32 stack_size, int pri);
+int add_user_task(void *process, char *name, uint32_t stack_size, int pri);
 
 /**
  * @brief Create and add a userland task, with a given page directory
@@ -90,7 +90,7 @@ int add_user_task(void *process, char *name, u32 stack_size, int pri);
  * 
  * @see add_task
  */
-int add_user_task_pdir(void *process, char *name, u32 stack_size, int pri, u32 *pagedir);
+int add_user_task_pdir(void *process, char *name, uint32_t stack_size, int pri, uint32_t *pagedir);
 
 /**
  * @brief Create and add a task

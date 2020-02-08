@@ -40,7 +40,7 @@ enum syscalls {
 
 void init_syscalls();
 
-void call_syscall(u32 scn, u32 *arg);
+void call_syscall(uint32_t scn, uint32_t *arg);
 void handle_syscall(struct pusha_regs regs, struct iret_regs iregs);
 
 extern void return_from_syscall();

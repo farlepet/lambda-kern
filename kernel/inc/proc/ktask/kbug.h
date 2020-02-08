@@ -24,20 +24,20 @@ enum kbug_proc_type
 
 struct kbug_type_msg //!< Message containing type of next message
 {
-	u8 type; //!< Type of request
+	uint8_t type; //!< Type of request
 };
 
 struct kbug_proc_msg //!< Message containing type of process info it requests
 {
 	int pid;  //!< PID of the process whose information is wanted (not always used)
-	u8  type; //!< Type of information it requests
-	u32 info; //!< Extra required information (not always used)
+	uint8_t  type; //!< Type of information it requests
+	uint32_t info; //!< Extra required information (not always used)
 };
 
 struct kbug_mem_msg //!< Message containing memory request
 {
 	max_ptr_t mem_addr; //!< Address of memory to request
-	u32       mem_len;  //!< Length of memory request
+	uint32_t       mem_len;  //!< Length of memory request
 };
 
 

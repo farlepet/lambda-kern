@@ -49,8 +49,8 @@ void pit_init(uint32_t freq)
 {
 	uint32_t reload = get_reload(freq);
 	outb(0x43, 0x34);
-	outb(0x40, (u8)reload);
-	outb(0x40, (u8)(reload >> 8));
+	outb(0x40, (uint8_t)reload);
+	outb(0x40, (uint8_t)(reload >> 8));
 	set_interrupt(TIMER_INT, &pit_int);
 	enable_irq(0);
 }

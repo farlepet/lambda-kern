@@ -11,7 +11,7 @@ struct cbuff //!< A FIFO circular buffer
 	int tail;  //!< Index of first written byte
 	int count; //!< Number of readable bytes in the buffer
 	int size;  //!< Size of the buffer
-	u8 *buff;  //!< The buffer
+	uint8_t *buff;  //!< The buffer
 } __align(8); // For faster access times
 
 // Errors returned by cbuff functions
@@ -23,14 +23,14 @@ struct cbuff //!< A FIFO circular buffer
 #define CBUFF_ERRMSK 0xF0000000 // Where error bits are located
 
 
-int put_cbuff(u8 data, struct cbuff *buff);
+int put_cbuff(uint8_t data, struct cbuff *buff);
 
 int get_cbuff(struct cbuff *buff);
 
 
-int write_cbuff(u8 *data, int size, struct cbuff *buff);
+int write_cbuff(uint8_t *data, int size, struct cbuff *buff);
 
-int read_cbuff(u8 *data, int size, struct cbuff *buff);
+int read_cbuff(uint8_t *data, int size, struct cbuff *buff);
 
 
 #endif // CBUFF_H

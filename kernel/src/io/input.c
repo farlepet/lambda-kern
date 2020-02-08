@@ -23,7 +23,7 @@ static uint16_t get_next_devid(uint16_t driver)
  * @param name_by_id whether or not to append the device number to the name
  * @param id_to_alpha convert device id to a letter, only used if name_by_id == 1
  */
-struct input_dev *add_input_dev(uint16_t driver, char *name, u8 name_by_id, u8 id_to_alpha)
+struct input_dev *add_input_dev(uint16_t driver, char *name, uint8_t name_by_id, uint8_t id_to_alpha)
 {
 	int i = 0;
 	for(; i < MAX_INPUT_DEVICES; i++)

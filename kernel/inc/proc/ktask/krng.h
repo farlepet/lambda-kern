@@ -20,7 +20,7 @@ enum krng_types
  */
 struct rng_type_msg
 {
-	u8 type; //!< Type of message
+	uint8_t type; //!< Type of message
 };
 
 /**
@@ -28,7 +28,7 @@ struct rng_type_msg
  */
 struct rng_request_msg
 {
-	u32 n_bytes; //!< Number of bytes requested
+	uint32_t n_bytes; //!< Number of bytes requested
 };
 
 /**
@@ -36,8 +36,8 @@ struct rng_request_msg
  */
 struct rng_add_entropy_msg
 {
-	u32 n_bytes; //!< Number of bytes in message
-	u8  bytes[]; //!< Bytes
+	uint32_t n_bytes; //!< Number of bytes in message
+	uint8_t  bytes[]; //!< Bytes
 };
 
 /**
@@ -63,6 +63,6 @@ struct rng_type_add_entropy_msg
  *
  * @param ent Byte to add
  */
-void krng_add_entropy(u8 ent);
+void krng_add_entropy(uint8_t ent);
 
 #endif // KTASK_KRNG_H

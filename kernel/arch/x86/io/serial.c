@@ -109,5 +109,5 @@ int is_transmit_empty(uint16_t port)
 void serial_write(uint16_t port, char a)
 {
 	while (is_transmit_empty(port) == 0);
-	outb(port, (u8)a);
+	outb(port, (uint8_t)a);
 }

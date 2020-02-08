@@ -19,7 +19,7 @@ static int unload(int, char **);
 static int ls(int, char **);
 
 struct kterm_entry {
-	u32   hash;
+	uint32_t   hash;
 	char *string;
 	int (*function)(int, char **);
 };
@@ -32,16 +32,16 @@ struct kterm_entry kterm_ents[] = {
 	{ 0, "ls",     &ls     },
 };
 
-u32 hash(char *str) {
-	u32 hash = 5381;
+uint32_t hash(char *str) {
+	uint32_t hash = 5381;
 	while (*str)
-		hash = ((hash << 5) + hash) + (u8)*str++;
+		hash = ((hash << 5) + hash) + (uint8_t)*str++;
 
 	return hash;
 }
 
 __noreturn void kterm_task() {
-	u32 i = 0;
+	uint32_t i = 0;
 	for(; i < (sizeof(kterm_ents)/sizeof(kterm_ents[0])); i++)
 		kterm_ents[i].hash = hash(kterm_ents[i].string);
 
@@ -90,7 +90,7 @@ __noreturn void kterm_task() {
 
 		kprintf("\n");
 
-		u32 inlen   = strlen(input);
+		uint32_t inlen   = strlen(input);
 		int cstring = 0;
 		int argidx  = 0;
 		for(i = 0; i <= inlen; i++) {
@@ -104,7 +104,7 @@ __noreturn void kterm_task() {
 
 
 		//kprintf("%s\n", input);
-		u32 h = hash(argv[0]);
+		uint32_t h = hash(argv[0]);
 		int fnd = 0;
 		for(i = 0; i < (sizeof(kterm_ents)/sizeof(kterm_ents[0])); i++) {
 			if(kterm_ents[i].hash == h)
@@ -145,7 +145,7 @@ static int help(int argc, char **argv) {
 
 char exec_filename[128] = { 0, };
 struct kfile *exec      = NULL;
-u8			 *exec_data = NULL;
+uint8_t			 *exec_data = NULL;
 int           exec_type = 0;
 
 static int load(int argc, char **argv) {
@@ -169,7 +169,7 @@ static int load(int argc, char **argv) {
 
 	//kprintf("First 4 bytes of file: %02x, %02x, %02x, %02x\n", exec_data[0], exec_data[1], exec_data[2], exec_data[3]);
 
-	if(*(u32 *)exec_data == ELF_IDENT) {
+	if(*(uint32_t *)exec_data == ELF_IDENT) {
 		exec_type = EXEC_ELF;
 		kprintf("Executable is an ELF executable.\n");
 	} else {
@@ -194,7 +194,7 @@ static int run(int argc, char **argv) {
 	}
 
 	if(exec_type == EXEC_ELF) {
-		u32 *pagedir;
+		uint32_t *pagedir;
 		//ptr_t exec_ep =
 
 		/*uint32_t args[1] = {0};
@@ -219,24 +219,24 @@ static int run(int argc, char **argv) {
 	}
 
 	else if(exec_type == EXEC_BIN) {
-		//u32 *pagedir;
+		//uint32_t *pagedir;
 		//ptr_t exec_ep = load_elf(exec_data, exec->length, &pagedir);
 		ptr_t exec_ep = 0x80000000;
 
 		// Keep it on a page boundry:
 		void *phys = kmalloc(exec->length + 0x2000);
-		phys = (void *)(((u32)phys & ~0xFFF) + 0x1000);
+		phys = (void *)(((uint32_t)phys & ~0xFFF) + 0x1000);
 
 		//map_page(phys, (void *)exec_ep, 0x03);
 
-		//u32 addr_tst = (u32)get_page_entry((void *)exec_ep);
+		//uint32_t addr_tst = (uint32_t)get_page_entry((void *)exec_ep);
 		//kerror(ERR_SMERR, "Page entry: 0x%08X", addr_tst);
 		
 		memcpy(phys, exec_data, exec->length);
 
 		//kerror(ERR_BOOTINFO, "Current CR3: 0x%08X", get_pagedir());
 
-		u32 *pagedir = clone_kpagedir();
+		uint32_t *pagedir = clone_kpagedir();
 		pgdir_map_page(pagedir, phys, (void *)exec_ep, 0x03);
 		kerror(ERR_BOOTINFO, "Page entry: 0x%08X", pgdir_get_page_entry(pagedir, (void *)exec_ep));
 

@@ -49,6 +49,6 @@ void lock(lock_t *lock);
  * @param ticks How many ticks for which to attempt to aquire lock
  * @return int 0 if successful, else 1
  */
-int lock_for(lock_t *lock, u32 ticks);
+int lock_for(lock_t *lock, uint32_t ticks);
 
 #endif

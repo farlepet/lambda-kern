@@ -2,7 +2,7 @@
 #include <time/time.h>
 #include <intr/int.h>
 
-u8 timeup[500]; //!< Table of values corresponding to pid's telling if the timer is done yet
+uint8_t timeup[500]; //!< Table of values corresponding to pid's telling if the timer is done yet
 
 /**
  * \brief Tells `delay` it can return.
@@ -14,7 +14,7 @@ static void time_over(int pid)
 {
 	int idx = proc_by_pid(pid);
 
-	procs[idx].blocked &= (u32)~BLOCK_DELAY;
+	procs[idx].blocked &= (uint32_t)~BLOCK_DELAY;
 }
 
 /**
@@ -23,7 +23,7 @@ static void time_over(int pid)
  * time has run out.
  * @param delay number of ticks to wait for
  */
-void delay(u64 delay)
+void delay(uint64_t delay)
 {
 	int pid = current_pid;
 	int idx = proc_by_pid(pid);

@@ -10,13 +10,13 @@
  * modify that data.
  */
 
-static u8 buff[0x1000];
+static uint8_t buff[0x1000];
 static struct cbuff e_pool = { 0, 0, 0, 0x1000, buff };
 
 
 static int seed[4] = { 213424, 464854864, 86445648, 21681121 }; //!< Some arbitrary numbers...
 
-u8 generate_rand_byte(void);
+uint8_t generate_rand_byte(void);
 
 /**
  * Kernel (Pseudo-)Random Number Generator (RNG)
@@ -43,9 +43,9 @@ __noreturn void krng_task()
 			case KRNG_REQUEST:
 			{
 				struct rng_type_request_msg *m = (struct rng_type_request_msg *)data;
-				u8 *bytes = kmalloc(m->rrm.n_bytes);
+				uint8_t *bytes = kmalloc(m->rrm.n_bytes);
 
-				for(u32 i = 0; i < m->rrm.n_bytes; i++)
+				for(uint32_t i = 0; i < m->rrm.n_bytes; i++)
 				{
 					bytes[i] = generate_rand_byte();
 				}
@@ -59,7 +59,7 @@ __noreturn void krng_task()
 			{
 				struct rng_type_add_entropy_msg *m = (struct rng_type_add_entropy_msg *)data;
 
-				for(u32 i = 0; i < m->raem.n_bytes; i++)
+				for(uint32_t i = 0; i < m->raem.n_bytes; i++)
 				{
 					krng_add_entropy(m->raem.bytes[i]);
 				}
@@ -88,34 +88,34 @@ static void rot_seed(int a, int b, int c, int d)
  * @param n input number
  * @returns output number
  */
-static u32 glfsr(u32 n)
+static uint32_t glfsr(uint32_t n)
 {
 	return (n >> 1) ^ (-(n & 1) & 0xD0000001);
 }
 
-void krng_add_entropy(u8 ent)
+void krng_add_entropy(uint8_t ent)
 {
-	u32 entropy = (u32)(ent | ((ent << 8) ^ seed[3]) | ((ent << 16) ^ seed[0]) | ((ent << 24) ^ seed[2]));
-	entropy *= (u32)seed[2];
+	uint32_t entropy = (uint32_t)(ent | ((ent << 8) ^ seed[3]) | ((ent << 16) ^ seed[0]) | ((ent << 24) ^ seed[2]));
+	entropy *= (uint32_t)seed[2];
 	rot_seed(0, 3, 2, 1);
 
 #if __has_builtin(__builtin_readcyclecounter) // Add a bit extra
 		seed[3] = (int)__builtin_readcyclecounter();
 #endif
 
-	seed[0] = (int)glfsr((u32)seed[0]);
-	u32 t = (u32)seed[2];
-	seed[2] = (int)glfsr((u32)seed[1]);
+	seed[0] = (int)glfsr((uint32_t)seed[0]);
+	uint32_t t = (uint32_t)seed[2];
+	seed[2] = (int)glfsr((uint32_t)seed[1]);
 	seed[1] = (int)glfsr(t);
 
 	ent = (entropy & 0x03) | (entropy >> 8 & 0x0C) | (entropy >> 16 & 0x30) | (entropy >> 24 & 0xC0); // Shuffle their values about
 	put_cbuff(ent, &e_pool);
 }
 
-u8 generate_rand_byte()
+uint8_t generate_rand_byte()
 {
 	rot_seed(2, 1, 3, 0);
-	u32 i = 0xFFFF;
-	while(i & 0xFFFFFF00) i = (u32)get_cbuff(&e_pool);
-	return (u8)i ^ (u8)seed[0] >> (u8)(i & 0x0F);
+	uint32_t i = 0xFFFF;
+	while(i & 0xFFFFFF00) i = (uint32_t)get_cbuff(&e_pool);
+	return (uint8_t)i ^ (uint8_t)seed[0] >> (uint8_t)(i & 0x0F);
 }

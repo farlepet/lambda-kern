@@ -6,7 +6,7 @@ void rollover(int);
 
 struct time_block time_blocks[MAX_TIME_BLOCKS] = { [MAX_TIME_BLOCKS-1] = {&rollover, 0xFFFFFFFFFFFFFFFF, 0 } }; //!< Array of timeblocks used by various processes
 
-u64 kerneltime = 0; //!< Number of elapsed ticks since the PIT was initialized
+uint64_t kerneltime = 0; //!< Number of elapsed ticks since the PIT was initialized
 
 void rollover(int pid) //!< Called when the timer rolls over
 {
@@ -21,7 +21,7 @@ void rollover(int pid) //!< Called when the timer rolls over
  * @param n the entry within time_blocks
  * @see time_blocks
  */
-void do_time_block_timeup(u32 n)
+void do_time_block_timeup(uint32_t n)
 {
 	int pid = time_blocks[n].pid;
 	void (*event)(int) = time_blocks[n].event;
@@ -40,7 +40,7 @@ void do_time_block_timeup(u32 n)
  * @param count the number of ticks to wait before calling func()
  * @param pid the pid of the process that is using this time_block
  */
-void add_time_block(void (*func)(int), u64 count, int pid)
+void add_time_block(void (*func)(int), uint64_t count, int pid)
 {
 	int i = 0;
 	for(; i < MAX_TIME_BLOCKS; i++)
