@@ -71,3 +71,24 @@ void *memset(void *s, int c, uint32_t n)
 		*p++ = (uint8_t)c;
 	return s;
 }
+
+
+void *memmove(void *dst, const void *src, uint32_t n) {
+	const uint8_t *_src = src;
+	uint8_t *_dst = dst;
+
+	if(dst < src) {
+		while(n--) {
+			*_dst++ = *_src++;
+		}
+	} else {
+		_dst += n;
+		_src += n;
+
+		while(n--) {
+			*--_dst = *--_src;
+		}
+	}
+
+	return dst;
+}
