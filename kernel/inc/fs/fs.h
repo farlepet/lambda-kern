@@ -8,7 +8,7 @@
 #define PERMISSIONS(u, g, w) ((u << 6) | (g << 3) | (w << 0))
 
 
-struct kfile *fs_root;
+extern struct kfile *fs_root;
 
 int fs_add_file(struct kfile *file, struct kfile *parent);
 

@@ -16,9 +16,9 @@ void run_sched(void);
 
 extern struct kproc procs[MAX_PROCESSES];
 
-int current_pid; //!< The PID of the currently running process
+extern int current_pid; //!< The PID of the currently running process
 
-int tasking; //!< Whether or not multitasking has been started or not
+extern int tasking; //!< Whether or not multitasking has been started or not
 
 void *get_eip(); //!< Get the EIP value of the instruction after the call to this function
 

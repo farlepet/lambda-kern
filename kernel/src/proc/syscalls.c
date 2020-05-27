@@ -58,7 +58,7 @@ void handle_syscall(struct pusha_regs regs, struct iret_regs iregs) {
 
 	uint32_t  scn  = regs.eax;
 	uint32_t *args = (uint32_t *)regs.ebx;
-	kerror(ERR_BOOTINFO, "Syscall %d called with args at %08X", scn, args);
+	//kerror(ERR_BOOTINFO, "Syscall %d called with args at %08X", scn, args);
 	if(scn >= ARRAY_SZ(syscalls)) {
 		int pid = get_pid();
 		kerror(ERR_MEDERR, "Process %d (%s) has tried to call an invalid syscall: %u Args: %08X", pid, proc->name, scn, args);

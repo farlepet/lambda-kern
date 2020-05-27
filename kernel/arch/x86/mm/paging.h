@@ -14,9 +14,9 @@
 extern uint32_t kern_start; //!< Start address of the kernel
 extern uint32_t kern_end;   //!< End address of the kernel
 
-uint32_t kernel_cr3;        //!< Page directory used by the kernel
+extern uint32_t kernel_cr3;        //!< Page directory used by the kernel
 
-uint32_t *firstframe;       //!< The location of the first page frame
+extern uint32_t *firstframe;       //!< The location of the first page frame
 
 /**
  * @brief Block page from use

@@ -3,7 +3,7 @@
 
 #include <types.h>
 
-uint64_t kerneltime; //!< Number of elapsed ticks since the PIT was initialized
+extern uint64_t kerneltime; //!< Number of elapsed ticks since the PIT was initialized
 
 /**
  * Used when specifying UNIX time (not timer ticks).
@@ -26,7 +26,7 @@ struct time_block
 
 #define MAX_TIME_BLOCKS 64 //!< Maximum number of timer blocks able to be used. We cannot let this get too high, or we will experience slowdown.
 
-struct time_block time_blocks[MAX_TIME_BLOCKS]; //!< Array of timeblocks used by various processes
+extern struct time_block time_blocks[MAX_TIME_BLOCKS]; //!< Array of timeblocks used by various processes
 
 /**
  * \brief Called when count reaches 0.
