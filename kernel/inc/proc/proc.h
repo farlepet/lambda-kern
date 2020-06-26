@@ -24,6 +24,7 @@ struct uproc;
 #define BLOCK_DELAY       0x00000001 //!< Process is blocked waiting for a delay
 #define BLOCK_MESSAGE     0x00000002 //!< Process is blocked waiting for a message
 #define BLOCK_IPC_MESSAGE 0x00000004 //!< Process is blocked waiting for a message (mew IPC style)
+#define BLOCK_WAIT        0x00000008 //!< Process is blocked waiting for a child process to exit
 
 #define PRIO_IDLE       0 //!< Only idle processes use this priority
 #define PRIO_USERPROG   1 //!< Priority for user programs
@@ -63,7 +64,9 @@ struct kproc { //!< Structure of a process as seen by the kernel
 	int uid;       //!< User who `owns` the process
 	int gid;       //!< Group who `owns` the process
 
-	uint32_t type;      //!< Type of process
+	int parent;    //!< PID of parent process
+
+	uint32_t type; //!< Type of process
 
 	int children[MAX_CHILDREN]; //!< Indexes of direct child processes (ex: NOT children's children)
 

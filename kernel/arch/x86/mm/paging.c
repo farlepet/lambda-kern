@@ -218,7 +218,7 @@ void free_frame(void *frame)
 /**
  * Clear the page directory marking every page table as non-existant.
  * 
- * @dir Directory to clear
+ * @param dir Directory to clear
  */
 void clear_pagedir(uint32_t *dir)
 {

@@ -47,7 +47,8 @@ struct syscall syscalls[] = {
 	[SYSCALL_FS_GETDIRINFO] = { (func0_t)proc_fs_getdirinfo, 2, 0 },
 
 	[SYSCALL_FORK]   = { (func0_t)fork,   0, 0 },
-	[SYSCALL_EXECVE] = { (func0_t)execve, 3, 0 }
+	[SYSCALL_EXECVE] = { (func0_t)execve, 3, 0 },
+	[SYSCALL_WAIT]   = { (func0_t)wait,   1, 0 }
 };
 
 //void handle_syscall(uint32_t scn, uint32_t *args)

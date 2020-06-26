@@ -170,6 +170,8 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 	procs[p].uid  = 0;
 	procs[p].gid  = 0;
 
+	procs[p].parent = current_pid;
+
 	procs[p].type = TYPE_RUNNABLE | TYPE_VALID | TYPE_RANONCE;
 
 	if(kernel) procs[p].type |= TYPE_KERNEL;

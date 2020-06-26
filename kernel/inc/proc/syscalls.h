@@ -32,7 +32,8 @@ enum syscalls {
     SYSCALL_FS_GETDIRINFO = 20,
 
     SYSCALL_FORK   = 21,
-    SYSCALL_EXECVE = 22
+    SYSCALL_EXECVE = 22,
+    SYSCALL_WAIT   = 23
 };
 
 

@@ -28,4 +28,12 @@ int execve(const char *filename, const char **argv, const char **envp);
  */
 void exec_replace_process_image(void *entryp, const char *name, void *pagedir, symbol_t *symbols, char *symbol_string_table, const char **argv, const char **envp);
 
+/**
+ * Wait for child process to exit.
+ * 
+ * @param stat_loc Pointer to variable in which to store child exit information, or NULL.
+ * @returns PID of child process
+ */
+int wait(int *stat_loc);
+
 #endif
