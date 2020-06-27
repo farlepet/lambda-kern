@@ -270,6 +270,9 @@ int fork(void) {
 
     kerror(ERR_INFO, " -- Child Stack: %08X %08X", child->esp, child->ebp);
 
+    child->parent = current_pid;
+    proc_add_child(&procs[proc_by_pid(current_pid)], child->pid);
+
     child->type |= TYPE_RUNNABLE;
 
     unlock(&creat_task);

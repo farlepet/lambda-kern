@@ -43,6 +43,7 @@ int get_pid() {
 }
 
 int get_next_pid(int kernel) {
+	// TODO: Make kernel PIDs positive to be more POSIX-compliant
 	if(kernel) return next_kernel_pid--;
 	else       return next_user_pid++;
 }
@@ -332,6 +333,8 @@ __noreturn void exit(int code) {
 		enable_interrupts();
 		run_sched();
 	}
+
+	kerror(ERR_BOOTINFO, "exit(%d) called by process %d.", code, p);
 
 	// If parent processis waiting for child to exit, allow it to continue execution:
 	if(procs[p].parent) {

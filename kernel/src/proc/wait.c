@@ -50,7 +50,8 @@ int wait(int *stat_loc) {
 
     // Block and wait for scheduler
     procs[idx].blocked |= BLOCK_WAIT;
-    interrupt_halt();
+    //interrupt_halt();
+    run_sched();
 
     // When process is re-entered here, a child has exited
     chidx = find_dead_child(&procs[idx]);

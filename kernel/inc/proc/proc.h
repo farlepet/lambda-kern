@@ -155,6 +155,16 @@ void kproc_to_uproc(struct kproc *kp, struct uproc *up);
 int proc_add_file(struct kproc *proc, struct kfile *file);
 
 /**
+ * @brief Add child PID to parent
+ * 
+ * @param parent Pointer to parent process struct
+ * @param child_pid PID of child to add
+ * 
+ * @return 0 on success, else 1
+ */
+int proc_add_child(struct kproc *parent, int child_pid);
+
+/**
  * @brief Reschedule processes
  * 
  * NOTE: This function currently does nothing!
