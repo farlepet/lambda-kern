@@ -332,6 +332,13 @@ __noreturn void exit(int code) {
 		enable_interrupts();
 		run_sched();
 	}
+
+	// If parent processis waiting for child to exit, allow it to continue execution:
+	if(procs[p].parent) {
+		int pidx = proc_by_pid(procs[p].parent);
+		procs[pidx].blocked &= (uint32_t)~(BLOCK_WAIT);
+	}
+
 	procs[p].type &= (uint32_t)~(TYPE_RUNNABLE);
 	procs[p].type |= TYPE_ZOMBIE; // It isn't removed unless it's parent inquires on it
 	procs[p].exitcode = code;
