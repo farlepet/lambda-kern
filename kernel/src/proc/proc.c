@@ -1,8 +1,9 @@
+#include <arch/mm/alloc.h>
+
 #include <proc/mtask.h>
 #include <err/error.h>
 #include <err/panic.h>
 #include <proc/proc.h>
-#include <mm/alloc.h>
 #include <string.h>
 
 void kproc_to_uproc(struct kproc *kp, struct uproc *up)

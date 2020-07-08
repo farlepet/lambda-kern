@@ -1,11 +1,12 @@
+#include <arch/io/ioport.h>
+#include <arch/io/serial.h>
+#include <arch/intr/idt.h>
+
 #include <proc/ktasks.h>
 #include <err/error.h>
-#include <io/ioport.h>
-#include <io/serial.h>
 #include <intr/intr.h>
-#include <intr/idt.h>
-#include <io/input.h>
 #include <proc/ipc.h>
+#include <io/input.h>
 #include <types.h>
 
 extern void serial_interrupt(void);

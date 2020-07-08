@@ -1,4 +1,5 @@
-#include <dev/vga/print.h>
+#include <arch/dev/vga/print.h>
+
 #include <err/error.h>
 #include <types.h>
 

@@ -1,13 +1,14 @@
+#include <arch/intr/int.h>
+#include <arch/mm/paging.h>
+#include <arch/mm/mem.h>
+#include <arch/mm/alloc.h>
+
 #include <multiboot.h>
 #include <err/error.h>
 #include <err/panic.h>
-#include <intr/int.h>
-#include <mm/alloc.h>
 #include <string.h>
-#include "paging.h"
 #include <types.h>
 #include <video.h>
-#include "mem.h"
 
 static uint32_t pagedir[1024]      __align(0x1000); //!< Main kernel pagedirectory
 static uint32_t init_tbls[4][1024] __align(0x1000); //!< First 4 page tables

@@ -1,12 +1,16 @@
+#include <arch/intr/int.h>
+#include <arch/mm/alloc.h>
+
 #include <proc/atomic.h>
 #include <proc/mtask.h>
 #include <proc/proc.h>
 #include <err/error.h>
-#include <mm/paging.h>
 #include <proc/ipc.h>
-#include <intr/int.h>
-#include <mm/alloc.h>
 #include <string.h>
+
+#if defined(ARCH_X86)
+#  include <arch/mm/paging.h>
+#endif
 
 static lock_t send_lock = 0; //!< Make sure only 1 message is sent at a time
 

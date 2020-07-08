@@ -4,7 +4,7 @@
 #include <proc/ipc.h>
 #include <video.h>
 
-#include <io/serial.h>
+#include <arch/io/serial.h>
 
 static int input_subs[KINPUT_MAX_SUBS];
 

@@ -1,5 +1,6 @@
+#include <arch/intr/int.h>
+
 #include <types.h>
-#include <intr/int.h>
 
 #ifndef INTERRUPT_H
 #define INTERRUPT_H

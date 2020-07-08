@@ -5,8 +5,8 @@
 #include <proc/atomic.h>
 
 #if defined(ARCH_X86)
-#include <dev/vga/print.h>
-#include <io/serial.h>
+#  include <arch/dev/vga/print.h>
+#  include <arch/io/serial.h>
 #endif
 
 int output_serial = 0; //!< If 0, write to VGA, else, write to serial port pointed to by `output_serial`

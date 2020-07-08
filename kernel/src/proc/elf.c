@@ -1,14 +1,15 @@
+#include <arch/mm/alloc.h>
+
 #include <proc/mtask.h>
 #include <proc/exec.h>
 #include <err/error.h>
-#include <mm/alloc.h>
 #include <proc/elf.h>
 #include <string.h>
 #include <video.h>
 
-#ifdef ARCH_X86
-#include <mm/paging.h>
-#include <proc/user.h>
+#if defined(ARCH_X86)
+#  include <arch/mm/paging.h>
+#  include <arch/proc/user.h>
 #endif
 
 

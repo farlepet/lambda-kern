@@ -10,7 +10,7 @@
 #include <fs/fs.h>
 
 // Architecture-specific initialization:
-#include <init/init.h>
+#include <arch/init/init.h>
 
 __noreturn void kernel_task(void);
 __noreturn int kmain(struct multiboot_header *, uint32_t);

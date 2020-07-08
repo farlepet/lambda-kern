@@ -1,8 +1,9 @@
+#include <arch/mm/alloc.h>
+
 #include <proc/ktasks.h>
 #include <err/error.h>
 #include <proc/ipc.h>
 #include <mm/cbuff.h>
-#include <mm/alloc.h>
 
 /*
  * This is an extremely horrible random number generator implementation.

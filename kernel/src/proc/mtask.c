@@ -1,21 +1,22 @@
+#include <arch/mm/alloc.h>
+#include <arch/intr/int.h>
+
 #include <proc/atomic.h>
 #include <proc/mtask.h>
 #include <err/error.h>
 #include <intr/intr.h>
 #include <err/panic.h>
 #include <proc/proc.h>
-#include <intr/int.h>
-#include <mm/alloc.h>
 #include <string.h>
 #include <mm/mm.h>
 #include <video.h>
 #include <fs/fs.h>
 
 #if  defined(ARCH_X86)
-#include <mm/paging.h>
-#include <intr/int.h>
-#include <proc/user.h>
-#include <mm/gdt.h>
+#  include <arch/mm/paging.h>
+#  include <arch/intr/int.h>
+#  include <arch/proc/user.h>
+#  include <arch/mm/gdt.h>
 #endif
 
 struct kproc procs[MAX_PROCESSES];

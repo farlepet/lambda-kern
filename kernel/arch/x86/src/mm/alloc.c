@@ -1,4 +1,5 @@
-#include "alloc.h"
+#include <arch/mm/alloc.h>
+
 #include <string.h>
 #include <err/error.h>
 #include <err/panic.h>

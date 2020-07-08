@@ -1,16 +1,17 @@
+#include <arch/mm/alloc.h>
+
 #include <proc/mtask.h>
 #include <proc/exec.h>
 #include <err/error.h>
 #include <fs/procfs.h>
 #include <proc/elf.h>
-#include <mm/alloc.h>
 #include <mm/mm.h>
 
 #include <string.h>
 
 #if defined(ARCH_X86)
-#include <intr/int.h>
-#include <proc/user.h>
+#  include <arch/intr/int.h>
+#  include <arch/proc/user.h>
 #endif
 
 int execve(const char *filename, const char **argv, const char **envp) {

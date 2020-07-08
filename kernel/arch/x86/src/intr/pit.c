@@ -1,9 +1,10 @@
+#include <arch/io/ioport.h>
+#include <arch/intr/idt.h>
+#include <arch/intr/pit.h>
+
 #include <proc/mtask.h>
-#include <io/ioport.h>
 #include <intr/intr.h>
 #include <time/time.h>
-#include "idt.h"
-#include "pit.h"
 
 extern void pit_int(); //!< The PIT interrupt handler
 void pit_handler(void); //!< Assembly PIT interrupt handler

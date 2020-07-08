@@ -4,8 +4,8 @@
 #include <err/error.h>
 #include <proc/proc.h>
 
-#ifdef ARCH_X86
-#  include <mm/paging.h>
+#if defined(ARCH_X86)
+#  include <arch/mm/paging.h>
 #endif
 
 int mm_check_addr(void *addr) {

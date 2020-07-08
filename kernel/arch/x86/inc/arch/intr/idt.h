@@ -8,6 +8,8 @@
 #ifndef IDT_H
 #define IDT_H
 
+#include <types.h>
+
 /**
  * \brief Allows for easy creation of an IDT entry.
  * Helps easily create an IDT entry.

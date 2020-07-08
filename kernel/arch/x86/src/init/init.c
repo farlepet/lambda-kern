@@ -1,20 +1,21 @@
-#include <init/init.h>
+#include <arch/init/init.h>
 
-#include <io/serial.h>
-#include <dev/keyb/input.h>
-#include <dev/vga/print.h>
+#include <arch/io/serial.h>
+#include <arch/dev/keyb/input.h>
+#include <arch/dev/vga/print.h>
+
+#include <arch/intr/idt.h>
+#include <arch/intr/pit.h>
+
+#include <arch/mm/paging.h>
+#include <arch/mm/alloc.h>
+#include <arch/mm/gdt.h>
+#include <arch/mm/mem.h>
 
 #include <err/error.h>
 #include <err/panic.h>
 
 #include <intr/intr.h>
-#include <intr/idt.h>
-#include <intr/pit.h>
-
-#include <mm/paging.h>
-#include <mm/alloc.h>
-#include <mm/gdt.h>
-#include <mm/mem.h>
 
 
 static void interrupts_init(void);

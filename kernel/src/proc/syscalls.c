@@ -1,10 +1,11 @@
+// TODO: Abstraction:
+#include <arch/intr/idt.h>
+
 #include <mm/stack_trace.h>
 #include <proc/syscalls.h>
 #include <intr/intr.h>
 #include <err/error.h>
 #include <err/panic.h>
-// TODO: Abstraction:
-#include <intr/idt.h>
 #include <string.h>
 
 // Includes that include syscalls

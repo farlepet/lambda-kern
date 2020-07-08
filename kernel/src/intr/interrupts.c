@@ -3,9 +3,9 @@
 #include <types.h>
 
 #if defined(ARCH_X86)
-#  include <intr/idt.h>
-#  include <intr/pit.h>
-#  include <intr/int.h>
+#  include <arch/intr/idt.h>
+#  include <arch/intr/pit.h>
+#  include <arch/intr/int.h>
 #endif
 
 

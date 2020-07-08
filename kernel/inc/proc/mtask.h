@@ -3,11 +3,10 @@
 
 void run_sched(void);
 
+#include <arch/intr/int.h>
+
 #include <types.h>
 #include <proc/proc.h>
-
-#include <intr/int.h>
-
 
 #define STACK_SIZE 0x8000 //!< Size of user stack or if kernel task has a unspecified stack size
 

@@ -1,6 +1,7 @@
+#include <arch/intr/int.h>
+
 #include <proc/mtask.h>
 #include <time/time.h>
-#include <intr/int.h>
 
 uint8_t timeup[500]; //!< Table of values corresponding to pid's telling if the timer is done yet
 
