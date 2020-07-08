@@ -5,17 +5,6 @@
 #include <multiboot.h>
 #include <proc/proc.h>
 
-#if defined(ARCH_X86)
-#include <mm/paging.h>
-#endif
-
-/**
- * \brief Initializes memory management.
- * Initializes memory management for the target archetecture.
- * @param mboot_head the multiboot header location
- */
-void mm_init(struct multiboot_header *mboot_head);
-
 /**
  * \brief Check if memory address is valid.
  * 
