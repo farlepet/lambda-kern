@@ -104,7 +104,7 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 
     uint32_t i = 0;
     for(; i < MAX_CHILDREN; i++) {
-        if(!parent->children[i]) {
+        if(parent->children[i] < 0) {
             parent->children[i] = child_idx;
             break;
         }
@@ -123,6 +123,8 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 
     memcpy(child->name, parent->name, strlen(parent->name));
 
+	memset(child->children, 0xFF, sizeof(child->children));
+ 
     child->pid = get_next_pid();
 
     child->uid  = parent->uid;
@@ -210,7 +212,7 @@ int fork(void) {
     kerror(ERR_INFO, " -- Child Stack: %08X %08X", child->esp, child->ebp);
 
     child->parent = current_pid;
-    proc_add_child(&procs[proc_by_pid(current_pid)], child->pid);
+    proc_add_child(&procs[proc_by_pid(current_pid)], p);
 
     child->type |= TYPE_RUNNABLE;
 

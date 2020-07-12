@@ -10,13 +10,11 @@
  */
 static inline int find_dead_child(struct kproc *parent) {
     for(int idx = 0; idx < MAX_CHILDREN; idx++) {
-        if(parent->children[idx]) {
-            int chidx = proc_by_pid(parent->children[idx]);
-            if(chidx >= 0) {
-                if(procs[chidx].type & TYPE_VALID &&  // Is this a valid process entry?
-                   procs[chidx].type & TYPE_ZOMBIE) { // Is this process dead?
-                    return chidx;
-                }
+        if(parent->children[idx] >= 0) {
+            int chidx = parent->children[idx];
+            if(procs[chidx].type & TYPE_VALID &&  // Is this a valid process entry?
+                procs[chidx].type & TYPE_ZOMBIE) { // Is this process dead?
+                return chidx;
             }
         }
     }
@@ -73,8 +71,8 @@ CHILD_FOUND:
 
     // Free up child slot
     for(int i = 0; i < MAX_CHILDREN; i++) {
-        if(procs[idx].children[i] && proc_by_pid(procs[idx].children[i]) == chidx) {
-            procs[idx].children[i] = 0;
+        if(procs[idx].children[i] >= 0 && procs[idx].children[i] == chidx) {
+            procs[idx].children[i] = -1;
             break;
         }
     }

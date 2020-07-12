@@ -68,10 +68,10 @@ int proc_add_mmap_ents(struct kproc *proc, struct kproc_mem_map_ent *entries) {
 	return 0;
 }
 
-int proc_add_child(struct kproc *parent, int child_pid) {
+int proc_add_child(struct kproc *parent, int child_idx) {
 	for(int i = 0; i < MAX_CHILDREN; i++) {
-		if(!parent->children[i]) {
-			parent->children[i] = child_pid;
+		if(parent->children[i] < 0) {
+			parent->children[i] = child_idx;
 			return 0;
 		}
 	}

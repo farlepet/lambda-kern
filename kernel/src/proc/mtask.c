@@ -105,7 +105,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 	if(tasking) {
 		int i = 0;
 		for(; i < MAX_CHILDREN; i++) {
-			if(!procs[parent].children[i]) {
+			if(procs[parent].children[i] < 0) {
 				procs[parent].children[i] = p;
 				break;
 			}
@@ -147,6 +147,9 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 	procs[p].messages.buff  = procs[p].msg_buff;
 
 	procs[p].cwd = fs_root;
+
+	// Set all children to -1 (Assuming 2s complement)
+	memset(procs[p].children, 0xFF, sizeof(procs[p].children));
 
 	kerror(ERR_BOOTINFO, "PID: %d EIP: %08X CR3: %08X ESP: %08X", procs[p].pid, procs[p].eip, procs[p].cr3, procs[p].esp);
 
