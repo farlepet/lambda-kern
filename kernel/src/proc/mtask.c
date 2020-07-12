@@ -13,13 +13,6 @@
 #include <video.h>
 #include <fs/fs.h>
 
-#if  defined(ARCH_X86)
-#  include <arch/mm/paging.h>
-#  include <arch/intr/int.h>
-#  include <arch/proc/user.h>
-#  include <arch/mm/gdt.h>
-#endif
-
 struct kproc procs[MAX_PROCESSES];
 
 int current_pid = 0; //!< The PID of the currently running process
@@ -93,6 +86,8 @@ int proc_create_kernel_stack(struct kproc *proc) {
 
 
 int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *pagedir, int kernel, int ring) {
+	// TODO: Remove reference to ring and page directory
+
 	lock(&creat_task);
 	
 	if(!stack_size) stack_size = STACK_SIZE;
