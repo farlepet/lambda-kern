@@ -1,34 +1,29 @@
+#include <arch/intr/int.h>
+
 #include <types.h>
-#include <intr/int.h>
 
 #ifndef INTERRUPT_H
 #define INTERRUPT_H
 
 #if defined(ARCH_X86)
 
-#define TIMER_INT    32
-#define KEYBOARD_INT 33
-#define SERIALA_INT  35
-#define SERIALB_INT  36
+#  define TIMER_INT    32
+#  define KEYBOARD_INT 33
+#  define SERIALA_INT  35
+#  define SERIALB_INT  36
 
-#define SCHED_INT    64
+#  define SCHED_INT    64
 
 #else
 
-#define TIMER_INT    0
-#define KEYBOARD_INT 0
-#define SERIALA_INT  0
-#define SERIALB_INT  0
+#  define TIMER_INT    0
+#  define KEYBOARD_INT 0
+#  define SERIALA_INT  0
+#  define SERIALB_INT  0
 
-#define SCHED_INT    0
+#  define SCHED_INT    0
 
 #endif
-
-/**
- * \brief Initializes interrupts.
- * Initializes based on the target architecture.
- */
-void interrupts_init(void);
 
 /**
  * \brief Attaches an interrupt handler to an interrupt.

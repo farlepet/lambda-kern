@@ -1,4 +1,5 @@
-#include <mm/alloc.h>
+#include <arch/mm/alloc.h>
+
 #include <err/error.h>
 #include <string.h>
 #include <fs/fs.h>

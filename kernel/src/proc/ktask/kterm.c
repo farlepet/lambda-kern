@@ -1,8 +1,9 @@
+#include <arch/mm/alloc.h>
+
 #include <proc/ktasks.h>
 #include <err/error.h>
 #include <time/time.h>
 #include <fs/stream.h>
-#include <mm/alloc.h>
 #include <proc/ipc.h>
 #include <proc/elf.h>
 #include <string.h>

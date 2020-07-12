@@ -1,14 +1,15 @@
+#include <arch/mm/alloc.h>
+
 #include <multiboot.h>
 #include <fs/initrd.h>
 #include <err/error.h>
-#include <mm/alloc.h>
 #include <string.h>
 #include <fs/fs.h>
 
 #include <libgen.h>
 
 #if defined(ARCH_X86)
-#include <mm/paging.h>
+#  include <arch/mm/paging.h>
 #endif
 
 struct mboot_module *initrd = 0;

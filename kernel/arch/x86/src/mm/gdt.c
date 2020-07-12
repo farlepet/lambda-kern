@@ -1,5 +1,6 @@
+#include <arch/mm/gdt.h>
+
 #include <types.h>
-#include "gdt.h"
 
 static uint8_t system_stack[0x2000];
 

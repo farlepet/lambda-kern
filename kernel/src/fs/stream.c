@@ -1,5 +1,6 @@
+#include <arch/mm/alloc.h>
+
 #include <fs/stream.h>
-#include <mm/alloc.h>
 #include <string.h>
 
 static uint32_t stream_read (struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff);

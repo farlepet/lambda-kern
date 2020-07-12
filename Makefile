@@ -12,7 +12,7 @@ CC         = gcc
 OBJS       = $(patsubst %.c,%.o,$(SRCS))
 
 ifeq ($(ARCH), X86)
-CFLAGS    += -m32 -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/x86/ \
+CFLAGS    += -m32 -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/x86/inc/ \
 			 -nostdlib -nostdinc -ffreestanding -Wall -Wextra -Werror -DARCH_X86 -O2 \
 			 -pipe -g -fno-stack-protector
 LDFLAGS    = -melf_i386 -T link_x86.ld
@@ -57,6 +57,7 @@ link:   $(OBJS) CD/boot/grub/stage2_eltorito
 
 	@ld $(LDFLAGS) -o lambda.kern lambda.o symbols.o
 	@cp lambda.kern CD/lambda.kern
+	#@strip lambda.kern -o CD/lambda.kern
 
 	@echo -e "\033[33m  \033[1mGenerating InitCPIO\033[0m"
 	@cd initrd; find . | cpio -o -v -O../CD/initrd.cpio &> /dev/null

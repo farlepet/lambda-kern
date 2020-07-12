@@ -1,8 +1,9 @@
+#include <arch/intr/int.h>
+
 #include <proc/ktasks.h>
 #include <err/error.h>
 #include <time/time.h>
 #include <proc/ipc.h>
-#include <intr/int.h>
 #include <video.h>
 
 int ktask_pids[KTASK_SLOTS] = { 0 }; //!< PID's of these tasks

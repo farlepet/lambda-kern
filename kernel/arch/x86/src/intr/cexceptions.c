@@ -1,9 +1,10 @@
-#include <mm/stack_trace.h>
+#include <arch/proc/stack_trace.h>
+#include <arch/mm/paging.h>
+#include <arch/intr/int.h>
+
 #include <proc/mtask.h>
-#include <mm/paging.h>
 #include <err/error.h>
 #include <err/panic.h>
-#include <intr/int.h>
 #include <types.h>
 #include <video.h>
 

@@ -8,6 +8,8 @@
 #ifndef GDT_H
 #define GDT_H
 
+#include <types.h>
+
 /**
  * \brief Helps create a GDT entry
  * Makes the creation of a GDT entry much cleaner.

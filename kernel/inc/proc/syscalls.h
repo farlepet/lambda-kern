@@ -3,7 +3,7 @@
 
 #include <types.h>
 
-#include <intr/int.h>
+#include <arch/intr/int.h>
 
 enum syscalls {
     SYSCALL_GET_KTASK = 0,

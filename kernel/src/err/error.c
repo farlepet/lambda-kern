@@ -2,7 +2,6 @@
 #include <intr/intr.h>
 #include <time/time.h>
 #include <err/error.h>
-#include <intr/int.h>
 #include <config.h>
 #include <types.h>
 #include <video.h>

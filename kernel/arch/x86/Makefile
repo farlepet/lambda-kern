@@ -1,7 +1,6 @@
 KERNDIR    = $(CURDIR)/../..
 MAINDIR    = $(CURDIR)
-SRC        = $(MAINDIR)
-
+SRC        = $(MAINDIR)/src
 
 SRCS       = $(wildcard $(SRC)/*.c)   $(wildcard $(SRC)/*/*.c)   $(wildcard $(SRC)/*/*/*.c)
 ASSRCS     = $(wildcard $(SRC)/*.s)   $(wildcard $(SRC)/*/*.s)   $(wildcard $(SRC)/*/*/*.s)
@@ -15,7 +14,7 @@ OBJS       = $(ASOBJS) $(COBJS) $(ASMOBJS)
 
 CC         = gcc
 AS         = gcc
-CFLAGS     = -m32 -I$(KERNDIR)/inc -I$(MAINDIR) -nostdlib -nostdinc -Wall -Wextra -Werror \
+CFLAGS     = -m32 -I$(KERNDIR)/inc -I$(MAINDIR)/inc -nostdlib -nostdinc -Wall -Wextra -Werror \
 			 -DARCH_X86 -O2 -pipe -g -fno-stack-protector
 ASFLAGS    = -m32
 NASMFLAGS  = -f elf

@@ -3,11 +3,10 @@
 
 void run_sched(void);
 
+#include <arch/intr/int.h>
+
 #include <types.h>
 #include <proc/proc.h>
-
-#include <intr/int.h>
-
 
 #define STACK_SIZE 0x8000 //!< Size of user stack or if kernel task has a unspecified stack size
 
@@ -19,8 +18,6 @@ extern struct kproc procs[MAX_PROCESSES];
 extern int current_pid; //!< The PID of the currently running process
 
 extern int tasking; //!< Whether or not multitasking has been started or not
-
-void *get_eip(); //!< Get the EIP value of the instruction after the call to this function
 
 int get_pid(); //!< Get the PID of the currently running task
 

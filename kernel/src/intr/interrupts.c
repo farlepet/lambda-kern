@@ -2,34 +2,12 @@
 #include <err/error.h>
 #include <types.h>
 
-#if  defined(ARCH_X86)
-
-#include <intr/idt.h>
-#include <intr/pit.h>
-#include <intr/int.h>
-#include <mm/gdt.h>
-extern void exceptions_init(); //!< Initializes basic exception handlers. Found in intr/exceptions.asm
-
+#if defined(ARCH_X86)
+#  include <arch/intr/idt.h>
+#  include <arch/intr/pit.h>
+#  include <arch/intr/int.h>
 #endif
 
-/**
- * \brief Initializes interrupts.
- * Initializes based on the target architecture.
- */
-void interrupts_init() {
-	kerror(ERR_BOOTINFO, "Enabling Interrupts");
-#if  defined(ARCH_X86)
-	kerror(ERR_BOOTINFO, "  -> GDT");
-	gdt_init();
-	kerror(ERR_BOOTINFO, "  -> IDT");
-	idt_init();
-	kerror(ERR_BOOTINFO, "  -> Exceptions");
-	exceptions_init();
-	kerror(ERR_BOOTINFO, "  -> STI");
-	enable_interrupts();
-#endif
-	kerror(ERR_BOOTINFO, "Interrupts enabled");
-}
 
 /**
  * \brief Attaches an interrupt handler to an interrupt.

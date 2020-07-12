@@ -1,12 +1,14 @@
+#include <arch/dev/keyb/input.h>
+#include <arch/io/ioport.h>
+#include <arch/intr/idt.h>
+
 #include <proc/ktasks.h>
 #include <intr/intr.h>
-#include <io/ioport.h>
 #include <err/error.h>
 #include <io/input.h>
 #include <proc/ipc.h>
-#include <intr/idt.h>
 #include <video.h>
-#include "input.h"
+
 
 extern void keyb_int(); //!< Assembly interrupt handler
 void keyb_handle(uint32_t);

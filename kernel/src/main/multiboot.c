@@ -5,7 +5,7 @@
 #include <video.h>
 
 #if defined(ARCH_X86)
-#include <io/serial.h>
+#  include <arch/io/serial.h>
 #endif
 
 extern int   output_serial;
