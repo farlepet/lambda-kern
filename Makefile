@@ -57,6 +57,7 @@ link:   $(OBJS) CD/boot/grub/stage2_eltorito
 
 	@ld $(LDFLAGS) -o lambda.kern lambda.o symbols.o
 	@cp lambda.kern CD/lambda.kern
+	#@strip lambda.kern -o CD/lambda.kern
 
 	@echo -e "\033[33m  \033[1mGenerating InitCPIO\033[0m"
 	@cd initrd; find . | cpio -o -v -O../CD/initrd.cpio &> /dev/null

@@ -19,8 +19,6 @@ extern int current_pid; //!< The PID of the currently running process
 
 extern int tasking; //!< Whether or not multitasking has been started or not
 
-void *get_eip(); //!< Get the EIP value of the instruction after the call to this function
-
 int get_pid(); //!< Get the PID of the currently running task
 
 /**
