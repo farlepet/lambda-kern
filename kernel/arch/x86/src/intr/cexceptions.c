@@ -1,7 +1,7 @@
+#include <arch/proc/stack_trace.h>
 #include <arch/mm/paging.h>
 #include <arch/intr/int.h>
 
-#include <mm/stack_trace.h>
 #include <proc/mtask.h>
 #include <err/error.h>
 #include <err/panic.h>

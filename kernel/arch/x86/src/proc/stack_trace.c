@@ -1,6 +1,6 @@
+#include <arch/proc/stack_trace.h>
 #include <arch/mm/paging.h>
 
-#include <mm/stack_trace.h>
 #include <video.h>
 
 static void stack_trace_print_data(uint32_t *ebp, uint32_t len);

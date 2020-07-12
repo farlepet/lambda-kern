@@ -1,7 +1,7 @@
 // TODO: Abstraction:
 #include <arch/intr/idt.h>
+#include <arch/proc/stack_trace.h>
 
-#include <mm/stack_trace.h>
 #include <proc/syscalls.h>
 #include <intr/intr.h>
 #include <err/error.h>
