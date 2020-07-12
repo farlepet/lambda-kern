@@ -34,7 +34,8 @@ CFLAGS += -Weverything -Wno-incompatible-library-redeclaration -Wno-reserved-id-
 -Wno-missing-prototypes \
 -Wno-shadow \
 -Wno-bad-function-cast \
--Wno-implicit-int-conversion
+-Wno-implicit-int-conversion \
+-Wno-atomic-implicit-seq-cst
 endif
 
 all:     link
