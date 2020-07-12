@@ -71,5 +71,13 @@ CHILD_FOUND:
         procs[chidx].type = 0;
     }
 
+    // Free up child slot
+    for(int i = 0; i < MAX_CHILDREN; i++) {
+        if(procs[idx].children[i] && proc_by_pid(procs[idx].children[i]) == chidx) {
+            procs[idx].children[i] = 0;
+            break;
+        }
+    }
+
     return cpid;
 }
