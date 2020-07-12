@@ -37,6 +37,9 @@ __noreturn int kmain(struct multiboot_header *mboot_head, uint32_t magic)
 	// Architecture-specific initialization:
 	arch_init(mboot_head);
 
+	kerror(ERR_BOOTINFO, "-------------------------");
+	kerror(ERR_BOOTINFO, "Kernel version: "KERNEL_GIT);
+	kerror(ERR_BOOTINFO, "-------------------------");
 	
 	fs_init();
 	initrd_init(mboot_head);

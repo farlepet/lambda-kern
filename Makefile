@@ -1,15 +1,18 @@
 MAINDIR    = $(CURDIR)
 SRC        = $(MAINDIR)/kernel/src
 
+
 # Default architecture
 ARCH       = X86
 
-SRCS       = $(wildcard $(SRC)/*.c) $(wildcard $(SRC)/*/*.c) $(wildcard $(SRC)/*/*/*.c)
-
 CC         = gcc
 
-
+SRCS       = $(wildcard $(SRC)/*.c) $(wildcard $(SRC)/*/*.c) $(wildcard $(SRC)/*/*/*.c)
 OBJS       = $(patsubst %.c,%.o,$(SRCS))
+
+GIT_VERSION := "$(shell git describe --abbrev=8 --dirty=\* --always --tags)"
+
+CFLAGS    += -DKERNEL_GIT=\"$(GIT_VERSION)\"
 
 ifeq ($(ARCH), X86)
 CFLAGS    += -m32 -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/x86/inc/ \
@@ -18,7 +21,6 @@ CFLAGS    += -m32 -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/
 LDFLAGS    = -melf_i386 -T link_x86.ld
 
 CFLAGS    += -march=i586
-
 
 ifeq ($(CC), clang)
 # TODO: Take the time to go through all these -Wno- commands to fix easy-to-fix errors
