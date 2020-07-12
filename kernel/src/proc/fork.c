@@ -123,7 +123,7 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 
     memcpy(child->name, parent->name, strlen(parent->name));
 
-    child->pid = get_next_pid(kernel);
+    child->pid = get_next_pid();
 
     child->uid  = parent->uid;
     child->gid  = parent->gid;

@@ -19,8 +19,7 @@ int current_pid = 0; //!< The PID of the currently running process
 
 int tasking = 0; //!< Has multitasking started yet?
 
-int next_kernel_pid = -1;
-int next_user_pid   =  1;
+static int next_pid = 1;
 
 lock_t creat_task = 0; //!< Lock used when creating tasks
 
@@ -37,10 +36,8 @@ int get_pid() {
 	return current_pid;
 }
 
-int get_next_pid(int kernel) {
-	// TODO: Make kernel PIDs positive to be more POSIX-compliant
-	if(kernel) return next_kernel_pid--;
-	else       return next_user_pid++;
+int get_next_pid() {
+	return next_pid++;
 }
 
 int get_next_open_proc() {
@@ -124,7 +121,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 
 	memcpy(procs[p].name, name, strlen(name));
 
-	procs[p].pid = get_next_pid(kernel);
+	procs[p].pid = get_next_pid();
 
 	// TODO:
 	procs[p].uid  = 0;

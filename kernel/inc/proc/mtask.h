@@ -24,10 +24,9 @@ int get_pid(); //!< Get the PID of the currently running task
 /**
  * @brief Get the next free PID number
  * 
- * @param kernel Whether or not new process in a kernel process
- * @return int Next PID, 0 if failure
+ * @return int Next PID, -1 if failure
  */
-int get_next_pid(int kernel);
+int get_next_pid();
 
 /**
  * @brief Get the next free slot in process array.
