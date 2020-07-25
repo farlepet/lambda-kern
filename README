@@ -12,8 +12,7 @@ major modification of the main kernel code.
 
 To be able to build Lambda OS, you need the following tools:
   - x86 or x86_64 PC (Unless you are using a cross-compiler)
-  - `gcc`
-  - `nasm`
+  - `gcc` or `clang`
   - `make`
   - `cpio`
   - `eu-readelf` (elfutils)

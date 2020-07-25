@@ -56,4 +56,4 @@ get_eip:
 	ret
 
 
-.lcomm new_stack_t 0x10000
+.lcomm new_stack_t, 0x10000
