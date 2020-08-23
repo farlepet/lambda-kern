@@ -353,12 +353,23 @@ static int unload(int argc, char **argv) {
 static int ls(int argc, char **argv) {
 	(void)argc;
 	(void)argv;
+
 	
-	// TODO: allow for more than just the root directory!
 	struct kfile *f;
-	DIR *dir = fs_opendir(fs_root);
-	f = fs_dirfile(dir);
+	DIR *dir;
 	struct dirent *d;
+
+	if(argc > 1) {
+		// TODO: Allow for more than one directory traversal, and absolute paths
+		f = fs_finddir(fs_root, argv[1]);
+		if(!f) {
+			kprintf("Could not find directory: %s\n", argv[1]);
+			return 1;
+		}
+		dir = fs_opendir(f);
+	} else  {
+		dir = fs_opendir(fs_root);
+	}
 
 	//kprintf("ls: dir: {%08X, %08X, %08X}\n", dir->dir, dir->current, dir->prev);
 	
