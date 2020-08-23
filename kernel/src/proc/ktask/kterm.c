@@ -361,7 +361,7 @@ static int ls(int argc, char **argv) {
 
 	if(argc > 1) {
 		// TODO: Allow for more than one directory traversal, and absolute paths
-		f = fs_finddir(fs_root, argv[1]);
+		f = fs_find_file(fs_root, argv[1]);
 		if(!f) {
 			kprintf("Could not find directory: %s\n", argv[1]);
 			return 1;
