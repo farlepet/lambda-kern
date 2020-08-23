@@ -65,7 +65,7 @@ sched_run:
 interrupts_enabled:
 	pushf
 	popl %eax
-	andl 1 << 9, %eax # Get IF flag
+	andl $(1 << 9), %eax # Get IF flag
 	shrl $9, %eax
 	ret
 
