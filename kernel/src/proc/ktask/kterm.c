@@ -157,7 +157,7 @@ static int load(int argc, char **argv) {
 
 	memcpy(exec_filename, argv[1], strlen(argv[1]));
 
-	exec = fs_finddir(fs_root, argv[1]);
+	exec = fs_find_file(fs_root, argv[1]);
 	if(!exec) {
 		memset(exec_filename, 0, 128);
 		kprintf("Could not open %s!\n", argv[1]);
@@ -360,7 +360,6 @@ static int ls(int argc, char **argv) {
 	struct dirent *d;
 
 	if(argc > 1) {
-		// TODO: Allow for more than one directory traversal, and absolute paths
 		f = fs_find_file(fs_root, argv[1]);
 		if(!f) {
 			kprintf("Could not find directory: %s\n", argv[1]);
