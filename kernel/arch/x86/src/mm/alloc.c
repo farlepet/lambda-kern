@@ -150,17 +150,17 @@ void *kmalloc(uint32_t sz)
 	if(idx == 0xFFFFFFFF) return 0;
 
 	int block = idx >> 16;
-	int index = idx & 0xFFFF;
+	int index;
 
 	if(empty_slots(block) == 4) // Get ready ahead of time
 	{
 		uint32_t asz = ALLOC_BLOCK * sizeof(struct alcent);
 
-		uint32_t idx = find_hole(asz);
+		idx = find_hole(asz);
 		if(idx == 0xFFFFFFFF) kpanic("Could not create another allocation block!");
 
-		int block = idx >> 16;
-		int index = idx & 0xFFFF;
+		block = idx >> 16;
+		index = idx & 0xFFFF;
 
 		if(allocs[block][index].size == asz)
 		{

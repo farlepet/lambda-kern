@@ -26,11 +26,11 @@ void check_commandline(struct multiboot_header *mboot_head)
 	char *cmd = (char *)mboot_head->cmdline;
 	char *end = cmd + strlen(cmd) + 1;
 	char tmp[1000];
-	int i;
+	
 	while(cmd < end)
 	{
 		kerror(ERR_BOOTINFO, "CMD: %08X END: %08X", cmd, end);
-		i = 0;
+		int i = 0;
 		if(*cmd == 0) break;
 		while(*cmd == ' ') cmd++;
 		while(*cmd != ' ' && *cmd != 0) tmp[i++] = *cmd++;

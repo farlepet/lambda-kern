@@ -10,8 +10,7 @@ struct kfile *fs_root;
 
 static uint32_t c_inode = 1;
 
-int fs_add_file(struct kfile *file, struct kfile *parent)
-{
+int fs_add_file(struct kfile *file, struct kfile *parent) {
 	//kerror(ERR_BOOTINFO, "  -> fs_add_file: %s, %d", file->name, file->length);
 	file->inode     = c_inode++;
 	file->file_lock = 0;
@@ -46,24 +45,28 @@ int fs_add_file(struct kfile *file, struct kfile *parent)
 	return file->inode;
 }
 
-uint32_t fs_read(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff)
-{
-	if(f && f->read)
+uint32_t fs_read(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
+	if(f && f->read) {
 		return f->read(f, off, sz, buff);
+	}
+
 	return 0;
 }
 
-uint32_t fs_write(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff)
-{
-	if(f && f->write)
+uint32_t fs_write(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
+	if(f && f->write) {
 		return f->write(f, off, sz, buff);
+	}
+
 	return 0;
 }
 
-void fs_open(struct kfile *f, uint32_t flags)
-{
-	if(f && f->open)
+void fs_open(struct kfile *f, uint32_t flags) {
+	if(f == NULL) return;
+
+	if(f->open) {
 		f->open(f, flags);
+	}
 	
 	else {
 		lock(&f->file_lock);
@@ -73,10 +76,12 @@ void fs_open(struct kfile *f, uint32_t flags)
 	}
 }
 
-void fs_close(struct kfile *f)
-{
-	if(f && f->close)
+void fs_close(struct kfile *f) {
+	if (f == NULL) return;
+	
+	if(f->close) {
 		f->close(f);
+	}
 	
 	else {
 		lock(&f->file_lock);
@@ -85,8 +90,7 @@ void fs_close(struct kfile *f)
 	}
 }
 
-struct dirent *fs_readdir(DIR *d)
-{
+struct dirent *fs_readdir(DIR *d) {
 	if(d && d->dir) {
 		if(d->current == NULL) {d->prev = NULL; return NULL; }
 
@@ -109,10 +113,8 @@ struct dirent *fs_readdir(DIR *d)
 	return NULL;
 }
 
-struct kfile *fs_finddir(struct kfile *f, char *name)
-{
-	if(f)
-	{
+struct kfile *fs_finddir(struct kfile *f, char *name) {
+	if(f) {
 		struct kfile *file = f->child;
 
 		do {
@@ -147,8 +149,10 @@ int fs_mkdir(struct kfile *f, char *name, uint32_t perms)
 {
 	// TODO: Check name
 
-	if(f && f->mkdir)
+	if(f && f->mkdir) {
 		return f->mkdir(f, name, perms);
+	}
+
 	return -1;
 }
 
@@ -156,15 +160,19 @@ int fs_create(struct kfile *f, char *name, uint32_t perms)
 {
 	// TODO: Check name
 
-	if(f && f->create)
+	if(f && f->create){
 		return f->create(f, name, perms);
+	}
+
 	return -1;
 }
 
 int fs_ioctl(struct kfile *f, int req, void *args)
 {
-	if(f && f->ioctl)
+	if(f && f->ioctl) {
 		return f->ioctl(f, req, args);
+	}
+
 	return -1;
 }
 

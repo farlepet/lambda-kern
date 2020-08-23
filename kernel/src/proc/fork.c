@@ -26,7 +26,7 @@ static int proc_copy_data(struct kproc *dest, const struct kproc *src) {
     kerror(ERR_BOOTINFO, "proc_copy_data");
 
     struct kproc_mem_map_ent const *pent = src->mmap;
-    struct kproc_mem_map_ent *cent = src->mmap;
+    struct kproc_mem_map_ent *cent;
 
     // TODO: Split out architecture-dependant portions (e.g. memory mapping)
 

@@ -54,7 +54,7 @@ void handle_page_fault(uint32_t errcode, uint32_t cr2,/* uint32_t *ebp, */struct
 	{
 		int pid = current_pid;
 		int p = proc_by_pid(pid);
-		if(p == -1)
+		if(p < 0)
 		{
 			kerror(ERR_MEDERR, "Failed to get process index from pid (%d)", pid);
 			for(;;);
@@ -111,7 +111,7 @@ void handle_gpf(uint32_t errcode, struct pusha_regs regs, struct iret_regs iregs
 	if(tasking) {
 		int pid = current_pid;
 		int p = proc_by_pid(pid);
-		if(p == -1) {
+		if(p < 0) {
 			kerror(ERR_MEDERR, "  -> Failed to get process index from pid (%d)", pid);
 			kpanic("GPF, halting");
 			for(;;);

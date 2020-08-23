@@ -394,8 +394,7 @@ uint32_t *clone_pagedir_full(uint32_t *pgdir) {
 	uint32_t *pgd = (uint32_t *)(((ptr_t)kmalloc((0x1000 + (0x1000 * n_tables)) + 0x1000) + 0x1000) & 0xFFFFF000);
 
 	// kmalloc doesn't always gaive us mapped pages
-	uint32_t i = 0;
-	for(; i < sizeof(pgdir); i += 0x1000)
+	for(uint32_t i = 0; i < sizeof(pgdir); i += 0x1000)
 		map_page((void *)((uint32_t)pgd + i), (void *)((uint32_t)pgd + i), 0x03);
 
 	memcpy(pgd, pgdir, 1024 * sizeof(uint32_t));

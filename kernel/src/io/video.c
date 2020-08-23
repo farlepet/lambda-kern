@@ -16,8 +16,7 @@ int output_serial = 0; //!< If 0, write to VGA, else, write to serial port point
  * 
  * @param c the input character
  */
-void kput(char c)
-{
+void kput(char c) {
 #if defined(ARCH_X86)
 	if(output_serial) {
 		serial_write((uint16_t)output_serial, c);
@@ -31,8 +30,7 @@ void kput(char c)
  * 
  * @param c the input character
  */
-void kwput(int c)
-{
+void kwput(int c) {
 #if defined(ARCH_X86)
 	if(output_serial) serial_write((uint16_t)output_serial, (char)c);
 	else vga_put((char)c);
@@ -45,8 +43,7 @@ void kwput(int c)
  * @param str the input string
  * @see kput
  */
-void kprint(char *str)
-{
+void kprint(char *str) {
 	while(*str) kput(*str++);
 }
 
@@ -56,8 +53,7 @@ void kprint(char *str)
  * @param str the input string
  * @see kwput
  */
-void kwprint(uint16_t *str)
-{
+void kwprint(uint16_t *str) {
 	while(*str) kwput(*str++);
 }
 
@@ -80,47 +76,41 @@ void kwprint(uint16_t *str)
  * @return the number of characters that have been put in `out`
  * @see print
  */
-static int print_int(uint32_t num, uint8_t base, uint8_t u, uint8_t pad, uint8_t padzero, uint8_t possign, uint8_t posspace, uint8_t _case, char *out)
-{
+static int print_int(uint32_t num, uint8_t base, uint8_t u, uint8_t pad, uint8_t padzero, uint8_t possign, uint8_t posspace, uint8_t _case, char *out) {
 	int onum = (int)num;
-	if(onum < 0) if(!u) num = (~num) + 1;
+	if(onum < 0 && !u) num = (~num) + 1;
 	char *nums;
 	if(_case) nums = "0123456789ABCDEF";
 	else      nums = "0123456789abcdef";
 	
 	char ans[16] = { '0', 0, };
 	int i = 0;
-	while(num)
-	{
+	while(num) {
 		ans[i++] = nums[num % base];
 		num /= base;
 	}
 	if(i == 0) i++;
 	
-	if(!u)
-	{
-		if(onum >= 0)
-		{
-			if(possign)
-			{
+	if(!u) {
+		if(onum >= 0) {
+			if(possign) {
 				*out++ = '+';
 			}
-			else if(posspace)
+			else if(posspace) {
 				*out++ = ' ';
+			}
 		}
-		else if(onum < 0)
+		else {
 			*out++ = '-';
+		}
 	}
 	
 	int p = pad - i;
-	if(p > 0)
-	{
+	if(p > 0) {
 		while(p--) *out++ = (padzero ? '0' : ' ');
 		while(--i >= 0) *out++ = ans[i];
 		return (int)((pad > strlen(ans)) ? pad : strlen(ans)) + ((((possign || posspace) && !u) && onum >= 0) || ((onum < 0) && !u));
-	}
-	else
-	{
+	} else {
 		while(--i >= 0) *out++ = ans[i];
 		return (int)(strlen(ans) + ((((possign || posspace) && !u) && onum >= 0) || ((onum < 0) && !u)));
 	}
@@ -135,11 +125,9 @@ static int print_int(uint32_t num, uint8_t base, uint8_t u, uint8_t pad, uint8_t
  * @return the number found
  * @see print
  */
-static int get_dec(const char *str, ptr_t *out)
-{
+static int get_dec(const char *str, ptr_t *out) {
 	int n = 0;
-	while(*str >= '0' && *str <= '9')
-	{
+	while(*str >= '0' && *str <= '9') {
 		n *= 10;
 		n += (int)(*str - '0');
 		str++;
@@ -160,8 +148,7 @@ static int get_dec(const char *str, ptr_t *out)
  * @param varg the list of arguments
  * @return the number of charactern placed in `out`
  */
-static int print(char *out, const char *format, __builtin_va_list varg)
-{
+static int print(char *out, const char *format, __builtin_va_list varg) {
 	uint8_t is_in_spec = 0;
 	int8_t  size = 0;      // Size of the integer
 	uint8_t width = 0;     // Width of the number at minimum
@@ -175,12 +162,9 @@ static int print(char *out, const char *format, __builtin_va_list varg)
 	
 	ptr_t temp;
 	
-	for(; *format != 0; format++)
-	{
-		if(!is_in_spec)
-		{
-			if(*format == FMT_SPEC)
-			{
+	for(; *format != 0; format++) {
+		if(!is_in_spec) {
+			if(*format == FMT_SPEC) {
 				is_in_spec = 1;
 				continue;
 			}
@@ -189,8 +173,7 @@ static int print(char *out, const char *format, __builtin_va_list varg)
 			continue;
 		}
 		
-		switch(*format)
-		{
+		switch(*format) {
 			case FMT_SPEC: is_in_spec = 0;
 						   *out++ = FMT_SPEC;
 						   nchars++;
@@ -293,16 +276,13 @@ static int print(char *out, const char *format, __builtin_va_list varg)
 					  ZERO_ALL_VID();
 					  break;
 					 
-			case 's': if(size > 0)
-					  {
+			case 's': if(size > 0) {
 						  temp = (ptr_t)va_arg(varg, int16_t *);
 						  if(temp == 0) { temp = (ptr_t)L"(null)"; }
 						  else if(!mm_check_addr((void *)temp)) { temp = (ptr_t)L"(badaddr)"; }
 						  nchars += wcslen((int16_t *)temp);
 						  while(*(int16_t *)temp) *out++ = (char)*(int16_t *)temp++;
-					  }
-					  else
-					  {
+					  } else {
 						  temp = (ptr_t)va_arg(varg, char *);
 						  if(temp == 0) { temp = (ptr_t)"(null)"; }
 						  else if(!mm_check_addr((void *)temp)) { temp = (ptr_t)"(badaddr)"; }
@@ -356,8 +336,7 @@ static int print(char *out, const char *format, __builtin_va_list varg)
  * @return the number of characters placed in `out`
  * @see print
  */
-int sprintf(char *out, const char *format, ...)
-{
+int sprintf(char *out, const char *format, ...) {
 	__builtin_va_list varg;
 	__builtin_va_start(varg, format);
 	int ret = print(out, format, varg);
@@ -377,8 +356,7 @@ lock_t print_lock;
  * @return the number of characters printed
  * @see print
  */
-int kprintf(const char *format, ...)
-{
+int kprintf(const char *format, ...) {
 	if(interrupts_enabled()) lock_for(&print_lock, 16);
 	__builtin_va_list varg;
 	__builtin_va_start(varg, format);
@@ -401,8 +379,7 @@ int kprintf(const char *format, ...)
  * @return the number of characters printed
  * @see print
  */
-int kprintv(char *format, __builtin_va_list varg)
-{
+int kprintv(char *format, __builtin_va_list varg) {
 	if(interrupts_enabled()) lock_for(&print_lock, 16);
 	char temp[1024];
 	int i = 0;

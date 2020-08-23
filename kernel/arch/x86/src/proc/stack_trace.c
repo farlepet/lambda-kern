@@ -12,7 +12,6 @@ void stack_trace(uint32_t max_frames, uint32_t *ebp, uint32_t saved_eip, symbol_
     if(ebp == NULL) {
         return;
     }
-    uint32_t *oebp; // old ebp
 
     // TODO: Check address (if in kernelm use sym_functions)
     if(symbols == NULL) symbols = sym_functions;
@@ -27,7 +26,7 @@ void stack_trace(uint32_t max_frames, uint32_t *ebp, uint32_t saved_eip, symbol_
         }
         uint32_t eip = ebp[1];
         if(stack_trace_print_func(eip, symbols) < 0) break;
-        oebp = ebp;
+        uint32_t *oebp = ebp;
         ebp = (uint32_t *)ebp[0];
         uint32_t frame_size = (uint32_t)(ebp - oebp);
         

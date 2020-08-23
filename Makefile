@@ -111,3 +111,6 @@ documentation:
 	@cp -r doc/html/* ../lambda-os-doc/
 	@rm -r doc
 	@cd ../lambda-os-doc/lambda-os/; git add --all; git commit -a; git push origin gh-pages
+
+cppcheck:
+	@cppcheck --enable=all -I kernel/inc -I kernel/arch/x86/inc kernel/
