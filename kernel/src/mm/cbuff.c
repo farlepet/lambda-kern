@@ -2,7 +2,7 @@
 #include <mm/cbuff.h>
 
 int put_cbuff(uint8_t data, struct cbuff *buff) {
-	if(!buff->buff | !buff) return CBUFF_INVAL; // Invalid buffer
+	if(!buff || !buff->buff) return CBUFF_INVAL; // Invalid buffer
 	if(buff->count >= buff->size) return CBUFF_FULL; // Not enough room in cbuff
 
 	buff->buff[buff->head] = data;

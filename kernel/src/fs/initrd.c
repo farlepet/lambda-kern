@@ -76,8 +76,7 @@ void initrd_init(struct multiboot_header* mboot_head) {
 	struct mboot_module *mod = (struct mboot_module *)mboot_head->mod_addr;
 	uint32_t modcnt = mboot_head->mod_count;
 
-	uint32_t i = 0;
-	while(i < modcnt) {
+	for(uint32_t i = 0; i < modcnt; i++) {
 	#if defined(ARCH_X86)
 		ptr_t mod_start = (uint32_t)mod->mod_start;
 		ptr_t mod_end   = (uint32_t)mod->mod_end;
@@ -90,7 +89,6 @@ void initrd_init(struct multiboot_header* mboot_head) {
 	#endif
 
 		if(!strcmp((char *)mod->string, cpio_name)) initrd = mod;
-		i++;
 		mod++;
 	}
 	
