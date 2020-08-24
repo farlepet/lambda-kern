@@ -27,8 +27,7 @@ static uint32_t *lastframe; //!< The location of the last page frame
  * @param frame the frame to be set
  * @param val wether the frame is used or unused
  */
-void set_frame(uint32_t frame, uint32_t val)
-{
+void set_frame(uint32_t frame, uint32_t val) {
 	//kerror(ERR_BOOTINFO, "  set_frame(%08X, %08X)", frame, val);
 	if(val == 1)
 	{
@@ -46,8 +45,7 @@ void set_frame(uint32_t frame, uint32_t val)
 	else kerror(ERR_MEDERR, "invalid value to set_frame: %d", val);
 }
 
-void block_page(uint32_t page)
-{
+void block_page(uint32_t page) {
 	set_frame((page - (uint32_t)firstframe) / 0x1000, 0xFFFFFFFF);
 }
 
@@ -56,21 +54,17 @@ void block_page(uint32_t page)
  * 
  * @param frame the frame to be tested
  */
-static uint32_t test_frame(uint32_t frame)
-{
+static uint32_t test_frame(uint32_t frame) {
 	return ((frames[frame / 32] & (1 << (frame % 32))) != 0);
 }
 
 /**
  * Look through the pages, and see if any are available.
  */
-static void *get_free_frame()
-{
+static void *get_free_frame() {
 	uint32_t i = 0;
-	while(test_frame(i) != 0)
-	{
-		if(frames[i/32] == 0xFFFFFFFF)
-		{
+	while(test_frame(i) != 0) {
+		if(frames[i/32] == 0xFFFFFFFF) {
 			i += 32;
 			continue;
 		}
@@ -89,15 +83,12 @@ static void *get_free_frame()
 /**
  * Allocates a page frame then returns its address
  */
-void *alloc_frame()
-{
+void *alloc_frame() {
 		static uint32_t pframe = 20;
  
-		if(pframe == 20)
-		{
+		if(pframe == 20) {
 			int i = 0;
-			for(; i < 20; i++)
-			{
+			for(; i < 20; i++) {
 				prealloc_frames[i] = (uint32_t)get_free_frame();
 				if(prealloc_frames[i] == 0xFFFFFFFF) return (void *)0xFFFFFFFF; // TODO: Add some type of handling system here
 			}
@@ -106,18 +97,18 @@ void *alloc_frame()
 		return (void *)prealloc_frames[pframe++];
 }
 
-void *get_phys_page(void *virtaddr)
-{
+void *get_phys_page(void *virtaddr) {
+	uint32_t *pgdir = get_pagedir();
+
 	void *off = (void *)((uint32_t)virtaddr & 0x00000FFF);
 	virtaddr = (void *)((uint32_t)virtaddr & 0xFFFFF000);
 
 	uint32_t pdindex = (uint32_t)virtaddr >> 22;
 	uint32_t ptindex = (uint32_t)virtaddr >> 12 & 0x03FF;
 
-	if(pagedir[pdindex] & 0x01)
-	{
-		if(((uint32_t *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] & 0x01)
-			return (void *)((((uint32_t *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] & 0xFFFFF000) | (uint32_t)off);
+	if(pgdir[pdindex] & 0x01) {
+		if(((uint32_t *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] & 0x01)
+			return (void *)((((uint32_t *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] & 0xFFFFF000) | (uint32_t)off);
 		else
 			return NULL;
 	}
@@ -139,11 +130,13 @@ int page_present(uint32_t virtaddr) {
 }
 
 uint32_t get_page_entry(const void *virtaddr) {
+	uint32_t *pgdir = get_pagedir();
+
 	uint32_t pdindex = (uint32_t)virtaddr >> 22;
 	uint32_t ptindex = (uint32_t)virtaddr >> 12 & 0x03FF;
 
-	if(pagedir[pdindex] & 0x01) {
-		return ((uint32_t *)(pagedir[pdindex] & 0xFFFFF000))[ptindex];
+	if(pgdir[pdindex] & 0x01) {
+		return ((uint32_t *)(pgdir[pdindex] & 0xFFFFF000))[ptindex];
 	}
 	return 0;
 }
@@ -176,14 +169,19 @@ uint32_t pgdir_get_page_table(uint32_t *pgdir, const void *virtaddr) {
  * @param virtualaddr virtual address to map
  * @param flags information about the page mapping
  */
-void map_page(void *physaddr, void *virtualaddr, uint32_t flags)
-{
+void map_page(void *physaddr, void *virtualaddr, uint32_t flags) {
+	uint32_t *pgdir = get_pagedir();
+
+	/* NOTE: This will update both the kernel "source of truth" page directory,
+	 * and the present page directory. I think this needs to be looked into
+	 * more closely, to see if this is needed, or if we set the current page
+	 * directory and declare the kernel pages global? */
+	pgdir_map_page(pgdir, physaddr, virtualaddr, flags);
 	pgdir_map_page(pagedir, physaddr, virtualaddr, flags);
 	__invlpg(virtualaddr);
 }
 
-void pgdir_map_page(uint32_t *pgdir, void *physaddr, void *virtualaddr, uint32_t flags)
-{
+void pgdir_map_page(uint32_t *pgdir, void *physaddr, void *virtualaddr, uint32_t flags) {
 	//kerror(ERR_BOOTINFO, "Mapping %8X to %8X (%03X) in %8X", physaddr, virtualaddr, flags, pgdir);
 
 	virtualaddr = (void *)((uint32_t)virtualaddr & 0xFFFFF000);
@@ -209,8 +207,7 @@ void pgdir_map_page(uint32_t *pgdir, void *physaddr, void *virtualaddr, uint32_t
  * 
  * @param frame frame to free
  */
-void free_frame(void *frame)
-{
+void free_frame(void *frame) {
 	set_frame(((uint32_t)frame - (uint32_t)firstframe) / 0x1000, 0);
 }
 
@@ -221,11 +218,9 @@ void free_frame(void *frame)
  * 
  * @param dir Directory to clear
  */
-void clear_pagedir(uint32_t *dir)
-{
+void clear_pagedir(uint32_t *dir) {
 	int i = 0;
-	for(i = 0; i < 1024; i++)
-	{
+	for(i = 0; i < 1024; i++) {
 	//	kerror(ERR_INFO, "      -> PDIRENT %X", i);
 		dir[i] = 2; // supervisor, rw, not present.
 	}
@@ -237,8 +232,7 @@ void clear_pagedir(uint32_t *dir)
  * @param table pointer to the page table
  * @param addr address to start at
  */
-void fill_pagetable(uint32_t *table, uint32_t addr)
-{
+void fill_pagetable(uint32_t *table, uint32_t addr) {
 	uint32_t i;
 	for(i = 0; i < 1024; i++, addr += 0x1000)
 		table[i] = addr | 3;  // supervisor, rw, present.
@@ -249,10 +243,8 @@ void fill_pagetable(uint32_t *table, uint32_t addr)
  * 
  * @param dir the page directory
  */
-void set_pagedir(uint32_t *dir)
-{
-	if(!dir)
-	{
+void set_pagedir(uint32_t *dir) {
+	if(!dir) {
 		kpanic("Attempted to set pagedir pointer to NULL!");
 	}
 
@@ -260,8 +252,7 @@ void set_pagedir(uint32_t *dir)
 	asm volatile("mov %0, %%cr3":: "b"(dir));
 }
 
-uint32_t *get_pagedir()
-{
+uint32_t *get_pagedir() {
 	uint32_t *dir;
 	asm volatile("mov %%cr3, %0": "=a"(dir));
 	return dir;
@@ -270,8 +261,7 @@ uint32_t *get_pagedir()
 /**
  * Enable the paging flag in cr0.
  */
-void enable_paging()
-{
+void enable_paging() {
 	uint32_t cr0;
 	asm volatile("mov %%cr0, %0": "=b"(cr0));
 	cr0 |= 0x80000000;
@@ -281,8 +271,7 @@ void enable_paging()
 /**
  * Sets the paging flag in cr0.
  */
-void disable_paging()
-{
+void disable_paging() {
 	uint32_t cr0;
 	asm volatile("mov %%cr0, %0": "=b"(cr0));
 	cr0 &= ~0x80000000;
@@ -302,8 +291,7 @@ extern struct multiboot_module_tag *initrd;
  * @see fill_pagetable
  * @see enable_paging
  */
-void paging_init(uint32_t som, uint32_t eom)
-{
+void paging_init(uint32_t som, uint32_t eom) {
 	firstframe = (uint32_t *)som;
 
 	lastframe  = (uint32_t *)(eom & 0xFFFFF000);
@@ -355,17 +343,8 @@ void paging_init(uint32_t som, uint32_t eom)
 }
 
 
-uint32_t *clone_kpagedir()
-{
-	uint32_t *pgd = (uint32_t *)(((ptr_t)kmalloc((sizeof(pagedir)) + 0x1000) + 0x1000) & 0xFFFFF000);
-
-	// kmalloc doesn't always gaive us mapped pages
-	uint32_t i = 0;
-	for(; i < sizeof(pagedir); i += 0x1000)
-		map_page((void *)((uint32_t)pgd + i), (void *)((uint32_t)pgd + i), 0x03);
-
-	memcpy(pgd, pagedir, sizeof(pagedir));
-	return pgd;
+uint32_t *clone_kpagedir() {
+	return clone_pagedir(pagedir);
 }
 
 uint32_t *clone_pagedir(uint32_t *pgdir) {

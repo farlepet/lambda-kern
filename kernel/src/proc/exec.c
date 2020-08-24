@@ -18,7 +18,13 @@ int execve(const char *filename, const char **argv, const char **envp) {
     int idx = proc_by_pid(current_pid);
     if(idx < 0) return -1;
     struct kproc *proc = &procs[idx];
-    kerror(ERR_BOOTINFO, "execve: %s (%08X, %08X)", mm_translate_proc_addr(proc, filename), argv, envp);
+    kerror(ERR_BOOTINFO, "execve: %s (%08X [%08X], %08X)", filename, argv, argv, envp);
+
+    kerror(ERR_BOOTINFO, "execve pgdir: %08X", get_pagedir());
+
+    for(int i = 0; argv[i]; i++) {
+        kerror(ERR_BOOTINFO, "execve argv[%d]: %08X '%s'", argv[i], argv[i]);
+    }
 
     int _exec = proc_fs_open(filename, OFLAGS_READ); //NOTE: The flag here may be wrong
     if(_exec < 0) {
@@ -158,10 +164,13 @@ void exec_replace_process_image(void *entryp, const char *name, void *pagedir, s
 
     kerror(ERR_INFO, "exec_replace_process_image(): Jumping into process");
 
-    STACK_PUSH(proc->esp, argc);
-    STACK_PUSH(proc->esp, argv);
     STACK_PUSH(proc->esp, envp);
+    STACK_PUSH(proc->esp, argv);
+    STACK_PUSH(proc->esp, argc);
 
-    enter_ring_newstack(proc->ring, entryp, 0, argv, envp, (void *)proc->esp);
+    kerror(ERR_INFO, "exec_replace_process_image(): ARGC: %08X, ARGV: %08X, ENVP: %08X",
+           argc, argv, envp);
+
+    enter_ring_newstack(proc->ring, entryp, argc, argv, envp, (void *)proc->esp);
 #endif
 }

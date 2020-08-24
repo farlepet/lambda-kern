@@ -172,7 +172,7 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 
 
 
-    kerror(ERR_INFO, " -- eip: %08X esp: %08X ebp: %08X", child->eip, child->esp, child->ebp);
+    kerror(ERR_INFO, " -- eip: %08X esp: %08X ebp: %08X cr3: %08X", child->eip, child->esp, child->ebp, child->cr3);
 
     // Set up message buffer
     child->messages.size  = MSG_BUFF_SIZE;

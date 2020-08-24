@@ -12,15 +12,8 @@ enter_ring:
     movl 8(%esp), %ecx # A.longress to jump to
     # mov ecx, eax
 
-    # edx = pointer to [argc, argv, envp]
-    movl %esp, %edx
-    addl $12, %edx
-
     # Get desired segment selector:
     andl $0x03, %ebx
-    # mov eax, 0x20 # User data segment
-    # or  ax, bx
-    # mov eax, 0x23
     movl data_selectors(,%ebx,4), %eax
 
     # Set selectors:
@@ -38,9 +31,7 @@ enter_ring:
     pushf # EFLAGS
 
     movl code_selectors(,%ebx,4), %eax #0x18 # User code segment
-    # or  ax, bx
     pushl %eax # CS
-    # push 0x1B
 
     pushl %ecx # A.longress to jump to
     
@@ -63,7 +54,7 @@ enter_ring:
 /* Enter a specified ring w/ new stack pointer
  * Stack arguments (first is top of stack):
  *   - Ring to enter (0-3)
- *   - A.longress to jump to
+ *   - Address to jump to
  *   - argc
  *   - argv
  *   - envp
@@ -74,18 +65,10 @@ enter_ring_newstack:
     movl %esp, %ebp
 
     movl 4(%ebp), %ebx # Ring to enter
-    movl 8(%ebp), %ecx # A.longress to jump to
-    #mov ecx, eax
-
-    # edx = pointer to [argc, argv, envp]
-    movl %esp, %edx
-    addl $16, %edx
+    movl 8(%ebp), %ecx # Address to jump to
 
     # Get desired segment selector:
     andl $0x03, %ebx
-    #mov eax, 0x20 # User data segment
-    #or  ax, bx
-    #mov eax, 0x23
     movl data_selectors(,%ebx,4), %eax
 
     # Set selectors:
@@ -94,19 +77,7 @@ enter_ring_newstack:
     movw %ax, %fs
     movw %ax, %gs
 
-    # Load new stack pointer
-    #mov esp, [esp+24]
-    #mov ebp, esp
 
-    pushl 12(%ebp)
-    pushl 16(%ebp)
-    pushl 20(%ebp)
-    movl %esp, %edx
-    addl $12, %edx
-
-    pushl %edx # Pointer to [argc, argv, envp]
-
-    #mov edx, esp
     mov 24(%ebp), %edx
     
     pushl %eax # Data segment
@@ -115,11 +86,9 @@ enter_ring_newstack:
     pushf # EFLAGS
 
     movl code_selectors(,%ebx,4), %eax #0x18 # User code segment
-    #or  ax, bx
     pushl %eax # CS
-    #push 0x1B
 
-    pushl %ecx # A.longress to jump to
+    pushl %ecx # Address to jump to
     
     # Stack before iret:
     #  EIP
