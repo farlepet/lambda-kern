@@ -19,13 +19,13 @@
 
 
 #define ELFCLASSNONE 0
-#define ELFCLASint32_t    1
+#define ELFCLASS32   1
 #define ELFCLASS64   2
 
 
 #if defined(ARCH_X86)
 #define HOST_MACHINE EM_386
-#define HOST_CLASS   ELFCLASint32_t 
+#define HOST_CLASS   ELFCLASS32
 #endif
 
 
