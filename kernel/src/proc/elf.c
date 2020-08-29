@@ -21,16 +21,27 @@ static ptr_t elf_exec_common(void *data, uint32_t length, uint32_t *pgdir, char 
 	if(symStrTab) *symStrTab = NULL;
 	if(symbols)   *symbols   = NULL;
 
-	Elf32_Shdr *sections  = (Elf32_Shdr *)((ptr_t)head + head->e_shoff);
-	Elf32_Shdr *strTabSec = &sections[head->e_shstrndx];
-	const char *strTabStr = (const char *)((ptr_t)head + strTabSec->sh_offset);
+	Elf32_Shdr *sections     = (Elf32_Shdr *)((ptr_t)head + head->e_shoff);
+	Elf32_Shdr *strTabSec    = &sections[head->e_shstrndx];
+	const char *strTabSecStr = (const char *)((ptr_t)head + strTabSec->sh_offset);
+	Elf32_Shdr *strTab       = NULL;
+	const char *strTabStr    = NULL;
+
+	for(uint32_t i = 0; i < head->e_shnum; i ++) {
+		if(sections[i].sh_type == SHT_STRTAB &&
+		   &sections[i] != strTabSec) {
+			strTab    = &sections[i];
+			strTabStr = (const char *)((ptr_t)head + sections[i].sh_offset);
+			break;
+		}
+	}
 
 	struct kproc_mem_map_ent **mmap_next = mmap_entries;
 
 	for(uint32_t i = 0; i < head->e_shnum; i ++) {
 		Elf32_Shdr *shdr = &sections[i];//(Elf32_Shdr *)((ptr_t)head + (head->e_shoff + i));
 
-		kerror(ERR_INFO, "shdr[%X/%X] N:%s T:%s OFF: %08X ADDR:%08X SZ:%08X", i+1, head->e_shnum, &strTabStr[shdr->sh_name], sht_strings[shdr->sh_type], shdr->sh_offset, shdr->sh_addr, shdr->sh_size);
+		kerror(ERR_INFO, "shdr[%X/%X] N:%s T:%s OFF: %08X ADDR:%08X SZ:%08X", i+1, head->e_shnum, &strTabSecStr[shdr->sh_name], sht_strings[shdr->sh_type], shdr->sh_offset, shdr->sh_addr, shdr->sh_size);
 
 		if(shdr->sh_addr) { // Check if there is a destination address
 			void *phys = kmalloc(shdr->sh_size + 0x2000); // + 0x2000 so we can page-align it
@@ -61,19 +72,18 @@ static ptr_t elf_exec_common(void *data, uint32_t length, uint32_t *pgdir, char 
 			}
 
 		} else if((shdr->sh_type == SHT_SYMTAB) &&
-		          (symStrTab) && (symbols)) {
+		          (symStrTab) && (symbols) && (strTabStr)) {
 			Elf32_Sym *syms = (Elf32_Sym *)((ptr_t)head + shdr->sh_offset);
 
 			uint32_t nSyms = shdr->sh_size / shdr->sh_entsize;
-			*symStrTab = (char *)    kmalloc(strTabSec->sh_size);
+			*symStrTab = (char *)    kmalloc(strTab->sh_size);
 			*symbols   = (symbol_t *)kmalloc((nSyms + 1) * sizeof(symbol_t));
 
-			memcpy(*symStrTab, strTabStr, strTabSec->sh_size);
+			memcpy(*symStrTab, strTabStr, strTab->sh_size);
 
 			for(uint32_t j = 0; j < nSyms; j++) {
-				/*kerror(ERR_BOOTINFO, "  -> [%d]: %s -> %08X:%08X, %04X", j, &strTab[syms[j].st_name],
+				/*kerror(ERR_BOOTINFO, "  -> [%d]: %s -> %08X:%08X, %04X", j, &strTabStr[syms[j].st_name],
 					syms[j].st_value, syms[j].st_size, syms[j].st_name);*/
-				
 				(*symbols)[j].name = &(*symStrTab)[syms[j].st_name];
 				(*symbols)[j].addr = syms[j].st_value;
 				(*symbols)[j].size = syms[j].st_size;

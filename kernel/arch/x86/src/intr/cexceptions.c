@@ -74,7 +74,7 @@ void handle_page_fault(uint32_t errcode, uint32_t cr2,/* uint32_t *ebp, */struct
 
 		if(page_present(regs.esp)) {
 			kerror(ERR_MEDERR, "      -> Stack contents:");
-			uint32_t *stack = (uint32_t *)regs.esp;
+			uint32_t *stack = (uint32_t *)regs.ebp;
 			for(int i = -4; i < 8; i++) {
 				if(i == -4 || i == 0 || i == 4) {
 					kprintf("\n<%8X(%d)>: ", &stack[i], i);
