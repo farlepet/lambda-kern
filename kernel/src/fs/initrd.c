@@ -48,14 +48,33 @@ static uint32_t initrd_write(struct kfile *f, uint32_t off, uint32_t sz, uint8_t
 	return 0; // There should be no reason to write to the files in the initrd
 }
 
-/*static void initrd_open(struct kfile *f, uint32_t flags) {
+static void initrd_open(struct kfile *f, uint32_t flags) {
 	lock(&f->file_lock);
-	if(f->open) return; // TODO: Notify the process that the file could not be opened
+
+	/* TODO: Maybe find a way to handle symlinks more globally, rather than
+	 * specifically withing the fs handler. */
+	if(f->flags & FS_SYMLINK) {
+		/* We need to find the file this symlinks to */
+		/* TODO: Ensure we do not exceed 127 characters */
+		char symlink[128];
+		memcpy(symlink, f->info, f->length);
+		symlink[f->length] = '\0';
+
+		f->link = fs_find_file(f->parent, symlink);
+		if(f->link) {
+			fs_open(f->link, flags);
+		} else {
+			return;
+		}
+	}
+	
+	/* TODO: Prevent opening for writing */
 	f->open_flags = flags | OFLAGS_OPEN;
+
 	unlock(&f->file_lock);
 }
 
-static void initrd_close(struct kfile *f) {
+/*static void initrd_close(struct kfile *f) {
 	lock(&f->file_lock);
 	f->open = 0;
 	unlock(&f->file_lock);
@@ -195,6 +214,7 @@ void initrd_init(struct multiboot_header* mboot_head) {
 				break;
 
 			case CPIO_MODE_SYMLINK:
+				/* Presently, symbolic links are traced during opening. */
 				file->flags |= FS_SYMLINK;
 				break;
 
@@ -224,6 +244,7 @@ void initrd_init(struct multiboot_header* mboot_head) {
 		
 		file->read      = &initrd_read;
 		file->write     = &initrd_write;
+		file->open      = &initrd_open;
 
 		//file->info      = (void *)cfile;
 		file->info      = (void *)data;

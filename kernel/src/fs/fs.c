@@ -46,6 +46,11 @@ int fs_add_file(struct kfile *file, struct kfile *parent) {
 }
 
 uint32_t fs_read(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
+	/* If applicable, follow link to target file */
+	while(f && f->link) {
+		f = f->link;
+	}
+	
 	if(f && f->read) {
 		return f->read(f, off, sz, buff);
 	}
@@ -54,6 +59,11 @@ uint32_t fs_read(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
 }
 
 uint32_t fs_write(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
+	/* If applicable, follow link to target file */
+	while(f && f->link) {
+		f = f->link;
+	}
+
 	if(f && f->write) {
 		return f->write(f, off, sz, buff);
 	}
@@ -82,7 +92,11 @@ void fs_close(struct kfile *f) {
 	if(f->close) {
 		f->close(f);
 	}
-	
+
+	if(f->link) {
+		fs_close(f->link);
+	}
+
 	else {
 		lock(&f->file_lock);
 		f->open = 0;

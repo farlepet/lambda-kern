@@ -168,8 +168,12 @@ static int load(int argc, char **argv) {
 	}
 	fs_open(exec, OFLAGS_OPEN | OFLAGS_READ);
 
-	exec_data = kmalloc(exec->length);
-	fs_read(exec, 0, exec->length, exec_data);
+	/* TODO: Create API to abstract this sort of processing. (stat?) */
+	struct kfile *tf = exec;
+	while(tf->link) tf = tf->link;
+
+	exec_data = kmalloc(tf->length);
+	fs_read(exec, 0, tf->length, exec_data);
 
 	//kprintf("First 4 bytes of file: %02x, %02x, %02x, %02x\n", exec_data[0], exec_data[1], exec_data[2], exec_data[3]);
 
@@ -197,6 +201,10 @@ static int run(int argc, char **argv) {
 		return 1;
 	}
 
+	/* TODO: Create API to abstract this sort of processing. (stat?) */
+	struct kfile *tf = exec;
+	while(tf->link) tf = tf->link;
+
 	if(exec_type == EXEC_ELF) {
 		uint32_t *pagedir;
 		//ptr_t exec_ep =
@@ -211,7 +219,7 @@ static int run(int argc, char **argv) {
 			pid = _pid;
 		}*/
 
-		pid = load_elf(exec_data, exec->length, &pagedir);
+		pid = load_elf(exec_data, tf->length, &pagedir);
 
 		if(!pid) {
 			kerror(ERR_MEDERR, "Could not load executable");
@@ -228,7 +236,7 @@ static int run(int argc, char **argv) {
 		ptr_t exec_ep = 0x80000000;
 
 		// Keep it on a page boundry:
-		void *phys = kmalloc(exec->length + 0x2000);
+		void *phys = kmalloc(tf->length + 0x2000);
 		phys = (void *)(((uint32_t)phys & ~0xFFF) + 0x1000);
 
 		//map_page(phys, (void *)exec_ep, 0x03);
@@ -236,7 +244,7 @@ static int run(int argc, char **argv) {
 		//uint32_t addr_tst = (uint32_t)get_page_entry((void *)exec_ep);
 		//kerror(ERR_SMERR, "Page entry: 0x%08X", addr_tst);
 		
-		memcpy(phys, exec_data, exec->length);
+		memcpy(phys, exec_data, tf->length);
 
 		//kerror(ERR_BOOTINFO, "Current CR3: 0x%08X", get_pagedir());
 
