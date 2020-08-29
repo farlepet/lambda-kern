@@ -61,7 +61,9 @@ ptr_t load_elf(void *file, uint32_t length, uint32_t **pdir) {
 	char     *symStrTab = NULL;
 	symbol_t *symbols   = NULL;
 
-	Elf32_Shdr *sections = (Elf32_Shdr *)((ptr_t)head + head->e_shoff);
+	Elf32_Shdr *sections  = (Elf32_Shdr *)((ptr_t)head + head->e_shoff);
+	Elf32_Shdr *strTabSec = &sections[head->e_shstrndx];
+	const char *strTabStr = (const char *)((ptr_t)head + strTabSec->sh_offset);
 
 	struct kproc_mem_map_ent *mmap_entries;
 	struct kproc_mem_map_ent **mmap_next = &mmap_entries;
@@ -69,7 +71,7 @@ ptr_t load_elf(void *file, uint32_t length, uint32_t **pdir) {
 	for(uint32_t i = 0; i < head->e_shnum; i ++) {
 		Elf32_Shdr *shdr = &sections[i];//(Elf32_Shdr *)((ptr_t)head + (head->e_shoff + i));
 
-		kerror(ERR_INFO, "shdr[%X/%X] N:%s T:%s OFF: %08X ADDR:%08X SZ:%08X", i+1, head->e_shnum, sht_strings[shdr->sh_name], sht_strings[shdr->sh_type], shdr->sh_offset, shdr->sh_addr, shdr->sh_size);
+		kerror(ERR_INFO, "shdr[%X/%X] N:%s T:%s OFF: %08X ADDR:%08X SZ:%08X", i+1, head->e_shnum, &strTabStr[shdr->sh_name], sht_strings[shdr->sh_type], shdr->sh_offset, shdr->sh_addr, shdr->sh_size);
 
 		if(shdr->sh_addr) { // Check if there is a destination address
 			void *phys = kmalloc(shdr->sh_size + 0x2000); // + 0x2000 so we can page-align it
@@ -100,14 +102,11 @@ ptr_t load_elf(void *file, uint32_t length, uint32_t **pdir) {
 		} else if(shdr->sh_type == SHT_SYMTAB) {
 			Elf32_Sym *syms = (Elf32_Sym *)((ptr_t)head + shdr->sh_offset);
 
-			Elf32_Shdr *strTabSec = &sections[shdr->sh_link]; //(Elf32_Shdr *)((ptr_t)head + head->e_shentsize * shdr->sh_link);
-			char       *strTab    = (char *)((ptr_t)head + strTabSec->sh_offset);
-
 			uint32_t nSyms = shdr->sh_size / shdr->sh_entsize;
 			symStrTab = (char *)    kmalloc(strTabSec->sh_size);
 			symbols   = (symbol_t *)kmalloc((nSyms + 1) * sizeof(symbol_t));
 
-			memcpy(symStrTab, strTab, strTabSec->sh_size);
+			memcpy(symStrTab, strTabStr, strTabSec->sh_size);
 
 			for(uint32_t j = 0; j < nSyms; j++) {
 				/*kerror(ERR_BOOTINFO, "  -> [%d]: %s -> %08X:%08X, %04X", j, &strTab[syms[j].st_name],
@@ -192,12 +191,14 @@ int exec_elf(void *data, uint32_t length, const char **argv, const char **envp) 
 	char     *symStrTab = NULL;
 	symbol_t *symbols   = NULL;
 
-	Elf32_Shdr *sections = (Elf32_Shdr *)((ptr_t)head + head->e_shoff);
+	Elf32_Shdr *sections  = (Elf32_Shdr *)((ptr_t)head + head->e_shoff);
+	Elf32_Shdr *strTabSec = &sections[head->e_shstrndx];
+	const char *strTabStr = (const char *)((ptr_t)head + strTabSec->sh_offset);
 
 	for(uint32_t i = 0; i < head->e_shnum; i ++) {
 		Elf32_Shdr *shdr = &sections[i];//(Elf32_Shdr *)((ptr_t)head + (head->e_shoff + i));
 
-		kerror(ERR_INFO, "shdr[%X/%X] N:%s T:%s OFF: %08X ADDR:%08X SZ:%08X", i+1, head->e_shnum, sht_strings[shdr->sh_name], sht_strings[shdr->sh_type], shdr->sh_offset, shdr->sh_addr, shdr->sh_size);
+		kerror(ERR_INFO, "shdr[%X/%X] N:%s T:%s OFF: %08X ADDR:%08X SZ:%08X", i+1, head->e_shnum, &strTabStr[shdr->sh_name], sht_strings[shdr->sh_type], shdr->sh_offset, shdr->sh_addr, shdr->sh_size);
 
 		// Check if there is a destination address
 		if(shdr->sh_addr) {
@@ -220,14 +221,11 @@ int exec_elf(void *data, uint32_t length, const char **argv, const char **envp) 
 		} else if(shdr->sh_type == SHT_SYMTAB) {
 			Elf32_Sym *syms = (Elf32_Sym *)((ptr_t)head + shdr->sh_offset);
 
-			Elf32_Shdr *strTabSec = &sections[shdr->sh_link]; //(Elf32_Shdr *)((ptr_t)head + head->e_shentsize * shdr->sh_link);
-			char       *strTab    = (char *)((ptr_t)head + strTabSec->sh_offset);
-
 			uint32_t nSyms = shdr->sh_size / shdr->sh_entsize;
 			symStrTab = (char *)    kmalloc(strTabSec->sh_size);
 			symbols   = (symbol_t *)kmalloc((nSyms + 1) * sizeof(symbol_t));
 
-			memcpy(symStrTab, strTab, strTabSec->sh_size);
+			memcpy(symStrTab, strTabStr, strTabSec->sh_size);
 
 			for(uint32_t j = 0; j < nSyms; j++) {
 				/*kerror(ERR_BOOTINFO, "  -> [%d]: %s -> %08X:%08X, %04X", j, &strTab[syms[j].st_name],
@@ -273,11 +271,21 @@ int exec_elf(void *data, uint32_t length, const char **argv, const char **envp) 
 
 
 char *sht_strings[] = {
-	[SHT_NONE]                      = "NONE",
-	[SHT_PROGBITS]                  = "PROG",
-	[SHT_SYMTAB]                    = "SYMTAB",
-	[SHT_STRTAB]                    = "STRTAB",
-	[(SHT_STRTAB+1)...(SHT_NOTE-1)] = "RESERVED",
-	[SHT_NOTE]                      = "NOTE",
-	[SHT_NOBITS]                    = "NOBITS"
+	[SHT_NONE]          = "NONE",
+	[SHT_PROGBITS]      = "PROG",
+	[SHT_SYMTAB]        = "SYMTAB",
+	[SHT_STRTAB]        = "STRTAB",
+	[SHT_RELA]          = "RELA",
+	[SHT_HASH]          = "HASH",
+	[SHT_DYNAMIC]       = "DYNAMIC",
+	[SHT_NOTE]          = "NOTE",
+	[SHT_NOBITS]        = "NOBITS",
+	[SHT_REL]           = "REL",
+	[SHT_SHLIB]         = "SHLIB",
+	[SHT_DYNSYM]        = "DYNSYM",
+	[SHT_INIT_ARRAY]    = "INIT_ARRAY",
+	[SHT_FINI_ARRAY]    = "FINI_ARRAY",
+	[SHT_PREINIT_ARRAY] = "PREINIT_ARRAY",
+
+	[(SHT_DYNSYM+1)...(SHT_INIT_ARRAY-1)] = "RESERVED"
 };

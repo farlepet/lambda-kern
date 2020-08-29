@@ -93,14 +93,30 @@ typedef struct
 	uint32_t sh_entsize;
 } Elf32_Shdr;
 
-#define SHT_NONE     0
-#define SHT_PROGBITS 1
-#define SHT_SYMTAB   2
-#define SHT_STRTAB   3
-#define SHT_NOTE     7
-#define SHT_NOBITS   8
+#define SHT_NONE          0x00
+#define SHT_PROGBITS      0x01
+#define SHT_SYMTAB        0x02
+#define SHT_STRTAB        0x03
+#define SHT_RELA          0x04
+#define SHT_HASH          0x05
+#define SHT_DYNAMIC       0x06
+#define SHT_NOTE          0x07
+#define SHT_NOBITS        0x08
+#define SHT_REL           0x09
+#define SHT_SHLIB         0x0A
+#define SHT_DYNSYM        0x0B
+#define SHT_INIT_ARRAY    0x0E
+#define SHT_FINI_ARRAY    0x0F
+#define SHT_PREINIT_ARRAY 0x10
 
-extern char *sht_strings[SHT_NOBITS+1];
+/* Processor-specific section type range: */
+#define SHT_LOPROC 0x70000000
+#define SHT_HIPROC 0x7FFFFFFF
+/* Application-specific section type range: */
+#define SHT_LOUSER 0x80000000
+#define SHT_HIUSER 0xFFFFFFFF
+
+extern char *sht_strings[SHT_PREINIT_ARRAY+1];
 
 
 typedef struct
