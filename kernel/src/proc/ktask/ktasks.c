@@ -5,6 +5,7 @@
 #include <time/time.h>
 #include <proc/ipc.h>
 #include <video.h>
+#include <string.h>
 
 int ktask_pids[KTASK_SLOTS] = { 0 }; //!< PID's of these tasks
 
@@ -37,8 +38,10 @@ void init_ktasks() {
 	kerror(ERR_BOOTINFO, "Starting kernel video task");
 	ktask_pids[KVID_TASK_SLOT] = add_kernel_task((void *)&kvid_task, "kvid", 0x1000, PRIO_DRIVER);
 
-	kerror(ERR_BOOTINFO, "Starting kernel terminal task");
-	ktask_pids[KTERM_TASK_SLOT] = add_kernel_task((void *)&kterm_task, "kterm", 0x2000, PRIO_DRIVER);
+	if(!strlen((const char *)boot_options.init_executable)) {
+		kerror(ERR_BOOTINFO, "Starting kernel terminal task");
+		ktask_pids[KTERM_TASK_SLOT] = add_kernel_task((void *)&kterm_task, "kterm", 0x2000, PRIO_DRIVER);
+	}
 
 #ifdef DEBUGGER
 	kerror(ERR_BOOTINFO, "Starting kernel debug task");

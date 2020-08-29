@@ -21,8 +21,6 @@ static int n_files = 0;
 static struct header_old_cpio *files[0x1000]; // Table of initrd file locations
 static char filenames[0x1000][128];           // Table of initrd filenames
 
-char *cpio_name = NULL;
-
 #define n(x) ((x << 16) | (x >> 16))
 
 static uint32_t initrd_read(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
@@ -68,10 +66,17 @@ static void initrd_close(struct kfile *f) {
 void initrd_init(struct multiboot_header* mboot_head) {
 	kerror(ERR_BOOTINFO, "Loading GRUB modules");
 
+	if(!strlen((const char *)boot_options.init_ramdisk_name)) {
+		kerror(ERR_BOOTINFO, "  -> No initrd module specified.");
+		return;
+	}
+
 	if(!(mboot_head->flags & MBOOT_MODULES)) {
 		kerror(ERR_BOOTINFO, "  -> No modules to load");
 		return;
 	}
+
+	kerror(ERR_BOOTINFO, "Looking for initrd module [%s]", boot_options.init_ramdisk_name);
 
 	struct mboot_module *mod = (struct mboot_module *)mboot_head->mod_addr;
 	uint32_t modcnt = mboot_head->mod_count;
@@ -88,7 +93,9 @@ void initrd_init(struct multiboot_header* mboot_head) {
 		}
 	#endif
 
-		if(!strcmp((char *)mod->string, cpio_name)) initrd = mod;
+		kerror(ERR_BOOTINFO, "  -> MOD[%d/%d]: %s", i+1, modcnt, mod->string);
+
+		if(!strcmp((char *)mod->string, (const char *)boot_options.init_ramdisk_name)) initrd = mod;
 		mod++;
 	}
 	

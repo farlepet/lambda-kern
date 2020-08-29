@@ -8,6 +8,7 @@
 #include <fs/initrd.h>
 #include <intr/intr.h>
 #include <fs/fs.h>
+#include <string.h>
 
 // Architecture-specific initialization:
 #include <arch/init/init.h>
@@ -61,6 +62,14 @@ __noreturn void kernel_task()
 	kerror(ERR_BOOTINFO, "Main kernel task started");
 
 	init_ktasks();
+
+	if(strlen((const char *)boot_options.init_executable)) {
+		kerror(ERR_BOOTINFO, "Loading init executable (%s)", boot_options.init_executable);
+		struct kfile *init = fs_find_file(fs_root, (const char *)boot_options.init_executable);
+		if(!init) {
+			kpanic("Could not open init executable! (%s)\n", boot_options.init_executable);
+		}
+	}
 
 	for(;;) busy_wait();
 }

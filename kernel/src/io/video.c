@@ -9,8 +9,6 @@
 #  include <arch/io/serial.h>
 #endif
 
-int output_serial = 0; //!< If 0, write to VGA, else, write to serial port pointed to by `output_serial`
-
 /**
  * Prints a single character.
  * 
@@ -18,8 +16,8 @@ int output_serial = 0; //!< If 0, write to VGA, else, write to serial port point
  */
 void kput(char c) {
 #if defined(ARCH_X86)
-	if(output_serial) {
-		serial_write((uint16_t)output_serial, c);
+	if(boot_options.output_serial) {
+		serial_write((uint16_t)boot_options.output_serial, c);
 	}
 	else vga_put(c);
 #endif
@@ -32,7 +30,9 @@ void kput(char c) {
  */
 void kwput(int c) {
 #if defined(ARCH_X86)
-	if(output_serial) serial_write((uint16_t)output_serial, (char)c);
+	if(boot_options.output_serial) {
+		serial_write((uint16_t)boot_options.output_serial, (char)c);
+	}
 	else vga_put((char)c);
 #endif
 }

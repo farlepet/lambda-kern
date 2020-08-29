@@ -24,8 +24,7 @@
 #define MBOOT_APMTAB  1024
 #define MBOOT_VBEINFO 2046
 
-struct multiboot_header
-{
+struct multiboot_header {
 	uint32_t flags;
 	uint32_t mem_lower;
 	uint32_t mem_upper;
@@ -34,7 +33,7 @@ struct multiboot_header
 	uint32_t mod_count;
 	uint32_t mod_addr;
 
-	uint8_t syms[16];
+	uint8_t  syms[16];
 
 	uint32_t mmap_len;
 	uint32_t mmap_addr;
@@ -52,8 +51,7 @@ struct multiboot_header
 	uint16_t vbe_len;
 };
 
-struct mboot_module
-{
+struct mboot_module {
 	uint32_t mod_start;
 	uint32_t mod_end;
 	uint32_t string;
@@ -62,6 +60,21 @@ struct mboot_module
 
 #pragma pack (pop)
 
+/**
+ * Kernel options that can be specified on the kernel command line.
+ */
+typedef struct {
+#define INITRD_MODULE_MAX_LEN 64
+	char init_ramdisk_name[INITRD_MODULE_MAX_LEN]; /** Name of initial ramdisk module */
+#define INITEXEC_PATH_MAX_LEN 128
+	char init_executable[INITEXEC_PATH_MAX_LEN];   /** Path to init executable. If NULL, kterm is launched */
+
+#if defined(ARCH_X86)
+	int  output_serial;     /** Serial device to output to */
+#endif
+} boot_options_t;
+
+extern volatile boot_options_t boot_options;
 
 /**
  * Checks the kernel commandline and does things accordingly.

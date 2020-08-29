@@ -113,8 +113,8 @@ struct dirent *fs_readdir(DIR *d) {
 	return NULL;
 }
 
-struct kfile *fs_finddir(struct kfile *f, char *name) {
-	if(f) {
+struct kfile *fs_finddir(struct kfile *f, const char *name) {
+	if(f && f->child) {
 		struct kfile *file = f->child;
 
 		do {
@@ -177,10 +177,12 @@ int fs_ioctl(struct kfile *f, int req, void *args)
 }
 
 
-struct kfile *fs_find_file(struct kfile *f, char *path) {
-	if(f == NULL) return NULL;
+struct kfile *fs_find_file(struct kfile *f, const char *path) {
+	if(f == NULL)    return NULL;
 	if(path == NULL) return NULL;
-	if(*path == 0) return NULL; // No path given
+	if(*path == 0)   return NULL; // No path given
+	
+	kerror(ERR_BOOTINFO, "fs_find_file(_, %s)", path);
 
 
 	if(path[0] == '.') {
@@ -210,11 +212,26 @@ struct kfile *fs_find_file(struct kfile *f, char *path) {
 	} else {
 		char *dir_sep = strchr(path, '/');
 		if(dir_sep != NULL) {
-			*dir_sep = '\0';
+			/* Create temporary string to hold the directory. TODO: Ensure
+			 * the length is reasonable. This method is also somewhat
+			 * inneffecient. If we create a wrapper for this function, we
+			 * could do one allocation, then this function cah modify the
+			 * contents freely. */
+			char *dir = (char *)kmalloc(dir_sep - path + 1);
+			memcpy(dir, path, dir_sep - path);
+			dir[dir_sep - path] = '\0';
 			dir_sep++;
-			f = fs_finddir(f, path);
-			// TODO: Check that file is a directory!
-			return fs_find_file(f, dir_sep);
+	
+			kerror(ERR_BOOTINFO, "dir: (%s), dirsep: (%s)", dir, dir_sep);
+			
+			f = fs_finddir(f, dir);
+			kfree(dir);
+			
+			if(f) {
+				return fs_find_file(f, dir_sep);
+			} else {
+				return NULL;
+			}
 		} else {
 			return fs_finddir(f, path);
 		}
