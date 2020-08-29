@@ -18,6 +18,23 @@ extern uint32_t kernel_cr3;        //!< Page directory used by the kernel
 
 extern uint32_t *firstframe;       //!< The location of the first page frame
 
+#define PAGE_DIRECTORY_FLAG_PRESENT  (1UL << 0)
+#define PAGE_DIRECTORY_FLAG_WRITABLE (1UL << 1)
+#define PAGE_DIRECTORY_FLAG_USER     (1UL << 2)
+#define PAGE_DIRECTORY_FLAG_WRCACHE  (1UL << 3)
+#define PAGE_DIRECTORY_FLAG_NOCACHE  (1UL << 4)
+#define PAGE_DIRECTORY_FLAG_ACCESSED (1UL << 5)
+#define PAGE_DIRECTORY_FLAG_4MBPAGE  (1UL << 7)
+
+#define PAGE_TABLE_FLAG_PRESENT  (1UL << 0)
+#define PAGE_TABLE_FLAG_WRITABLE (1UL << 1)
+#define PAGE_TABLE_FLAG_USER     (1UL << 2)
+#define PAGE_TABLE_FLAG_WRCACHE  (1UL << 3)
+#define PAGE_TABLE_FLAG_NOCACHE  (1UL << 4)
+#define PAGE_TABLE_FLAG_ACCESSED (1UL << 5)
+#define PAGE_TABLE_FLAG_DIRTY    (1UL << 6)
+#define PAGE_TABLE_FLAG_GLOBAL   (1UL << 8)
+
 /**
  * @brief Block page from use
  * 
@@ -121,12 +138,13 @@ uint32_t pgdir_get_phys_addr(uint32_t *pgdir, const void *virtaddr);
 void clear_pagedir(uint32_t *dir);
 
 /**
- * \brief Fill a page table with pages.
+ * \brief Fill a page table with identity-mapped pages.
  * Fill a pagetable with pages starting from `addr` and ending up at `addr + 0x400000`
  * @param table pointer to the page table
  * @param addr address to start at
+ * @param flags flags to give each page table entry
  */
-void fill_pagetable(uint32_t *table, uint32_t addr);
+void fill_pagetable(uint32_t *table, uint32_t addr, uint32_t flags);
 
 /**
  * \brief Set the current page directory

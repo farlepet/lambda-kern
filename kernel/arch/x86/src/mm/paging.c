@@ -162,22 +162,16 @@ uint32_t pgdir_get_page_table(uint32_t *pgdir, const void *virtaddr) {
 	return pgdir[pdindex];
 }
 
-/**
- * Map a virtual address to a physical one.
- * 
- * @param physaddr physical address to be mapped to
- * @param virtualaddr virtual address to map
- * @param flags information about the page mapping
- */
 void map_page(void *physaddr, void *virtualaddr, uint32_t flags) {
 	uint32_t *pgdir = get_pagedir();
+	
+	if(flags & PAGE_TABLE_FLAG_GLOBAL && pgdir != pagedir) {
+		/* Include global pages in the kernel source-of-truth page directory */
+		pgdir_map_page(pagedir, physaddr, virtualaddr, flags);
+	
+	}
 
-	/* NOTE: This will update both the kernel "source of truth" page directory,
-	 * and the present page directory. I think this needs to be looked into
-	 * more closely, to see if this is needed, or if we set the current page
-	 * directory and declare the kernel pages global? */
 	pgdir_map_page(pgdir, physaddr, virtualaddr, flags);
-	pgdir_map_page(pagedir, physaddr, virtualaddr, flags);
 	__invlpg(virtualaddr);
 }
 
@@ -202,22 +196,12 @@ void pgdir_map_page(uint32_t *pgdir, void *physaddr, void *virtualaddr, uint32_t
 	((uint32_t *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] = ((uint32_t)physaddr) | (flags & 0xFFF) | 0x01;	
 }
 
-/**
- * Free an allocated page frame, allowing it to be allocated again.
- * 
- * @param frame frame to free
- */
 void free_frame(void *frame) {
 	set_frame(((uint32_t)frame - (uint32_t)firstframe) / 0x1000, 0);
 }
 
 
 
-/**
- * Clear the page directory marking every page table as non-existant.
- * 
- * @param dir Directory to clear
- */
 void clear_pagedir(uint32_t *dir) {
 	int i = 0;
 	for(i = 0; i < 1024; i++) {
@@ -226,23 +210,12 @@ void clear_pagedir(uint32_t *dir) {
 	}
 }
 
-/**
- * \brief Fill a page table with pages.
- * Fill a pagetable with pages starting from `addr` and ending up at `addr + 0x400000`
- * @param table pointer to the page table
- * @param addr address to start at
- */
-void fill_pagetable(uint32_t *table, uint32_t addr) {
+void fill_pagetable(uint32_t *table, uint32_t addr, uint32_t flags) {
 	uint32_t i;
 	for(i = 0; i < 1024; i++, addr += 0x1000)
-		table[i] = addr | 3;  // supervisor, rw, present.
+		table[i] = addr | (flags & 0xFFF);
 }
 
-/**
- * Sets the current page directory by setting cr3 to `dir`
- * 
- * @param dir the page directory
- */
 void set_pagedir(uint32_t *dir) {
 	if(!dir) {
 		kpanic("Attempted to set pagedir pointer to NULL!");
@@ -258,9 +231,6 @@ uint32_t *get_pagedir() {
 	return dir;
 }
 
-/**
- * Enable the paging flag in cr0.
- */
 void enable_paging() {
 	uint32_t cr0;
 	asm volatile("mov %%cr0, %0": "=b"(cr0));
@@ -268,9 +238,6 @@ void enable_paging() {
 	asm volatile("mov %0, %%cr0":: "b"(cr0));
 }
 
-/**
- * Sets the paging flag in cr0.
- */
 void disable_paging() {
 	uint32_t cr0;
 	asm volatile("mov %%cr0, %0": "=b"(cr0));
@@ -278,19 +245,29 @@ void disable_paging() {
 	asm volatile("mov %0, %%cr0":: "b"(cr0));
 }
 
-extern struct multiboot_module_tag *initrd;
 /**
- * Creates a new page directory, and clears it. Thes creates a new page table,
- * and fills it with addresses starting at 0. Then it sets the page tables
- * first page table as the newly created one. Then it sets the page directory,
- * and enables paging.
- * 
- * @param som start of usable memory
- * @param eom end of memory
- * @see clear_pagedir
- * @see fill_pagetable
- * @see enable_paging
+ * Enable the use of global page flag.
  */
+static void enable_global_pages() {
+	uint32_t cr4;
+	asm volatile("mov %%cr4, %0": "=b"(cr4));
+	cr4 |= (1UL << 7);
+	asm volatile("mov %0, %%cr4":: "b"(cr4));
+}
+
+/**
+ * Disable the use of global page flag.
+ */
+__unused
+static void disable_global_pages() {
+	uint32_t cr4;
+	asm volatile("mov %%cr4, %0": "=b"(cr4));
+	cr4 &= ~(1UL << 7);
+	asm volatile("mov %0, %%cr4":: "b"(cr4));
+}
+
+extern struct multiboot_module_tag *initrd;
+
 void paging_init(uint32_t som, uint32_t eom) {
 	firstframe = (uint32_t *)som;
 
@@ -309,10 +286,11 @@ void paging_init(uint32_t som, uint32_t eom) {
 
 	kerror(ERR_BOOTINFO, "  -> Filling first 4 page tables");
 
-	fill_pagetable((void *)init_tbls[0], 0x00000000);
-	fill_pagetable((void *)init_tbls[1], 0x00400000);
-	fill_pagetable((void *)init_tbls[2], 0x00800000);
-	fill_pagetable((void *)init_tbls[3], 0x00C00000);
+	// Identity-map first 16 MiB for kernel use. (flags: present, writable, global)
+	fill_pagetable((void *)init_tbls[0], 0x00000000, 0x103);
+	fill_pagetable((void *)init_tbls[1], 0x00400000, 0x103);
+	fill_pagetable((void *)init_tbls[2], 0x00800000, 0x103);
+	fill_pagetable((void *)init_tbls[3], 0x00C00000, 0x103);
 
 	kerror(ERR_BOOTINFO, "  -> Setting page directory entries");
 
@@ -329,6 +307,7 @@ void paging_init(uint32_t som, uint32_t eom) {
 	kerror(ERR_BOOTINFO, "  -> Enabling paging");
 
 	enable_paging();
+	enable_global_pages();
 
 	block_page(0x00000000); // Catch NULL pointers and jumps
 
@@ -377,6 +356,8 @@ uint32_t *clone_pagedir_full(uint32_t *pgdir) {
 		map_page((void *)((uint32_t)pgd + i), (void *)((uint32_t)pgd + i), 0x03);
 
 	memcpy(pgd, pgdir, 1024 * sizeof(uint32_t));
+
+	// TODO: Posible don't copy pages marked as global?
 
 	size_t idx = 1;
 	for(size_t i = 0; i < 1024; i++) {
