@@ -9,6 +9,7 @@
 #include <string.h>
 #include <fs/fs.h>
 #include <video.h>
+#include <sys/stat.h>
 
 #define prompt  "%skterm\e[0m> ", \
 				(retval ? "\e[31m" : "\e[32m")
@@ -149,7 +150,8 @@ static int help(int argc, char **argv) {
 
 char exec_filename[128] = { 0, };
 struct kfile *exec      = NULL;
-uint8_t			 *exec_data = NULL;
+struct stat   exec_stat;
+uint8_t	     *exec_data = NULL;
 int           exec_type = 0;
 
 static int load(int argc, char **argv) {
@@ -168,12 +170,10 @@ static int load(int argc, char **argv) {
 	}
 	fs_open(exec, OFLAGS_OPEN | OFLAGS_READ);
 
-	/* TODO: Create API to abstract this sort of processing. (stat?) */
-	struct kfile *tf = exec;
-	while(tf->link) tf = tf->link;
+	kfstat(exec, &exec_stat);
 
-	exec_data = kmalloc(tf->length);
-	fs_read(exec, 0, tf->length, exec_data);
+	exec_data = kmalloc(exec_stat.st_size);
+	fs_read(exec, 0, exec_stat.st_size, exec_data);
 
 	//kprintf("First 4 bytes of file: %02x, %02x, %02x, %02x\n", exec_data[0], exec_data[1], exec_data[2], exec_data[3]);
 
@@ -201,10 +201,6 @@ static int run(int argc, char **argv) {
 		return 1;
 	}
 
-	/* TODO: Create API to abstract this sort of processing. (stat?) */
-	struct kfile *tf = exec;
-	while(tf->link) tf = tf->link;
-
 	if(exec_type == EXEC_ELF) {
 		uint32_t *pagedir;
 		//ptr_t exec_ep =
@@ -219,7 +215,7 @@ static int run(int argc, char **argv) {
 			pid = _pid;
 		}*/
 
-		pid = load_elf(exec_data, tf->length, &pagedir);
+		pid = load_elf(exec_data, exec_stat.st_size, &pagedir);
 
 		if(!pid) {
 			kerror(ERR_MEDERR, "Could not load executable");
@@ -232,11 +228,10 @@ static int run(int argc, char **argv) {
 
 	else if(exec_type == EXEC_BIN) {
 		//uint32_t *pagedir;
-		//ptr_t exec_ep = load_elf(exec_data, exec->length, &pagedir);
 		ptr_t exec_ep = 0x80000000;
 
 		// Keep it on a page boundry:
-		void *phys = kmalloc(tf->length + 0x2000);
+		void *phys = kmalloc(exec_stat.st_size + 0x2000);
 		phys = (void *)(((uint32_t)phys & ~0xFFF) + 0x1000);
 
 		//map_page(phys, (void *)exec_ep, 0x03);
@@ -244,7 +239,7 @@ static int run(int argc, char **argv) {
 		//uint32_t addr_tst = (uint32_t)get_page_entry((void *)exec_ep);
 		//kerror(ERR_SMERR, "Page entry: 0x%08X", addr_tst);
 		
-		memcpy(phys, exec_data, tf->length);
+		memcpy(phys, exec_data, exec_stat.st_size);
 
 		//kerror(ERR_BOOTINFO, "Current CR3: 0x%08X", get_pagedir());
 

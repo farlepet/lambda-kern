@@ -8,6 +8,7 @@
 #include <mm/mm.h>
 
 #include <string.h>
+#include <sys/stat.h>
 
 #if defined(ARCH_X86)
 #  include <arch/intr/int.h>
@@ -39,8 +40,10 @@ int execve(const char *filename, const char **argv, const char **envp) {
         return -1;
     }
 
-    // TODO: Find size in a more formal manner
-    int execsz = proc->open_files[_exec]->length;
+    /* TODO: Use regular fstat with _exec */
+    struct stat exec_stat;
+    kfstat(proc->open_files[_exec], &exec_stat);
+    int execsz = exec_stat.st_size;
 
 
     void *execdata = kmalloc(execsz);
