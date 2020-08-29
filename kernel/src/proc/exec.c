@@ -30,7 +30,7 @@ int execve(const char *filename, const char **argv, const char **envp) {
     kerror(ERR_BOOTINFO, "execve pgdir: %08X", get_pagedir());
 
     for(int i = 0; argv[i]; i++) {
-        kerror(ERR_BOOTINFO, "execve argv[%d]: %08X '%s'", argv[i], argv[i]);
+        kerror(ERR_BOOTINFO, "execve argv[%d]: %08X '%s'", i, argv[i], argv[i]);
     }
 
     int _exec = proc_fs_open(filename, OFLAGS_READ); //NOTE: The flag here may be wrong
@@ -59,6 +59,74 @@ int execve(const char *filename, const char **argv, const char **envp) {
     }
 
     return -1;
+}
+
+/**
+ * Copy and relocate arguments (argv, envp) to the next process image, and
+ * push these values to the stack.
+ */
+static void exec_copy_arguments(struct kproc *proc, const char **argv, const char **envp, char ***n_argv, char ***n_envp) {
+    size_t   data_sz = 0;
+    uint32_t argc = 0;
+    uint32_t envc = 0;
+
+    for(size_t i = 0; argv[i]; i++) {
+        /* argv pointer + argv[i] length + NULL terminator */
+        data_sz += sizeof(char *) + strlen(argv[i]) + 1;
+        argc++;
+    }
+    
+    for(size_t i = 0; envp[i]; i++) {
+        /* argv pointer + argv[i] length + NULL terminator */
+        data_sz += sizeof(char *) + strlen(envp[i]) + 1;
+        envc++;
+    }
+
+    /* NULL pointers at the end of argv and envp */
+    data_sz += sizeof(char *) * 2;
+    
+    kerror(ERR_INFO, "exec_copy_arguments(): ARGV: %08X, ENVP: %08X, SZ: %d",
+           argv, envp, data_sz);
+
+    /* TODO: Find a better way to map some memory for this process, rather than potentially
+     * re-mapping kernel memory to allow user access */
+
+    char *new_buffer = kmalloc(data_sz);
+    char **new_argv  = (char **)new_buffer;
+    char **new_envp  = NULL;
+
+    for(ptr_t p = (ptr_t)new_buffer & 0xFFFFF000; p < ((ptr_t)new_buffer + data_sz); p += 0x1000) {
+        pgdir_map_page((uint32_t *)proc->cr3, (void *)p, (void *)p, 0x07);
+    }
+
+    size_t c_off = (argc + envc + 2) * sizeof(char *);
+    
+    size_t i;
+    for(i = 0; i < argc; i++) {
+        new_argv[i] = &new_buffer[c_off];
+        memcpy(&new_buffer[c_off], argv[i], strlen(argv[i]) + 1);
+        c_off += strlen(argv[i]) + 1;
+    }
+    new_argv[i] = NULL;
+
+    new_envp = &new_argv[i+1];
+    for(i = 0; i < envc; i++) {
+        new_envp[i] = &new_buffer[c_off];
+        memcpy(&new_buffer[c_off], envp[i], strlen(envp[i]) + 1);
+        c_off += strlen(envp[i]) + 1;
+    }
+    new_envp[i] = NULL;
+
+    if(c_off != data_sz) {
+        kerror(ERR_INFO, "  -> c_off (%d) != data_sz (%d)!", c_off, data_sz);
+    }
+
+    (void)proc;
+
+    *n_argv = new_argv;
+    *n_envp = new_envp;
+
+    kerror(ERR_INFO, "  -> New locations: ARGV: %08X, ENVP: %08X", *n_argv, *n_envp);    
 }
 
 void exec_replace_process_image(void *entryp, const char *name, void *pagedir, symbol_t *symbols, char *symbol_string_table, const char **argv, const char **envp) {
@@ -101,8 +169,6 @@ void exec_replace_process_image(void *entryp, const char *name, void *pagedir, s
 
     proc->prio = tmp_proc.prio;
 
-    uint32_t argc = 0;
-    while(argv[argc]) argc++;
 
 #if defined(ARCH_X86)
     // Copy architecture-specific bits:
@@ -167,17 +233,23 @@ void exec_replace_process_image(void *entryp, const char *name, void *pagedir, s
 
     //enable_interrupts();
 
+
+    uint32_t argc = 0;
+    while(argv[argc]) argc++;
+
+    char **n_argv;
+    char **n_envp;
+
+    exec_copy_arguments(proc, argv, envp, &n_argv, &n_envp);
+    
     set_pagedir(pagedir);
+
+    STACK_PUSH(proc->esp, n_envp);
+    STACK_PUSH(proc->esp, n_argv);
+    STACK_PUSH(proc->esp, argc);    
 
     kerror(ERR_INFO, "exec_replace_process_image(): Jumping into process");
 
-    STACK_PUSH(proc->esp, envp);
-    STACK_PUSH(proc->esp, argv);
-    STACK_PUSH(proc->esp, argc);
-
-    kerror(ERR_INFO, "exec_replace_process_image(): ARGC: %08X, ARGV: %08X, ENVP: %08X",
-           argc, argv, envp);
-
-    enter_ring_newstack(proc->ring, entryp, argc, argv, envp, (void *)proc->esp);
+    enter_ring_newstack(proc->ring, entryp, (void *)proc->esp);
 #endif
 }

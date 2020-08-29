@@ -76,7 +76,7 @@ void proc_jump_to_ring(void) {
 	int p = proc_by_pid(current_pid);
 	if(p > 0) {
 		if(procs[c_proc].entrypoint) {
-			enter_ring_noargs(procs[c_proc].ring, (void *)procs[c_proc].entrypoint);
+			enter_ring(procs[c_proc].ring, (void *)procs[c_proc].entrypoint);
 		}
 	}
 }

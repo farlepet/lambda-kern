@@ -2,9 +2,6 @@
  * Stack arguments (first is top of stack):
  *   - Ring to enter (0-3)
  *   - A.longress to jump to
- *   - argc
- *   - argv
- *   - envp
  */
 .global enter_ring
 enter_ring:
@@ -55,9 +52,6 @@ enter_ring:
  * Stack arguments (first is top of stack):
  *   - Ring to enter (0-3)
  *   - Address to jump to
- *   - argc
- *   - argv
- *   - envp
  *   - new esp
  */
 .global enter_ring_newstack
@@ -78,7 +72,7 @@ enter_ring_newstack:
     movw %ax, %gs
 
 
-    mov 24(%ebp), %edx
+    mov 12(%ebp), %edx
     
     pushl %eax # Data segment
     pushl %edx # Stack pointer
