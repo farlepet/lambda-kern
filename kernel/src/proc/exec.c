@@ -18,7 +18,14 @@ int execve(const char *filename, const char **argv, const char **envp) {
     int idx = proc_by_pid(current_pid);
     if(idx < 0) return -1;
     struct kproc *proc = &procs[idx];
-    kerror(ERR_BOOTINFO, "execve: %s (%08X [%08X], %08X)", filename, argv, argv, envp);
+    kerror(ERR_BOOTINFO, "execve: %s (%08X, %08X)", filename, argv, envp);
+    if(!mm_check_addr(argv)) {
+        kerror(ERR_BOOTINFO, "  -> ARGV invalid address?");
+    }
+    if(!mm_check_addr(envp)) {
+        kerror(ERR_BOOTINFO, "  -> ENVP invalid address?");
+    }
+
 
     kerror(ERR_BOOTINFO, "execve pgdir: %08X", get_pagedir());
 

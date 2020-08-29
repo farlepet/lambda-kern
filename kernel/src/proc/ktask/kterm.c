@@ -18,6 +18,7 @@ static int load(int, char **);
 static int run(int, char **);
 static int unload(int, char **);
 static int ls(int, char **);
+static int dbgc(int, char **);
 
 struct kterm_entry {
 	uint32_t   hash;
@@ -31,6 +32,7 @@ struct kterm_entry kterm_ents[] = {
 	{ 0, "run",    &run    },
 	{ 0, "unload", &unload },
 	{ 0, "ls",     &ls     },
+	{ 0, "dbgc",   &dbgc   },
 };
 
 uint32_t hash(char *str) {
@@ -130,6 +132,7 @@ static int help(int argc, char **argv) {
 	kprintf("    run:    run a loaded executable\n");
 	kprintf("    unload: unload a loaded executable\n");
 	kprintf("    ls:     list files in current directory\n");
+	kprintf("    dbgc:   run a debug command\n");
 
 	return 0;
 }
@@ -386,5 +389,32 @@ static int ls(int argc, char **argv) {
 			   f->inode, f->length, f->name);
 	}
 	
+	return 0;
+}
+
+static int dbgc(int argc, char **argv) {
+	if(argc < 2) {
+		kprintf("No command specified!");
+		return 1;
+	}
+
+	if(!strcmp(argv[1], "help")) {
+		kprintf("dbgc help\n"
+		        "  help:      Displays this help message\n"
+		        "  divzero:   Force divide by zero exception\n"
+				"  pagefault: Force page fault by attempting to write to 0x00000004\n");
+	} else if (!strcmp(argv[1], "divzero")) {
+		kprintf("divzero\n");
+		asm volatile("mov $0, %%ecx\n"
+		             "divl %%ecx\n"
+					 ::: "%eax", "%ecx");
+	} else if (!strcmp(argv[1], "pagefault")) {
+		kprintf("pagefault\n");
+		*(uint32_t *)0x00000004 = 0xFFFFFFFF;
+	} else {
+		kprintf("Unknown dbgc command!\n");
+		return 1;
+	}
+
 	return 0;
 }
