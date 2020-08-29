@@ -16,9 +16,6 @@
 #endif
 
 int execve(const char *filename, const char **argv, const char **envp) {
-    int idx = proc_by_pid(current_pid);
-    if(idx < 0) return -1;
-    struct kproc *proc = &procs[idx];
     kerror(ERR_BOOTINFO, "execve: %s (%08X, %08X)", filename, argv, envp);
     if(!mm_check_addr(argv)) {
         kerror(ERR_BOOTINFO, "  -> ARGV invalid address?");
@@ -42,7 +39,7 @@ int execve(const char *filename, const char **argv, const char **envp) {
 
     /* TODO: Use regular fstat with _exec */
     struct stat exec_stat;
-    kfstat(proc->open_files[_exec], &exec_stat);
+    fstat(_exec, &exec_stat);
     int execsz = exec_stat.st_size;
 
 

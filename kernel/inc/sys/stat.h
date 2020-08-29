@@ -23,4 +23,6 @@ struct stat {
 
 int kfstat(struct kfile *f, struct stat *buf);
 
+int fstat(int fd, struct stat *buf);
+
 #endif

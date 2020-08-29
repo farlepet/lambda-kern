@@ -196,9 +196,6 @@ struct kfile *fs_find_file(struct kfile *f, const char *path) {
 	if(path == NULL) return NULL;
 	if(*path == 0)   return NULL; // No path given
 	
-	kerror(ERR_BOOTINFO, "fs_find_file(_, %s)", path);
-
-
 	if(path[0] == '.') {
 		if(path[1] == '.') { // [..]
 			if(strlen(path) > 2) {
@@ -236,8 +233,6 @@ struct kfile *fs_find_file(struct kfile *f, const char *path) {
 			dir[dir_sep - path] = '\0';
 			dir_sep++;
 	
-			kerror(ERR_BOOTINFO, "dir: (%s), dirsep: (%s)", dir, dir_sep);
-			
 			f = fs_finddir(f, dir);
 			kfree(dir);
 			
