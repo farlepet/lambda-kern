@@ -155,6 +155,7 @@ void exec_replace_process_image(void *entryp, const char *name, void *pagedir, s
     proc->gid = tmp_proc.gid;
 
     proc->type = tmp_proc.type;
+    proc->parent = tmp_proc.parent;
     // Not sure whether or not these should carry over:
     memcpy(proc->children, tmp_proc.children, sizeof(proc->children));
 
