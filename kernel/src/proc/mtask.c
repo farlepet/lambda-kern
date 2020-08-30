@@ -137,6 +137,14 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 
 	arch_setup_task(&procs[p], process, stack_size, pagedir, kernel, ring);
 
+/*#if defined(ARCH_X86)
+	/ In case task is expecting these to be populated. /
+    STACK_PUSH(procs[p].esp, 0);           // NULL
+    STACK_PUSH(procs[p].esp, procs[p].esp);   // ENVP
+    STACK_PUSH(procs[p].esp, procs[p].esp+4); // ARGV
+    STACK_PUSH(procs[p].esp, 0);           // ARGC
+#endif*/
+
 	proc_create_kernel_stack(&procs[p]);
 
 // Set up message buffer

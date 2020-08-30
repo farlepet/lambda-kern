@@ -2,6 +2,7 @@
 #include <err/error.h>
 #include <io/input.h>
 #include <proc/ipc.h>
+#include <string.h>
 #include <video.h>
 
 #include <arch/io/serial.h>
@@ -80,6 +81,13 @@ static int to_kterm = 1; //!< When 1, send all serial input to kterm
 
 __noreturn void kinput_task() {
 	ktask_pids[KINPUT_TASK_SLOT] = current_pid;
+
+	if(strlen((const char *)boot_options.init_executable)) {
+		/* Make parent of init task a subscriber */
+		add_subscriber(1);
+		to_kterm = 0;
+	}
+
 	for(;;) {
 		struct input_event iev;
 		recv_message(&iev, sizeof(struct input_event));
@@ -90,10 +98,6 @@ __noreturn void kinput_task() {
 					ktm.type = KBUG_IDEBUG;
 					//while(!ktask_pids[KBUG_TASK_SLOT]);
 					ipc_user_create_and_send_message(ktask_pids[KBUG_TASK_SLOT], &ktm, sizeof(struct kbug_type_msg));
-
-					/*struct ipc_message *msg;
-					ipc_create_message(&msg, current_pid, ktask_pids[KBUG_TASK_SLOT], &ktm, sizeof(struct kbug_type_msg));
-					ipc_send_message(msg);*/
 				}
 			}
 			// TODO: Send char to some other process

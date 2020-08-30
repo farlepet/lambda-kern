@@ -8,4 +8,5 @@
  * @param msg format string
  * @param ... arguments to go along with format string
  */
+__noreturn
 void kpanic(char *msg, ...);

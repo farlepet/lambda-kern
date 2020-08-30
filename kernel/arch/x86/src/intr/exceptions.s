@@ -188,26 +188,12 @@ e_stacksegfault:
 e_gpf:
 	cli
 	popl (errcode)
-	#pop dword [address]
-	#push dword [address]
-	
-	#push eax
-	#mov eax, [esp + 8]
-	#mov dword [errcode], eax
-	#pop eax
 
 	pusha
-	#print m_gpf
-	#push 16
-	#push dword [address]
 	pushl (errcode)
 	call handle_gpf
 	addl $4, %esp
 	popa
-	#call vga_printnum
-	#add esp, 8
-	#popa
-	#pop dword [errcode]
 
 	iret
 
@@ -215,10 +201,8 @@ e_gpf:
 e_pagefault:
 	cli
 	popl (errcode)
-	#pop dword [address]
 
 	pusha
-	#push dword [address]
 	mov %cr2, %eax
 	pushl %eax
 	pushl (errcode)
@@ -226,7 +210,6 @@ e_pagefault:
 	addl $8, %esp
 	popa
 
-	#push dword [address]
 	iret
 
 

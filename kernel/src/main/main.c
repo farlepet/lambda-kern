@@ -1,17 +1,24 @@
 #include <proc/syscalls.h>
 #include <proc/ktasks.h>
 #include <proc/mtask.h>
+#include <proc/exec.h>
+#include <proc/elf.h>
+#include <proc/ipc.h>
 #include <multiboot.h>
 #include <err/panic.h>
 #include <err/error.h>
 #include <time/time.h>
-#include <fs/initrd.h>
 #include <intr/intr.h>
+#include <fs/initrd.h>
+#include <fs/stream.h>
 #include <fs/fs.h>
-#include <string.h>
+#include <video.h>
 
+#include <sys/stat.h>
+#include <string.h>
 // Architecture-specific initialization:
 #include <arch/init/init.h>
+#include <arch/mm/alloc.h>
 
 __noreturn void kernel_task(void);
 __noreturn int kmain(struct multiboot_header *, uint32_t);
@@ -54,22 +61,118 @@ __noreturn int kmain(struct multiboot_header *mboot_head, uint32_t magic)
 	iloop();
 }
 
+__noreturn
+static void spawn_init();
+
+#define INIT_STREAM_LEN 512
 /**
  * The main kernel task, spawns a few other tasks, then busy-waits.
  */
-__noreturn void kernel_task()
+__noreturn
+void kernel_task()
 {
 	kerror(ERR_BOOTINFO, "Main kernel task started");
 
 	init_ktasks();
 
 	if(strlen((const char *)boot_options.init_executable)) {
-		kerror(ERR_BOOTINFO, "Loading init executable (%s)", boot_options.init_executable);
-		struct kfile *init = fs_find_file(fs_root, (const char *)boot_options.init_executable);
-		if(!init) {
-			kpanic("Could not open init executable! (%s)\n", boot_options.init_executable);
-		}
+		spawn_init();
 	}
 
 	for(;;) busy_wait();
+}
+
+__noreturn
+static void spawn_init() {
+	kerror(ERR_BOOTINFO, "Loading init executable (%s)", boot_options.init_executable);
+	struct kfile *exec = fs_find_file(fs_root, (const char *)boot_options.init_executable);
+	if(!exec) {
+		kpanic("Could not open init executable! (%s)\n", boot_options.init_executable);
+	}
+
+	struct stat exec_stat;
+	fs_open(exec, OFLAGS_OPEN | OFLAGS_READ);
+	kfstat(exec, &exec_stat);
+
+	void *exec_data = kmalloc(exec_stat.st_size);
+	if(!exec_data) {
+		kpanic("Could not allocate memory for init executable!\n");
+	}
+
+	if(fs_read(exec, 0, exec_stat.st_size, exec_data) != exec_stat.st_size) {
+		kpanic("Could not read full init file into RAM!\n");
+	}
+
+	if(*(uint32_t *)exec_data != ELF_IDENT) {
+		kpanic("Unsupported init executable file type!");
+	}
+
+	/* Setup standard streams for child */
+
+	struct kfile *stdin = stream_create(INIT_STREAM_LEN);
+	if(!stdin) {
+		kpanic("kterm: Could not create STDIN!");
+	}
+
+	struct kfile *stdout = stream_create(INIT_STREAM_LEN);
+	if(!stdout) {
+		kpanic("kterm: Could not create STDOUT!");
+	}
+
+	struct kfile *stderr = stream_create(INIT_STREAM_LEN);
+	if(!stderr) {
+		kpanic("kterm: Could not create STDERR!");
+	}
+
+	fs_open(stdin,  OFLAGS_READ | OFLAGS_WRITE);
+	fs_open(stdout, OFLAGS_READ | OFLAGS_WRITE);
+	fs_open(stderr, OFLAGS_READ | OFLAGS_WRITE);
+
+	uint32_t *pagedir;
+	int pid = load_elf(exec_data, exec_stat.st_size, &pagedir);
+	if(!pid) {
+		kpanic("Failed to parse init executable or spawn task!");
+	}
+	
+	int idx = proc_by_pid(pid);
+	if(idx < 0) {
+		kpanic("Could not find spawned init process!");
+	}
+
+	procs[idx].open_files[0] = stdin;
+	procs[idx].open_files[1] = stdout;
+	procs[idx].open_files[2] = stderr;
+
+	char buffer[INIT_STREAM_LEN];
+
+	while(!(procs[idx].type & TYPE_ZOMBIE)) {
+		char t;
+		struct ipc_message_user umsg;
+
+		if(ipc_user_recv_message(&umsg) >= 0) {
+			if(umsg.length > sizeof(char)) {
+				ipc_user_delete_message(umsg.message_id);
+			} else {
+				ipc_user_copy_message(umsg.message_id, &t);
+				fs_write(stdin, 0, 1, (uint8_t *)&t);
+				kput(t); // TODO: Handle this better		
+			}
+		}
+
+		if(stdout->length > 0) {
+			int sz = fs_read(stdout, 0, stdout->length, (uint8_t *)&buffer);
+			for(int i = 0; i < sz; i++) {
+				kput(buffer[i]);
+			}
+		}
+
+		if(stderr->length > 0) {
+			int sz = fs_read(stderr, 0, stderr->length, (uint8_t *)&buffer);
+			for(int i = 0; i < sz; i++) {
+				kput(buffer[i]);
+			}
+		}
+	}
+		
+	kpanic("Init process exited!");
 }
