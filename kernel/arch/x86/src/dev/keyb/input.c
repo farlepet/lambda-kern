@@ -67,7 +67,6 @@ void keyb_handle(uint32_t keycode)
 		iev.data = keycode;
 		send_message(ktask_pids[KINPUT_TASK_SLOT], &iev, sizeof(struct input_event));
 	}
-	krng_add_entropy((uint8_t)keycode);
 }
 
 /**

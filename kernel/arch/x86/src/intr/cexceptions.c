@@ -89,8 +89,6 @@ void handle_page_fault(uint32_t errcode, uint32_t cr2,/* uint32_t *ebp, */struct
 	if(regs.ebp != 0) { stack_trace(5, (uint32_t *)regs.ebp, iregs.eip, NULL); }
 
 	kpanic("Page fault, multitasking not enabled, nothing to do to fix this.");
-
-	for(;;);
 }
 
 static char *gpf_table_names[] = { "GDT", "IDT", "LDT", "IDT" };
@@ -114,7 +112,6 @@ void handle_gpf(uint32_t errcode, struct pusha_regs regs, struct iret_regs iregs
 		if(p < 0) {
 			kerror(ERR_MEDERR, "  -> Failed to get process index from pid (%d)", pid);
 			kpanic("GPF, halting");
-			for(;;);
 		}
 
 		kerror(ERR_MEDERR, "  -> Caused by process %d [%s]", pid, procs[p].name);
@@ -127,7 +124,6 @@ void handle_gpf(uint32_t errcode, struct pusha_regs regs, struct iret_regs iregs
 	}
 
 	kpanic("GPF, halting");
-	for(;;);
 }
 
 void handle_invalid_op(struct pusha_regs regs, struct iret_regs iregs) {
@@ -137,7 +133,6 @@ void handle_invalid_op(struct pusha_regs regs, struct iret_regs iregs) {
 	dump_regs(regs);
 
 	kpanic("INVOP, halting");
-	for(;;);
 }
 
 void handle_double_fault(struct pusha_regs regs, uint32_t errcode, struct iret_regs iregs) {
@@ -149,7 +144,6 @@ void handle_double_fault(struct pusha_regs regs, uint32_t errcode, struct iret_r
 	dump_regs(regs);
 
 	kpanic("DF, halting");
-	for(;;);
 }
 
 void stub_error()

@@ -50,7 +50,4 @@ void init_ktasks() {
 
 	kerror(ERR_BOOTINFO, "Starting kernel input task");
 	ktask_pids[KINPUT_TASK_SLOT] = add_kernel_task((void *)&kinput_task, "kinput", 0x1000, PRIO_DRIVER);
-
-	kerror(ERR_BOOTINFO, "Starting kernel RNG task");
-	ktask_pids[KRNG_TASK_SLOT] = add_kernel_task((void *)&krng_task, "krng", 0x1000, PRIO_DRIVER);
 }

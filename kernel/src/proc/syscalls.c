@@ -96,7 +96,6 @@ void handle_syscall(struct pusha_regs regs, struct iret_regs iregs) {
 
 		default:
 			kpanic("Syscall error (%d): %d arguments not handled! Kernel programming error!", scn, syscalls[scn].nargs);
-			break;
 	}
 
 	//kerror(ERR_BOOTINFO, "  -> Retval [0] = %d", args[0]);

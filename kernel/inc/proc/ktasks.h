@@ -6,7 +6,6 @@
 #include <proc/ktask/idle.h>
 #include <proc/ktask/kbug.h>
 #include <proc/ktask/kvid.h>
-#include <proc/ktask/krng.h>
 #include <proc/mtask.h>
 #include <types.h>
 
@@ -18,10 +17,9 @@
 #define KVID_TASK_SLOT   1
 #define KBUG_TASK_SLOT   2
 #define KINPUT_TASK_SLOT 3
-#define KRNG_TASK_SLOT   4
-#define KTERM_TASK_SLOT  5
+#define KTERM_TASK_SLOT  4
 
-#define KTASK_SLOTS      6
+#define KTASK_SLOTS      5
 
 extern int ktask_pids[KTASK_SLOTS];
 
