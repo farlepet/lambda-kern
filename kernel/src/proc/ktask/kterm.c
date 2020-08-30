@@ -414,6 +414,7 @@ static int dbgc(int argc, char **argv) {
 	} else if (!strcmp(argv[1], "pagefault")) {
 		kprintf("pagefault\n");
 		*(uint32_t *)0x00000004 = 0xFFFFFFFF;
+		*(uint32_t *)0xFFFFFFFC = 0xFFFFFFFF;
 	} else {
 		kprintf("Unknown dbgc command!\n");
 		return 1;

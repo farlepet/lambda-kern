@@ -8,14 +8,57 @@
 #include <types.h>
 #include <video.h>
 
+struct exception_handler {
+	/** Name of exception */
+	char *name;
+	/** Exception handler function, if applicable. If return value is non-zero, halt or exit. */
+	int (*handler)(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *iregs);
+	/** Whether exception generates errcode (for unhandled exceptions) */
+	int has_errcode;
+	/** Whether or not to terminate task (or halt), if there is no exception handler */
+	int kill;
+};
 
+int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *iregs);
+int handle_gpf(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *iregs);
 
-__noreturn void handle_page_fault(uint32_t, uint32_t,/* uint32_t *ebp, */struct pusha_regs, struct iret_regs iregs);
-__noreturn void handle_gpf(uint32_t errcode, struct pusha_regs regs, struct iret_regs iregs);
-__noreturn void handle_invalid_op(struct pusha_regs regs, struct iret_regs iregs);
-__noreturn void handle_double_fault(struct pusha_regs regs, uint32_t errcode, struct iret_regs iregs);
-static void dump_regs(struct pusha_regs regs);
-static void dump_iregs(struct iret_regs iregs);
+static struct exception_handler exception_handlers[32] = {
+	{ .name = "Divide by Zero",                .handler = NULL,              .has_errcode = 0, .kill = 1 },
+	{ .name = "Debug",                         .handler = NULL,              .has_errcode = 0, .kill = 0 },
+	{ .name = "Non Maskable Interrupt",        .handler = NULL,              .has_errcode = 0, .kill = 0 },
+	{ .name = "Breakpoint",                    .handler = NULL,              .has_errcode = 0, .kill = 0 },
+	{ .name = "Overflow",                      .handler = NULL,              .has_errcode = 0, .kill = 1 },
+	{ .name = "Bound Range Exceeded",          .handler = NULL,              .has_errcode = 0, .kill = 1 },
+	{ .name = "Invalid Opcode",                .handler = NULL,              .has_errcode = 0, .kill = 1 },
+	{ .name = "Device Not Available",          .handler = NULL,              .has_errcode = 0, .kill = 1 },
+	{ .name = "Double Fault",                  .handler = NULL,              .has_errcode = 1, .kill = 1 },
+	{ .name = "Coprocessor Segment Overrun",   .handler = NULL,              .has_errcode = 0, .kill = 1 },
+	{ .name = "Invalid TSS",                   .handler = NULL,              .has_errcode = 1, .kill = 1 },
+	{ .name = "Segment Not Present",           .handler = NULL,              .has_errcode = 1, .kill = 1 },
+	{ .name = "Stack Segment Fault",           .handler = NULL,              .has_errcode = 1, .kill = 1 },
+	{ .name = "General Protection Fault",      .handler = handle_gpf       , .has_errcode = 1, .kill = 1 },
+	{ .name = "Page Fault",                    .handler = handle_page_fault, .has_errcode = 1, .kill = 1 },
+	{ .name = "RESERVED[0F]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
+	{ .name = "x87 Floating Point Exception",  .handler = NULL,              .has_errcode = 0, .kill = 1 },
+	{ .name = "Alignment Check",               .handler = NULL,              .has_errcode = 1, .kill = 1 },
+	{ .name = "Machine Check",                 .handler = NULL,              .has_errcode = 0, .kill = 1 },
+	{ .name = "SIMD Floating Point Exception", .handler = NULL,              .has_errcode = 0, .kill = 1 },
+	{ .name = "Virtualization Exception",      .handler = NULL,              .has_errcode = 0, .kill = 1 },
+	{ .name = "RESERVED[15]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
+	{ .name = "RESERVED[16]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
+	{ .name = "RESERVED[17]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
+	{ .name = "RESERVED[18]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
+	{ .name = "RESERVED[19]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
+	{ .name = "RESERVED[1A]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
+	{ .name = "RESERVED[1B]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
+	{ .name = "RESERVED[1C]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
+	{ .name = "RESERVED[1D]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
+	{ .name = "Security Exception",            .handler = NULL,              .has_errcode = 1, .kill = 1 },
+	{ .name = "RESERVED[1F]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
+};
+
+static void dump_regs(struct pusha_regs *regs);
+static void dump_iregs(struct iret_regs *iregs);
 
 /**
  * C side of page fault handler.
@@ -23,9 +66,11 @@ static void dump_iregs(struct iret_regs iregs);
  * @param errcode errorcode pushed on stack by the fault
  * @param cr3 value of cr3 register (location of fault)
  */
-void handle_page_fault(uint32_t errcode, uint32_t cr2,/* uint32_t *ebp, */struct pusha_regs regs, struct iret_regs iregs)
-{
+int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *iregs) {
 	uint32_t *cr3 = get_pagedir();
+
+	uint32_t cr2;
+	asm volatile("movl %%cr2, %0": "=a"(cr2));
 
 	kerror(ERR_MEDERR, "Page fault at 0x%08X --> 0x%08X (%s%s%s%s%s)", cr2, pgdir_get_page_entry(cr3, (void *)cr2) & 0xFFFFF000,
 				((errcode & 0x01) ? "present"                   : "non-present"),
@@ -68,13 +113,13 @@ void handle_page_fault(uint32_t errcode, uint32_t cr2,/* uint32_t *ebp, */struct
 			kerror(ERR_MEDERR, "       -> Caused a stack overflow and is being dealt with", pid);
 		}
 	
-		if(regs.ebp != 0) {
-			stack_trace(15, (uint32_t *)regs.ebp, iregs.eip, procs[p].symbols);
+		if(regs->ebp != 0) {
+			stack_trace(15, (uint32_t *)regs->ebp, iregs->eip, procs[p].symbols);
 		}
 
-		if(page_present(regs.esp)) {
+		if(page_present(regs->esp)) {
 			kerror(ERR_MEDERR, "      -> Stack contents:");
-			uint32_t *stack = (uint32_t *)regs.ebp;
+			uint32_t *stack = (uint32_t *)regs->ebp;
 			for(int i = -4; i < 8; i++) {
 				if(i == -4 || i == 0 || i == 4) {
 					kprintf("\n<%8X(%d)>: ", &stack[i], i);
@@ -83,19 +128,21 @@ void handle_page_fault(uint32_t errcode, uint32_t cr2,/* uint32_t *ebp, */struct
 			}
 		}
 
-		exit(1);
+		/* Halt */
+		return 1;
 	}
 
-	if(regs.ebp != 0) { stack_trace(5, (uint32_t *)regs.ebp, iregs.eip, NULL); }
+	if(regs->ebp != 0) { stack_trace(5, (uint32_t *)regs->ebp, iregs->eip, NULL); }
 
-	kpanic("Page fault, multitasking not enabled, nothing to do to fix this.");
+	/* Halt */
+	return 1;
 }
 
 static char *gpf_table_names[] = { "GDT", "IDT", "LDT", "IDT" };
 
-void handle_gpf(uint32_t errcode, struct pusha_regs regs, struct iret_regs iregs) {
+int handle_gpf(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *iregs) {
 	kerror(ERR_MEDERR, "<===============================[GPF]==============================>");
-	kerror(ERR_MEDERR, "General Protection Fault at 0x%08X, code seg selector %02X", iregs.eip, iregs.cs);
+	kerror(ERR_MEDERR, "General Protection Fault at 0x%08X, code seg selector %02X", iregs->eip, iregs->cs);
 	kerror(ERR_MEDERR, "  -> Error code: 0x%08X", errcode);
 	kerror(ERR_MEDERR, "      -> (%s) Table: %s, Sel: %04X, ",
 		((errcode & 0x00000001) ? "External" : "Internal"),
@@ -116,35 +163,54 @@ void handle_gpf(uint32_t errcode, struct pusha_regs regs, struct iret_regs iregs
 
 		kerror(ERR_MEDERR, "  -> Caused by process %d [%s]", pid, procs[p].name);
 	
-		if(regs.ebp != 0) {
-			stack_trace(15, (uint32_t *)regs.ebp, iregs.eip, procs[p].symbols);
+		if(regs->ebp != 0) {
+			stack_trace(15, (uint32_t *)regs->ebp, iregs->eip, procs[p].symbols);
 		}
-		
-		exit(1);
 	}
 
-	kpanic("GPF, halting");
+	/* Halt */
+	return 1;
 }
 
-void handle_invalid_op(struct pusha_regs regs, struct iret_regs iregs) {
-	kerror(ERR_MEDERR, "<==============[Invalid Opcode Exception]====================>");
 
-	dump_iregs(iregs);
-	dump_regs(regs);
 
-	kpanic("INVOP, halting");
+void handle_exception(uint8_t exception, struct pusha_regs regs, uint32_t errcode, struct iret_regs iregs) {
+	if(exception < (sizeof(exception_handlers) / sizeof(exception_handlers[0]))) {
+		struct exception_handler *hand = &exception_handlers[exception];
+		kerror(ERR_MEDERR, "EXCEPTION OCCURED: %s", hand->name);
+
+		if(hand->handler) {
+			if(hand->handler(&regs, errcode, &iregs)) {
+				if(tasking) {
+					kerror(ERR_MEDERR, "Killing task");
+					exit(1);
+				}
+				
+				kpanic("Halting");
+			}
+		} else {
+			if(hand->has_errcode) {
+				kerror(ERR_MEDERR, "  -> errcode: %08X", errcode);
+			}
+			dump_iregs(&iregs);
+			dump_regs(&regs);
+
+			if(hand->kill) {
+				if(tasking) {
+					kerror(ERR_MEDERR, "Killing task");
+					exit(1);
+				}
+				
+				kpanic("Halting");
+			}
+		}
+
+		return;
+	}
+	
+	kpanic("Unhandled exception ID: 0x%02X", exception);
 }
 
-void handle_double_fault(struct pusha_regs regs, uint32_t errcode, struct iret_regs iregs) {
-	kerror(ERR_MEDERR, "<====================[Double Fault]==========================>");
-
-	(void)errcode;
-
-	dump_iregs(iregs);
-	dump_regs(regs);
-
-	kpanic("DF, halting");
-}
 
 void stub_error()
 {
@@ -154,16 +220,16 @@ void stub_error()
 }
 
 
-static void dump_regs(struct pusha_regs regs) {
+static void dump_regs(struct pusha_regs *regs) {
 	kerror(ERR_MEDERR, "  -> EAX: %08X EBX: %08X ECX: %08X EDX: %08X",
-		regs.eax, regs.ebx, regs.ecx, regs.edx);
+		regs->eax, regs->ebx, regs->ecx, regs->edx);
 	kerror(ERR_MEDERR, "  -> ESP: %08X EBP: %08X EDI: %08X ESI: %08X",
-		regs.esp, regs.ebp, regs.edi, regs.esi);
+		regs->esp, regs->ebp, regs->edi, regs->esi);
 }
 
-static void dump_iregs(struct iret_regs iregs) {
+static void dump_iregs(struct iret_regs *iregs) {
 	kerror(ERR_MEDERR, "  -> EIP: %08X CS: %02X EFLAGS: %08X",
-		iregs.eip, iregs.cs, iregs.eflags);
+		iregs->eip, iregs->cs, iregs->eflags);
 	kerror(ERR_MEDERR, "  -> ESP: %08X DS: %02X",
-		iregs.esp, iregs.ds);
+		iregs->esp, iregs->ds);
 }
