@@ -52,6 +52,10 @@ __noreturn void kterm_task() {
 	delay(100); // Wait for things to be initialized
 
 	int retval = 0;
+	
+	kprintf("\n+----------------------------+\n");
+	kprintf("| Kernel debug shell \"kterm\" |\n");
+	kprintf("+----------------------------+\n\n");
 
 	for(;;) {
 		kprintf(prompt);
@@ -405,15 +409,16 @@ static int dbgc(int argc, char **argv) {
 		kprintf("dbgc help\n"
 		        "  help:      Displays this help message\n"
 		        "  divzero:   Force divide by zero exception\n"
-				"  pagefault: Force page fault by attempting to write to 0x00000004\n");
+				"  pagefault: Force page fault by attempting to write to 0x00000004 and 0xFFFFFFFC\n");
 	} else if (!strcmp(argv[1], "divzero")) {
 		kprintf("divzero\n");
 		asm volatile("mov $0, %%ecx\n"
 		             "divl %%ecx\n"
 					 ::: "%eax", "%ecx");
 	} else if (!strcmp(argv[1], "pagefault")) {
-		kprintf("pagefault\n");
+		kprintf("pagefault (0x00000004)\n");
 		*(uint32_t *)0x00000004 = 0xFFFFFFFF;
+		kprintf("pagefault (0xFFFFFFFC)\n");
 		*(uint32_t *)0xFFFFFFFC = 0xFFFFFFFF;
 	} else {
 		kprintf("Unknown dbgc command!\n");
