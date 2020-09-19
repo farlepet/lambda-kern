@@ -1,6 +1,5 @@
-#include <arch/mm/alloc.h>
-
 #include <string.h>
+#include <mm/alloc.h>
 #include <err/error.h>
 #include <err/panic.h>
 #include <proc/atomic.h>

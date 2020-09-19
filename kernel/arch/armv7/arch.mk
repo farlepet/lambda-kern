@@ -1,6 +1,6 @@
 # Architecture-specific Makefile options for armv7
 
-CFLAGS    += -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/x86/inc/ \
+CFLAGS    += -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/armv7/inc/ \
 			 -nostdlib -nostdinc -ffreestanding -Wall -Wextra -Werror -DARCH_ARMV7 -O2 \
 			 -pipe -g -fno-stack-protector
 LDFLAGS    = -marmelf -T kernel/arch/armv7/arch.ld

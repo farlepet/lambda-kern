@@ -3,25 +3,10 @@
 
 #include <types.h>
 
-static inline void enable_interrupts() //!< Enable interrupts
-{
-	asm volatile("sti");
-}
-
-static inline void disable_interrupts() //!< Disable interrupts
-{
-	asm volatile("cli");
-}
-
-static inline void interrupt_halt() //!< Halt until next interrupt
-{
-	asm volatile("hlt");
-}
-
-static inline void busy_wait() //!< Preform lower-power wait
-{
-	asm volatile("hlt");
-}
+#define enable_interrupts()  asm volatile("sti")
+#define disable_interrupts() asm volatile("cli")
+#define interrupt_halt()     asm volatile("hlt")
+#define busy_wait()          asm volatile("hlt")
 
 #define INTERRUPT(int_n) __INTERRUPT(int_n) //!< Call interrupt
 #define __INTERRUPT(int_n) asm volatile("int $" #int_n)

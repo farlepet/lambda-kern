@@ -1,5 +1,7 @@
+#ifndef MM_ALLOC_H
+#define MM_ALLOC_H
+
 #include <types.h>
-#include "paging.h"
 
 #define ALLOC_BLOCK  1024
 #define ALLOC_BLOCKS 512
@@ -34,3 +36,5 @@ void kfree(void *ptr);
  * @param size size of usable memory
  */
 void init_alloc(uint32_t base, uint32_t size);
+
+#endif
