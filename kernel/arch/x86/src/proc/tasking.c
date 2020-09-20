@@ -116,11 +116,9 @@ int arch_setup_task(struct kproc *proc, void *entrypoint, uint32_t stack_size, u
 
 
 
-__hot void do_task_switch(struct pusha_regs pregs, struct iret_regs iregs) {
+__hot void do_task_switch(void) {
 	if(!tasking)   return;
 	if(creat_task) return; // We don't want to interrupt process creation
-
-	(void)pregs;
 
 #if  defined(ARCH_X86)
 	uint32_t esp, ebp, eip, cr3;
@@ -140,8 +138,6 @@ __hot void do_task_switch(struct pusha_regs pregs, struct iret_regs iregs) {
 		procs[c_proc].arch.esp = esp;
 		procs[c_proc].arch.ebp = ebp;
 		procs[c_proc].arch.eip = eip;
-
-		procs[c_proc].arch.last_eip = iregs.eip;
 #endif
 	}
 	else procs[c_proc].type |= TYPE_RANONCE;

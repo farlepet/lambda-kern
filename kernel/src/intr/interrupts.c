@@ -5,6 +5,7 @@
 #if defined(ARCH_X86)
 #  include <arch/intr/idt.h>
 #  include <arch/intr/pit.h>
+#  include <arch/proc/tasking.h>
 #endif
 #  include <arch/intr/int.h>
 
@@ -31,7 +32,11 @@ void set_interrupt(interrupt_idx_e n, void *handler) {
  */
 void timer_init(uint32_t quantum) {
 #ifdef ARCH_X86
+	/* TODO: Move HAL elsewhere */
+	static hal_timer_dev_t pit;
 	pit_init(quantum);
+	pit_create_timerdev(&pit);
+	hal_timer_dev_attach(&pit, do_task_switch);
 #else
 	(void)quantum;
 #endif

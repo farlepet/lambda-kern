@@ -42,7 +42,7 @@ pit_int:
 
 	call pit_handler
 
-	call do_task_switch
+	#call do_task_switch
 
 	popa
 	iret

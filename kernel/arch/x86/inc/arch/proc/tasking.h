@@ -11,8 +11,6 @@ typedef struct {
 	uint32_t eip;       //!< Instruction pointer
 	uint32_t cr3;       //!< Page directory
 
-	uint32_t last_eip;  //!< Last recorded position outside of kernel code
-
 	uint32_t kernel_stack;      //!< Kernel stack
 	uint32_t kernel_stack_size; //!< Size of kernel stack
 
@@ -31,11 +29,8 @@ static inline void run_sched(void) {
  * @brief Switch to next scheduled task
  * 
  * Switches context into next task, doesn't return within the same context
- * 
- * @param pregs PUSHA registers given from interrupt handler
- * @param iregs IRET registers given from interrupt handler
  */
-void do_task_switch(struct pusha_regs pregs, struct iret_regs iregs);
+void do_task_switch(void);
 
 /**
  * \brief Architecture-specific process stack creation routine
