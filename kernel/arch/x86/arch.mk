@@ -1,11 +1,7 @@
 # Architecture-specific Makefile options for X86
 
-CFLAGS    += -m32 -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/x86/inc/ \
-			 -nostdlib -nostdinc -ffreestanding -Wall -Wextra -Werror -DARCH_X86 -O2 \
-			 -pipe -g -fno-stack-protector
+CFLAGS    += -m32 -DARCH_X86 -O2 -march=i586
 LDFLAGS    = -melf_i386 -T kernel/arch/x86/arch.ld
-
-CFLAGS    += -march=i586
 
 ASFLAGS    = -m32
 

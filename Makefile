@@ -1,6 +1,7 @@
 MAINDIR    = $(CURDIR)
 SRC        = $(MAINDIR)/kernel/src
 
+VERBOSE    = 0
 
 # Default architecture
 ARCH       = x86
@@ -10,21 +11,27 @@ CC            = $(CROSS_COMPILE)gcc
 AS            = $(CROSS_COMPILE)gcc
 LD            = $(CROSS_COMPILE)ld
 AR            = $(CROSS_COMPILE)ar
+STRIP         = $(CROSS_COMPILE)strip
 
 export CC
 export AS
 export LD
 export AR
+export STRIP
 export CROSS_COMPILE
 export CFLAGS
 export LDFLAGS
+export VERBOSE
 
 SRCS       = $(wildcard $(SRC)/*.c) $(wildcard $(SRC)/*/*.c) $(wildcard $(SRC)/*/*/*.c)
 OBJS       = $(patsubst %.c,%.o,$(SRCS))
 
 GIT_VERSION := "$(shell git describe --abbrev=8 --dirty=\* --always --tags)"
 
-CFLAGS    += -DKERNEL_GIT=\"$(GIT_VERSION)\"
+CFLAGS    += -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/$(ARCH)/inc/ \
+			 -nostdlib -nostdinc -ffreestanding -Wall -Wextra -Werror -O2 \
+			 -pipe -g -fno-stack-protector \
+			 -DKERNEL_GIT=\"$(GIT_VERSION)\"
 
 # Architecture-specific makefile options
 include kernel/arch/$(ARCH)/arch.mk
@@ -62,8 +69,12 @@ printinfo:
 
 # gcc:
 %.o: %.c
+ifeq ($(VERBOSE), 0)
 	@echo -e "\033[32m  \033[1mCC\033[21m    \033[34m$<\033[0m"
 	@$(CC) $(CFLAGS) -c -o $@ $<
+else
+	$(CC) $(CFLAGS) -c -o $@ $<
+endif
 
 
 
