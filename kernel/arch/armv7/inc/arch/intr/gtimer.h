@@ -5,7 +5,7 @@
 #ifndef ARCH_ARMV7_INTR_GTIMER_H
 #define ARCH_ARMV7_INTR_GTIMER_H
 
-#include <registers.h>
+#include <arch/registers.h>
 
 int armv7_gtimer_init(uint32_t freq);
 

@@ -18,6 +18,8 @@ int uart_allwinner_create_chardev(uart_allwinner_handle_t *hand, hal_io_char_dev
     chardev->chavail = chardev_chavail;
 
     chardev->cap = HAL_IO_CHARDEV_CAP_OUTPUT | HAL_IO_CHARDEV_CAP_INPUT;
+
+    return 0;
 }
 
 int uart_allwinner_init(uart_allwinner_handle_t *hand, void *base, uint32_t baud) {
@@ -31,19 +33,27 @@ int uart_allwinner_init(uart_allwinner_handle_t *hand, void *base, uint32_t baud
 
     /* Baud rate = sclk / (div * 16) */
     /* Need to ungate UART1 in BUS_CLK_GATING_REG3 */
+    (void)baud;
+
+    return 0;
 }
 
 static void chardev_putc(void *data, int c) {
+    __unused
     uart_allwinner_handle_t *hand = (uart_allwinner_handle_t *)data;
-
+    (void)c;
 }
 
 static int chardev_getc(void *data) {
+    __unused
     uart_allwinner_handle_t *hand = (uart_allwinner_handle_t *)data;
     
+    return 0;
 }
 
 static int chardev_chavail(void *data) {
+    __unused
     uart_allwinner_handle_t *hand = (uart_allwinner_handle_t *)data;
     
+    return 0;
 }

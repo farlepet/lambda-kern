@@ -9,10 +9,12 @@ CROSS_COMPILE =
 CC            = $(CROSS_COMPILE)gcc
 AS            = $(CROSS_COMPILE)gcc
 LD            = $(CROSS_COMPILE)ld
+AR            = $(CROSS_COMPILE)ar
 
 export CC
 export AS
 export LD
+export AR
 export CROSS_COMPILE
 export CFLAGS
 export LDFLAGS
@@ -73,7 +75,7 @@ clean:
 	@rm -f CD/lambda.kern
 	@rm -f CD/initrd.cpio
 	@rm -f kern.*
-	@cd $(MAINDIR)/kernel/arch/x86; make clean
+	@cd $(MAINDIR)/kernel/arch/$(ARCH); make clean
 
 documentation:
 	@echo -e "\033[32mGenerating documentation\033[0m"

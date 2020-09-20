@@ -1,5 +1,3 @@
-#include <arch/proc/stack.h>
-
 #include <proc/mtask.h>
 #include <err/error.h>
 #include <mm/alloc.h>
@@ -8,6 +6,7 @@
 #if  defined(ARCH_X86)
 #  include <arch/proc/user.h>
 #  include <arch/mm/paging.h>
+#  include <arch/proc/stack.h>
 #endif
 
 extern lock_t creat_task;
@@ -26,6 +25,7 @@ extern lock_t creat_task;
 static int proc_copy_data(struct kproc *dest, const struct kproc *src) {
     kerror(ERR_BOOTINFO, "proc_copy_data");
 
+#if defined(ARCH_X86)
     struct kproc_mem_map_ent const *pent = src->mmap;
     struct kproc_mem_map_ent *cent;
 
@@ -85,6 +85,11 @@ static int proc_copy_data(struct kproc *dest, const struct kproc *src) {
         cent = cent->next;
         pent = pent->next;
     }
+#else
+    /* TODO */
+    (void)dest;
+    (void)src;
+#endif
 
     return 0;
 }
@@ -136,11 +141,10 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 
     child->prio = parent->prio;
 
-    uint32_t *pagedir = clone_pagedir_full((void *)parent->arch.cr3);
-
+#if defined(ARCH_X86)
     child->arch.ring  = parent->arch.ring;
     child->entrypoint = parent->entrypoint;
-    child->arch.cr3   = (uint32_t)pagedir;
+    child->arch.cr3   = (uint32_t)clone_pagedir_full((void *)parent->arch.cr3);
 
     uint32_t stack_size = parent->arch.stack_beg - parent->arch.stack_end;
     uint32_t virt_stack_begin;
@@ -174,6 +178,10 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 
 
     kerror(ERR_INFO, " -- eip: %08X esp: %08X ebp: %08X cr3: %08X", child->arch.eip, child->arch.esp, child->arch.ebp, child->arch.cr3);
+#else
+    /* TODO */
+    proc_copy_data(child, parent);
+#endif
 
     // Set up message buffer
     child->messages.size  = MSG_BUFF_SIZE;
@@ -210,7 +218,9 @@ int fork(void) {
 
     fork_clone_process(p, proc_by_pid(current_pid));
 
+#if defined(ARCH_X86)
     kerror(ERR_INFO, " -- Child Stack: %08X %08X", child->arch.esp, child->arch.ebp);
+#endif
 
     child->parent = current_pid;
     proc_add_child(&procs[proc_by_pid(current_pid)], p);

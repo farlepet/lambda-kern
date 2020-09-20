@@ -218,6 +218,7 @@ static int run(int argc, char **argv) {
 	}
 
 	else if(exec_type == EXEC_BIN) {
+#if defined(ARCH_X86)
 		arch_task_params_t arch_params;
 
 		//uint32_t *pagedir;
@@ -243,7 +244,10 @@ static int run(int argc, char **argv) {
 		//pid = add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
 		pid = add_user_task_arch((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, &arch_params);
 		//int pid = add_kernel_task((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG);
-		
+#else
+		/* TODO, or maybe not. Flat binaries don't have much purpose anymore
+		 * with ELF working properly. */
+#endif
 	}
 
 	kerror(ERR_BOOTINFO, "Task PID: %d", pid);
@@ -401,9 +405,11 @@ static int dbgc(int argc, char **argv) {
 				"  pagefault: Force page fault by attempting to write to 0x00000004 and 0xFFFFFFFC\n");
 	} else if (!strcmp(argv[1], "divzero")) {
 		kprintf("divzero\n");
+#if defined(ARCH_X86)
 		asm volatile("mov $0, %%ecx\n"
 		             "divl %%ecx\n"
 					 ::: "%eax", "%ecx");
+#endif
 	} else if (!strcmp(argv[1], "pagefault")) {
 		kprintf("pagefault (0x00000004)\n");
 		*(uint32_t *)0x00000004 = 0xFFFFFFFF;

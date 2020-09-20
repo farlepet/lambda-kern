@@ -24,8 +24,9 @@ int execve(const char *filename, const char **argv, const char **envp) {
         kerror(ERR_BOOTINFO, "  -> ENVP invalid address?");
     }
 
-
+#if defined(ARCH_X86)
     kerror(ERR_BOOTINFO, "execve pgdir: %08X", get_pagedir());
+#endif
 
     for(int i = 0; argv[i]; i++) {
         kerror(ERR_BOOTINFO, "execve argv[%d]: %08X '%s'", i, argv[i], argv[i]);
@@ -65,6 +66,9 @@ int execve(const char *filename, const char **argv, const char **envp) {
  * Copy and relocate arguments (argv, envp) to the next process image, and
  * push these values to the stack.
  */
+#if defined(ARCH_ARMV7)
+__unused
+#endif
 static void exec_copy_arguments(struct kproc *proc, const char **argv, const char **envp, char ***n_argv, char ***n_envp) {
     size_t   data_sz = 0;
     uint32_t argc = 0;
@@ -95,9 +99,11 @@ static void exec_copy_arguments(struct kproc *proc, const char **argv, const cha
     char **new_argv  = (char **)new_buffer;
     char **new_envp  = NULL;
 
+#if defined(ARCH_X86)
     for(ptr_t p = (ptr_t)new_buffer & 0xFFFFF000; p < ((ptr_t)new_buffer + data_sz); p += 0x1000) {
         pgdir_map_page((uint32_t *)proc->arch.cr3, (void *)p, (void *)p, 0x07);
     }
+#endif
 
     size_t c_off = (argc + envc + 2) * sizeof(char *);
     
@@ -252,5 +258,10 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     kerror(ERR_INFO, "exec_replace_process_image(): Jumping into process");
 
     enter_ring_newstack(proc->arch.ring, entryp, (void *)proc->arch.esp);
+#else
+    /* TODO */
+    (void)arch_params;
+    (void)argv;
+    (void)envp;
 #endif
 }

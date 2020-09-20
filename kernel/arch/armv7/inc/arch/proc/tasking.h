@@ -34,8 +34,37 @@ typedef struct {
 
 } arch_task_params_t;
 
+#include <proc/proc.h>
+
 static inline void run_sched(void) {
 	/* TODO */
 }
+
+/**
+ * \brief Architecture-specific process stack creation routine
+ */
+int arch_proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel);
+
+/**
+ * \brief Architecture-specific process kernel stack creation routine
+ */
+int arch_proc_create_kernel_stack(struct kproc *proc);
+
+/**
+ * \brief Architecture-specific process creation routine
+ */
+int arch_setup_task(struct kproc *proc, void *entrypoint, uint32_t stack_size, int kernel, arch_task_params_t *arch_params);
+
+/**
+ * \brief Architecture-specific multitasking initialization.
+ */
+void arch_multitasking_init(void);
+
+/**
+ * @brief Switch to next scheduled task
+ * 
+ * Switches context into next task, doesn't return within the same context
+ */
+void do_task_switch(void);
 
 #endif

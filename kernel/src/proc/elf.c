@@ -14,6 +14,9 @@
 static ptr_t elf_exec_common(void *data, uint32_t length, arch_task_params_t *arch_params, char **symStrTab, symbol_t **symbols, struct kproc_mem_map_ent **mmap_entries) {
 	/* TODO: Use this for error-checking */
 	(void)length;
+#if defined(ARCH_ARMV7)
+	(void)arch_params;
+#endif
 	
 	Elf32_Ehdr *head = (Elf32_Ehdr *)data;
 
