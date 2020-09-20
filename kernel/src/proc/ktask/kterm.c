@@ -209,31 +209,17 @@ static int run(int argc, char **argv) {
 	}
 
 	if(exec_type == EXEC_ELF) {
-		uint32_t *pagedir;
-		//ptr_t exec_ep =
+		pid = load_elf(exec_data, exec_stat.st_size);
 
-		/*uint32_t args[1] = {0};
-		call_syscall(SYSCALL_FORK, args);
-		int _pid = (int)args[0];*/
-
-		/*if(_pid == 0) {
-			load_elf(exec_data, exec->length, &pagedir);
-		} else {
-			pid = _pid;
-		}*/
-
-		pid = load_elf(exec_data, exec_stat.st_size, &pagedir);
-
-		if(!pid) {
+		if(pid < 0) {
 			kerror(ERR_MEDERR, "Could not load executable");
 			return 1;
 		}
-
-		//pid = add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
-		//pid = add_user_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
 	}
 
 	else if(exec_type == EXEC_BIN) {
+		arch_task_params_t arch_params;
+
 		//uint32_t *pagedir;
 		ptr_t exec_ep = 0x80000000;
 
@@ -250,12 +236,12 @@ static int run(int argc, char **argv) {
 
 		//kerror(ERR_BOOTINFO, "Current CR3: 0x%08X", get_pagedir());
 
-		uint32_t *pagedir = clone_kpagedir();
-		pgdir_map_page(pagedir, phys, (void *)exec_ep, 0x07);
-		kerror(ERR_BOOTINFO, "Page entry: 0x%08X", pgdir_get_page_entry(pagedir, (void *)exec_ep));
+		arch_params.pgdir = clone_kpagedir();
+		pgdir_map_page(arch_params.pgdir, phys, (void *)exec_ep, 0x07);
+		kerror(ERR_BOOTINFO, "Page entry: 0x%08X", pgdir_get_page_entry(arch_params.pgdir, (void *)exec_ep));
 
 		//pid = add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
-		pid = add_user_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
+		pid = add_user_task_arch((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, &arch_params);
 		//int pid = add_kernel_task((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG);
 		
 	}

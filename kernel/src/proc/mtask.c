@@ -54,19 +54,35 @@ int get_next_open_proc() {
 }
 
 int add_kernel_task(void *process, char *name, uint32_t stack_size, int pri) {
-	return add_task(process, name, stack_size, pri, clone_kpagedir(), 1, 0);
+	arch_task_params_t arch_params;
+#if defined(ARCH_X86)
+	arch_params.ring  = 0;
+	arch_params.pgdir = clone_kpagedir();
+#endif
+	return add_task(process, name, stack_size, pri, 1, &arch_params);
 }
 
-int add_kernel_task_pdir(void *process, char *name, uint32_t stack_size, int pri, uint32_t *pagedir) {
-	return add_task(process, name, stack_size, pri, pagedir, 1, 0);
+int add_kernel_task_arch(void *process, char *name, uint32_t stack_size, int pri, arch_task_params_t *arch_params) {
+#if defined(ARCH_X86)
+	arch_params->ring = 0;
+#endif
+	return add_task(process, name, stack_size, pri, 1, arch_params);
 }
 
 int add_user_task(void *process, char *name, uint32_t stack_size, int pri) {
-	return add_task(process, name, stack_size, pri, clone_kpagedir(), 0, 3);
+	arch_task_params_t arch_params;
+#if defined(ARCH_X86)
+	arch_params.ring = 3;
+	arch_params.pgdir = clone_kpagedir();
+#endif
+	return add_task(process, name, stack_size, pri, 0, &arch_params);
 }
 
-int add_user_task_pdir(void *process, char *name, uint32_t stack_size, int pri, uint32_t *pagedir) {
-	return add_task(process, name, stack_size, pri, pagedir, 0, 3);
+int add_user_task_arch(void *process, char *name, uint32_t stack_size, int pri, arch_task_params_t *arch_params) {
+#if defined(ARCH_X86)
+	arch_params->ring = 3;
+#endif
+	return add_task(process, name, stack_size, pri, 0, arch_params);
 }
 
 int proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel) {
@@ -86,7 +102,7 @@ int proc_create_kernel_stack(struct kproc *proc) {
 }
 
 
-int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *pagedir, int kernel, int ring) {
+int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel, arch_task_params_t *arch_params) {
 	// TODO: Remove reference to ring and page directory
 
 	lock(&creat_task);
@@ -95,7 +111,9 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 
 	//kerror(ERR_BOOTINFO, "mtask:add_task(%08X, %s, %dK, %d, %08X, %d, %d)", process, name, (stack_size ? (stack_size / 1024) : (STACK_SIZE / 1024)), pri, pagedir, kernel, ring);
 
-	if(ring > 3 || ring < 0) { kerror(ERR_MEDERR, "mtask:add_task: Ring is out of range (0-3): %d", ring); return 0; }
+#if defined(ARCH_X86)
+	if(arch_params->ring > 3) { kerror(ERR_MEDERR, "mtask:add_task: Ring is out of range (0-3): %d", arch_params->ring); return 0; }
+#endif
 
 	int parent = 0;
 	if(tasking) parent = proc_by_pid(current_pid);
@@ -139,7 +157,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 
 	procs[p].prio = pri;
 
-	arch_setup_task(&procs[p], process, stack_size, pagedir, kernel, ring);
+	arch_setup_task(&procs[p], process, stack_size, kernel, arch_params);
 
 /*#if defined(ARCH_X86)
 	/ In case task is expecting these to be populated. /
@@ -163,7 +181,9 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 	// Set all children to -1 (Assuming 2s complement)
 	memset(procs[p].children, 0xFF, sizeof(procs[p].children));
 
+#if defined(ARCH_X86)
 	kerror(ERR_BOOTINFO, "PID: %d EIP: %08X CR3: %08X ESP: %08X", procs[p].pid, procs[p].arch.eip, procs[p].arch.cr3, procs[p].arch.esp);
+#endif
 
 	//uint32_t page = pgdir_get_page_entry(pagedir, process);
 	//kerror(ERR_BOOTINFO, "Page %08X: LOC: %08X FLAGS: %03X", process, page & 0xFFFFF000, page & 0x0FFF);

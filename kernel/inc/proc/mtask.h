@@ -58,7 +58,7 @@ int add_kernel_task(void *process, char *name, uint32_t stack_size, int pri);
  *
  * @see add_task
  */
-int add_kernel_task_pdir(void *process, char *name, uint32_t stack_size, int pri, uint32_t *pagedir);
+int add_kernel_task_arch(void *process, char *name, uint32_t stack_size, int pri, arch_task_params_t *arch_params);
 
 /**
  * @brief Create and add a userland task
@@ -74,7 +74,7 @@ int add_user_task(void *process, char *name, uint32_t stack_size, int pri);
  * 
  * @see add_task
  */
-int add_user_task_pdir(void *process, char *name, uint32_t stack_size, int pri, uint32_t *pagedir);
+int add_user_task_arch(void *process, char *name, uint32_t stack_size, int pri, arch_task_params_t *arch_params);
 
 /**
  * @brief Create and add a task
@@ -90,7 +90,7 @@ int add_user_task_pdir(void *process, char *name, uint32_t stack_size, int pri, 
  * @param ring Ring to run process in
  * @return int PID of process on success, else <=0
  */
-int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *pagedir, int kernel, int ring);
+int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel, arch_task_params_t *arch_params);
 
 /**
  * @brief Get process index given PID

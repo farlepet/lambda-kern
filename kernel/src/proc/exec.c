@@ -129,7 +129,7 @@ static void exec_copy_arguments(struct kproc *proc, const char **argv, const cha
     kerror(ERR_INFO, "  -> New locations: ARGV: %08X, ENVP: %08X", *n_argv, *n_envp);    
 }
 
-void exec_replace_process_image(void *entryp, const char *name, void *pagedir, symbol_t *symbols, char *symbol_string_table, const char **argv, const char **envp) {
+void exec_replace_process_image(void *entryp, const char *name, arch_task_params_t *arch_params, symbol_t *symbols, char *symbol_string_table, const char **argv, const char **envp) {
     // TODO: Clean this up, separate out portions where possible/sensical
     kerror(ERR_INFO, "exec_replace_process_image @ %08X", entryp);
 
@@ -179,7 +179,7 @@ void exec_replace_process_image(void *entryp, const char *name, void *pagedir, s
     // TODO: Free unused frames
     // TODO: Only keep required portions of pagedir
     //proc->cr3 = tmp_proc.cr3;
-    proc->arch.cr3 = (uint32_t)pagedir;
+    proc->arch.cr3 = (uint32_t)arch_params->pgdir;
 
     int kernel = (proc->type & TYPE_KERNEL);
 
@@ -203,14 +203,14 @@ void exec_replace_process_image(void *entryp, const char *name, void *pagedir, s
 
     uint32_t i = 0;
     for(; i < stack_size; i+= 0x1000) {
-        if(kernel) pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
-        else       pgdir_map_page(pagedir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
+        if(kernel) pgdir_map_page(arch_params->pgdir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
+        else       pgdir_map_page(arch_params->pgdir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
             //(void *)(procs[p].esp - i), (void *)(procs[p].esp - i), 0x03);
     }
 
     procs[p].arch.kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE) + PROC_KERN_STACK_SIZE;
     for(i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
-        pgdir_map_page(pagedir, (void *)(procs[p].arch.kernel_stack - i), (void *)(procs[p].arch.kernel_stack - i), 0x03);
+        pgdir_map_page(arch_params->pgdir, (void *)(procs[p].arch.kernel_stack - i), (void *)(procs[p].arch.kernel_stack - i), 0x03);
     }
 
     procs[p].arch.stack_end = procs[p].arch.ebp - stack_size;
@@ -243,7 +243,7 @@ void exec_replace_process_image(void *entryp, const char *name, void *pagedir, s
 
     exec_copy_arguments(proc, argv, envp, &n_argv, &n_envp);
     
-    set_pagedir(pagedir);
+    set_pagedir(arch_params->pgdir);
 
     STACK_PUSH(proc->arch.esp, n_envp);
     STACK_PUSH(proc->arch.esp, n_argv);

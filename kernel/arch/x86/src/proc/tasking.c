@@ -82,11 +82,11 @@ void proc_jump_to_ring(void) {
 	}
 }
 
-int arch_setup_task(struct kproc *proc, void *entrypoint, uint32_t stack_size, uint32_t *pagedir, int kernel, int ring) {
-	proc->arch.ring  = ring;
+int arch_setup_task(struct kproc *proc, void *entrypoint, uint32_t stack_size, int kernel, arch_task_params_t *arch_params) {
+	proc->arch.ring  = arch_params->ring;
 	proc->arch.eip   = (uint32_t)entrypoint;
 	proc->entrypoint = (uint32_t)entrypoint;
-	proc->arch.cr3   = (uint32_t)pagedir;
+	proc->arch.cr3   = (uint32_t)arch_params->pgdir;
 
 	uint32_t /*stack_begin, */virt_stack_begin;
 	if(!kernel) virt_stack_begin = 0xFF000000;

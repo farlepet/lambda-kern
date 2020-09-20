@@ -29,4 +29,13 @@ typedef struct {
 	uint32_t stack_end;         //!< Current end of stack
 } kproc_arch_t;
 
+/* Architecture-specific task creation parameters */
+typedef struct {
+
+} arch_task_params_t;
+
+static inline void run_sched(void) {
+	/* TODO */
+}
+
 #endif

@@ -128,8 +128,7 @@ static void spawn_init() {
 	fs_open(stdout, OFLAGS_READ | OFLAGS_WRITE);
 	fs_open(stderr, OFLAGS_READ | OFLAGS_WRITE);
 
-	uint32_t *pagedir;
-	int pid = load_elf(exec_data, exec_stat.st_size, &pagedir);
+	int pid = load_elf(exec_data, exec_stat.st_size);
 	if(!pid) {
 		kpanic("Failed to parse init executable or spawn task!");
 	}

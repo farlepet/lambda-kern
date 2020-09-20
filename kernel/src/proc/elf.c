@@ -11,7 +11,7 @@
 #  include <arch/proc/user.h>
 #endif
 
-static ptr_t elf_exec_common(void *data, uint32_t length, uint32_t *pgdir, char **symStrTab, symbol_t **symbols, struct kproc_mem_map_ent **mmap_entries) {
+static ptr_t elf_exec_common(void *data, uint32_t length, arch_task_params_t *arch_params, char **symStrTab, symbol_t **symbols, struct kproc_mem_map_ent **mmap_entries) {
 	/* TODO: Use this for error-checking */
 	(void)length;
 	
@@ -52,13 +52,13 @@ static ptr_t elf_exec_common(void *data, uint32_t length, uint32_t *pgdir, char 
 			else memcpy(phys, (void *)((ptr_t)head + shdr->sh_offset), shdr->sh_size);
 			//set_pagedir((uint32_t *)kernel_cr3);
 
+#if defined(ARCH_X86)
 			for(ptr_t pg = 0; pg < shdr->sh_size; pg += 0x1000) {
 				//kerror(ERR_BOOTINFO, "  -> MAP_PAGE<%08X>[%08X, %08X]", pgdir, (phys + p), (shdr->sh_addr + p));
-				pgdir_map_page(pgdir, (phys + pg), (void *)(shdr->sh_addr + pg), 0x07);
+				pgdir_map_page(arch_params->pgdir, (phys + pg), (void *)(shdr->sh_addr + pg), 0x07);
 				//pgdir_map_page(pgdir, (phys + p), (void *)(shdr->sh_addr + p), 0x03);
-				//map_page((phys + p), (void *)(shdr->sh_addr + p), 0x03);
-				//kerror(ERR_BOOTINFO, "      -> DONE");
 			}
+#endif
 
 			if(mmap_entries) {
 				// Create MMAP entry:
@@ -130,33 +130,34 @@ static int elf_check_header(void *data) {
 	return 0;
 }
 
-ptr_t load_elf(void *file, uint32_t length, uint32_t **pdir) {
+int load_elf(void *file, uint32_t length) {
 	//kerror(ERR_BOOTINFO, "Loading elf from %08X of length %08X", file, length);
 
 	if(elf_check_header(file)) {
-		return 0;
+		return -1;
 	}
 
 	int p = proc_by_pid(current_pid);
 
-	uint32_t *pgdir = clone_kpagedir();
+	arch_task_params_t arch_params;
+#if defined(ARCH_X86)
+	arch_params.pgdir = clone_kpagedir();
+#endif
 	
 	char                     *symStrTab;
 	symbol_t                 *symbols;
 	struct kproc_mem_map_ent *mmap_entries;
 
-	ptr_t entrypoint = elf_exec_common(file, length, pgdir, &symStrTab, &symbols, &mmap_entries);
+	ptr_t entrypoint = elf_exec_common(file, length, &arch_params, &symStrTab, &symbols, &mmap_entries);
 	if(entrypoint == 0) {
-		return 0;
+		return -1;
 	}
 
 
-	kerror(ERR_INFO, "Entrypoint: %08X -> %08X", entrypoint, pgdir_get_page_entry(pgdir, (void *)entrypoint) & 0xFFFFF000);
-
-	*pdir = pgdir;
+	kerror(ERR_INFO, "Entrypoint: %08X", entrypoint);
 	
 	// Old way of creating new process:
-	int pid = add_user_task_pdir((void *)entrypoint, "UNNAMED_ELF", 0, PRIO_USERPROG, pgdir);
+	int pid = add_user_task_arch((void *)entrypoint, "UNNAMED_ELF", 0, PRIO_USERPROG, &arch_params);
 
 	p = proc_by_pid(pid);
 	procs[p].symbols   = symbols;
@@ -175,22 +176,25 @@ int exec_elf(void *data, uint32_t length, const char **argv, const char **envp) 
 		return 0;
 	}
 
-	uint32_t *pgdir = clone_kpagedir();
+	arch_task_params_t arch_params;
+#if defined(ARCH_X86)
+	arch_params.pgdir = clone_kpagedir();
+#endif
 
 	char                     *symStrTab;
 	symbol_t                 *symbols;
 	struct kproc_mem_map_ent *mmap_entries;
 
-	ptr_t entrypoint = elf_exec_common(data, length, pgdir, &symStrTab, &symbols, &mmap_entries);
+	ptr_t entrypoint = elf_exec_common(data, length, &arch_params, &symStrTab, &symbols, &mmap_entries);
 	if(entrypoint == 0) {
 		return -1;
 	}
 
-	kerror(ERR_INFO, "Entrypoint: %08X -> %08X", entrypoint, pgdir_get_page_entry(pgdir, (void *)entrypoint) & 0xFFFFF000);
+	kerror(ERR_INFO, "Entrypoint: %08X", entrypoint);
 
 	// TODO: Add generated memory map to this process
 
-	exec_replace_process_image((void *)entrypoint, "ELF_PROG", pgdir, symbols, symStrTab, argv, envp);
+	exec_replace_process_image((void *)entrypoint, "ELF_PROG", &arch_params, symbols, symStrTab, argv, envp);
 
 	/* We shouldn't get this far */
 	return -1;

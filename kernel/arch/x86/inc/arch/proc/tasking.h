@@ -18,6 +18,12 @@ typedef struct {
 	uint32_t stack_end; //!< Current end of stack
 } kproc_arch_t;
 
+/* Architecture-specific task creation parameters */
+typedef struct {
+    uint32_t *pgdir; //!< Page directory
+	uint8_t   ring;  //!< Ring
+} arch_task_params_t;
+
 #include <intr/intr.h>
 #include <proc/proc.h>
 
@@ -45,7 +51,7 @@ int arch_proc_create_kernel_stack(struct kproc *proc);
 /**
  * \brief Architecture-specific process creation routine
  */
-int arch_setup_task(struct kproc *proc, void *entrypoint, uint32_t stack_size, uint32_t *pagedir, int kernel, int ring);
+int arch_setup_task(struct kproc *proc, void *entrypoint, uint32_t stack_size, int kernel, arch_task_params_t *arch_params);
 
 /**
  * \brief Architecture-specific multitasking initialization.
