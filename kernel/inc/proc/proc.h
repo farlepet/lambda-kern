@@ -39,6 +39,8 @@ struct uproc;
 #include <mm/symbols.h>
 #include <proc/syscalls.h>
 
+#include <arch/proc/tasking.h>
+
 struct proc_book { //!< Structure for process `book-keeping`
 	uint32_t sent_msgs;   //!< Number of sent messages
 	uint32_t sent_bytes;  //!< Number of sent bytes
@@ -70,22 +72,7 @@ struct kproc { //!< Structure of a process as seen by the kernel
 
 	int children[MAX_CHILDREN]; //!< Indexes of direct child processes (ex: NOT children's children)
 
-#if  defined(ARCH_X86)
-	int ring;      //!< Ring to run in (0-3)
-
-	uint32_t esp;       //!< Stack pointer
-	uint32_t ebp;       //!< Stack base pointer
-	uint32_t eip;       //!< Instruction pointer
-	uint32_t cr3;       //!< Page directory
-
-	uint32_t last_eip;  //!< Last recorded position outside of kernel code
-
-	uint32_t kernel_stack;      //!< Kernel stack
-	uint32_t kernel_stack_size; //!< Size of kernel stack
-
-	uint32_t stack_beg; //!< Beginning of stack
-	uint32_t stack_end; //!< Current end of stack
-#endif
+	kproc_arch_t arch; //!< Architecture-specific process data
 
 	uint32_t entrypoint; //!< Program start
 

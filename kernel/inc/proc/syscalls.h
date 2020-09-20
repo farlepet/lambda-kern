@@ -37,12 +37,10 @@ enum syscalls {
 };
 
 
-#define SYSCALL_INT       0xFF
-
 void init_syscalls();
 
 void call_syscall(uint32_t scn, uint32_t *arg);
-void handle_syscall(struct pusha_regs regs, struct iret_regs iregs);
+int service_syscall(uint32_t scn, uint32_t *args);
 
 extern void return_from_syscall();
 

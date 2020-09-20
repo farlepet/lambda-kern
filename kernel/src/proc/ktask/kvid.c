@@ -1,8 +1,7 @@
-#include <arch/mm/alloc.h>
-
 #include <proc/ktasks.h>
 #include <time/time.h>
 #include <err/error.h>
+#include <mm/alloc.h>
 #include <proc/ipc.h>
 #include <mm/mm.h>
 #include <video.h>

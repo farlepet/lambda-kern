@@ -17,15 +17,18 @@ int mm_check_addr(void *addr) {
 	return (page & 0x02) ? (2) : (1); // Check R/W bit
 #else
 	// Unimplemented for this architecture
+	(void)addr;
 	return 0;
 #endif
 }
 
 void *mm_translate_proc_addr(struct kproc *proc, const void *addr) {
 	#if defined(ARCH_X86)
-		return (void *)((pgdir_get_page_entry((uint32_t *)proc->cr3, addr) & 0xFFFFF000 ) | ((uint32_t)addr & 0xFFF));
+		return (void *)((pgdir_get_page_entry((uint32_t *)proc->arch.cr3, addr) & 0xFFFFF000 ) | ((uint32_t)addr & 0xFFF));
 	#else
 		// Unimplemented for this architecture
+		(void)proc;
+		(void)addr;
 		return NULL;
 	#endif
 }

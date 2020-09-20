@@ -1,6 +1,6 @@
 #include <arch/proc/user.h>
 #include <arch/intr/int.h>
-#include <arch/mm/alloc.h>
+#include <arch/mm/paging.h>
 #include <arch/mm/gdt.h>
 
 #include <proc/atomic.h>
@@ -8,6 +8,7 @@
 #include <proc/proc.h>
 #include <intr/intr.h>
 #include <err/error.h>
+#include <mm/alloc.h>
 #include <types.h>
 
 extern lock_t creat_task; // From proc/mtask.c
@@ -18,7 +19,7 @@ extern void *get_eip();      //!< Get the EIP value of the instruction after the
 static int c_proc = 0; //!< Index of current process
 
 void arch_multitasking_init(void) {
-	set_interrupt(SCHED_INT, sched_run);
+	set_interrupt(INT_SCHED, sched_run);
 }
 
 int arch_proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel) {
@@ -39,12 +40,12 @@ int arch_proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt
 
     // Map stack memory
 	for(size_t i = 0; i < stack_size; i+= 0x1000) {
-		if(is_kernel) pgdir_map_page((uint32_t *)proc->cr3, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
-		else          pgdir_map_page((uint32_t *)proc->cr3, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
+		if(is_kernel) pgdir_map_page((uint32_t *)proc->arch.cr3, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
+		else          pgdir_map_page((uint32_t *)proc->arch.cr3, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
 	}
 
-	proc->stack_end = virt_stack_begin;
-	proc->stack_beg = virt_stack_begin + stack_size;
+	proc->arch.stack_end = virt_stack_begin;
+	proc->arch.stack_beg = virt_stack_begin + stack_size;
 
 #ifdef STACK_PROTECTOR
 // TODO: Fix stack guarding:
@@ -56,18 +57,18 @@ int arch_proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt
 }
 
 int arch_proc_create_kernel_stack(struct kproc *proc) {
-	proc->kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE + 4096);
-	proc->kernel_stack = (proc->kernel_stack + 4096) & 0xFFFFF000;
+	proc->arch.kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE + 4096);
+	proc->arch.kernel_stack = (proc->arch.kernel_stack + 4096) & 0xFFFFF000;
 
 	kerror(ERR_BOOTINFO, "proc_create_kernel_stack [size: %d] [end: %08X, beg: %08X]",
-		PROC_KERN_STACK_SIZE, proc->kernel_stack, proc->kernel_stack + PROC_KERN_STACK_SIZE
+		PROC_KERN_STACK_SIZE, proc->arch.kernel_stack, proc->arch.kernel_stack + PROC_KERN_STACK_SIZE
 	);
 
 	for(size_t i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
-		pgdir_map_page((uint32_t *)proc->cr3, (void *)(proc->kernel_stack + i), (void *)(proc->kernel_stack + i), 0x03);
+		pgdir_map_page((uint32_t *)proc->arch.cr3, (void *)(proc->arch.kernel_stack + i), (void *)(proc->arch.kernel_stack + i), 0x03);
 	}
 
-	proc->kernel_stack += PROC_KERN_STACK_SIZE;
+	proc->arch.kernel_stack += PROC_KERN_STACK_SIZE;
 
     return 0;
 }
@@ -76,16 +77,16 @@ void proc_jump_to_ring(void) {
 	int p = proc_by_pid(current_pid);
 	if(p > 0) {
 		if(procs[c_proc].entrypoint) {
-			enter_ring(procs[c_proc].ring, (void *)procs[c_proc].entrypoint);
+			enter_ring(procs[c_proc].arch.ring, (void *)procs[c_proc].entrypoint);
 		}
 	}
 }
 
 int arch_setup_task(struct kproc *proc, void *entrypoint, uint32_t stack_size, uint32_t *pagedir, int kernel, int ring) {
-	proc->ring       = ring;
-	proc->eip        = (uint32_t)entrypoint;
+	proc->arch.ring  = ring;
+	proc->arch.eip   = (uint32_t)entrypoint;
 	proc->entrypoint = (uint32_t)entrypoint;
-	proc->cr3        = (uint32_t)pagedir;
+	proc->arch.cr3   = (uint32_t)pagedir;
 
 	uint32_t /*stack_begin, */virt_stack_begin;
 	if(!kernel) virt_stack_begin = 0xFF000000;
@@ -93,7 +94,7 @@ int arch_setup_task(struct kproc *proc, void *entrypoint, uint32_t stack_size, u
 	proc_create_stack(proc, stack_size, virt_stack_begin, kernel);
 
 
-	proc->esp = proc->ebp = virt_stack_begin + stack_size;
+	proc->arch.esp = proc->arch.ebp = virt_stack_begin + stack_size;
 
 	if(kernel == 0) {
 		/*STACK_PUSH(stack_begin, 0xFFFFAAAA);//process);
@@ -104,7 +105,7 @@ int arch_setup_task(struct kproc *proc, void *entrypoint, uint32_t stack_size, u
 		kerror(ERR_BOOTINFO, "STACK_PEEK[%08X]: %08X", stack_begin, *(uint32_t *)stack_begin);
 		procs[p].eip = (uint32_t)enter_ring;
 		procs[p].esp -= 12;*/
-		proc->eip = (uint32_t)proc_jump_to_ring;
+		proc->arch.eip = (uint32_t)proc_jump_to_ring;
 	}
 
     return 0;
@@ -136,11 +137,11 @@ __hot void do_task_switch(struct pusha_regs pregs, struct iret_regs iregs) {
 
 	if(procs[c_proc].type & TYPE_RANONCE) {
 #if  defined(ARCH_X86)
-		procs[c_proc].esp = esp;
-		procs[c_proc].ebp = ebp;
-		procs[c_proc].eip = eip;
+		procs[c_proc].arch.esp = esp;
+		procs[c_proc].arch.ebp = ebp;
+		procs[c_proc].arch.eip = eip;
 
-		procs[c_proc].last_eip = iregs.eip;
+		procs[c_proc].arch.last_eip = iregs.eip;
 #endif
 	}
 	else procs[c_proc].type |= TYPE_RANONCE;
@@ -150,12 +151,12 @@ __hot void do_task_switch(struct pusha_regs pregs, struct iret_regs iregs) {
 
 
 #if  defined(ARCH_X86)
-	tss_set_kern_stack(procs[c_proc].kernel_stack);
+	tss_set_kern_stack(procs[c_proc].arch.kernel_stack);
 
-	esp = procs[c_proc].esp;
-	ebp = procs[c_proc].ebp;
-	eip = procs[c_proc].eip;
-	cr3 = procs[c_proc].cr3;
+	esp = procs[c_proc].arch.esp;
+	ebp = procs[c_proc].arch.ebp;
+	eip = procs[c_proc].arch.eip;
+	cr3 = procs[c_proc].arch.cr3;
 
 	asm volatile("mov %0, %%ebx\n"
 				 "mov %1, %%esp\n"

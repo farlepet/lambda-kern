@@ -1,10 +1,9 @@
-#include <arch/mm/alloc.h>
-
 #include <proc/mtask.h>
 #include <proc/exec.h>
 #include <err/error.h>
 #include <fs/procfs.h>
 #include <proc/elf.h>
+#include <mm/alloc.h>
 #include <mm/mm.h>
 
 #include <string.h>
@@ -13,6 +12,7 @@
 #if defined(ARCH_X86)
 #  include <arch/intr/int.h>
 #  include <arch/proc/user.h>
+#  include <arch/mm/paging.h>
 #endif
 
 int execve(const char *filename, const char **argv, const char **envp) {
@@ -96,7 +96,7 @@ static void exec_copy_arguments(struct kproc *proc, const char **argv, const cha
     char **new_envp  = NULL;
 
     for(ptr_t p = (ptr_t)new_buffer & 0xFFFFF000; p < ((ptr_t)new_buffer + data_sz); p += 0x1000) {
-        pgdir_map_page((uint32_t *)proc->cr3, (void *)p, (void *)p, 0x07);
+        pgdir_map_page((uint32_t *)proc->arch.cr3, (void *)p, (void *)p, 0x07);
     }
 
     size_t c_off = (argc + envc + 2) * sizeof(char *);
@@ -173,17 +173,17 @@ void exec_replace_process_image(void *entryp, const char *name, void *pagedir, s
 
 #if defined(ARCH_X86)
     // Copy architecture-specific bits:
-    proc->ring = tmp_proc.ring;
-    proc->eip  = (uint32_t)entryp;
+    proc->arch.ring = tmp_proc.arch.ring;
+    proc->arch.eip  = (uint32_t)entryp;
 
     // TODO: Free unused frames
     // TODO: Only keep required portions of pagedir
     //proc->cr3 = tmp_proc.cr3;
-    proc->cr3 = (uint32_t)pagedir;
+    proc->arch.cr3 = (uint32_t)pagedir;
 
     int kernel = (proc->type & TYPE_KERNEL);
 
-    uint32_t stack_size = tmp_proc.stack_beg - tmp_proc.stack_end;
+    uint32_t stack_size = tmp_proc.arch.stack_beg - tmp_proc.arch.stack_end;
 
     uint32_t stack_begin, virt_stack_begin;
     if(!kernel) virt_stack_begin = 0xFF000000;
@@ -195,11 +195,11 @@ void exec_replace_process_image(void *entryp, const char *name, void *pagedir, s
         proc->ebp  +=             (stack_size + 0x1000);
     #else // STACK_PROTECTOR
         stack_begin = ((uint32_t)kmalloc(stack_size));
-        proc->ebp   = virt_stack_begin;
-        proc->ebp  +=              stack_size;
+        proc->arch.ebp   = virt_stack_begin;
+        proc->arch.ebp  +=              stack_size;
     #endif // !STACK_PROTECTOR
 
-    procs[p].esp = procs[p].ebp;
+    procs[p].arch.esp = procs[p].arch.ebp;
 
     uint32_t i = 0;
     for(; i < stack_size; i+= 0x1000) {
@@ -208,18 +208,18 @@ void exec_replace_process_image(void *entryp, const char *name, void *pagedir, s
             //(void *)(procs[p].esp - i), (void *)(procs[p].esp - i), 0x03);
     }
 
-    procs[p].kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE) + PROC_KERN_STACK_SIZE;
+    procs[p].arch.kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE) + PROC_KERN_STACK_SIZE;
     for(i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
-        pgdir_map_page(pagedir, (void *)(procs[p].kernel_stack - i), (void *)(procs[p].kernel_stack - i), 0x03);
+        pgdir_map_page(pagedir, (void *)(procs[p].arch.kernel_stack - i), (void *)(procs[p].arch.kernel_stack - i), 0x03);
     }
 
-    procs[p].stack_end = procs[p].ebp - stack_size;
-    procs[p].stack_beg = procs[p].ebp;
+    procs[p].arch.stack_end = procs[p].arch.ebp - stack_size;
+    procs[p].arch.stack_beg = procs[p].arch.ebp;
 
     #ifdef STACK_PROTECTOR
     // TODO: Fix stack guarding:
-        block_page(procs[p].stack_end - 0x1000); // <-- Problematic line
-        block_page(procs[p].stack_beg + 0x1000);
+        block_page(procs[p].arch.stack_end - 0x1000); // <-- Problematic line
+        block_page(procs[p].arch.stack_beg + 0x1000);
     #endif // STACK_PROTECTOR
 
     /*proc->kernel_stack      = tmp_proc.kernel_stack;
@@ -245,12 +245,12 @@ void exec_replace_process_image(void *entryp, const char *name, void *pagedir, s
     
     set_pagedir(pagedir);
 
-    STACK_PUSH(proc->esp, n_envp);
-    STACK_PUSH(proc->esp, n_argv);
-    STACK_PUSH(proc->esp, argc);    
+    STACK_PUSH(proc->arch.esp, n_envp);
+    STACK_PUSH(proc->arch.esp, n_argv);
+    STACK_PUSH(proc->arch.esp, argc);    
 
     kerror(ERR_INFO, "exec_replace_process_image(): Jumping into process");
 
-    enter_ring_newstack(proc->ring, entryp, (void *)proc->esp);
+    enter_ring_newstack(proc->arch.ring, entryp, (void *)proc->arch.esp);
 #endif
 }

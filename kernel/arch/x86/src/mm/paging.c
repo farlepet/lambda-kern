@@ -1,11 +1,11 @@
 #include <arch/intr/int.h>
 #include <arch/mm/paging.h>
 #include <arch/mm/mem.h>
-#include <arch/mm/alloc.h>
 
 #include <multiboot.h>
 #include <err/error.h>
 #include <err/panic.h>
+#include <mm/alloc.h>
 #include <string.h>
 #include <types.h>
 #include <video.h>

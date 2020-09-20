@@ -1,15 +1,18 @@
-#include <arch/mm/alloc.h>
-
 #include <proc/ktasks.h>
 #include <err/error.h>
 #include <time/time.h>
 #include <fs/stream.h>
 #include <proc/ipc.h>
 #include <proc/elf.h>
+#include <mm/alloc.h>
 #include <string.h>
 #include <fs/fs.h>
 #include <video.h>
 #include <sys/stat.h>
+
+#if defined(ARCH_X86)
+#  include <arch/mm/paging.h>
+#endif
 
 #define prompt  "%skterm\e[0m> ", \
 				(retval ? "\e[31m" : "\e[32m")

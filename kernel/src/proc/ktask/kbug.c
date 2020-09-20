@@ -1,9 +1,8 @@
-#include <arch/mm/alloc.h>
-
 #include <proc/ktasks.h>
 #include <time/time.h>
 #include <err/error.h>
 #include <proc/ipc.h>
+#include <mm/alloc.h>
 #include <config.h>
 #include <video.h>
 
@@ -97,7 +96,7 @@ static void idebug() {
 				procs[i].pid, procs[i].uid, procs[i].gid,
 				procs[i].book.sent_msgs, procs[i].book.recvd_msgs,
 				((procs[i].blocked != 0) ? 'Y' : 'N'),
-				procs[i].prio, procs[i].type, procs[i].book.schedule_count, procs[i].last_eip,
+				procs[i].prio, procs[i].type, procs[i].book.schedule_count, procs[i].arch.last_eip,
 				procs[i].book.syscall_count, procs[i].name
 			);
 		}

@@ -110,7 +110,7 @@ void keyb_init()
 		}
 	}
 
-	set_interrupt(KEYBOARD_INT, (void *)&keyb_int);
+	set_interrupt(INT_KEYBOARD, (void *)&keyb_int);
 	enable_irq(1);
 
 	keyb_dev = add_input_dev(IDRIVER_KEYBOARD, "keyb", 0, 0);

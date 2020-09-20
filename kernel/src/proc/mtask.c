@@ -1,17 +1,21 @@
-#include <arch/mm/alloc.h>
 #include <arch/intr/int.h>
 #include <arch/proc/tasking.h>
 
 #include <proc/atomic.h>
 #include <proc/mtask.h>
+#include <proc/proc.h>
 #include <err/error.h>
 #include <intr/intr.h>
 #include <err/panic.h>
-#include <proc/proc.h>
+#include <mm/alloc.h>
 #include <string.h>
 #include <mm/mm.h>
 #include <video.h>
 #include <fs/fs.h>
+
+#if defined(ARCH_X86)
+#  include <arch/mm/paging.h>
+#endif
 
 struct kproc procs[MAX_PROCESSES];
 
@@ -159,7 +163,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, uint32_t *
 	// Set all children to -1 (Assuming 2s complement)
 	memset(procs[p].children, 0xFF, sizeof(procs[p].children));
 
-	kerror(ERR_BOOTINFO, "PID: %d EIP: %08X CR3: %08X ESP: %08X", procs[p].pid, procs[p].eip, procs[p].cr3, procs[p].esp);
+	kerror(ERR_BOOTINFO, "PID: %d EIP: %08X CR3: %08X ESP: %08X", procs[p].pid, procs[p].arch.eip, procs[p].arch.cr3, procs[p].arch.esp);
 
 	//uint32_t page = pgdir_get_page_entry(pagedir, process);
 	//kerror(ERR_BOOTINFO, "Page %08X: LOC: %08X FLAGS: %03X", process, page & 0xFFFFF000, page & 0x0FFF);

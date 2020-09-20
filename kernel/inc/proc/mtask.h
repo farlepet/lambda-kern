@@ -1,8 +1,6 @@
 #ifndef MTASK_H
 #define MTASK_H
 
-void run_sched(void);
-
 #include <arch/intr/int.h>
 
 #include <types.h>
@@ -45,16 +43,6 @@ int get_next_open_proc();
  * @param name Name of initial kernel task
  */
 void init_multitasking(void *process, char *name);
-
-/**
- * @brief Switch to next scheduled task
- * 
- * Switches context into next task, doesn't return within the same context
- * 
- * @param pregs PUSHA registers given from interrupt handler
- * @param iregs IRET registers given from interrupt handler
- */
-void do_task_switch(struct pusha_regs pregs, struct iret_regs iregs);
 
 /**
  * @brief Create and add a kernel task

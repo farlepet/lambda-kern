@@ -107,8 +107,8 @@ int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_reg
 
 		kerror(ERR_MEDERR, "  -> Caused by process %d [%s]", pid, procs[p].name);
 
-		if(((cr2 < procs[p].stack_beg) && (cr2 > procs[p].stack_end - STACK_SIZE)) || // Remember, the x86 stack is upside-down
-		   ((cr2 < procs[p].stack_beg + STACK_SIZE) && (cr2 > procs[p].stack_end)))
+		if(((cr2 < procs[p].arch.stack_beg) && (cr2 > procs[p].arch.stack_end - STACK_SIZE)) || // Remember, the x86 stack is upside-down
+		   ((cr2 < procs[p].arch.stack_beg + STACK_SIZE) && (cr2 > procs[p].arch.stack_end)))
 		{
 			kerror(ERR_MEDERR, "       -> Caused a stack overflow and is being dealt with", pid);
 		}

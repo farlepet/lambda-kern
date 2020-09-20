@@ -1,8 +1,7 @@
-#include <arch/mm/alloc.h>
-
 #include <proc/mtask.h>
 #include <proc/exec.h>
 #include <err/error.h>
+#include <mm/alloc.h>
 #include <proc/elf.h>
 #include <string.h>
 #include <video.h>

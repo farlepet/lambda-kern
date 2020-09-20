@@ -1,12 +1,41 @@
 #ifndef ARCH_X86_PROC_TASKING_H
 #define ARCH_X86_PROC_TASKING_H
 
+#include <stdint.h>
+
+typedef struct {
+	int ring;           //!< Ring to run in (0-3)
+
+	uint32_t esp;       //!< Stack pointer
+	uint32_t ebp;       //!< Stack base pointer
+	uint32_t eip;       //!< Instruction pointer
+	uint32_t cr3;       //!< Page directory
+
+	uint32_t last_eip;  //!< Last recorded position outside of kernel code
+
+	uint32_t kernel_stack;      //!< Kernel stack
+	uint32_t kernel_stack_size; //!< Size of kernel stack
+
+	uint32_t stack_beg; //!< Beginning of stack
+	uint32_t stack_end; //!< Current end of stack
+} kproc_arch_t;
+
 #include <intr/intr.h>
 #include <proc/proc.h>
 
-inline void run_sched(void) {
-	INTERRUPT(SCHED_INT);
+static inline void run_sched(void) {
+	INTERRUPT(64);
 }
+
+/**
+ * @brief Switch to next scheduled task
+ * 
+ * Switches context into next task, doesn't return within the same context
+ * 
+ * @param pregs PUSHA registers given from interrupt handler
+ * @param iregs IRET registers given from interrupt handler
+ */
+void do_task_switch(struct pusha_regs pregs, struct iret_regs iregs);
 
 /**
  * \brief Architecture-specific process stack creation routine
@@ -27,5 +56,7 @@ int arch_setup_task(struct kproc *proc, void *entrypoint, uint32_t stack_size, u
  * \brief Architecture-specific multitasking initialization.
  */
 void arch_multitasking_init(void);
+
+
 
 #endif

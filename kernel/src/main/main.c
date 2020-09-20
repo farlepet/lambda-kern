@@ -4,6 +4,7 @@
 #include <proc/exec.h>
 #include <proc/elf.h>
 #include <proc/ipc.h>
+#include <mm/alloc.h>
 #include <multiboot.h>
 #include <err/panic.h>
 #include <err/error.h>
@@ -18,7 +19,6 @@
 #include <string.h>
 // Architecture-specific initialization:
 #include <arch/init/init.h>
-#include <arch/mm/alloc.h>
 
 __noreturn void kernel_task(void);
 __noreturn int kmain(struct multiboot_header *, uint32_t);

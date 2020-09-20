@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include <intr/intr.h>
+
 #define enable_interrupts()  asm volatile("cpsie if")
 #define disable_interrupts() asm volatile("cpsid if")
 #define interrupt_halt()     asm volatile("wfi")
@@ -14,5 +16,7 @@ static inline int interrupts_enabled() {
                   mov r0, %0": "=r" (tmp));
     return tmp;
 }
+
+void intr_set_handler(interrupt_idx_e idx, void *ptr);
 
 #endif
