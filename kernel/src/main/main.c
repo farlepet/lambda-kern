@@ -23,8 +23,7 @@
 __noreturn void kernel_task(void);
 __noreturn int kmain(struct multiboot_header *, uint32_t);
 
-__noreturn static void iloop()
-{
+__noreturn static void iloop() {
 	kerror(ERR_BOOTINFO, "iloop()");
 	for(;;) busy_wait();
 }
@@ -35,12 +34,15 @@ __noreturn static void iloop()
  * @param mboot_head pointer to multiboot structure
  * @param magic magic number telling us this is a multiboot-compliant bootloader
  */
-__noreturn int kmain(struct multiboot_header *mboot_head, uint32_t magic)
-{
+__noreturn int kmain(struct multiboot_header *mboot_head, uint32_t magic) {
+#if defined(ARCH_X86)
 	if(magic != 0x2BADB002)
 		kpanic("Invalid magic number given by the bootloader: 0x%08X", magic);
-
+	
 	check_commandline(mboot_head);
+#else
+	(void)magic;
+#endif
 
 	// Architecture-specific initialization:
 	arch_init(mboot_head);

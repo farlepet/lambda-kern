@@ -36,7 +36,7 @@ initrd.cpio:
 
 
 emu:
-	@qemu-system-arm -cpu cortex-a7 -machine virt-5.1 -kernel lambda.kern -serial stdio -no-reboot
+	@qemu-system-arm -cpu cortex-a7 -machine versatilepb -kernel lambda.kern -serial stdio -no-reboot
 
 
 arch_clean:

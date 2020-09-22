@@ -2,16 +2,12 @@ ENTRY (start)
 
 SECTIONS
 {
-        . = 1M;
+        . = 0x34000000;
 
         kern_start = .;
         
-        .entryp : {
-                *(.entryp)
-        }
-
         .text : {
-                *(.mboot)
+                *(.entryp)
                 *(.text)
         }
         

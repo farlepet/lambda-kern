@@ -1,3 +1,4 @@
+.section .entryp
 .extern kmain
 .global start
 .type start, %function
