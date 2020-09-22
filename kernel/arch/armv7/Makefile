@@ -8,9 +8,8 @@ ASMSRCS    = $(wildcard $(SRC)/*.asm) $(wildcard $(SRC)/*/*.asm) $(wildcard $(SR
 
 COBJS      = $(patsubst %.c,%.o,$(SRCS))
 ASOBJS     = $(patsubst %.s,%.o,$(ASSRCS))
-ASMOBJS    = $(patsubst %.asm,%.o,$(ASMSRCS))
 
-OBJS       = $(ASOBJS) $(COBJS) $(ASMOBJS)
+OBJS       = $(ASOBJS) $(COBJS)
 
 
 all:     link

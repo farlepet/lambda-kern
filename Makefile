@@ -30,8 +30,10 @@ GIT_VERSION := "$(shell git describe --abbrev=8 --dirty=\* --always --tags)"
 
 CFLAGS    += -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/$(ARCH)/inc/ \
 			 -nostdlib -nostdinc -ffreestanding -Wall -Wextra -Werror -O2 \
-			 -pipe -g -fno-stack-protector \
+			 -pipe -g -fno-stack-protector -fdata-sections -ffunction-sections \
 			 -DKERNEL_GIT=\"$(GIT_VERSION)\"
+
+all: printinfo arch_all
 
 # Architecture-specific makefile options
 include kernel/arch/$(ARCH)/arch.mk
@@ -60,9 +62,6 @@ CFLAGS += -Wno-cast-function-type
 endif
 
 
-all: printinfo link
-
-
 printinfo:
 	@echo -e "\033[32mBuilding kernel\033[0m"
 
@@ -70,7 +69,7 @@ printinfo:
 # gcc:
 %.o: %.c
 ifeq ($(VERBOSE), 0)
-	@echo -e "\033[32m  \033[1mCC\033[21m    \033[34m$<\033[0m"
+	@echo -e "\033[32m    \033[1mCC\033[21m    \033[34m$<\033[0m"
 	@$(CC) $(CFLAGS) -c -o $@ $<
 else
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -78,14 +77,10 @@ endif
 
 
 
-clean:
+clean: arch_clean
 	@echo -e "\033[33m  \033[1mCleaning sources\033[0m"
 	@rm -f $(OBJS)
-	@rm -f lambda.kern
 	@rm -r -f doc
-	@rm -f CD/lambda.kern
-	@rm -f CD/initrd.cpio
-	@rm -f kern.*
 	@cd $(MAINDIR)/kernel/arch/$(ARCH); make clean
 
 documentation:

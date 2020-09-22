@@ -6,24 +6,24 @@ SECTIONS
 
         kern_start = .;
         
-        .text BLOCK(4K) : ALIGN(4K)
-        {
+        .entryp : {
+                *(.entryp)
+        }
+
+        .text : {
                 *(.mboot)
                 *(.text)
         }
         
-        .rodata BLOCK(4K) : ALIGN(4K)
-        {
+        .rodata : {
                 *(.rodata)
         }
         
-        .data BLOCK(4K) : ALIGN(4K)
-        {
+        .data : {
                 *(.data)
         }
         
-        .bss BLOCK(4K) : ALIGN(4K)
-        {
+        .bss : {
                 *(COMMON)
                 *(.bss)
         }
