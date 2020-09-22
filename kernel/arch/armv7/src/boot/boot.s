@@ -1,5 +1,6 @@
 .section .entryp
 .extern kmain
+.extern new_stack_end
 .global start
 .type start, %function
 start:
@@ -12,6 +13,3 @@ endloop:
     b endloop
 
 .size start, . - start
-
-.lcomm new_stack_t, 0x10000
-new_stack_end: .long 0

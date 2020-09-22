@@ -2,7 +2,7 @@ ENTRY (start)
 
 SECTIONS
 {
-        . = 0x34000000;
+        . = 0x00008000;
 
         kern_start = .;
         
@@ -25,4 +25,9 @@ SECTIONS
         }
         
         kern_end = .;
+
+        new_stack_begin = .;
+        . += 0x10000;
+        new_stack_end   = .;
+
 }
