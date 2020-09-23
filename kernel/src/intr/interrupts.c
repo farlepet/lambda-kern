@@ -5,9 +5,12 @@
 #if defined(ARCH_X86)
 #  include <arch/intr/idt.h>
 #  include <arch/intr/pit.h>
-#  include <arch/proc/tasking.h>
+#elif defined(ARCH_ARMV7)
+#  include <arch/intr/gtimer.h>
 #endif
-#  include <arch/intr/int.h>
+
+#include <arch/intr/int.h>
+#include <arch/proc/tasking.h>
 
 
 /**
@@ -25,6 +28,8 @@ void set_interrupt(interrupt_idx_e n, void *handler) {
 	kerror(ERR_INFO, "Interrupt vector 0x%02X set", n);
 }
 
+/* TODO: Move HAL elsewhere */
+static hal_timer_dev_t pit;
 /**
  * \brief Initializes the system timer.
  * Initializes the timer used by the target architecture.
@@ -32,13 +37,13 @@ void set_interrupt(interrupt_idx_e n, void *handler) {
  */
 void timer_init(uint32_t quantum) {
 #ifdef ARCH_X86
-	/* TODO: Move HAL elsewhere */
-	static hal_timer_dev_t pit;
 	pit_init(quantum);
 	pit_create_timerdev(&pit);
 	hal_timer_dev_attach(&pit, do_task_switch);
 #else
-	(void)quantum;
+    armv7_gtimer_init(quantum);
+	armv7_gtimer_create_timerdev(&pit);
+	hal_timer_dev_attach(&pit, do_task_switch);
 #endif
 	kerror(ERR_BOOTINFO, "Timer initialized");
 }

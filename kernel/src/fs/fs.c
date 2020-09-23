@@ -253,6 +253,10 @@ struct kfile *fs_find_file(struct kfile *f, const char *path) {
 void fs_init()
 {
 	fs_root = (struct kfile *)kmalloc(sizeof(struct kfile));
+	if(!fs_root) {
+    	kerror(ERR_LGERR, "fs_init(): Failed to allocade memory for root!");
+		return;
+	}
 
 	memset(fs_root, 0, sizeof(struct kfile));
 

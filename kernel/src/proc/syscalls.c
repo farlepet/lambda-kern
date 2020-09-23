@@ -118,5 +118,6 @@ void call_syscall(uint32_t scn, uint32_t *args)
 #else
 	(void)scn;
 	(void)args;
+	asm volatile("swi #1");
 #endif
 }
