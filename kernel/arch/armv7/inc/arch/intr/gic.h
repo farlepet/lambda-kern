@@ -118,12 +118,22 @@ typedef volatile struct {
 } armv7_mpcore_regmap_t;
 
 typedef struct {
+    uint32_t int_n;
+    void (*callback)(uint32_t);
+} armv7_gic_callback_t;
+
+typedef struct {
     armv7_icc_regmap_t *icc;
     armv7_dcu_regmap_t *dcu;
+
+#define ARMV7_GIC_MAX_CALLBACKS (16)
+    armv7_gic_callback_t callbacks[ARMV7_GIC_MAX_CALLBACKS];    
 } armv7_gic_handle_t;
 
 int armv7_gic_create_intctlrdev(armv7_gic_handle_t *hand, hal_intctlr_dev_t *intctlrdev);
 
 int armv7_gic_init(armv7_gic_handle_t *hand, volatile void *icc_base, volatile void *dcu_base);
+
+int armv7_gic_irqhandle(armv7_gic_handle_t *hand);
 
 #endif

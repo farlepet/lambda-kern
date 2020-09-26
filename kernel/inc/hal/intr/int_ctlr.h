@@ -4,9 +4,9 @@
 #include <types.h>
 
 typedef struct {
-    int (*intr_enable)(void *data, uint32_t int_n);                         //!< Enable interrupt
-    int (*intr_disable)(void *data, uint32_t int_n);                        //!< Disable interrupt
-    int (*intr_attach)(void *data, uint32_t int_n, void (*callback)(void)); //!< Attach interrupt handler
+    int (*intr_enable)(void *data, uint32_t int_n);                             //!< Enable interrupt
+    int (*intr_disable)(void *data, uint32_t int_n);                            //!< Disable interrupt
+    int (*intr_attach)(void *data, uint32_t int_n, void (*callback)(uint32_t)); //!< Attach interrupt handler
 
     void *data;
 
@@ -29,7 +29,7 @@ static inline int hal_intctlr_dev_intr_disable(hal_intctlr_dev_t *dev, uint32_t 
     return dev->intr_disable(dev->data, int_n);
 }
 
-static inline int hal_intctlr_dev_intr_attach(hal_intctlr_dev_t *dev, uint32_t int_n, void (*callback)(void)) {
+static inline int hal_intctlr_dev_intr_attach(hal_intctlr_dev_t *dev, uint32_t int_n, void (*callback)(uint32_t)) {
     if(!dev) return -1;
     if(!(dev->cap & HAL_INTCTLRDEV_CAP_INTATTACH) || !dev->intr_attach) return -1;
 

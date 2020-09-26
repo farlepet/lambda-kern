@@ -8,6 +8,8 @@ extern uint32_t __int_table[];
 
 static uint32_t *vec_table = (uint32_t *)&__int_table;
 
+static armv7_gic_handle_t *__gic = NULL;
+
 void intr_set_handler(interrupt_idx_e idx, void *ptr) {
     if (idx >= 8) {
         return;
@@ -16,11 +18,20 @@ void intr_set_handler(interrupt_idx_e idx, void *ptr) {
     vec_table[idx] = 0xEA000000 | (((uint32_t)ptr - (4 * (idx + 2))) >> 2);
 }
 
+void intr_attach_gic(armv7_gic_handle_t *hand) {
+    __gic = hand;
+}
+
 extern void (*gtimer_callback)(void);
 
+__hot
 __attribute__((interrupt ("IRQ")))
 static void intr_irq_handler(void) {
     __INTR_BEGIN;
+
+    if(__gic) {
+        armv7_gic_irqhandle(__gic);
+    }
 
     uint32_t tmp;
     __READ_CNTV_CTL(tmp);
@@ -45,6 +56,7 @@ static void intr_irq_handler(void) {
     __INTR_END;
 }
 
+__hot
 __attribute__((interrupt ("FIQ")))
 static void intr_fiq_handler(void) {
     __INTR_BEGIN;
@@ -52,6 +64,7 @@ static void intr_fiq_handler(void) {
     __INTR_END;
 }
 
+__hot
 __attribute__((interrupt))
 static void intr_stub_handler(void) {
     __INTR_BEGIN;

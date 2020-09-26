@@ -4,7 +4,7 @@
 
 static int intctlr_intr_enable(void *data, uint32_t int_n);
 static int intctlr_intr_disable(void *data, uint32_t int_n);
-static int intctlr_intr_attach(void *data, uint32_t int_n, void (*callback)(void));
+static int intctlr_intr_attach(void *data, uint32_t int_n, void (*callback)(uint32_t));
 
 int armv7_gic_create_intctlrdev(armv7_gic_handle_t *hand, hal_intctlr_dev_t *intctlrdev) {
     memset(intctlrdev, 0, sizeof(hal_intctlr_dev_t));
@@ -27,7 +27,29 @@ int armv7_gic_init(armv7_gic_handle_t *hand, volatile void *icc_base, volatile v
 
     hand->dcu->ICDDCR  |= (1UL << ARMV7_GIC_DCU_ICDDCR_SECUREEN__POS);
 
+    for(int i = 0; i < ARMV7_GIC_MAX_CALLBACKS; i++) {
+        hand->callbacks[i].int_n = 0xFFFFFFFFUL;
+    }
+
     return 0;
+}
+
+__hot
+int armv7_gic_irqhandle(armv7_gic_handle_t *hand) {
+    /* Read and acknowledge interrupt ID */
+    uint32_t intr = hand->icc->ICCIAR & 0x00FFFFFF;
+
+    for(uint16_t i = 0; i < ARMV7_GIC_MAX_CALLBACKS; i++) {
+        if(hand->callbacks[i].int_n == intr &&
+           hand->callbacks[i].callback) {
+            hand->callbacks[i].callback(intr);
+            /* NOTE: If multiple callbacks for a single interrupt ar desired,
+             * the break can simply be removed. */
+            return 0;
+        }
+    }
+
+    return 1;
 }
 
 static int intctlr_intr_enable(void *data, uint32_t int_n) {
@@ -59,14 +81,21 @@ static int intctlr_intr_disable(void *data, uint32_t int_n) {
     return 0;
 }
 
-static int intctlr_intr_attach(void *data, uint32_t int_n, void (*callback)(void)) {
+static int intctlr_intr_attach(void *data, uint32_t int_n, void (*callback)(uint32_t)) {
     if (int_n > 255) {
         return -1;
     }
 
-    /* TODO */
-    (void)data;
-    (void)callback;
+    armv7_gic_handle_t *hand = (armv7_gic_handle_t *)data;
 
+    for(int i = 0; i < ARMV7_GIC_MAX_CALLBACKS; i++) {
+        if(hand->callbacks[i].int_n == 0xFFFFFFFFUL) {
+            hand->callbacks[i].int_n = int_n;
+            hand->callbacks[i].callback = callback;
+            return 0;
+        }
+    }
+
+    /* No free slots */
     return -1;
 }

@@ -41,4 +41,6 @@ void arch_init(struct multiboot_header *mboot_head) {
 
     armv7_gic_init(&gic, &mpcore->ICC, &mpcore->DCU);
     armv7_gic_create_intctlrdev(&gic, &intctlr);
+
+    intr_attach_gic(&gic);
 }

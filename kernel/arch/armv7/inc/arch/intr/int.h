@@ -6,6 +6,7 @@
 #include <intr/intr.h>
 
 #include <arch/registers.h>
+#include <arch/intr/gic.h>
 
 #define enable_interrupts()  asm volatile("cpsie i")
 #define disable_interrupts() asm volatile("cpsid i")
@@ -24,6 +25,8 @@ static inline int interrupts_enabled() {
 void intr_set_handler(interrupt_idx_e idx, void *ptr);
 
 void intr_init(void);
+
+void intr_attach_gic(armv7_gic_handle_t *hand);
 
 extern uint32_t intr_stack_end;
 
