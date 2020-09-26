@@ -33,6 +33,10 @@ int armv7_gtimer_init(uint32_t freq) {
     tmp = (1UL << 0); /* Enable virtual timer */
     __WRITE_CNTV_CTL(tmp);
 
+    /* Clear CompareValue register */
+    tmp = 0;
+    __WRITE_CNTV_CVAL(tmp, tmp);
+
     return 0;
 }
 

@@ -29,5 +29,9 @@ SECTIONS
         new_stack_begin = .;
         . += 0x10000;
         new_stack_end   = .;
+        
+        intr_stack_begin = .;
+        . += 0x2000;
+        intr_stack_end   = .;
 
 }

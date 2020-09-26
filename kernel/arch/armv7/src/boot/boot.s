@@ -1,4 +1,14 @@
 .section .entryp
+.global __int_table
+__int_table:
+    b start
+    b .
+    b .
+    b .
+    b .
+    b .
+    b .
+
 .extern kmain
 .extern new_stack_end
 .global start

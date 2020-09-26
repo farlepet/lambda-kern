@@ -1,12 +1,12 @@
-#include <string.h>
-
 #include <intr/intr.h>
 #include <time/time.h>
 
 #include <arch/intr/int.h>
 #include <arch/intr/gtimer.h>
 
-static uint32_t *vec_table = (uint32_t *)0x00000000;
+extern uint32_t __int_table[];
+
+static uint32_t *vec_table = (uint32_t *)&__int_table;
 
 void intr_set_handler(interrupt_idx_e idx, void *ptr) {
     if (idx >= 8) {
@@ -20,14 +20,20 @@ extern void (*gtimer_callback)(void);
 
 __attribute__((interrupt ("IRQ")))
 static void intr_irq_handler(void) {
+    __INTR_BEGIN;
+
     uint32_t tmp;
     __READ_CNTV_CTL(tmp);
     if (tmp & (1UL << 2)) {
         /* Timer interrupt has fired. */
         /* Flip transition direction to free interrupt? Needs testing. */
-        __READ_CNTKCTL(tmp);
+        /*__READ_CNTKCTL(tmp);
         tmp ^= (1UL << 3);
-        __WRITE_CNTKCTL(tmp);
+        __WRITE_CNTKCTL(tmp);*/
+
+        /* Clear CompareValue register */
+        tmp = 0;
+        __WRITE_CNTV_CVAL(tmp, tmp);
 
         kerneltime++;
 
@@ -35,21 +41,38 @@ static void intr_irq_handler(void) {
             gtimer_callback();
         }
     }
+
+    __INTR_END;
 }
 
 __attribute__((interrupt ("FIQ")))
 static void intr_fiq_handler(void) {
+    __INTR_BEGIN;
     /* TODO? */
+    __INTR_END;
+}
+
+__attribute__((interrupt))
+static void intr_stub_handler(void) {
+    __INTR_BEGIN;
+    /* TODO? */
+    __INTR_END;
 }
 
 void intr_init(void) {
-    memset(vec_table, 0, 8 * 4);
-    intr_set_handler(INT_IRQ, intr_irq_handler);
-    intr_set_handler(INT_FIQ, intr_fiq_handler);
+    __WRITE_VBAR(vec_table);
+
+    intr_set_handler(INT_RESET,         intr_stub_handler);
+    intr_set_handler(INT_UNDEFINED,     intr_stub_handler);
+    intr_set_handler(INT_SYSCALL,       intr_stub_handler);
+    intr_set_handler(INT_PREFETCHABORT, intr_stub_handler);
+    intr_set_handler(INT_DATAABORT,     intr_stub_handler);
+    intr_set_handler(INT_HYPTRAP,       intr_stub_handler);
+    intr_set_handler(INT_IRQ,           intr_irq_handler);
+    intr_set_handler(INT_FIQ,           intr_fiq_handler);
 
     uint32_t temp;
     __READ_SCTLR(temp);
     temp &= ~(1UL << 24); /* VE */
     __WRITE_SCTLR(temp);
-
 }

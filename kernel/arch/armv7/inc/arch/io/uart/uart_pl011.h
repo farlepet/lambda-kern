@@ -8,6 +8,12 @@
 
 #define UART_PL011_QEMU_VERSATILEPB_UART0_BASE (void *)(0x101F1000)
 
+/* TODO: Move these to a platform header */
+#define UART_PL011_VEXPRESS_A9_UART0_BASE (void *)(0x10009000)
+#define UART_PL011_VEXPRESS_A9_UART1_BASE (void *)(0x1000a000)
+#define UART_PL011_VEXPRESS_A9_UART2_BASE (void *)(0x1000b000)
+#define UART_PL011_VEXPRESS_A9_UART3_BASE (void *)(0x1000c000)
+
 typedef struct {
     volatile uint32_t DR;    /** Data register */
 #define UART_PL011_RSR_FE__POS    (     0) /** Framing error */

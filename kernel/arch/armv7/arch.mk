@@ -1,9 +1,9 @@
 # Architecture-specific Makefile options for armv7
 
-CFLAGS    += -DARCH_ARMV7 -march=armv7
-LDFLAGS    = -T kernel/arch/$(ARCH)/arch.ld
+CFLAGS    += -DARCH_ARMV7 -march=armv7-a -marm
+LDFLAGS    = -marm -T kernel/arch/$(ARCH)/qemu-vexpress-a9.ld
 
-ASFLAGS    = -march=armv7
+ASFLAGS    = -march=armv7-a -marm
 
 export ASFLAGS
 
@@ -30,16 +30,26 @@ lambda.kern: lambda.o symbols.o arch.a
 	@echo -e "\033[33m  \033[1mLinking kernel\033[0m"
 	@$(CC) $(CFLAGS) $(LDFLAGS) -o lambda.kern lambda.o symbols.o arch.a -lgcc
 
+lambda.ukern: lambda.kern
+	@echo -e "\033[33m  \033[1mGenerating U-Boot compatible kernel image\033[0m"
+	@mkimage -A arm -C none -T kernel -a 0x60000000 -r 0x60000000 -d lambda.kern lambda.ukern
+
+sd.img: lambda.ukern
+	@echo -e "\033[33m  \033[1mGenerating SD card image\033[0m"
+	# TODO: Find a way to do this without resorting to SUDO
+	kernel/arch/armv7/sdimg.sh	
+
 initrd.cpio:
 	@echo -e "\033[33m  \033[1mGenerating InitCPIO\033[0m"
 	@cd initrd; find . | cpio -o -v -O../initrd.cpio &> /dev/null
 
 
-emu:
-	@qemu-system-arm -cpu cortex-a7 -machine versatilepb -kernel lambda.kern -serial stdio -no-reboot
+emu: lambda.kern
+	# NOTE: Requires u-boot image configured for vexpress_ca9x4
+	@qemu-system-arm -cpu cortex-a7 -machine vexpress-a9 -kernel lambda.kern -serial stdio -no-reboot
 
-emu-debug:
-	@qemu-system-arm -cpu cortex-a7 -machine versatilepb -kernel lambda.kern -serial stdio -no-reboot -s -S
+emu-debug: lambda.kern
+	@qemu-system-arm -cpu cortex-a7 -machine vexpress-a9 -kernel lambda.kern -serial stdio -no-reboot -s -S
 
 arch_clean:
 	@rm -f common.o lambda.o arch.a symbols.o initrd.cpio lambda.kern symbols.c

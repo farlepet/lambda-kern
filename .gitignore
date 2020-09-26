@@ -29,6 +29,9 @@
 *.kern
 *.iso
 *.cpio
+*.bin
+*.ukern
+*.img
 
 # GRUB files
 stage2_eltorito
