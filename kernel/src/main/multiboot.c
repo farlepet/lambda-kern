@@ -1,11 +1,13 @@
 #include <multiboot.h>
 #include <err/panic.h>
 #include <err/error.h>
+#include <fs/initrd.h>
 #include <string.h>
 #include <video.h>
 
 #if defined(ARCH_X86)
 #  include <arch/io/serial.h>
+#  include <arch/mm/paging.h>
 #endif
 
 volatile boot_options_t boot_options = {
@@ -81,5 +83,44 @@ void check_commandline(struct multiboot_header *mboot_head) {
 		else if(!strcmp(tmp, "-sCOM3")) boot_options.output_serial = SERIAL_COM3;
 		else if(!strcmp(tmp, "-sCOM4")) boot_options.output_serial = SERIAL_COM4;
 #endif
+	}
+}
+
+void check_multiboot_modules(struct multiboot_header *mboot_head) {
+	kerror(ERR_BOOTINFO, "Loading GRUB modules");
+
+	if(!strlen((const char *)boot_options.init_ramdisk_name)) {
+		kerror(ERR_BOOTINFO, "  -> No initrd module specified.");
+		return;
+	}
+
+	if(!(mboot_head->flags & MBOOT_MODULES)) {
+		kerror(ERR_BOOTINFO, "  -> No modules to load");
+		return;
+	}
+
+	kerror(ERR_BOOTINFO, "Looking for initrd module [%s]", boot_options.init_ramdisk_name);
+
+	struct mboot_module *mod = (struct mboot_module *)mboot_head->mod_addr;
+	uint32_t modcnt = mboot_head->mod_count;
+
+	for(uint32_t i = 0; i < modcnt; i++) {
+#if defined(ARCH_X86)
+		ptr_t mod_start = (uint32_t)mod->mod_start;
+		ptr_t mod_end   = (uint32_t)mod->mod_end;
+
+		uint32_t b = ((mod_start - (uint32_t)firstframe) / 0x1000);
+		for(; b < ((mod_end - (uint32_t)firstframe) / 0x1000) + 1; b++) {
+			set_frame(b, 1); // Make sure that the module is not overwritten
+			map_page((b * 0x1000) + firstframe, (b * 0x1000) + firstframe, 3);
+		}
+#endif
+
+		kerror(ERR_BOOTINFO, "  -> MOD[%d/%d]: %s", i+1, modcnt, mod->string);
+
+		if(!strcmp((char *)mod->string, (const char *)boot_options.init_ramdisk_name)) {
+			initrd_mount(fs_root, mod->mod_start, mod->mod_end - mod->mod_start);
+		}
+		mod++;
 	}
 }

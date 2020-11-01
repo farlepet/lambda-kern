@@ -3,20 +3,13 @@
 #include <err/error.h>
 #include <mm/alloc.h>
 #include <string.h>
-#include <fs/fs.h>
 
 #include <libgen.h>
-
-#if defined(ARCH_X86)
-#  include <arch/mm/paging.h>
-#endif
-
-struct mboot_module *initrd = 0;
-
 
 static struct header_old_cpio *cpio = 0;
 
 static int n_files = 0;
+/* TODO: To save space, check number of files present, then kmalloc this array. */
 static struct header_old_cpio *files[0x1000]; // Table of initrd file locations
 static char filenames[0x1000][128];           // Table of initrd filenames
 
@@ -81,48 +74,8 @@ static void initrd_open(struct kfile *f, uint32_t flags) {
 
 
 
-void initrd_init(struct multiboot_header* mboot_head) {
-	kerror(ERR_BOOTINFO, "Loading GRUB modules");
-
-	if(!strlen((const char *)boot_options.init_ramdisk_name)) {
-		kerror(ERR_BOOTINFO, "  -> No initrd module specified.");
-		return;
-	}
-
-	if(!(mboot_head->flags & MBOOT_MODULES)) {
-		kerror(ERR_BOOTINFO, "  -> No modules to load");
-		return;
-	}
-
-	kerror(ERR_BOOTINFO, "Looking for initrd module [%s]", boot_options.init_ramdisk_name);
-
-	struct mboot_module *mod = (struct mboot_module *)mboot_head->mod_addr;
-	uint32_t modcnt = mboot_head->mod_count;
-
-	for(uint32_t i = 0; i < modcnt; i++) {
-	#if defined(ARCH_X86)
-		ptr_t mod_start = (uint32_t)mod->mod_start;
-		ptr_t mod_end   = (uint32_t)mod->mod_end;
-
-		uint32_t b = ((mod_start - (uint32_t)firstframe) / 0x1000);
-		for(; b < ((mod_end - (uint32_t)firstframe) / 0x1000) + 1; b++) {
-			set_frame(b, 1); // Make sure that the module is not overwritten
-			map_page((b * 0x1000) + firstframe, (b * 0x1000) + firstframe, 3);
-		}
-	#endif
-
-		kerror(ERR_BOOTINFO, "  -> MOD[%d/%d]: %s", i+1, modcnt, mod->string);
-
-		if(!strcmp((char *)mod->string, (const char *)boot_options.init_ramdisk_name)) initrd = mod;
-		mod++;
-	}
-	
-	if(!initrd) {
-		kerror(ERR_MEDERR, "  -> Could not locate InitCPIO module!");
-		return;
-	}
-
-	cpio = (struct header_old_cpio *)initrd->mod_start;
+void initrd_mount(struct kfile *mntpoint, uintptr_t initrd, size_t __unused len) {
+	cpio = (struct header_old_cpio *)initrd;
 
 	if(cpio->c_magic != 070707) {
 		kerror(ERR_MEDERR, "  -> Invalid CPIO magic number");
@@ -157,17 +110,11 @@ void initrd_init(struct multiboot_header* mboot_head) {
 		memset(file, 0, sizeof(struct kfile));
 
 		char *name = basename(filenames[cidx]);
-		//memset(file->name, 0, FILE_NAME_MAX);
 		memcpy(file->name, name, strlen(name));
 
-		//kerror(ERR_BOOTINFO, "INITRD: File: %s [CFILE: %08X, DATA: %08X]", filenames[cidx], cfile, data);
-
-		//char tmp[64];
 		char *path = dirname(filenames[cidx]);
 
-		//kerror(ERR_BOOTINFO, "INITRD: Path: %s Name: %s", path, file->name);
-
-		struct kfile *dir = fs_root;
+		struct kfile *dir = mntpoint;
 		if(path[0] != '.') {
 			while(1) {
 				for(uint32_t i = 0; i < strlen(path); i++) {
@@ -198,8 +145,6 @@ void initrd_init(struct multiboot_header* mboot_head) {
 		}
 		
 		
-		//kerror(ERR_BOOTINFO, " -> containing dir: [%s]", dir->name);
-
 		file->length     = cfile->c_filesize;
 		file->impl       = dir->inode; //fs_root->inode; // FIXME
 		file->uid        = cfile->c_uid;
@@ -245,7 +190,6 @@ void initrd_init(struct multiboot_header* mboot_head) {
 		file->write     = &initrd_write;
 		file->open      = &initrd_open;
 
-		//file->info      = (void *)cfile;
 		file->info      = (void *)data;
 
 		cfile->c_ino    = fs_add_file(file, dir);

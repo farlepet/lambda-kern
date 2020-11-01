@@ -3,13 +3,17 @@
 
 #include <multiboot.h>
 #include <types.h>
+#include <fs/fs.h>
 
 /**
  * @brief Load INITRD
  * 
- * @param mboot_head Header provided by bootloader
+ * @param mntpoint where to mount initrd
+ * @param initrd   pointer to CPIO structure in memory
+ * @param len      length of initrd data
  */
-void initrd_init(struct multiboot_header* mboot_head);
+void initrd_mount(struct kfile *mntpoint, uintptr_t initrd, size_t len);
+//void initrd_init(struct multiboot_header* mboot_head);
 
 /**
  * @brief CPIO header

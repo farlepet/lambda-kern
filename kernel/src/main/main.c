@@ -52,8 +52,10 @@ __noreturn int kmain(struct multiboot_header *mboot_head, uint32_t magic) {
 	kerror(ERR_BOOTINFO, "-------------------------");
 	
 	fs_init();
-	initrd_init(mboot_head);
-	
+#if defined(ARCH_X86)
+	check_multiboot_modules(mboot_head);
+#endif
+
 	timer_init(100);
 
 	init_syscalls();
