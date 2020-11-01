@@ -1,19 +1,12 @@
 #ifndef ARCH_ARMV7_IO_UART_UART_PL011_H
 #define ARCH_ARMV7_IO_UART_UART_PL011_H
 
-
 #include <stdint.h>
+
+#include <arch/plat/platform.h>
 
 #include <hal/io/char/char.h>
 #include <hal/intr/int_ctlr.h>
-
-#define UART_PL011_QEMU_VERSATILEPB_UART0_BASE (void *)(0x101F1000)
-
-/* TODO: Move these to a platform header */
-#define UART_PL011_VEXPRESS_A9_UART0_BASE (void *)(0x10009000)
-#define UART_PL011_VEXPRESS_A9_UART1_BASE (void *)(0x1000a000)
-#define UART_PL011_VEXPRESS_A9_UART2_BASE (void *)(0x1000b000)
-#define UART_PL011_VEXPRESS_A9_UART3_BASE (void *)(0x1000c000)
 
 typedef struct {
     volatile uint32_t DR;    /** Data register */

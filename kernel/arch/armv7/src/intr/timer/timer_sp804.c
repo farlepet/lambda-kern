@@ -1,0 +1,112 @@
+#include <string.h>
+
+#include <arch/intr/timer/timer_sp804.h>
+
+#include <video.h>
+
+static int timerdev_setfreq(void *data, uint8_t idx, uint32_t freq);
+static int timerdev_attach(void *data, uint8_t idx, void (*callback)(void));
+
+int timer_sp804_create_timerdev(timer_sp804_handle_t *hand, hal_timer_dev_t *dev) {
+    memset(dev, 0, sizeof(hal_timer_dev_t));
+
+    dev->data = (void *)hand;
+
+    dev->setfreq   = timerdev_setfreq;
+    dev->setperiod = NULL; /* TODO */
+    dev->attach    = timerdev_attach;
+
+    dev->cap = HAL_TIMERDEV_CAP_VARFREQ | HAL_TIMERDEV_CAP_CALLBACK;
+
+    return 0;
+}
+
+int timer_sp804_init(timer_sp804_handle_t *hand, void *base) {
+    if(!base) {
+        return -1;
+    }
+
+    hand->base = (timer_sp804_regmap_t *)base;
+
+    /* Disable both timers: */
+    hand->base->TIM1.CTRL = 0;
+    hand->base->TIM2.CTRL = 0;
+
+    return 0;
+}
+
+static void intr_handler(uint32_t __unused int_n, void *data) {
+    timer_sp804_handle_t *hand = (timer_sp804_handle_t *)data;
+
+    if(hand->base->TIM1.MIS) {
+        if(hand->callbacks[0]) {
+            hand->callbacks[0]();
+        }
+        hand->base->TIM1.INTCLR = 1;
+    }
+    
+    if(hand->base->TIM2.MIS) {
+        if(hand->callbacks[1]) {
+            hand->callbacks[1]();
+        }
+        hand->base->TIM2.INTCLR = 1;
+    }
+}
+
+int timer_sp804_int_attach(timer_sp804_handle_t *hand, hal_intctlr_dev_t *intctlr, uint32_t int_n) {
+    hal_intctlr_dev_intr_attach(intctlr, int_n, intr_handler, hand);
+    hal_intctlr_dev_intr_enable(intctlr, int_n);
+
+    return 0;
+}
+
+static int timerdev_setfreq(void *data, uint8_t idx, uint32_t freq) {
+    if(idx >= 2) {
+        return -1;
+    }
+    if(freq > 8000000) {
+        return -1;
+    }
+
+    timer_sp804_handle_t *hand = (timer_sp804_handle_t *)data;
+
+    timer_sp804_regmap_tspec_t *timer = (idx == 0) ?
+                                        &hand->base->TIM1 :
+                                        &hand->base->TIM2;
+
+    timer->CTRL = (timer->CTRL & ~((1UL                             << TIMER_SP804_CTRL_ONESHOT__POS) |
+                                   (TIMER_SP804_CTRL_PRESCALE__MASK << TIMER_SP804_CTRL_PRESCALE__POS) |
+                                   (0UL                             << TIMER_SP804_CTRL_MODE__POS))) |
+                  (1UL << TIMER_SP804_CTRL_SIZE__POS) |
+                  (1UL << TIMER_SP804_CTRL_MODE__POS);
+
+    /** TODO: Determine source clock frequency */
+    timer->LOAD = 8000000 / freq;
+
+    timer->CTRL |= (1UL << TIMER_SP804_CTRL_EN__POS);
+
+    return 0;
+}
+
+static int timerdev_attach(void *data, uint8_t idx, void (*callback)(void)) {
+	if(idx >= 2) {
+		return -1;
+	}
+    
+    timer_sp804_handle_t *hand = (timer_sp804_handle_t *)data;
+
+    if(hand->callbacks[idx]) {
+		/* Presently only support a single callback per timer */
+        return -1;
+    }
+	
+    hand->callbacks[idx] = callback;
+
+    timer_sp804_regmap_tspec_t *timer = (idx == 0) ?
+                                        &hand->base->TIM1 :
+                                        &hand->base->TIM2;
+    
+    timer->CTRL |= (1UL << TIMER_SP804_CTRL_INTEN__POS);
+
+	return 0;
+}

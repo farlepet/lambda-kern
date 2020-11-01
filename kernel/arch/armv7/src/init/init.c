@@ -8,6 +8,7 @@
 #include <arch/plat/platform.h>
 
 #include <err/error.h>
+#include <mm/alloc.h>
 #include <video.h>
 
 uart_pl011_handle_t pl011;
@@ -16,19 +17,12 @@ hal_io_char_dev_t   uart;
 armv7_gic_handle_t gic;
 hal_intctlr_dev_t  intctlr;
 
-/* NOTE: For testing only */
-uint32_t scr;
-
-void arch_init(struct multiboot_header *mboot_head) {
-    (void)mboot_head;
-
+void arch_init(struct multiboot_header __unused *mboot_head) {
     disable_interrupts();
     disable_fiqs();
 
-    __READ_SCR(scr);
-
     /* TODO: Make this configurable and abstractable */
-    uart_pl011_init(&pl011, UART_PL011_VEXPRESS_A9_UART0_BASE, 115200);
+    uart_pl011_init(&pl011, VEXPRESS_A9_PERIPH_UART0_BASE, 115200);
     uart_pl011_create_chardev(&pl011, &uart);
     kput_char_dev = &uart;
 
@@ -46,8 +40,10 @@ void arch_init(struct multiboot_header *mboot_head) {
                   (void *)(mpcore + MPCORE_PERIPHBASE_OFF_DCU));
     armv7_gic_create_intctlrdev(&gic, &intctlr);
     intr_attach_gic(&gic);
-
     kerror(ERR_BOOTINFO, "GIC Initialized");
 
     uart_pl011_int_attach(&pl011, &intctlr, VEXPRESSA9_INT_UART0);
+
+    /* TODO: Abstract this. Make memory map partially user-configurable. */
+    init_alloc(VEXPRESSA9_ALLOC_BASE, VEXPRESSA9_ALLOC_SIZE);
 }

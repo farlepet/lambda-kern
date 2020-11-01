@@ -4,8 +4,8 @@
 
 void (*gtimer_callback)(void) = NULL;
 
-static int timerdev_setfreq(void *data, uint32_t freq);
-static int timerdev_attach(void *data, void (*callback)(void));
+static int timerdev_setfreq(void *data, uint8_t idx, uint32_t freq);
+static int timerdev_attach(void *data, uint8_t idx, void (*callback)(void));
 
 void armv7_gtimer_create_timerdev(hal_timer_dev_t *dev) {
 	memset(dev, 0, sizeof(hal_timer_dev_t));
@@ -40,16 +40,20 @@ int armv7_gtimer_init(uint32_t freq) {
     return 0;
 }
 
-static int timerdev_setfreq(void *data, uint32_t freq) {
-	(void)data;
+static int timerdev_setfreq(void __unused *data, uint8_t idx, uint32_t freq) {
+	if(idx != 0) {
+		return -1;
+	}
     
     __WRITE_CNTFRQ(freq);
 
 	return 0;
 }
 
-static int timerdev_attach(void *data, void (*callback)(void)) {
-	(void)data;
+static int timerdev_attach(void __unused *data, uint8_t idx, void (*callback)(void)) {
+	if(idx != 0) {
+		return -1;
+	}
 	
 	if(gtimer_callback) {
 		/* Presently only support a single callback */

@@ -68,8 +68,10 @@ static void intr_recv_handler(uint32_t int_n, void *data) {
 
     uart_pl011_handle_t *hand = (uart_pl011_handle_t *)data;
 
+    uint8_t inp = (uint8_t)hand->base->DR;
+
     /* For testing only: */
-    chardev_putc(data, 'I');
+    chardev_putc(data, inp);
 
     /* Clear all UART interrupts */
     hand->base->ICR = 0x07FF;

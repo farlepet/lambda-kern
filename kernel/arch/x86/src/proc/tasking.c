@@ -120,7 +120,6 @@ __hot void do_task_switch(void) {
 	if(!tasking)   return;
 	if(creat_task) return; // We don't want to interrupt process creation
 
-#if  defined(ARCH_X86)
 	uint32_t esp, ebp, eip, cr3;
 	asm volatile ("mov %%esp, %0" : "=r" (esp));
 	asm volatile ("mov %%ebp, %0" : "=r" (ebp));
@@ -130,15 +129,12 @@ __hot void do_task_switch(void) {
 		sched_processes();
 		return;
 	}
-#endif
 
 
 	if(procs[c_proc].type & TYPE_RANONCE) {
-#if  defined(ARCH_X86)
 		procs[c_proc].arch.esp = esp;
 		procs[c_proc].arch.ebp = ebp;
 		procs[c_proc].arch.eip = eip;
-#endif
 	}
 	else procs[c_proc].type |= TYPE_RANONCE;
 
@@ -146,7 +142,6 @@ __hot void do_task_switch(void) {
 	c_proc = sched_next_process();
 
 
-#if  defined(ARCH_X86)
 	tss_set_kern_stack(procs[c_proc].arch.kernel_stack);
 
 	esp = procs[c_proc].arch.esp;
@@ -163,5 +158,4 @@ __hot void do_task_switch(void) {
 				 "jmp *%%ebx"
 				 : : "r" (eip), "r" (esp), "r" (ebp), "r" (cr3)
 				 : "%ebx", /*"%esp", */"%eax");
-#endif
 }

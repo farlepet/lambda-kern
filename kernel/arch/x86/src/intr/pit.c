@@ -13,8 +13,8 @@ void pit_handler(void); //!< Assembly PIT interrupt handler
 
 static void (*pit_callback)(void) = NULL;
 
-static int timerdev_setfreq(void *data, uint32_t freq);
-static int timerdev_attach(void *data, void (*callback)(void));
+static int timerdev_setfreq(void *data, uint8_t idx, uint32_t freq);
+static int timerdev_attach(void *data, uint8_t idx, void (*callback)(void));
 
 void pit_create_timerdev(hal_timer_dev_t *dev) {
 	memset(dev, 0, sizeof(hal_timer_dev_t));
@@ -77,8 +77,10 @@ void pit_init(uint32_t freq)
 	enable_irq(0);
 }
 
-static int timerdev_setfreq(void *data, uint32_t freq) {
-	(void)data;
+static int timerdev_setfreq(void __unused *data, uint8_t idx, uint32_t freq) {
+	if(idx != 0) {
+		return -1;
+	}
 
 	if(freq < 18 || freq > 1193181) return -1;
 
@@ -90,8 +92,10 @@ static int timerdev_setfreq(void *data, uint32_t freq) {
 	return 0;
 }
 
-static int timerdev_attach(void *data, void (*callback)(void)) {
-	(void)data;
+static int timerdev_attach(void __unused *data, uint8_t idx, void (*callback)(void)) {
+	if(idx != 0) {
+		return -1;
+	}
 	
 	if(pit_callback) {
 		/* Presently only support a single callback */

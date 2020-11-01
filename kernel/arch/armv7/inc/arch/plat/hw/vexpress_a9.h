@@ -3,6 +3,10 @@
 
 #include <arch/plat/cpu/cortex_a9.h>
 
+/* TODO: Either determine at runtime, or have this user-configurable. */
+#define VEXPRESSA9_ALLOC_BASE (0x60200000)
+#define VEXPRESSA9_ALLOC_SIZE (0x00E00000)
+
 #define VEXPRESSA9_INT_WDOG0 (32)
 #define VEXPRESSA9_INT_SWI   (33)
 #define VEXPRESSA9_INT_TIM01 (34)
@@ -21,5 +25,13 @@
 #define VEXPRESSA9_INT_ETH   (47)
 #define VEXPRESSA9_INT_USB   (48)
 #define VEXPRESSA9_INT_PCIE  (49)
+
+#define VEXPRESS_A9_PERIPH_UART0_BASE   (void *)(0x10009000)
+#define VEXPRESS_A9_PERIPH_UART1_BASE   (void *)(0x1000a000)
+#define VEXPRESS_A9_PERIPH_UART2_BASE   (void *)(0x1000b000)
+#define VEXPRESS_A9_PERIPH_UART3_BASE   (void *)(0x1000c000)
+
+#define VEXPRESS_A9_PERIPH_TIMER01_BASE (void *)(0x10011000)
+#define VEXPRESS_A9_PERIPH_TIMER23_BASE (void *)(0x10012000)
 
 #endif

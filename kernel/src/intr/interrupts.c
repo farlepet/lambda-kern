@@ -7,6 +7,7 @@
 #  include <arch/intr/pit.h>
 #elif defined(ARCH_ARMV7)
 #  include <arch/intr/gtimer.h>
+#  include <arch/intr/timer/timer_sp804.h>
 #endif
 
 #include <arch/intr/int.h>
@@ -41,11 +42,14 @@ void timer_init(uint32_t quantum) {
 	pit_create_timerdev(&timer);
 	hal_timer_dev_attach(&timer, do_task_switch);
 #else
-	(void)quantum;
-	(void)timer;
-    /*armv7_gtimer_init(quantum);
-	armv7_gtimer_create_timerdev(&timer);
-	hal_timer_dev_attach(&timer, do_task_switch);*/
+	static timer_sp804_handle_t sp804;
+	extern hal_intctlr_dev_t intctlr; /* GIC */
+
+    timer_sp804_init(&sp804, VEXPRESS_A9_PERIPH_TIMER01_BASE);
+	timer_sp804_int_attach(&sp804, &intctlr, VEXPRESSA9_INT_TIM01);
+	timer_sp804_create_timerdev(&sp804, &timer);
+	hal_timer_dev_setfreq(&timer, 0, quantum);
+	hal_timer_dev_attach(&timer, 0, do_task_switch);
 #endif
 	kerror(ERR_BOOTINFO, "Timer initialized");
 }

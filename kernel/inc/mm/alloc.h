@@ -18,9 +18,18 @@ struct alcent //!< Describes a block of memory
  * Allocates a block of memory
  *
  * @param sz size of the required memory block
- * @returns pointer to memory block
+ * @returns pointer to memory block on success, else NULL
  */
 void *kmalloc(uint32_t sz);
+
+/**
+ * Allocates a block of memory with requested alignment
+ *
+ * @param sz    size of the required memory block
+ * @param align desired alignment
+ * @returns pointer to memory block on success, else NULL
+ */
+void *kamalloc(uint32_t sz, uint32_t align);
 
 /**
  * Free an allocated memory block

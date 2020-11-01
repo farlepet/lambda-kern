@@ -129,12 +129,7 @@ static int get_free_block()
 	return ALLOC_BLOCKS;
 }
 
-/**
- * Allocate a block of memory
- *
- * @param sz size of the required block
- * @returns pointer to block
- */
+
 void *kmalloc(uint32_t sz)
 {
 	kerror(ERR_DETAIL, "Allocating %d bytes of memory", sz);
@@ -206,11 +201,19 @@ void *kmalloc(uint32_t sz)
 	return (void *)ae.addr;
 }
 
-/**
- * Free an allocated block of memory
- *
- * @param ptr pointer to the previously allocated memory block
- */
+void *kamalloc(uint32_t sz, uint32_t align) {
+	/* TODO: The current functionality is currently a place-holder. This should
+	 * be redesigned such that it only allocates the needed memory with the
+	 * desired alignmnt. This kmalloc can simply call kmalloc(sz, 1). As it is
+	 * implemented right now, blocks allocated with kamalloc cannot be kfree'd. */
+
+	void *ptr = kmalloc(sz + align);
+	if(!ptr) {
+		return NULL;
+	}
+	return (void *)(((uintptr_t)ptr + align) % align);
+}
+
 void kfree(void *ptr)
 {
 	kerror(ERR_DETAIL, "Freeing %08X", ptr);
