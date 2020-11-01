@@ -1,34 +1,47 @@
+#include <arch/intr/int.h>
+
 #include <types.h>
-#include <intr/int.h>
 
 #ifndef INTERRUPT_H
 #define INTERRUPT_H
 
 #if defined(ARCH_X86)
 
-#define TIMER_INT    32
-#define KEYBOARD_INT 33
-#define SERIALA_INT  35
-#define SERIALB_INT  36
-
-#define SCHED_INT    64
+typedef enum {
+    INT_TIMER        = 32,
+    INT_KEYBOARD     = 33,
+    INT_SERIALA      = 35,
+    INT_SERIALB      = 36,
+    INT_PARALLELB    = 37,
+    INT_FLOPPY       = 38,
+    INT_PARALLELA    = 39,
+    INT_RTC          = 40,
+    INT_IRQ9         = 41,
+    INT_IRQ10        = 42,
+    INT_IRQ11        = 43,
+    INT_PS2          = 44,
+    INT_COPROCESSOR  = 45,
+    INT_ATAPRIMARY   = 46,
+    INT_ATASECONDARY = 47,
+    INT_SCHED        = 64,
+    INT_SYSCALL      = 255
+} interrupt_idx_e;
 
 #else
 
-#define TIMER_INT    0
-#define KEYBOARD_INT 0
-#define SERIALA_INT  0
-#define SERIALB_INT  0
-
-#define SCHED_INT    0
+typedef enum {
+    INT_RESET         = 0,
+    INT_UNDEFINED     = 1,
+    INT_SYSCALL       = 2,
+    INT_PREFETCHABORT = 3,
+    INT_DATAABORT     = 4,
+    INT_HYPTRAP       = 5,
+    INT_IRQ           = 6,
+    INT_FIQ           = 7,
+    INT_MAX           = 8
+} interrupt_idx_e;
 
 #endif
-
-/**
- * \brief Initializes interrupts.
- * Initializes based on the target architecture.
- */
-void interrupts_init(void);
 
 /**
  * \brief Attaches an interrupt handler to an interrupt.
@@ -36,7 +49,7 @@ void interrupts_init(void);
  * @param n number of the interrupt
  * @param handler the location of the interrupt handler
  */
-void set_interrupt(u32 n, void *handler);
+void set_interrupt(interrupt_idx_e n, void *handler);
 
 
 /**
@@ -44,6 +57,6 @@ void set_interrupt(u32 n, void *handler);
  * Initializes the timer used by the target architecture.
  * @param quantum the speed in Hz
  */
-void timer_init(u32 quantum);
+void timer_init(uint32_t quantum);
 
 #endif

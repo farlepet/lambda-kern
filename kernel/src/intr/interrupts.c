@@ -2,35 +2,17 @@
 #include <err/error.h>
 #include <types.h>
 
-#if  defined(ARCH_X86)
-
-#include <intr/idt.h>
-#include <intr/pit.h>
-#include <intr/int.h>
-#include <mm/gdt.h>
-extern void exceptions_init(); //!< Initializes basic exception handlers. Found in intr/exceptions.asm
-
+#if defined(ARCH_X86)
+#  include <arch/intr/idt.h>
+#  include <arch/intr/pit.h>
+#elif defined(ARCH_ARMV7)
+#  include <arch/intr/gtimer.h>
+#  include <arch/intr/timer/timer_sp804.h>
 #endif
 
-/**
- * \brief Initializes interrupts.
- * Initializes based on the target architecture.
- */
-void interrupts_init()
-{
-	kerror(ERR_BOOTINFO, "Enabling Interrupts");
-#if  defined(ARCH_X86)
-	kerror(ERR_BOOTINFO, "  -> GDT");
-	gdt_init();
-	kerror(ERR_BOOTINFO, "  -> IDT");
-	idt_init();
-	kerror(ERR_BOOTINFO, "  -> Exceptions");
-	exceptions_init();
-	kerror(ERR_BOOTINFO, "  -> STI");
-	enable_interrupts();
-#endif
-	kerror(ERR_BOOTINFO, "Interrupts enabled");
-}
+#include <arch/intr/int.h>
+#include <arch/proc/tasking.h>
+
 
 /**
  * \brief Attaches an interrupt handler to an interrupt.
@@ -38,25 +20,36 @@ void interrupts_init()
  * @param n number of the interrupt
  * @param handler the location of the interrupt handler
  */
-void set_interrupt(u32 n, void *handler)
-{
+void set_interrupt(interrupt_idx_e n, void *handler) {
 #if   defined(ARCH_X86)
-	set_idt((u8)n, 0x08, 0x8E, handler);
+	set_idt((uint8_t)n, 0x08, 0x8E, handler);
+#elif defined(ARCH_ARMV7)
+	intr_set_handler(n, handler);
 #endif
 	kerror(ERR_INFO, "Interrupt vector 0x%02X set", n);
 }
 
+/* TODO: Move HAL elsewhere */
+static hal_timer_dev_t timer;
 /**
  * \brief Initializes the system timer.
  * Initializes the timer used by the target architecture.
  * @param quantum the speed in Hz
  */
-void timer_init(u32 quantum)
-{
+void timer_init(uint32_t quantum) {
 #ifdef ARCH_X86
 	pit_init(quantum);
+	pit_create_timerdev(&timer);
+	hal_timer_dev_attach(&timer, 0, do_task_switch);
 #else
-	(void)quantum;
+	static timer_sp804_handle_t sp804;
+	extern hal_intctlr_dev_t intctlr; /* GIC */
+
+    timer_sp804_init(&sp804, VEXPRESS_A9_PERIPH_TIMER01_BASE);
+	timer_sp804_int_attach(&sp804, &intctlr, VEXPRESSA9_INT_TIM01);
+	timer_sp804_create_timerdev(&sp804, &timer);
+	hal_timer_dev_setfreq(&timer, 0, quantum);
+	hal_timer_dev_attach(&timer, 0, do_task_switch);
 #endif
 	kerror(ERR_BOOTINFO, "Timer initialized");
 }

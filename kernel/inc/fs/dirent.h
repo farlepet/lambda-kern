@@ -5,8 +5,7 @@
 
 #define FILE_NAME_MAX 256
 
-struct dirent
-{
+struct dirent {
 	uint32_t ino;                 //!< i-node of the file
 	char     name[FILE_NAME_MAX]; //!< name of the file
 };

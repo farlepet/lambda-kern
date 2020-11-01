@@ -7,11 +7,11 @@
 
 union input_id
 {
-	u32 n;
+	uint32_t n;
 	struct id
 	{
-		u16 driver;
-		u16 device;
+		uint16_t driver;
+		uint16_t device;
 	} s;
 };
 
@@ -43,7 +43,7 @@ struct input_event
 {
 	union input_id origin; //!< From where the event originated
 	enum event_type type;  //!< What kind of event was it
-	u32 data;              //!< The data for the event (ex: the keycode)
+	uint32_t data;              //!< The data for the event (ex: the keycode)
 };
 
 
@@ -51,11 +51,11 @@ struct input_dev
 {
 	union input_id id;
 
-	u32 state;         //!< State of the device, different for every device type
+	uint32_t state;         //!< State of the device, different for every device type
 
 	char name[64];     //!< When mounted, it will be at /dev/name
 
-	u8  valid;         //!< Whether or not this slot is being used
+	uint8_t  valid;         //!< Whether or not this slot is being used
 };
 
 extern struct input_dev idevs[MAX_INPUT_DEVICES];
@@ -69,9 +69,9 @@ extern struct input_dev idevs[MAX_INPUT_DEVICES];
  * @param name_by_id whether or not to append the device number to the name
  * @param id_to_alpha convert device id to a letter, only used if name_by_id == 1
  */
-struct input_dev *add_input_dev(u16 driver, char *name, u8 name_by_id, u8 id_to_alpha);
+struct input_dev *add_input_dev(uint16_t driver, char *name, uint8_t name_by_id, uint8_t id_to_alpha);
 
 
-struct input_dev *get_idevice(u16 driver, u16 device);
+struct input_dev *get_idevice(uint16_t driver, uint16_t device);
 
 #endif

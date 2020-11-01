@@ -12,18 +12,6 @@
 
 #include <config.h>
 
-#ifdef ARCH_X86
-typedef char      s8;  //!< Signed 8 bit value
-typedef short     s16; //!< Signed 16 bit value
-typedef int       s32; //!< Signed 32 bit value
-typedef long long s64; //!< Signed 64 bit value
-
-typedef unsigned char      u8;  //!< Unsigned 8 bit value
-typedef unsigned short     u16; //!< Unsigned 16 bit value
-typedef unsigned int       u32; //!< Unsigned 32 bit value
-typedef unsigned long long u64; //!< Unsigned 64 bit value
-#endif // ARCH_X86
-
 typedef unsigned long long int max_ptr_t; //!< Maximum pointer size that can be used by an architecture
 
 
@@ -31,8 +19,9 @@ typedef unsigned long long int max_ptr_t; //!< Maximum pointer size that can be 
 
 #define __pure           __attribute__((__pure__))                //!< Return value depends soely on arguments
 
-#define __align(A)       __attribute__((__aligned__(A)))         //!< Aligns the data A bytes
+#define __align(A)       __attribute__((__aligned__(A)))          //!< Aligns the data A bytes
 #define __inline_flat    __attribute__((__flatten__))             //!< Tries to inline ALL function calls
+#define __no_inline      __attribute__ ((__noinline__))           //!< Prevents inlining of function
 
 #define __error(E)       __attribute__((__error__(#E)))           //!< Throws an error is this is reached in preprocessing
 #define __warning(E)     __attribute__((__warning__(#E)))         //!< Throws a warning is this is reached in preprocessing
@@ -46,6 +35,8 @@ typedef unsigned long long int max_ptr_t; //!< Maximum pointer size that can be 
 #define __packed         __attribute__((__packed__))              //!< Do not use alignment
 #define __cold           __attribute__((__cold__))                //!< This data isn't used much
 #define __hot            __attribute__((__hot__))                 //!< This data is used often
+#define __optimize_none  __attribute__((__optimize__("-O0")))     //!< Prevent optimization of this function
+#define __naked          __attribute__((__naked__))               //!< Do not add callee instructions to this function
 
 #define __vector_size(S) __attribute__ ((vector_size(S)))       //!< Create a vector
 
@@ -70,11 +61,11 @@ typedef enum BOOL { FALSE, TRUE } bool;
 
 void __builtin_ia32_pause(); //!< Energy-saving alternative to `nop`
 
-typedef u32 (*func0_t)();
-typedef u32 (*func1_t)(u32);
-typedef u32 (*func2_t)(u32, u32);
-typedef u32 (*func3_t)(u32, u32, u32);
-typedef u32 (*func4_t)(u32, u32, u32, u32);
-typedef u32 (*func5_t)(u32, u32, u32, u32, u32);
+typedef uint32_t (*func0_t)();
+typedef uint32_t (*func1_t)(uint32_t);
+typedef uint32_t (*func2_t)(uint32_t, uint32_t);
+typedef uint32_t (*func3_t)(uint32_t, uint32_t, uint32_t);
+typedef uint32_t (*func4_t)(uint32_t, uint32_t, uint32_t, uint32_t);
+typedef uint32_t (*func5_t)(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
 
 #endif

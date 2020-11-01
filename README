@@ -1,31 +1,38 @@
-Lambda OS v0.1.2
+Lambda OS
 
 *** Description ***
 
 Lambda OS is a hobby operating system developed by Peter Farley. Lambda OS
-is designed to work on any i386-compatible processor, but the design of
-Lambda OS allows for easier addition of new architectures without any
-major modification of the main kernel code. 
+is designed to be portable to multiple systems, and currently supports
+x86-based PCs, and ARMv7 (Cortex-A9) support is in progress.
 
+Platform support:
+  - x86
+     - PC
+  - ARMv7
+     - Cortex-A9
+        - Versatile Express A9 (early stages)
+     - Cortex-A7
+        - Allwinner V3s (future plans)
 
 *** Building ***
 
 To be able to build Lambda OS, you need the following tools:
-  - x86 or x86_64 PC (Unless you are using a cross-compiler)
-  - `gcc`
-  - `nasm`
+  - `gcc` or `clang` (Use cross-compiler if necessary)
   - `make`
-  - `curl`
-  - `genisoimage`
+  - `cpio`
+  - `eu-readelf` (elfutils)
+  - `xorriso` and `grub-mkrescue`
 
 To build Lambda OS:
   - (If fisrt time) Clone the Lambda OS code repository.
   - (If not first time) Run `git pull`
   - Make: `make`
+     - Defaults to x86
+     - For ARMv7: `make CROSS_COMPILE=<gcc prefix> ARCH=armv7`
 
 
 *** More Documentation ***
 
 Documentation on various parts of Lambda OS can be found in the `docs`
 directory.
-

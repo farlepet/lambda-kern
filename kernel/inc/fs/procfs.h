@@ -2,18 +2,17 @@
 #define PROCFS_H
 
 #include <fs/kfile.h>
-#include <fs/dirent.h>
+#include <fs/dirinfo.h>
 
-u32            proc_fs_read    (int desc, u32 off, u32 sz, u8 *buff);
-u32            proc_fs_write   (int desc, u32 off, u32 sz, u8 *buff);
-void           proc_fs_open    (int desc, u32 flags);
-void           proc_fs_close   (int desc);
-struct dirent *proc_fs_readdir (int desc, u32 idx);
-struct kfile  *proc_fs_finddir (int desc, char *name);
-int            proc_fs_mkdir   (int desc, char *name, u32 perms);
-int            proc_fs_create  (int desc, char *name, u32 perms);
-int            proc_fs_ioctl   (int desc, int req, void *args);
+uint32_t proc_fs_read  (int desc, uint32_t off, uint32_t sz, uint8_t *buff);
+uint32_t proc_fs_write (int desc, uint32_t off, uint32_t sz, uint8_t *buff);
+int proc_fs_open       (const char *name, uint32_t flags);
+int proc_fs_close      (int desc);
+int proc_fs_mkdir      (int desc, char *name, uint32_t perms);
+int proc_fs_create     (int desc, char *name, uint32_t perms);
+int proc_fs_ioctl      (int desc, int req, void *args);
+uint32_t proc_fs_read_blk(int desc, uint32_t off, uint32_t sz, uint8_t *buff);
 
-u32            proc_fs_read_blk(int desc, u32 off, u32 sz, u8 *buff);
+int proc_fs_getdirinfo(int desc, struct dirinfo *dinfo);
 
 #endif

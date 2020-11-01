@@ -2,12 +2,11 @@
 #include <intr/intr.h>
 #include <time/time.h>
 #include <err/error.h>
-#include <intr/int.h>
 #include <config.h>
 #include <types.h>
 #include <video.h>
 
-error_level minlvl = ERR_BOOTINFO; //!< Minimal level where messages are shown
+error_level minlvl = ERR_INFO; //!< Minimal level where messages are shown
 
 lock_t kerror_lock = 0; //!< Only 1 message can be printed at a time
 /**
@@ -19,17 +18,14 @@ lock_t kerror_lock = 0; //!< Only 1 message can be printed at a time
  * @param msg the format string
  * @param ... the arguments to go along with the format string
  */
-void kerror(error_level errlvl, char *msg, ...)
-{
-
-	if(errlvl >= minlvl)
-	{
+void kerror(error_level errlvl, char *msg, ...) {
+	if(errlvl >= minlvl) {
 		if(interrupts_enabled()) lock_for(&kerror_lock, 8); // We don't want something like a kernel message from a lost task stopping us
 
 		if(KERNEL_COLORCODE)
-			kprintf("\e[31m[\e[32m%X%08X\e[31m]\e[0m ", (u32)(kerneltime >> 32), (u32)kerneltime);
+			kprintf("\e[31m[\e[32m%X%08X\e[31m]\e[0m ", (uint32_t)(kerneltime >> 32), (uint32_t)kerneltime);
 		else
-			kprintf("[%X%08X] ", (u32)(kerneltime >> 32), (u32)kerneltime);
+			kprintf("[%X%08X] ", (uint32_t)(kerneltime >> 32), (uint32_t)kerneltime);
 
 		__builtin_va_list varg;
 		__builtin_va_start(varg, msg);

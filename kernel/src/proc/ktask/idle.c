@@ -1,6 +1,6 @@
+#include <arch/intr/int.h>
+
 #include <proc/ktasks.h>
-#include <intr/int.h>
-#include <video.h>
 
 /**
  * A basic task that only loops, 

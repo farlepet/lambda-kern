@@ -25,7 +25,7 @@ struct kfile *stream_create(int length) {
 
     // TODO: Should GID and UID be set to something?
     file->pflags = 0777; // TODO
-    file->flags = FS_FILE; // TODO: Should this be a pipe?
+    file->flags = FS_STREAM; // TODO: Should this be a pipe?
     // TODO: Creation time
 
     file->read  = stream_read;
@@ -34,7 +34,7 @@ struct kfile *stream_create(int length) {
     file->close = stream_close;
     // TODO: Possibly implement IOCTL?
 
-    fs_add_file(file);
+    fs_add_file(file, NULL);
 
     return file;
 }

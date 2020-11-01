@@ -2,6 +2,7 @@
 #include <err/error.h>
 #include <err/panic.h>
 #include <proc/proc.h>
+#include <mm/alloc.h>
 #include <string.h>
 
 void kproc_to_uproc(struct kproc *kp, struct uproc *up)
@@ -19,11 +20,63 @@ void kproc_to_uproc(struct kproc *kp, struct uproc *up)
 	memcpy(up->children, kp->children, MAX_CHILDREN * sizeof(int));
 
 #ifdef ARCH_X86
-	up->ip = kp->eip;
+	up->ip = kp->arch.eip;
 #endif
 }
 
 
+int proc_add_file(struct kproc *proc, struct kfile *file) {
+	for(int i = 0; i < MAX_OPEN_FILES; i++) {
+		if(proc->open_files[i] == NULL) {
+			proc->open_files[i] = file;
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+int proc_add_mmap_ent(struct kproc *proc, uintptr_t virt_address, uintptr_t phys_address, size_t length) {
+	struct kproc_mem_map_ent *ent = (struct kproc_mem_map_ent *)kmalloc(sizeof(struct kproc_mem_map_ent));
+
+	ent->virt_address = virt_address;
+	ent->phys_address = phys_address;
+	ent->length       = length;
+	ent->next         = NULL;
+
+	if(proc->mmap == NULL) {
+		proc->mmap = ent;
+	} else {
+		struct kproc_mem_map_ent *last = proc->mmap;
+		while(last->next != NULL) last = last->next;
+		last->next = ent;
+	}
+
+	return 0;
+}
+
+int proc_add_mmap_ents(struct kproc *proc, struct kproc_mem_map_ent *entries) {
+	if(proc->mmap == NULL) {
+		proc->mmap = entries;
+	} else {
+		struct kproc_mem_map_ent *last = proc->mmap;
+		while(last->next != NULL) last = last->next;
+		last->next = entries;
+	}
+
+	return 0;
+}
+
+int proc_add_child(struct kproc *parent, int child_idx) {
+	for(int i = 0; i < MAX_CHILDREN; i++) {
+		if(parent->children[i] < 0) {
+			parent->children[i] = child_idx;
+			return 0;
+		}
+	}
+
+	return 1;
+}
 
 
 __hot void sched_processes()
@@ -51,6 +104,8 @@ __hot int sched_next_process()
 		if(c_proc >= MAX_PROCESSES) c_proc = 0;
 	}
 	current_pid = procs[c_proc].pid;
+
+	procs[c_proc].book.schedule_count++;
 
 	return c_proc;
 }

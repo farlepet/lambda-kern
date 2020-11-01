@@ -2,12 +2,17 @@
 #include <err/error.h>
 #include <time/time.h>
 #include <fs/stream.h>
-#include <mm/alloc.h>
 #include <proc/ipc.h>
 #include <proc/elf.h>
+#include <mm/alloc.h>
 #include <string.h>
 #include <fs/fs.h>
 #include <video.h>
+#include <sys/stat.h>
+
+#if defined(ARCH_X86)
+#  include <arch/mm/paging.h>
+#endif
 
 #define prompt  "%skterm\e[0m> ", \
 				(retval ? "\e[31m" : "\e[32m")
@@ -17,46 +22,45 @@ static int load(int, char **);
 static int run(int, char **);
 static int unload(int, char **);
 static int ls(int, char **);
+static int dbgc(int, char **);
 
-struct kterm_entry
-{
-	u32   hash;
+struct kterm_entry {
+	uint32_t   hash;
 	char *string;
 	int (*function)(int, char **);
 };
 
-struct kterm_entry kterm_ents[] =
-{
+struct kterm_entry kterm_ents[] = {
 	{ 0, "help",   &help   },
 	{ 0, "load",   &load   },
 	{ 0, "run",    &run    },
 	{ 0, "unload", &unload },
 	{ 0, "ls",     &ls     },
+	{ 0, "dbgc",   &dbgc   },
 };
 
-u32 hash(char *str)
-{
-	u32 hash = 5381;
+uint32_t hash(char *str) {
+	uint32_t hash = 5381;
 	while (*str)
-		hash = ((hash << 5) + hash) + (u8)*str++;
+		hash = ((hash << 5) + hash) + (uint8_t)*str++;
 
 	return hash;
 }
 
-__noreturn void kterm_task()
-{
-	ktask_pids[KTERM_TASK_SLOT] = current_pid;
-
-	u32 i = 0;
+__noreturn void kterm_task() {
+	uint32_t i = 0;
 	for(; i < (sizeof(kterm_ents)/sizeof(kterm_ents[0])); i++)
 		kterm_ents[i].hash = hash(kterm_ents[i].string);
 
 	delay(100); // Wait for things to be initialized
 
 	int retval = 0;
+	
+	kprintf("\n+----------------------------+\n");
+	kprintf("| Kernel debug shell \"kterm\" |\n");
+	kprintf("+----------------------------+\n\n");
 
-	for(;;)
-	{
+	for(;;) {
 		kprintf(prompt);
 
 		char input[512];
@@ -67,12 +71,10 @@ __noreturn void kterm_task()
 		memset(argv,  0, sizeof(char *)*32);
 
 		char t = 0;
-		while(1)
-		{
+		while(1) {
 			int ret;
 			struct ipc_message_user umsg;
-			while((ret = ipc_user_recv_message_blocking(&umsg)) < 0)
-			{
+			while((ret = ipc_user_recv_message_blocking(&umsg)) < 0) {
 				kerror(ERR_MEDERR, "KTERM: IPC error: %d", ret);
 			}
 
@@ -83,7 +85,6 @@ __noreturn void kterm_task()
 
 			ipc_user_copy_message(umsg.message_id, &t);
 
-			//recv_message(&t, sizeof(char));
 			if(t == '\n' || t == '\r') break;
 			if(t == '\b') {
 				iloc--;
@@ -92,19 +93,19 @@ __noreturn void kterm_task()
 				continue;
 			}
 
-			input[iloc++] = t;
-			kprintf("%c", t);
+			if(t != 0) {
+				input[iloc++] = t;
+				kprintf("%c", t);
+			}
 		}
 
 		kprintf("\n");
 
-		u32 inlen   = strlen(input);
+		uint32_t inlen   = strlen(input);
 		int cstring = 0;
 		int argidx  = 0;
-		for(i = 0; i <= inlen; i++)
-		{
-			if(input[i] == ' ' || input[i] == '\t' || input[i] == '\0')
-			{
+		for(i = 0; i <= inlen; i++) {
+			if(input[i] == ' ' || input[i] == '\t' || input[i] == '\0') {
 				argv[argidx++] = &input[cstring];
 				input[i] = 0;
 				cstring = i+1;
@@ -114,13 +115,11 @@ __noreturn void kterm_task()
 
 
 		//kprintf("%s\n", input);
-		u32 h = hash(argv[0]);
+		uint32_t h = hash(argv[0]);
 		int fnd = 0;
-		for(i = 0; i < (sizeof(kterm_ents)/sizeof(kterm_ents[0])); i++)
-		{
+		for(i = 0; i < (sizeof(kterm_ents)/sizeof(kterm_ents[0])); i++) {
 			if(kterm_ents[i].hash == h)
-				if(!strcmp(kterm_ents[i].string, argv[0]))
-				{
+				if(!strcmp(kterm_ents[i].string, argv[0])) {
 					retval = kterm_ents[i].function(argidx, argv);
 					fnd = 1;
 					break;
@@ -132,8 +131,7 @@ __noreturn void kterm_task()
 }
 
 
-static int help(int argc, char **argv)
-{
+static int help(int argc, char **argv) {
 	(void)argc;
 	(void)argv;
 	kprintf("Kterm help:\n");
@@ -142,6 +140,7 @@ static int help(int argc, char **argv)
 	kprintf("    run:    run a loaded executable\n");
 	kprintf("    unload: unload a loaded executable\n");
 	kprintf("    ls:     list files in current directory\n");
+	kprintf("    dbgc:   run a debug command\n");
 
 	return 0;
 }
@@ -158,39 +157,37 @@ static int help(int argc, char **argv)
 
 char exec_filename[128] = { 0, };
 struct kfile *exec      = NULL;
-u8			 *exec_data = NULL;
+struct stat   exec_stat;
+uint8_t	     *exec_data = NULL;
 int           exec_type = 0;
 
-static int load(int argc, char **argv)
-{
-	if(argc < 2)
-	{
+static int load(int argc, char **argv) {
+	if(argc < 2) {
 		kprintf("No executable specified\n");
 		return 1;
 	}
 
 	memcpy(exec_filename, argv[1], strlen(argv[1]));
 
-	exec = fs_finddir(fs_root, argv[1]);
-	if(!exec)
-	{
+	exec = fs_find_file(fs_root, argv[1]);
+	if(!exec) {
 		memset(exec_filename, 0, 128);
 		kprintf("Could not open %s!\n", argv[1]);
 		return 1;
 	}
 	fs_open(exec, OFLAGS_OPEN | OFLAGS_READ);
 
-	exec_data = kmalloc(exec->length);
-	fs_read(exec, 0, exec->length, exec_data);
+	kfstat(exec, &exec_stat);
 
-	if(*(u32 *)exec_data == ELF_IDENT)
-	{
+	exec_data = kmalloc(exec_stat.st_size);
+	fs_read(exec, 0, exec_stat.st_size, exec_data);
+
+	//kprintf("First 4 bytes of file: %02x, %02x, %02x, %02x\n", exec_data[0], exec_data[1], exec_data[2], exec_data[3]);
+
+	if(*(uint32_t *)exec_data == ELF_IDENT) {
 		exec_type = EXEC_ELF;
 		kprintf("Executable is an ELF executable.\n");
-		kprintf("NOTE: ELF executables are not fully supported, so don't expect it to work.\n");
-	}
-	else
-	{
+	} else {
 		exec_type = EXEC_BIN;
 		kprintf("Executable is a raw binary executable.\n");
 	}
@@ -200,58 +197,57 @@ static int load(int argc, char **argv)
 	return 0;
 }
 
-static int run(int argc, char **argv)
-{
+static int run(int argc, char **argv) {
 	(void)argc;
 	(void)argv;
 
 	int pid = 0;
 
-	if(!strlen(exec_filename))
-	{
+	if(!strlen(exec_filename)) {
 		kprintf("No loaded executable to run\n");
 		return 1;
 	}
 
-	if(exec_type == EXEC_ELF)
-	{
-		u32 *pagedir;
-		ptr_t exec_ep = load_elf(exec_data, exec->length, &pagedir);
-		if(!exec_ep)
-		{
+	if(exec_type == EXEC_ELF) {
+		pid = load_elf(exec_data, exec_stat.st_size);
+
+		if(pid < 0) {
 			kerror(ERR_MEDERR, "Could not load executable");
 			return 1;
 		}
-
-		pid = add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
 	}
 
-	else if(exec_type == EXEC_BIN)
-	{
-		//u32 *pagedir;
-		//ptr_t exec_ep = load_elf(exec_data, exec->length, &pagedir);
+	else if(exec_type == EXEC_BIN) {
+#if defined(ARCH_X86)
+		arch_task_params_t arch_params;
+
+		//uint32_t *pagedir;
 		ptr_t exec_ep = 0x80000000;
 
 		// Keep it on a page boundry:
-		void *phys = kmalloc(exec->length + 0x2000);
-		phys = (void *)(((u32)phys & ~0xFFF) + 0x1000);
+		void *phys = kmalloc(exec_stat.st_size + 0x2000);
+		phys = (void *)(((uint32_t)phys & ~0xFFF) + 0x1000);
 
 		//map_page(phys, (void *)exec_ep, 0x03);
 
-		//u32 addr_tst = (u32)get_page_entry((void *)exec_ep);
+		//uint32_t addr_tst = (uint32_t)get_page_entry((void *)exec_ep);
 		//kerror(ERR_SMERR, "Page entry: 0x%08X", addr_tst);
 		
-		memcpy(phys, exec_data, exec->length);
+		memcpy(phys, exec_data, exec_stat.st_size);
 
 		//kerror(ERR_BOOTINFO, "Current CR3: 0x%08X", get_pagedir());
 
-		u32 *pagedir = clone_kpagedir();
-		pgdir_map_page(pagedir, phys, (void *)exec_ep, 0x03);
-		kerror(ERR_BOOTINFO, "Page entry: 0x%08X", pgdir_get_page_entry(pagedir, (void *)exec_ep));
+		arch_params.pgdir = clone_kpagedir();
+		pgdir_map_page(arch_params.pgdir, phys, (void *)exec_ep, 0x07);
+		kerror(ERR_BOOTINFO, "Page entry: 0x%08X", pgdir_get_page_entry(arch_params.pgdir, (void *)exec_ep));
 
-		pid = add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
+		//pid = add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
+		pid = add_user_task_arch((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, &arch_params);
 		//int pid = add_kernel_task((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG);
-		
+#else
+		/* TODO, or maybe not. Flat binaries don't have much purpose anymore
+		 * with ELF working properly. */
+#endif
 	}
 
 	kerror(ERR_BOOTINFO, "Task PID: %d", pid);
@@ -281,6 +277,10 @@ static int run(int argc, char **argv)
 		return 1;
 	}
 
+	fs_open(stdin,  OFLAGS_READ | OFLAGS_WRITE);
+	fs_open(stdout, OFLAGS_READ | OFLAGS_WRITE);
+	fs_open(stderr, OFLAGS_READ | OFLAGS_WRITE);
+
 	procs[idx].open_files[0] = stdin;
 	procs[idx].open_files[1] = stdout;
 	procs[idx].open_files[2] = stderr;
@@ -291,13 +291,13 @@ static int run(int argc, char **argv)
 		char t;
 		struct ipc_message_user umsg;
 
-		if(ipc_user_recv_message(&umsg) >= 0)
-		{
+		if(ipc_user_recv_message(&umsg) >= 0) {
 			if(umsg.length > sizeof(char)) {
 				ipc_user_delete_message(umsg.message_id);
 			} else {
 				ipc_user_copy_message(umsg.message_id, &t);
-				fs_write(stdin, 0, 1, (uint8_t *)&t);			
+				fs_write(stdin, 0, 1, (uint8_t *)&t);
+				kput(t); // TODO: Handle this better		
 			}
 		}
 
@@ -318,17 +318,30 @@ static int run(int argc, char **argv)
 		}
 	}
 
+	// Flush remaining output:
+	if(stdout->length > 0) {
+		int sz = fs_read(stdout, 0, stdout->length, (uint8_t *)&buffer);
+		for(int i = 0; i < sz; i++) {
+			kput(buffer[i]);
+		}
+	}
+
+	if(stderr->length > 0) {
+		int sz = fs_read(stderr, 0, stderr->length, (uint8_t *)&buffer);
+		for(int i = 0; i < sz; i++) {
+			kput(buffer[i]);
+		}
+	}
+
 
 	return 0;
 }
 
-static int unload(int argc, char **argv)
-{
+static int unload(int argc, char **argv) {
 	(void)argc;
 	(void)argv;
 
-	if(!strlen(exec_filename))
-	{
+	if(!strlen(exec_filename)) {
 		kprintf("No loaded executable to unload");
 		return 1;
 	}
@@ -340,16 +353,33 @@ static int unload(int argc, char **argv)
 	return 0;
 }
 
-static int ls(int argc, char **argv)
-{
+static int ls(int argc, char **argv) {
 	(void)argc;
 	(void)argv;
+
 	
-	// TODO: allow for more than just the root directory!
-	struct kfile *f = fs_root->next_file;
+	struct kfile *f;
+	DIR *dir;
+	struct dirent *d;
+
+	if(argc > 1) {
+		f = fs_find_file(fs_root, argv[1]);
+		if(!f) {
+			kprintf("Could not find directory: %s\n", argv[1]);
+			return 1;
+		}
+		dir = fs_opendir(f);
+	} else  {
+		dir = fs_opendir(fs_root);
+	}
+
+	//kprintf("ls: dir: {%08X, %08X, %08X}\n", dir->dir, dir->current, dir->prev);
 	
-	while(f != fs_root)
-	{
+	while((d = fs_readdir(dir))) {
+		kfree(d);
+
+		f = fs_dirfile(dir);
+
 		kprintf("%c%c%c%c%c%c%c%c%c%c%s %02d %05d %s\n",
 			   ((f->flags & FS_DIR)?'d':'-'),
 			   ((f->pflags&0400)?'r':'-'), ((f->pflags&0200)?'w':'-'), ((f->pflags&04000)?'s':((f->pflags&0100)?'x':'-')),
@@ -357,9 +387,38 @@ static int ls(int argc, char **argv)
 			   ((f->pflags&04)?'r':'-'), ((f->pflags&02)?'w':'-'), ((f->pflags&01)?'x':'-'),
 			   ((f->pflags&01000)?"T":" "),
 			   f->inode, f->length, f->name);
-		
-		f = f->next_file;
 	}
 	
+	return 0;
+}
+
+static int dbgc(int argc, char **argv) {
+	if(argc < 2) {
+		kprintf("No command specified!");
+		return 1;
+	}
+
+	if(!strcmp(argv[1], "help")) {
+		kprintf("dbgc help\n"
+		        "  help:      Displays this help message\n"
+		        "  divzero:   Force divide by zero exception\n"
+				"  pagefault: Force page fault by attempting to write to 0x00000004 and 0xFFFFFFFC\n");
+	} else if (!strcmp(argv[1], "divzero")) {
+		kprintf("divzero\n");
+#if defined(ARCH_X86)
+		asm volatile("mov $0, %%ecx\n"
+		             "divl %%ecx\n"
+					 ::: "%eax", "%ecx");
+#endif
+	} else if (!strcmp(argv[1], "pagefault")) {
+		kprintf("pagefault (0x00000004)\n");
+		*(uint32_t *)0x00000004 = 0xFFFFFFFF;
+		kprintf("pagefault (0xFFFFFFFC)\n");
+		*(uint32_t *)0xFFFFFFFC = 0xFFFFFFFF;
+	} else {
+		kprintf("Unknown dbgc command!\n");
+		return 1;
+	}
+
 	return 0;
 }

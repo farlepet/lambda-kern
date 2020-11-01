@@ -1,17 +1,20 @@
+#include <arch/intr/int.h>
+
 #include <proc/atomic.h>
 #include <proc/mtask.h>
 #include <proc/proc.h>
 #include <err/error.h>
-#include <mm/paging.h>
-#include <proc/ipc.h>
-#include <intr/int.h>
 #include <mm/alloc.h>
+#include <proc/ipc.h>
 #include <string.h>
+
+#if defined(ARCH_X86)
+#  include <arch/mm/paging.h>
+#endif
 
 static lock_t send_lock = 0; //!< Make sure only 1 message is sent at a time
 
-int send_message(int dest, void *msg, int size)
-{
+int send_message(int dest, void *msg, int size) {
 	// We don't want to be cut off doing this
 	lock(&send_lock);
 	
@@ -23,9 +26,9 @@ int send_message(int dest, void *msg, int size)
 
 	struct cbuff *buff = &(procs[idx].messages);
 
-	u32 err = (u32)write_cbuff((u8 *)msg, size, buff);
+	uint32_t err = (uint32_t)write_cbuff((uint8_t *)msg, size, buff);
 
-	procs[idx].blocked &= (u32)~BLOCK_MESSAGE;
+	procs[idx].blocked &= (uint32_t)~BLOCK_MESSAGE;
 
 	unlock(&send_lock);
 
@@ -36,32 +39,29 @@ int send_message(int dest, void *msg, int size)
 	}
 
 	procs[idx].book.sent_msgs++;
-	procs[idx].book.sent_bytes += (u32)size;
+	procs[idx].book.sent_bytes += (uint32_t)size;
 
 	return 0;
 }
 
-int recv_message(void *msg, int size)
-{
+int recv_message(void *msg, int size) {
 	int idx = proc_by_pid(current_pid);
 
 	struct cbuff *buff = &(procs[idx].messages);
 
-	u32 err;
-	while((err = (u32)read_cbuff((u8 *)msg, size, buff)) & (CBUFF_EMPTY | CBUFF_NENOD))
-	{
+	uint32_t err;
+	while((err = (uint32_t)read_cbuff((uint8_t *)msg, size, buff)) & (CBUFF_EMPTY | CBUFF_NENOD)) {
 		procs[idx].blocked |= BLOCK_MESSAGE;
 		busy_wait();
 	}
 
-	if(err & 0xFF000000)
-	{
+	if(err & 0xFF000000) {
 		kerror(ERR_SMERR, "recv_message: couldn't receive message due to error");
 		return (int)err;
 	}
 
 	procs[idx].book.recvd_msgs++;
-	procs[idx].book.recvd_bytes += (u32)size;
+	procs[idx].book.recvd_bytes += (uint32_t)size;
 
 	return 0;
 }
@@ -74,8 +74,7 @@ struct ipc_message *ipc_messages[IPC_MAX_MESSAGES];
 
 static uint32_t next_message_id = 0;
 
-int ipc_create_user_message(struct ipc_message *msg, struct ipc_message_user *umsg)
-{
+int ipc_create_user_message(struct ipc_message *msg, struct ipc_message_user *umsg) {
 	umsg->message_id = msg->message_id;
 	umsg->src_pid    = msg->src_pid;
 	umsg->length     = msg->length;
@@ -83,10 +82,9 @@ int ipc_create_user_message(struct ipc_message *msg, struct ipc_message_user *um
 	return 0;
 }
 
-int ipc_create_message(struct ipc_message **msg, int src, int dest, void *message, uint32_t length)
-{
+int ipc_create_message(struct ipc_message **msg, int src, int dest, void *message, uint32_t length) {
 	struct ipc_message *_msg = (struct ipc_message *)kmalloc(sizeof(struct ipc_message));
-	if(*msg == NULL) return -1;
+	if(msg == NULL) return -1;
 	*msg = _msg;
 
 
@@ -105,8 +103,7 @@ int ipc_create_message(struct ipc_message **msg, int src, int dest, void *messag
 	return 0;
 }
 
-int ipc_delete_message(struct ipc_message *msg)
-{
+int ipc_delete_message(struct ipc_message *msg) {
 	// TODO: Delete message structure itself
 
 	kfree(msg->message);
@@ -114,8 +111,7 @@ int ipc_delete_message(struct ipc_message *msg)
 	return 0;
 }
 
-int ipc_copy_message_data(struct ipc_message *msg, void *dest)
-{
+int ipc_copy_message_data(struct ipc_message *msg, void *dest) {
 	if(dest         == NULL) return -1;
 	if(msg          == NULL) return -2;
 	if(msg->message == NULL) return -3;
@@ -125,20 +121,17 @@ int ipc_copy_message_data(struct ipc_message *msg, void *dest)
 	return 0;
 }
 
-int ipc_send_message(struct ipc_message *msg)
-{
+int ipc_send_message(struct ipc_message *msg) {
 	if(msg == NULL) return -1;
 
 	int idx = proc_by_pid(msg->dest_pid);
 
 	struct ipc_message **messages = procs[idx].ipc_messages;
 
-	for(int i = 0; i < MAX_PROCESS_MESSAGES; i++)
-	{
-		if(messages[i] == NULL)
-		{
+	for(int i = 0; i < MAX_PROCESS_MESSAGES; i++) {
+		if(messages[i] == NULL) {
 			messages[i] = msg;
-			procs[idx].blocked &= (u32)~BLOCK_IPC_MESSAGE;
+			procs[idx].blocked &= (uint32_t)~BLOCK_IPC_MESSAGE;
 			return 0;
 		}
 	}
@@ -152,20 +145,16 @@ int ipc_send_message(struct ipc_message *msg)
  * User functions:
  */
 
-int ipc_user_recv_message(struct ipc_message_user *umsg)
-{
+int ipc_user_recv_message(struct ipc_message_user *umsg) {
 	if(umsg == NULL) return -2;
 
 	int idx = proc_by_pid(current_pid);
 
 	struct ipc_message **messages = procs[idx].ipc_messages;
 
-	for(int i = 0; i < MAX_PROCESS_MESSAGES; i++)
-	{
-		if(messages[i] != NULL)
-		{
-			if(ipc_create_user_message(messages[i], umsg) < 0)
-			{
+	for(int i = 0; i < MAX_PROCESS_MESSAGES; i++) {
+		if(messages[i] != NULL) {
+			if(ipc_create_user_message(messages[i], umsg) < 0) {
 				return -3; // Error while copying message data
 			}
 			return 0;
@@ -175,21 +164,17 @@ int ipc_user_recv_message(struct ipc_message_user *umsg)
 	return -1; // No waiting messages
 }
 
-int ipc_user_recv_message_pid(struct ipc_message_user *umsg, int pid)
-{
+int ipc_user_recv_message_pid(struct ipc_message_user *umsg, int pid) {
 	if(umsg == NULL) return -2;
 
 	int idx = proc_by_pid(current_pid);
 
 	struct ipc_message **messages = procs[idx].ipc_messages;
 
-	for(int i = 0; i < MAX_PROCESS_MESSAGES; i++)
-	{
-		if(messages[i] != NULL)
-		{
+	for(int i = 0; i < MAX_PROCESS_MESSAGES; i++) {
+		if(messages[i] != NULL) {
 			if(messages[i]->src_pid == pid) {
-				if(ipc_create_user_message(messages[i], umsg) < 0)
-				{
+				if(ipc_create_user_message(messages[i], umsg) < 0) {
 					return -3; // Error while copying message data
 				}
 				return 0;
@@ -200,15 +185,13 @@ int ipc_user_recv_message_pid(struct ipc_message_user *umsg, int pid)
 	return -1; // No waiting messages
 }
 
-int ipc_user_recv_message_blocking(struct ipc_message_user *umsg)
-{
+int ipc_user_recv_message_blocking(struct ipc_message_user *umsg) {
 	if(umsg == NULL) return -2;
 
 	int idx = proc_by_pid(current_pid);
 
 	int ret;
-	while((ret = ipc_user_recv_message(umsg)) == -1)
-	{
+	while((ret = ipc_user_recv_message(umsg)) == -1) {
 		procs[idx].blocked |= BLOCK_IPC_MESSAGE;
 		busy_wait();
 	}
@@ -216,15 +199,13 @@ int ipc_user_recv_message_blocking(struct ipc_message_user *umsg)
 	return ret;
 }
 
-int ipc_user_recv_message_pid_blocking(struct ipc_message_user *umsg, int pid)
-{
+int ipc_user_recv_message_pid_blocking(struct ipc_message_user *umsg, int pid) {
 	if(umsg == NULL) return -2;
 
 	int idx = proc_by_pid(current_pid);
 
 	int ret;
-	while((ret = ipc_user_recv_message_pid(umsg, pid)) == -1)
-	{
+	while((ret = ipc_user_recv_message_pid(umsg, pid)) == -1) {
 		procs[idx].blocked |= BLOCK_IPC_MESSAGE;
 		busy_wait();
 	}
@@ -232,20 +213,16 @@ int ipc_user_recv_message_pid_blocking(struct ipc_message_user *umsg, int pid)
 	return ret;
 }
 
-int ipc_user_copy_message(uint32_t message_id, void *dest)
-{
+int ipc_user_copy_message(uint32_t message_id, void *dest) {
 	if(dest == NULL) return -2;
 
 	int idx = proc_by_pid(current_pid);
 
 	struct ipc_message **messages = procs[idx].ipc_messages;
 
-	for(int i = 0; i < MAX_PROCESS_MESSAGES; i++)
-	{
-		if(messages[i] != NULL)
-		{
-			if(messages[i]->message_id == message_id)
-			{
+	for(int i = 0; i < MAX_PROCESS_MESSAGES; i++) {
+		if(messages[i] != NULL) {
+			if(messages[i]->message_id == message_id) {
 				if(ipc_copy_message_data(messages[i], dest) < 0) return -3;
 				if(ipc_delete_message(messages[i]) < 0) return -4;
 				kfree(messages[i]);
@@ -259,16 +236,13 @@ int ipc_user_copy_message(uint32_t message_id, void *dest)
 	return -1; // Message not found
 }
 
-int ipc_user_create_and_send_message(int dest_pid, void *message, uint32_t length)
-{
+int ipc_user_create_and_send_message(int dest_pid, void *message, uint32_t length) {
 	struct ipc_message *msg;
 
 	int idx = proc_by_pid(dest_pid);
 
-	for(int i = 0; i < MAX_BLOCKED_PIDS; i++)
-	{
-		if(procs[idx].blocked_ipc_pids[i] == current_pid)
-		{
+	for(int i = 0; i < MAX_BLOCKED_PIDS; i++) {
+		if(procs[idx].blocked_ipc_pids[i] == current_pid) {
 			return -3; // Blocked by receiving process
 		}
 	}
@@ -285,12 +259,9 @@ int ipc_user_delete_message(uint32_t message_id)
 
 	struct ipc_message **messages = procs[idx].ipc_messages;
 
-	for(int i = 0; i < MAX_PROCESS_MESSAGES; i++)
-	{
-		if(messages[i] != NULL)
-		{
-			if(messages[i]->message_id == message_id)
-			{
+	for(int i = 0; i < MAX_PROCESS_MESSAGES; i++) {
+		if(messages[i] != NULL) {
+			if(messages[i]->message_id == message_id) {
 				if(ipc_delete_message(messages[i]) < 0) return -2;
 				kfree(messages[i]);
 				messages[i] = NULL;
@@ -303,35 +274,27 @@ int ipc_user_delete_message(uint32_t message_id)
 	return -1; // Message not found
 }
 
-int ipc_user_block_pid(int pid)
-{
+int ipc_user_block_pid(int pid) {
 	int idx = proc_by_pid(current_pid);
 
 	struct ipc_message **messages         = procs[idx].ipc_messages;
 	int                 *blocked_ipc_pids = procs[idx].blocked_ipc_pids;
 
-	for(int i = 0; i < MAX_BLOCKED_PIDS; i++)
-	{
-		if(blocked_ipc_pids[i] == pid)
-		{
+	for(int i = 0; i < MAX_BLOCKED_PIDS; i++) {
+		if(blocked_ipc_pids[i] == pid) {
 			return 0;
 		}
 	}
 
-	for(int i = 0; i < MAX_BLOCKED_PIDS; i++)
-	{
-		if(blocked_ipc_pids[i] == 0)
-		{
+	for(int i = 0; i < MAX_BLOCKED_PIDS; i++) {
+		if(blocked_ipc_pids[i] == 0) {
 			blocked_ipc_pids[i] = pid;
-			for(int i = 0; i < MAX_PROCESS_MESSAGES; i++)
-			{
-				if(messages[i] != NULL)
-				{
-					if(messages[i]->src_pid == pid)
-					{
-						ipc_delete_message(messages[i]);
-						kfree(messages[i]);
-						messages[i] = NULL;
+			for(int j = 0; j < MAX_PROCESS_MESSAGES; j++) {
+				if(messages[j] != NULL) {
+					if(messages[j]->src_pid == pid) {
+						ipc_delete_message(messages[j]);
+						kfree(messages[j]);
+						messages[j] = NULL;
 					}
 				}
 			}

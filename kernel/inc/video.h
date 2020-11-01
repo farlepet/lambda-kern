@@ -3,7 +3,9 @@
 
 #include <types.h>
 #include <multiboot.h>
+#include <hal/io/char/char.h>
 
+extern hal_io_char_dev_t *kput_char_dev;
 
 /**
  * \brief Prints a single character.
@@ -32,7 +34,7 @@ void kprint(char *str);
  * @param str the input string
  * @see kwput
  */
-void kwprint(u16 *str);
+void kwprint(uint16_t *str);
 
 
 #define FMT_SPEC '%' //!< Format specifier character
@@ -48,7 +50,7 @@ void kwprint(u16 *str);
 		signspace  = 0; \
 		leftalign  = 0; \
 		padzeros   = 0; \
-	} while(0);
+	} while(0)
 
 
 /**
