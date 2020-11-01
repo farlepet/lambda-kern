@@ -2,6 +2,7 @@
 
 #include <proc/atomic.h>
 #include <proc/mtask.h>
+#include <err/error.h>
 #include <mm/alloc.h>
 
 extern lock_t creat_task; // From proc/mtask.c

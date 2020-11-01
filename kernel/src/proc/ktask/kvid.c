@@ -9,8 +9,7 @@
 /**
  * Handles video I/O
  */
-__noreturn void kvid_task()
-{
+__noreturn void kvid_task() {
 	ktask_pids[KVID_TASK_SLOT] = current_pid;
 
 	for(;;)
