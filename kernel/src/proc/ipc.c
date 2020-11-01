@@ -1,10 +1,10 @@
 #include <arch/intr/int.h>
-#include <arch/mm/alloc.h>
 
 #include <proc/atomic.h>
 #include <proc/mtask.h>
 #include <proc/proc.h>
 #include <err/error.h>
+#include <mm/alloc.h>
 #include <proc/ipc.h>
 #include <string.h>
 

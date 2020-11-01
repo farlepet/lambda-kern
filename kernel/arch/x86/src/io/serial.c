@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include <arch/io/ioport.h>
 #include <arch/io/serial.h>
 #include <arch/intr/idt.h>
@@ -12,6 +14,24 @@
 extern void serial_interrupt(void);
 
 struct input_dev *serial_dev;
+
+static void chardev_putc(void *data, int c);
+static int chardev_getc(void *data);
+static int chardev_chavail(void *data);
+
+int serial_create_chardev(uint16_t port, hal_io_char_dev_t *chardev) {
+    memset(chardev, 0, sizeof(hal_io_char_dev_t));
+    
+    chardev->data = (void *)(uint32_t)port;
+
+    chardev->putc    = chardev_putc;
+    chardev->getc    = chardev_getc;
+    chardev->chavail = chardev_chavail;
+
+    chardev->cap = HAL_IO_CHARDEV_CAP_OUTPUT | HAL_IO_CHARDEV_CAP_INPUT;
+
+	return 0;
+}
 
 /**
  * \brief Initialize the serial port.
@@ -29,8 +49,8 @@ void serial_init(uint16_t port)
 	outb(port + 4, 0x0B);
 	outb(port + 1, 0x01);
 
-	set_interrupt(SERIALA_INT, &serial_interrupt);
-	set_interrupt(SERIALB_INT, &serial_interrupt);
+	set_interrupt(INT_SERIALA, &serial_interrupt);
+	set_interrupt(INT_SERIALB, &serial_interrupt);
 	enable_irq(4);
 	enable_irq(3);
 
@@ -111,4 +131,17 @@ void serial_write(uint16_t port, char a)
 {
 	while (is_transmit_empty(port) == 0);
 	outb(port, (uint8_t)a);
+}
+
+
+static void chardev_putc(void *data, int c) {
+	serial_write((uint16_t)(uint32_t)data, (char)c);
+}
+
+static int chardev_getc(void *data) {
+    return serial_read((uint16_t)(uint32_t)data);
+}
+
+static int chardev_chavail(void *data) {
+    return serial_received((uint16_t)(uint32_t)data);
 }

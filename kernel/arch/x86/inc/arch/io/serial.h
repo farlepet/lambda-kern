@@ -3,10 +3,14 @@
 
 #include <types.h>
 
+#include <hal/io/char/char.h>
+
 #define SERIAL_COM1 0x3F8
 #define SERIAL_COM2 0x2F8
 #define SERIAL_COM3 0x3E8
 #define SERIAL_COM4 0x2E8
+
+int serial_create_chardev(uint16_t port, hal_io_char_dev_t *chardev);
 
 /**
  * \brief Initialize the serial port.

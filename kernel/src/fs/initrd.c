@@ -1,8 +1,7 @@
-#include <arch/mm/alloc.h>
-
 #include <multiboot.h>
 #include <fs/initrd.h>
 #include <err/error.h>
+#include <mm/alloc.h>
 #include <string.h>
 #include <fs/fs.h>
 

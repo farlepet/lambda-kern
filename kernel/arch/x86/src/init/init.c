@@ -1,14 +1,13 @@
 #include <arch/init/init.h>
 
-#include <arch/io/serial.h>
 #include <arch/dev/keyb/input.h>
 #include <arch/dev/vga/print.h>
+#include <arch/io/serial.h>
 
 #include <arch/intr/idt.h>
 #include <arch/intr/pit.h>
 
 #include <arch/mm/paging.h>
-#include <arch/mm/alloc.h>
 #include <arch/mm/gdt.h>
 #include <arch/mm/mem.h>
 
@@ -17,15 +16,24 @@
 
 #include <intr/intr.h>
 
+#include <mm/alloc.h>
+
+#include <video.h>
+
 
 static void interrupts_init(void);
 static void mm_init(struct multiboot_header *mboot_head);
+
+/* TODO: Move this elsewhere, or dynamically allocate */
+hal_io_char_dev_t serial1;
 
 void arch_init(struct multiboot_header *mboot_head) {
     vga_clear();
     disable_interrupts();
 	
     serial_init(SERIAL_COM1);
+	serial_create_chardev(SERIAL_COM1, &serial1);
+	kput_char_dev = &serial1;
 	
 	kerror(ERR_BOOTINFO, "Kernel occupies this memory space: %08X - %08X", &kern_start, &kern_end);
 

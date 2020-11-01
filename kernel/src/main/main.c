@@ -4,6 +4,7 @@
 #include <proc/exec.h>
 #include <proc/elf.h>
 #include <proc/ipc.h>
+#include <mm/alloc.h>
 #include <multiboot.h>
 #include <err/panic.h>
 #include <err/error.h>
@@ -18,13 +19,11 @@
 #include <string.h>
 // Architecture-specific initialization:
 #include <arch/init/init.h>
-#include <arch/mm/alloc.h>
 
 __noreturn void kernel_task(void);
 __noreturn int kmain(struct multiboot_header *, uint32_t);
 
-__noreturn static void iloop()
-{
+__noreturn static void iloop() {
 	kerror(ERR_BOOTINFO, "iloop()");
 	for(;;) busy_wait();
 }
@@ -35,12 +34,15 @@ __noreturn static void iloop()
  * @param mboot_head pointer to multiboot structure
  * @param magic magic number telling us this is a multiboot-compliant bootloader
  */
-__noreturn int kmain(struct multiboot_header *mboot_head, uint32_t magic)
-{
+__noreturn int kmain(struct multiboot_header *mboot_head, uint32_t magic) {
+#if defined(ARCH_X86)
 	if(magic != 0x2BADB002)
 		kpanic("Invalid magic number given by the bootloader: 0x%08X", magic);
-
+	
 	check_commandline(mboot_head);
+#else
+	(void)magic;
+#endif
 
 	// Architecture-specific initialization:
 	arch_init(mboot_head);
@@ -55,6 +57,10 @@ __noreturn int kmain(struct multiboot_header *mboot_head, uint32_t magic)
 	timer_init(100);
 
 	init_syscalls();
+
+	enable_interrupts();
+
+	//asm volatile("swi #1");
 
 	init_multitasking(&kernel_task, "kern");
 
@@ -128,8 +134,7 @@ static void spawn_init() {
 	fs_open(stdout, OFLAGS_READ | OFLAGS_WRITE);
 	fs_open(stderr, OFLAGS_READ | OFLAGS_WRITE);
 
-	uint32_t *pagedir;
-	int pid = load_elf(exec_data, exec_stat.st_size, &pagedir);
+	int pid = load_elf(exec_data, exec_stat.st_size);
 	if(!pid) {
 		kpanic("Failed to parse init executable or spawn task!");
 	}

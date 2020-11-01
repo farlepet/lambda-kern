@@ -5,7 +5,9 @@
 #include <string.h>
 #include <video.h>
 
-#include <arch/io/serial.h>
+#if defined(ARCH_X86)
+#  include <arch/io/serial.h>
+#endif
 
 static int input_subs[KINPUT_MAX_SUBS];
 

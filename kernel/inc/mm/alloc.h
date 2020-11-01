@@ -1,5 +1,7 @@
+#ifndef MM_ALLOC_H
+#define MM_ALLOC_H
+
 #include <types.h>
-#include "paging.h"
 
 #define ALLOC_BLOCK  1024
 #define ALLOC_BLOCKS 512
@@ -16,9 +18,18 @@ struct alcent //!< Describes a block of memory
  * Allocates a block of memory
  *
  * @param sz size of the required memory block
- * @returns pointer to memory block
+ * @returns pointer to memory block on success, else NULL
  */
 void *kmalloc(uint32_t sz);
+
+/**
+ * Allocates a block of memory with requested alignment
+ *
+ * @param sz    size of the required memory block
+ * @param align desired alignment
+ * @returns pointer to memory block on success, else NULL
+ */
+void *kamalloc(uint32_t sz, uint32_t align);
 
 /**
  * Free an allocated memory block
@@ -34,3 +45,5 @@ void kfree(void *ptr);
  * @param size size of usable memory
  */
 void init_alloc(uint32_t base, uint32_t size);
+
+#endif

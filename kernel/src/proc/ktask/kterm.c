@@ -1,15 +1,18 @@
-#include <arch/mm/alloc.h>
-
 #include <proc/ktasks.h>
 #include <err/error.h>
 #include <time/time.h>
 #include <fs/stream.h>
 #include <proc/ipc.h>
 #include <proc/elf.h>
+#include <mm/alloc.h>
 #include <string.h>
 #include <fs/fs.h>
 #include <video.h>
 #include <sys/stat.h>
+
+#if defined(ARCH_X86)
+#  include <arch/mm/paging.h>
+#endif
 
 #define prompt  "%skterm\e[0m> ", \
 				(retval ? "\e[31m" : "\e[32m")
@@ -206,31 +209,18 @@ static int run(int argc, char **argv) {
 	}
 
 	if(exec_type == EXEC_ELF) {
-		uint32_t *pagedir;
-		//ptr_t exec_ep =
+		pid = load_elf(exec_data, exec_stat.st_size);
 
-		/*uint32_t args[1] = {0};
-		call_syscall(SYSCALL_FORK, args);
-		int _pid = (int)args[0];*/
-
-		/*if(_pid == 0) {
-			load_elf(exec_data, exec->length, &pagedir);
-		} else {
-			pid = _pid;
-		}*/
-
-		pid = load_elf(exec_data, exec_stat.st_size, &pagedir);
-
-		if(!pid) {
+		if(pid < 0) {
 			kerror(ERR_MEDERR, "Could not load executable");
 			return 1;
 		}
-
-		//pid = add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
-		//pid = add_user_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
 	}
 
 	else if(exec_type == EXEC_BIN) {
+#if defined(ARCH_X86)
+		arch_task_params_t arch_params;
+
 		//uint32_t *pagedir;
 		ptr_t exec_ep = 0x80000000;
 
@@ -247,14 +237,17 @@ static int run(int argc, char **argv) {
 
 		//kerror(ERR_BOOTINFO, "Current CR3: 0x%08X", get_pagedir());
 
-		uint32_t *pagedir = clone_kpagedir();
-		pgdir_map_page(pagedir, phys, (void *)exec_ep, 0x07);
-		kerror(ERR_BOOTINFO, "Page entry: 0x%08X", pgdir_get_page_entry(pagedir, (void *)exec_ep));
+		arch_params.pgdir = clone_kpagedir();
+		pgdir_map_page(arch_params.pgdir, phys, (void *)exec_ep, 0x07);
+		kerror(ERR_BOOTINFO, "Page entry: 0x%08X", pgdir_get_page_entry(arch_params.pgdir, (void *)exec_ep));
 
 		//pid = add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
-		pid = add_user_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
+		pid = add_user_task_arch((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, &arch_params);
 		//int pid = add_kernel_task((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG);
-		
+#else
+		/* TODO, or maybe not. Flat binaries don't have much purpose anymore
+		 * with ELF working properly. */
+#endif
 	}
 
 	kerror(ERR_BOOTINFO, "Task PID: %d", pid);
@@ -412,9 +405,11 @@ static int dbgc(int argc, char **argv) {
 				"  pagefault: Force page fault by attempting to write to 0x00000004 and 0xFFFFFFFC\n");
 	} else if (!strcmp(argv[1], "divzero")) {
 		kprintf("divzero\n");
+#if defined(ARCH_X86)
 		asm volatile("mov $0, %%ecx\n"
 		             "divl %%ecx\n"
 					 ::: "%eax", "%ecx");
+#endif
 	} else if (!strcmp(argv[1], "pagefault")) {
 		kprintf("pagefault (0x00000004)\n");
 		*(uint32_t *)0x00000004 = 0xFFFFFFFF;

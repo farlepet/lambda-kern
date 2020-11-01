@@ -1,9 +1,8 @@
-#include <arch/mm/alloc.h>
-
 #include <proc/ktasks.h>
 #include <time/time.h>
 #include <err/error.h>
 #include <proc/ipc.h>
+#include <mm/alloc.h>
 #include <config.h>
 #include <video.h>
 
@@ -88,16 +87,16 @@ static void idebug() {
 	if(KERNEL_COLORCODE)
 		kprintf("\e[41mPID  UID  GID      SENT  RECEIVED BLCK PRI      TYPE SCHED_C LAST_EIP  SYSCALLS NAME            \e[0m\n");
 	else
-		kprintf("PID  UID  GID      SENT  RECEIVED BLCK PRI      TYPE SCHED_C LAST_EIP  SYSCALLS NAME\n");
+		kprintf("PID  UID  GID      SENT  RECEIVED BLCK PRI      TYPE SCHED_C  SYSCALLS NAME\n");
 
 	int i = 0;
 	for(; i < MAX_PROCESSES; i++)
 		if(procs[i].type & TYPE_VALID) {
-			kprintf("% 02d % 02d % 02d %8d %8d   %c  %02d %08X %8d %08X %8d %s\n", 
+			kprintf("% 02d % 02d % 02d %8d %8d   %c  %02d %08X %8d %8d %s\n", 
 				procs[i].pid, procs[i].uid, procs[i].gid,
 				procs[i].book.sent_msgs, procs[i].book.recvd_msgs,
 				((procs[i].blocked != 0) ? 'Y' : 'N'),
-				procs[i].prio, procs[i].type, procs[i].book.schedule_count, procs[i].last_eip,
+				procs[i].prio, procs[i].type, procs[i].book.schedule_count,
 				procs[i].book.syscall_count, procs[i].name
 			);
 		}

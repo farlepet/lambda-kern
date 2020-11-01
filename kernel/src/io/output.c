@@ -4,10 +4,12 @@
 #include <multiboot.h>
 #include <proc/atomic.h>
 
-#if defined(ARCH_X86)
+#if 0
 #  include <arch/dev/vga/print.h>
 #  include <arch/io/serial.h>
 #endif
+
+hal_io_char_dev_t *kput_char_dev = NULL;
 
 /**
  * Prints a single character.
@@ -15,7 +17,10 @@
  * @param c the input character
  */
 void kput(char c) {
-#if defined(ARCH_X86)
+	if(kput_char_dev) {
+		hal_io_char_dev_putc(kput_char_dev, c);
+	}
+#if 0
 	if(boot_options.output_serial) {
 		serial_write((uint16_t)boot_options.output_serial, c);
 	}
@@ -29,7 +34,10 @@ void kput(char c) {
  * @param c the input character
  */
 void kwput(int c) {
-#if defined(ARCH_X86)
+	if(kput_char_dev) {
+		hal_io_char_dev_putc(kput_char_dev, c);
+	}
+#if 0
 	if(boot_options.output_serial) {
 		serial_write((uint16_t)boot_options.output_serial, (char)c);
 	}

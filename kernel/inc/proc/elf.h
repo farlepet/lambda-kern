@@ -26,6 +26,9 @@
 #if defined(ARCH_X86)
 #define HOST_MACHINE EM_386
 #define HOST_CLASS   ELFCLASS32
+#elif defined(ARCH_ARMV7)
+#define HOST_MACHINE EM_ARM
+#define HOST_CLASS   ELFCLASS32
 #endif
 
 
@@ -203,7 +206,7 @@ typedef struct
 
 
 
-ptr_t load_elf(void *file, uint32_t length, uint32_t **pdir);
+int load_elf(void *file, uint32_t length);
 
 
 int exec_elf(void *data, uint32_t length, const char **argv, const char **envp);

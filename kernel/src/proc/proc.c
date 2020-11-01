@@ -1,9 +1,8 @@
-#include <arch/mm/alloc.h>
-
 #include <proc/mtask.h>
 #include <err/error.h>
 #include <err/panic.h>
 #include <proc/proc.h>
+#include <mm/alloc.h>
 #include <string.h>
 
 void kproc_to_uproc(struct kproc *kp, struct uproc *up)
@@ -21,7 +20,7 @@ void kproc_to_uproc(struct kproc *kp, struct uproc *up)
 	memcpy(up->children, kp->children, MAX_CHILDREN * sizeof(int));
 
 #ifdef ARCH_X86
-	up->ip = kp->eip;
+	up->ip = kp->arch.eip;
 #endif
 }
 

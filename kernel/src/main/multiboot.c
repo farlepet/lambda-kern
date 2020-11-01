@@ -10,7 +10,12 @@
 
 volatile boot_options_t boot_options = {
 	.init_ramdisk_name = "",
+#if defined(ARCH_X86)
 	.init_executable   = "/bin/linit",
+#else
+	/* TODO: FS not fully implemented on other platforms. */
+	.init_executable   = "",
+#endif
 #if defined(ARCH_X86)
 	.output_serial     = 0,
 #endif

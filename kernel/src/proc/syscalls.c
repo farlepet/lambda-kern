@@ -1,6 +1,8 @@
 // TODO: Abstraction:
+#if defined(ARCH_X86)
 #include <arch/intr/idt.h>
 #include <arch/proc/stack_trace.h>
+#endif
 
 #include <proc/syscalls.h>
 #include <intr/intr.h>
@@ -53,19 +55,13 @@ struct syscall syscalls[] = {
 };
 
 //void handle_syscall(uint32_t scn, uint32_t *args)
-void handle_syscall(struct pusha_regs regs, struct iret_regs iregs) {
-	struct kproc *proc = &procs[proc_by_pid(current_pid)];
-	proc->esp = (uint32_t)&regs;
-	proc->book.syscall_count++;
-
-	uint32_t  scn  = regs.eax;
-	uint32_t *args = (uint32_t *)regs.ebx;
+int service_syscall(uint32_t scn, uint32_t *args) {
 	//kerror(ERR_BOOTINFO, "Syscall %d called with args at %08X", scn, args);
 	if(scn >= ARRAY_SZ(syscalls)) {
+		struct kproc *proc = &procs[proc_by_pid(current_pid)];
 		int pid = get_pid();
 		kerror(ERR_MEDERR, "Process %d (%s) has tried to call an invalid syscall: %u Args: %08X", pid, proc->name, scn, args);
-		stack_trace(15, (uint32_t *)regs.ebp, iregs.eip, proc->symbols);
-		exit(1);
+		return -1;
 	}
 
 	syscalls[scn].ncalls++;
@@ -98,6 +94,7 @@ void handle_syscall(struct pusha_regs regs, struct iret_regs iregs) {
 			kpanic("Syscall error (%d): %d arguments not handled! Kernel programming error!", scn, syscalls[scn].nargs);
 	}
 
+	return 0;
 	//kerror(ERR_BOOTINFO, "  -> Retval [0] = %d", args[0]);
 }
 
@@ -105,8 +102,11 @@ void handle_syscall(struct pusha_regs regs, struct iret_regs iregs) {
 extern void syscall_int();
 void init_syscalls()
 {
-	//set_interrupt(SYSCALL_INT, &syscall_int);
-	set_idt(SYSCALL_INT, 0x08, IDT_ATTR(1, 3, 0, int32), &syscall_int);
+#if defined(ARCH_X86)
+	set_idt(INT_SYSCALL, 0x08, IDT_ATTR(1, 3, 0, int32), &syscall_int);
+#elif defined (ARCH_ARMV7)
+	set_interrupt(INT_SYSCALL, &syscall_int);
+#endif
 }
 
 extern void call_syscall_int();
@@ -115,5 +115,9 @@ void call_syscall(uint32_t scn, uint32_t *args)
 	//kerror(ERR_BOOTINFO, "call_syscall: %d, %08X", scn, args);
 #ifdef ARCH_X86
 	call_syscall_int(scn, args);
+#else
+	(void)scn;
+	(void)args;
+	asm volatile("swi #1");
 #endif
 }

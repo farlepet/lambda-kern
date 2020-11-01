@@ -3,7 +3,9 @@
 
 #include <types.h>
 #include <multiboot.h>
+#include <hal/io/char/char.h>
 
+extern hal_io_char_dev_t *kput_char_dev;
 
 /**
  * \brief Prints a single character.
