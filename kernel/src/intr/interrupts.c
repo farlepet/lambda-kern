@@ -40,7 +40,7 @@ void timer_init(uint32_t quantum) {
 #ifdef ARCH_X86
 	pit_init(quantum);
 	pit_create_timerdev(&timer);
-	hal_timer_dev_attach(&timer, do_task_switch);
+	hal_timer_dev_attach(&timer, 0, do_task_switch);
 #else
 	static timer_sp804_handle_t sp804;
 	extern hal_intctlr_dev_t intctlr; /* GIC */
