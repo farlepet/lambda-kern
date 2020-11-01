@@ -43,7 +43,7 @@ int uart_pl011_init(uart_pl011_handle_t *hand, void *base, uint32_t baud) {
     uint16_t intdiv;
     uint8_t  fracdiv;
     /* TODO: Determine UART source clock frequency */
-    if (calc_divisor(8000000, baud, &intdiv, &fracdiv)) {
+    if (calc_divisor(24000000, baud, &intdiv, &fracdiv)) {
         return -1;
     }
     hand->base->IBRD = intdiv;
@@ -59,6 +59,31 @@ int uart_pl011_init(uart_pl011_handle_t *hand, void *base, uint32_t baud) {
     hand->base->CR  = (1UL << UART_PL011_CR_UARTEN__POS) |
                       (1UL << UART_PL011_CR_TXE__POS)    |
                       (1UL << UART_PL011_CR_RXE__POS);
+
+    return 0;
+}
+
+static void intr_recv_handler(uint32_t int_n, void *data) {
+    (void)int_n;
+
+    uart_pl011_handle_t *hand = (uart_pl011_handle_t *)data;
+
+    /* For testing only: */
+    chardev_putc(data, 'I');
+
+    /* Clear all UART interrupts */
+    hand->base->ICR = 0x07FF;
+}
+
+int uart_pl011_int_attach(uart_pl011_handle_t *hand, hal_intctlr_dev_t *intctlr, uint32_t int_n) {
+    hal_intctlr_dev_intr_attach(intctlr, int_n, intr_recv_handler, hand);
+    hal_intctlr_dev_intr_enable(intctlr, int_n);
+
+    //hand->base->CR &= ~(1UL << UART_PL011_CR_UARTEN__POS);
+    
+    hand->base->IMSC |= (1UL << 4);
+    
+    //hand->base->CR |= (1UL << UART_PL011_CR_UARTEN__POS);
 
     return 0;
 }

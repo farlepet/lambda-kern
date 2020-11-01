@@ -37,7 +37,8 @@ typedef enum {
     INT_DATAABORT     = 4,
     INT_HYPTRAP       = 5,
     INT_IRQ           = 6,
-    INT_FIQ           = 7
+    INT_FIQ           = 7,
+    INT_MAX           = 8
 } interrupt_idx_e;
 
 #endif

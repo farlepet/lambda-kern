@@ -22,31 +22,10 @@ static inline int interrupts_enabled() {
     return !(tmp & 0x80);
 }
 
-void intr_set_handler(interrupt_idx_e idx, void *ptr);
+void intr_set_handler(interrupt_idx_e idx, void (*handler)(uint8_t, uintptr_t));
 
 void intr_init(void);
 
 void intr_attach_gic(armv7_gic_handle_t *hand);
-
-extern uint32_t intr_stack_end;
-
-#define __SWI_BEGIN \
-    uint32_t lr; \
-    asm volatile("mov sp, %0" :: "r" (&intr_stack_end)); \
-    asm volatile("push {lr}"); \
-    asm volatile("push {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12}"); \
-    asm volatile("mov %[ps], lr" : [ps]"=r" (lr));
-
-#define __INTR_BEGIN \
-    uint32_t lr; \
-    asm volatile("mov sp, %0" :: "r" (&intr_stack_end)); \
-    asm volatile("sub lr, lr, #4"); \
-    asm volatile("push {lr}"); \
-    asm volatile("push {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12}"); \
-    asm volatile("mov %[ps], lr" : [ps]"=r" (lr));
-
-#define __INTR_END \
-    asm volatile("pop {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12}"); \
-    asm volatile("ldm sp!, {pc}^");
 
 #endif

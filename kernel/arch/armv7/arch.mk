@@ -3,6 +3,9 @@
 CFLAGS    += -DARCH_ARMV7 -march=armv7-a -marm
 LDFLAGS    = -marm -T kernel/arch/$(ARCH)/qemu-vexpress-a9.ld
 
+# TODO: Make this command-line selectable:
+CFLAGS    += -D__LAMBDA_PLATFORM_CPU__=PLATFORM_CPU_ARM_CORTEX_A9 -D__LAMBDA_PLATFORM_HW__=PLATFORM_HW_ARM_VEXPRESS_A9
+
 ASFLAGS    = -march=armv7-a -marm
 
 export ASFLAGS
@@ -45,11 +48,10 @@ initrd.cpio:
 
 
 emu: lambda.kern
-	# NOTE: Requires u-boot image configured for vexpress_ca9x4
-	@qemu-system-arm -cpu cortex-a7 -machine vexpress-a9 -kernel lambda.kern -serial stdio -no-reboot
+	@qemu-system-arm -cpu cortex-a9 -machine vexpress-a9 -kernel lambda.kern -serial stdio -no-reboot
 
 emu-debug: lambda.kern
-	@qemu-system-arm -cpu cortex-a7 -machine vexpress-a9 -kernel lambda.kern -serial stdio -no-reboot -s -S
+	@qemu-system-arm -cpu cortex-a9 -machine vexpress-a9 -kernel lambda.kern -serial stdio -no-reboot -s -S -d int
 
 arch_clean:
 	@rm -f common.o lambda.o arch.a symbols.o initrd.cpio lambda.kern symbols.c

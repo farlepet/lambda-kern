@@ -60,7 +60,7 @@ __noreturn int kmain(struct multiboot_header *mboot_head, uint32_t magic) {
 
 	enable_interrupts();
 
-	asm volatile("swi #1");
+	//asm volatile("swi #1");
 
 	init_multitasking(&kernel_task, "kern");
 

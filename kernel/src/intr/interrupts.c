@@ -29,7 +29,7 @@ void set_interrupt(interrupt_idx_e n, void *handler) {
 }
 
 /* TODO: Move HAL elsewhere */
-static hal_timer_dev_t pit;
+static hal_timer_dev_t timer;
 /**
  * \brief Initializes the system timer.
  * Initializes the timer used by the target architecture.
@@ -38,12 +38,14 @@ static hal_timer_dev_t pit;
 void timer_init(uint32_t quantum) {
 #ifdef ARCH_X86
 	pit_init(quantum);
-	pit_create_timerdev(&pit);
-	hal_timer_dev_attach(&pit, do_task_switch);
+	pit_create_timerdev(&timer);
+	hal_timer_dev_attach(&timer, do_task_switch);
 #else
-    armv7_gtimer_init(quantum);
-	armv7_gtimer_create_timerdev(&pit);
-	hal_timer_dev_attach(&pit, do_task_switch);
+	(void)quantum;
+	(void)timer;
+    /*armv7_gtimer_init(quantum);
+	armv7_gtimer_create_timerdev(&timer);
+	hal_timer_dev_attach(&timer, do_task_switch);*/
 #endif
 	kerror(ERR_BOOTINFO, "Timer initialized");
 }

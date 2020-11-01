@@ -35,6 +35,8 @@ typedef unsigned long long int max_ptr_t; //!< Maximum pointer size that can be 
 #define __packed         __attribute__((__packed__))              //!< Do not use alignment
 #define __cold           __attribute__((__cold__))                //!< This data isn't used much
 #define __hot            __attribute__((__hot__))                 //!< This data is used often
+#define __optimize_none  __attribute__((__optimize__("-O0")))     //!< Prevent optimization of this function
+#define __naked          __attribute__((__naked__))               //!< Do not add callee instructions to this function
 
 #define __vector_size(S) __attribute__ ((vector_size(S)))       //!< Create a vector
 

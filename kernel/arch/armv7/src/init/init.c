@@ -5,6 +5,7 @@
 #include <arch/io/uart/uart_pl011.h>
 
 #include <arch/registers.h>
+#include <arch/plat/platform.h>
 
 #include <err/error.h>
 #include <video.h>
@@ -36,11 +37,17 @@ void arch_init(struct multiboot_header *mboot_head) {
     intr_init();
     kerror(ERR_BOOTINFO, "Interrupts Initialized");
 
-    armv7_mpcore_regmap_t *mpcore;
+    ptr_t mpcore;
     __READ_PERIPHBASE(mpcore);
+    kerror(ERR_BOOTINFO, "PERIPHBASE: %08X", mpcore);
 
-    armv7_gic_init(&gic, &mpcore->ICC, &mpcore->DCU);
+    armv7_gic_init(&gic,
+                  (void *)(mpcore + MPCORE_PERIPHBASE_OFF_ICC),
+                  (void *)(mpcore + MPCORE_PERIPHBASE_OFF_DCU));
     armv7_gic_create_intctlrdev(&gic, &intctlr);
-
     intr_attach_gic(&gic);
+
+    kerror(ERR_BOOTINFO, "GIC Initialized");
+
+    uart_pl011_int_attach(&pl011, &intctlr, VEXPRESSA9_INT_UART0);
 }

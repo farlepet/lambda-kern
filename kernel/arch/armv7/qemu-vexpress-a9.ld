@@ -1,4 +1,4 @@
-ENTRY (start)
+ENTRY (reset)
 
 SECTIONS
 {
@@ -30,8 +30,12 @@ SECTIONS
         . += 0x10000;
         new_stack_end   = .;
         
-        intr_stack_begin = .;
+        fiq_stack_begin = .;
         . += 0x2000;
-        intr_stack_end   = .;
+        fiq_stack_end   = .;
+        
+        irq_stack_begin = .;
+        . += 0x2000;
+        irq_stack_end   = .;
 
 }

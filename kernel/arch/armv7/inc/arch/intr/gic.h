@@ -26,25 +26,34 @@ typedef volatile struct {
 
 /** Interrupt Interface registers */
 typedef volatile struct {
-#define ARMV7_GIC_ICC_ICCCTLR_GRP1ENABLE__POS        (       0)
-#define ARMV7_GIC_ICC_ICCCTLR_GRP1FIQBYPDISABLE__POS (       5)
-#define ARMV7_GIC_ICC_ICCCTLR_GRP1IRQBYPDISABLE__POS (       6)
-#define ARMV7_GIC_ICC_ICCCTLR_EOIMODENS__POS         (       9)
-    uint32_t ICCCTLR; /** CPU Interface Control */
-#define ARMV7_GIC_ICC_ICCPMR_PRI__POS                (       0)
-#define ARMV7_GIC_ICC_ICCPMR_PRI__MASK               (0x00FFUL)
-    uint32_t ICCPMR;  /** Interrupt Priority Mask */
-#define ARMV7_GIC_ICC_ICCBPR_BINPOINT__POS           (       0)
-#define ARMV7_GIC_ICC_ICCBPR_BINPOINT__MASK          (0x0007UL)
-    uint32_t ICCBPR;  /** Binary Point */
-    uint32_t ICCIAR;  /** Interrupt Acknowledge */
-    uint32_t ICCEOIR; /** End of Interrupt */
-    uint32_t ICCRPR;  /** Running Priority */
-    uint32_t ICCHPIR; /** Highest Pending Interrupt */
-    uint32_t ICCABPR; /** Aliased Non-secure Binary Point */
-    uint32_t _reserved00[55];
-    uint32_t ICCIDR;  /** CPU Interface Implementor Identification */
-} armv7_icc_regmap_t;
+#define ARMV7_GIC_ICC_CTLR_GRP1ENABLE__POS        (       0)
+#define ARMV7_GIC_ICC_CTLR_GRP1FIQBYPDISABLE__POS (       5)
+#define ARMV7_GIC_ICC_CTLR_GRP1IRQBYPDISABLE__POS (       6)
+#define ARMV7_GIC_ICC_CTLR_EOIMODENS__POS         (       9)
+    uint32_t CTLR;     /** CPU Interface Control */
+#define ARMV7_GIC_ICC_PMR_PRI__POS                (       0)
+#define ARMV7_GIC_ICC_PMR_PRI__MASK               (0x00FFUL)
+    uint32_t PMR;      /** Interrupt Priority Mask */
+#define ARMV7_GIC_ICC_BPR_BINPOINT__POS           (       0)
+#define ARMV7_GIC_ICC_BPR_BINPOINT__MASK          (0x0007UL)
+    uint32_t BPR;      /** Binary Point */
+    uint32_t IAR;      /** Interrupt Acknowledge */
+    uint32_t EOIR;     /** End of Interrupt */
+    uint32_t RPR;      /** Running Priority */
+    uint32_t HPIR;     /** Highest Pending Interrupt */
+    uint32_t ABPR;     /** Aliased Non-secure Binary Point */
+    uint32_t AIAR;     /** Aliased Interrupt Acknowledge */
+    uint32_t AEOIR;    /** Aliased End of Interrupt */
+    uint32_t AHPPIR;   /** Aliased Highest Priority Pending Interrupt */
+    uint32_t STATUSR;  /** Error Reporting Status (optional) */
+    uint32_t _reserved00[40];
+    uint32_t APR[4];   /** Active Priorities */
+    uint32_t NSAPR[4]; /** Non-Secure Active Priorities */
+    uint32_t _reserved01[3];
+    uint32_t IIDR;     /** CPU Interface Identification */
+    uint32_t _reserved02[960];
+    uint32_t DIR;      /** Deactivate Interrupt */
+} armv7_gic_icc_regmap_t;
 
 /** Global Timer registers */
 typedef volatile struct {
@@ -74,57 +83,52 @@ typedef volatile struct {
 
 /* Interrupt Distributor registers */
 typedef volatile struct {
-#define ARMV7_GIC_DCU_ICDDCR_SECUREEN__POS    (       0)
-#define ARMV7_GIC_DCU_ICDDCR_NONSECUREEN__POS (       1)
-    uint32_t ICDDCR;          /** Distributor Control */
-    uint32_t ICDICTR;         /** Interrupt Controller Type */
-    uint32_t ICDIIDR;         /** Distributor Implementor Identification */
+#define ARMV7_GIC_DCU_CTLR_SECUREEN__POS    (       0)
+#define ARMV7_GIC_DCU_CTLR_NONSECUREEN__POS (       1)
+    uint32_t CTLR;            /** Distributor Control */
+    uint32_t TYPER;           /** Interrupt Controller Type */
+    uint32_t IIDR;            /** Distributor Implementor Identification */
     uint32_t _reserved00[29];
-    uint32_t ICDISR[8];       /* Interrupt Security */
-    uint32_t _reserved01[24];
-    uint32_t ICDISER[8];      /* Interrupt Set-Enable */
-    uint32_t _reserved02[24];
-    uint32_t ICDICER[8];      /* Interrupt Clear-Enable */
-    uint32_t _reserved03[24];
-    uint32_t ICDISPR[32];     /* Interrupt Set-Pending */
-    uint32_t ICDICPR[8];      /* Interrupt Clear-Pending */
-    uint32_t _reserved04[24];
-    uint32_t ICDABR[8];       /* Active Bit */
-    uint32_t _reserved05[56];
-    uint32_t ICDIPR[64];      /* Interrupt Priority */
-    uint32_t _reserved06[192];
-    uint32_t ICDIPTR[64];     /* Interrupt Processor Targets */
-    uint32_t _reserved07[192];
-    uint32_t ICDICFR[16];     /* Interrupt Configuration */
-    uint32_t _reserved08[48];
-    uint32_t ICPPISR;         /* PPI Status */
-    uint32_t ICSPISR[7];      /* SPI Status */
-    uint32_t _reserved09[120];
-    uint32_t ICDSGIR;         /* Software Generated Interrupt */
-    uint32_t _reserved10[51];
-    uint32_t ICPIDR[8];       /* Peripheral IDs */
-    uint32_t ICCIDR[4];       /* Component IDs */
-} armv7_dcu_regmap_t;
+    uint32_t IGROUPR[32];     /* Interrupt Security */
+    uint32_t ISENABLER[32];   /* Interrupt Set-Enable */
+    uint32_t ICENABLER[32];   /* Interrupt Clear-Enable */
+    uint32_t ISPENDR[32];     /* Interrupt Set-Pending */
+    uint32_t ICPENDR[32];     /* Interrupt Clear-Pending */
+    uint32_t ISACTIVER[32];   /* Set Active Bit */
+    uint32_t ICACTIVER[32];   /* Clear Active Bit */
+    uint32_t IPRIORITYR[255]; /* Interrupt Priority */
+    uint32_t _reserved01;
+    uint32_t ITARGETSR[255];  /* Interrupt Processor Targets */
+    uint32_t _reserved02;
+    uint32_t ICFGR[64];
+    uint32_t IGRPMODR[32];
+    uint32_t _reserved03[32];
+    uint32_t NSACR[64];
+    uint32_t SGIR;            /* Software Generated Interrupt */
+    /* There are more registers beyond this point as well. */
+} armv7_gic_dcu_regmap_t;
 
 /* TODO: Move this struct def */
 typedef volatile struct {
     armv7_scu_regmap_t SCU;
-    armv7_icc_regmap_t ICC;
+    armv7_gic_icc_regmap_t ICC;
     armv7_gtm_regmap_t GTM;
     uint32_t _reserved00[192];
     armv7_ptw_regmap_t PTW;
     uint32_t _reserved01[576];
-    armv7_dcu_regmap_t DCU;
+    armv7_gic_dcu_regmap_t DCU;
 } armv7_mpcore_regmap_t;
 
 typedef struct {
     uint32_t int_n;
-    void (*callback)(uint32_t);
+    void *data;
+
+    void (*callback)(uint32_t, void *);
 } armv7_gic_callback_t;
 
 typedef struct {
-    armv7_icc_regmap_t *icc;
-    armv7_dcu_regmap_t *dcu;
+    armv7_gic_icc_regmap_t *icc;
+    armv7_gic_dcu_regmap_t *dcu;
 
 #define ARMV7_GIC_MAX_CALLBACKS (16)
     armv7_gic_callback_t callbacks[ARMV7_GIC_MAX_CALLBACKS];    

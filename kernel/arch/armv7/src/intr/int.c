@@ -1,21 +1,24 @@
 #include <intr/intr.h>
 #include <time/time.h>
+#include <err/error.h>
+#include <err/panic.h>
 
 #include <arch/intr/int.h>
 #include <arch/intr/gtimer.h>
 
 extern uint32_t __int_table[];
-
 static uint32_t *vec_table = (uint32_t *)&__int_table;
+
+static void (*__intr_handlers[INT_MAX])(uint8_t, uintptr_t);
 
 static armv7_gic_handle_t *__gic = NULL;
 
-void intr_set_handler(interrupt_idx_e idx, void *ptr) {
-    if (idx >= 8) {
+void intr_set_handler(interrupt_idx_e idx, void (*handler)(uint8_t, uintptr_t)) {
+    if (idx >= INT_MAX) {
         return;
     }
 
-    vec_table[idx] = 0xEA000000 | (((uint32_t)ptr - (4 * (idx + 2))) >> 2);
+    __intr_handlers[idx] = handler;
 }
 
 void intr_attach_gic(armv7_gic_handle_t *hand) {
@@ -25,14 +28,12 @@ void intr_attach_gic(armv7_gic_handle_t *hand) {
 extern void (*gtimer_callback)(void);
 
 __hot
-__attribute__((interrupt ("IRQ")))
-static void intr_irq_handler(void) {
-    __INTR_BEGIN;
-
+static void intr_irq_handler(uint8_t __unused intn, uintptr_t __unused lr) {
     if(__gic) {
         armv7_gic_irqhandle(__gic);
     }
 
+#if 0
     uint32_t tmp;
     __READ_CNTV_CTL(tmp);
     if (tmp & (1UL << 2)) {
@@ -52,24 +53,28 @@ static void intr_irq_handler(void) {
             gtimer_callback();
         }
     }
-
-    __INTR_END;
+#endif
 }
 
 __hot
-__attribute__((interrupt ("FIQ")))
-static void intr_fiq_handler(void) {
-    __INTR_BEGIN;
+static void intr_fiq_handler(uint8_t __unused intn, uintptr_t __unused lr) {
     /* TODO? */
-    __INTR_END;
 }
 
 __hot
-__attribute__((interrupt))
-static void intr_stub_handler(void) {
-    __INTR_BEGIN;
+static void intr_stub_handler(uint8_t __unused intn, uintptr_t __unused lr) {
     /* TODO? */
-    __INTR_END;
+}
+
+__hot
+void intr_handler(uint32_t intn, uintptr_t lr) {
+    if(intn >= INT_MAX) {
+        kpanic("intr_handler(): intn out of range: %u", intn);
+    }
+
+    if(__intr_handlers[intn]) {
+        __intr_handlers[intn]((uint8_t)intn, lr);
+    }
 }
 
 void intr_init(void) {

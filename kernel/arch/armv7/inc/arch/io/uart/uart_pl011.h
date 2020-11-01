@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include <hal/io/char/char.h>
+#include <hal/intr/int_ctlr.h>
 
 #define UART_PL011_QEMU_VERSATILEPB_UART0_BASE (void *)(0x101F1000)
 
@@ -84,5 +85,7 @@ typedef struct {
 int uart_pl011_create_chardev(uart_pl011_handle_t *hand, hal_io_char_dev_t *chardev);
 
 int uart_pl011_init(uart_pl011_handle_t *hand, void *base, uint32_t baud);
+
+int uart_pl011_int_attach(uart_pl011_handle_t *hand, hal_intctlr_dev_t *intctlr, uint32_t int_n);
 
 #endif
