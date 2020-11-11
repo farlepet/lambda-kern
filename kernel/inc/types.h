@@ -55,6 +55,9 @@ typedef unsigned long long int max_ptr_t; //!< Maximum pointer size that can be 
 
 #define ARRAY_SZ(arry) (sizeof(arry) / sizeof(arry[0])) 
 
+#define __STR(X) #X
+#define   STR(X) __STR(X)
+
 #define NULL (void *)0x00000000
 
 typedef enum BOOL { FALSE, TRUE } bool;

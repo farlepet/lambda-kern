@@ -1,3 +1,4 @@
+#include <lambda/version.h>
 #include <proc/syscalls.h>
 #include <proc/ktasks.h>
 #include <proc/mtask.h>
@@ -47,9 +48,9 @@ __noreturn int kmain(struct multiboot_header *mboot_head, uint32_t magic) {
 	// Architecture-specific initialization:
 	arch_init(mboot_head);
 
-	kerror(ERR_BOOTINFO, "-------------------------");
-	kerror(ERR_BOOTINFO, "Kernel version: "KERNEL_GIT);
-	kerror(ERR_BOOTINFO, "-------------------------");
+	kerror(ERR_BOOTINFO, "------------------------------");
+	kerror(ERR_BOOTINFO, "Kernel version: "LAMBDA_VERSION_STR_FULL);
+	kerror(ERR_BOOTINFO, "------------------------------");
 	
 	fs_init();
 #if defined(ARCH_X86)
