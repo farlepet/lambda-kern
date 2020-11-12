@@ -42,6 +42,6 @@ typedef struct {
     uint8_t minor; /** Kernel minor version. */
     uint8_t patch; /** Kernel patch revision. */
     uint8_t __reserved;
-} __packed lambda_version_t;
+} lambda_version_t;
 
 #endif

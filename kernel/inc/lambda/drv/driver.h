@@ -5,6 +5,8 @@
 
 #include <lambda/version.h>
 
+#define LAMBDA_DRV_SECTION_NAME ".lambda_drv_data"
+
 typedef enum {
     LAMBDA_DRV_TYPE_NONE    = 0x0000U, /** Invalid. */ 
     LAMBDA_DRV_TYPE_GENERIC = 0x0001U, /** Generic, no defined function. */

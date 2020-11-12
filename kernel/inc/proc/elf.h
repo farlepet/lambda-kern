@@ -204,6 +204,7 @@ typedef struct
 
 
 
+int elf_find_section(const Elf32_Ehdr *elf, Elf32_Shdr **section, const char *section_name);
 
 
 int load_elf(void *file, uint32_t length);
