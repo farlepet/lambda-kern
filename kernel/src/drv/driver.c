@@ -5,7 +5,7 @@
 #include <fs/fs.h>
 #include <video.h>
 
-int driver_read(struct kfile *file, lambda_drv_head_t **head, uintptr_t *base) {
+int driver_read(struct kfile *file, lambda_drv_head_t **head, uintptr_t *base, Elf32_Ehdr **elf) {
     Elf32_Ehdr        *elf_data;
     Elf32_Shdr        *drv_section;
     lambda_drv_head_t *drv_head;
@@ -38,7 +38,11 @@ int driver_read(struct kfile *file, lambda_drv_head_t **head, uintptr_t *base) {
     *head = drv_head;
     *base = drv_section->sh_addr;
 
-    /* TODO: Copy data, and free memory. */
+    if(elf) {
+        *elf = elf_data;
+    } else {
+        /* TODO: Copy data, and free memory. */
+    }
 
     return 0;
 }

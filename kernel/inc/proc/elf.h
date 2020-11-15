@@ -163,6 +163,28 @@ typedef struct
 	int32_t  r_addend;
 } Elf32_Rela;
 
+/** Relocation r_info symbol table index. */
+#define ELF32_R_SYM(i)	  ((i) >> 8)
+/** Relocation r_info relcation type. */
+#define ELF32_R_TYPE(i)   ((uint8_t)(i))
+/** Generate r_info from symbol table index and relocation type. */
+#define ELF32_R_INFO(s,t) (((s) << 8) + (uint8_t)(t))
+
+typedef enum {
+	R_386_NONE     = 0,
+	R_386_32       = 1,
+	R_386_PC32     = 2,
+	R_386_GOT32    = 3,
+	R_386_PLT32    = 4,
+	R_386_COPY     = 5,
+	R_386_GLOB_DAT = 6,
+	R_386_JMP_SLOT = 7,
+	R_386_RELATIVE = 8,
+	R_386_GOTOFF   = 9,
+	R_386_GOTPC    = 10,
+	R_386_32PLT    = 11
+} elf_386_relocation_types_e;
+
 typedef struct
 {
 	uint32_t d_tag;
@@ -206,6 +228,7 @@ typedef struct
 
 int elf_find_section(const Elf32_Ehdr *elf, Elf32_Shdr **section, const char *section_name);
 
+uintptr_t elf_find_data(const Elf32_Ehdr *elf, uintptr_t addr);
 
 int load_elf(void *file, uint32_t length);
 

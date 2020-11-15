@@ -24,6 +24,19 @@ int elf_find_section(const Elf32_Ehdr *elf, Elf32_Shdr **section, const char *se
 	return 1;
 }
 
+uintptr_t elf_find_data(const Elf32_Ehdr *elf, uintptr_t addr) {
+	Elf32_Shdr       *sections     = (Elf32_Shdr *)((uintptr_t)elf + elf->e_shoff);
+
+	for(size_t i = 0; i < elf->e_shnum; i++) {
+		if((addr >= sections[i].sh_addr) &&
+		   (addr <  (sections[i].sh_addr + sections[i].sh_size))) {
+            return (uintptr_t)elf + sections[i].sh_offset +
+			       (addr - sections[i].sh_addr);
+		}
+	}
+
+	return 0;
+}
 
 char *sht_strings[] = {
 	[SHT_NONE]          = "NONE",

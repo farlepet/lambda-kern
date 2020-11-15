@@ -12,16 +12,18 @@ typedef enum {
     LAMBDA_DRV_TYPE_GENERIC = 0x0001U, /** Generic, no defined function. */
     LAMBDA_DRV_TYPE_INPUT   = 0x0002U, /** Input device driver */
     LAMBDA_DRV_TYPE_OUTPUT  = 0x0003U, /** Output device driver */
-    LAMBDA_DRV_TYPE_STORAGE = 0x0004U, /** Storage device driver */
-    LAMBDA_DRV_TYPE_DISPLAY = 0x0005U, /** Display device driver */
-    LAMBDA_DRV_TYPE_HID     = 0x0006U, /** Human interface device driver */
+    LAMBDA_DRV_TYPE_IO      = 0x0004U, /** I/O device driver */
+    LAMBDA_DRV_TYPE_STORAGE = 0x0005U, /** Storage device driver */
+    LAMBDA_DRV_TYPE_DISPLAY = 0x0006U, /** Display device driver */
+    LAMBDA_DRV_TYPE_HID     = 0x0007U, /** Human interface device driver */
 } lambda_drv_type_e;
 
 /**
  * Kernel driver metadata.
  */
 typedef struct {
-    char            *name;         /** Driver name. */
+    char            *ident;        /** Driver identifier/name. Must not contain spaces. */
+    char            *name;         /** Driver human-readable name. */
     char            *description;  /** Driver description. Optional */
     char            *license;      /** Driver license. NONE if no license. */
     char           **authors;      /** Driver authors. Optional */

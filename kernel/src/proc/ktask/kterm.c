@@ -422,7 +422,8 @@ static int kterm_drv(int argc, char **argv) {
 		kprintf("Loading driver info.\n");
 		lambda_drv_head_t *drv_head;
 		uintptr_t          drv_base;
-		if(driver_read(drv, &drv_head, &drv_base)) {
+		Elf32_Ehdr        *drv_elf;
+		if(driver_read(drv, &drv_head, &drv_base, &drv_elf)) {
 			kprintf("Issue while loading driver section.\n");
 			return 1;
 		}
@@ -440,29 +441,33 @@ static int kterm_drv(int argc, char **argv) {
 				drv_head->kernel.patch);
 		
 		kprintf("Metadata:\n"
+		        "  Identifier:   %s\n"
 		        "  Name:         %s\n"
 				"  Description:  %s\n"
 				"  License:      %s\n"
 				"  Authors:      ",
-				drv_head->metadata.name        ? ((uintptr_t)drv_head + drv_head->metadata.name        - drv_base) : "N/A",
-				drv_head->metadata.description ? ((uintptr_t)drv_head + drv_head->metadata.description - drv_base) : "N/A",
-				drv_head->metadata.license     ? ((uintptr_t)drv_head + drv_head->metadata.license     - drv_base) : "N/A");
+				drv_head->metadata.ident       ? (char *)elf_find_data(drv_elf, (uintptr_t)drv_head->metadata.ident)       : "N/A",
+				drv_head->metadata.name        ? (char *)elf_find_data(drv_elf, (uintptr_t)drv_head->metadata.name)        : "N/A",
+				drv_head->metadata.description ? (char *)elf_find_data(drv_elf, (uintptr_t)drv_head->metadata.description) : "N/A",
+				drv_head->metadata.license     ? (char *)elf_find_data(drv_elf, (uintptr_t)drv_head->metadata.license)     : "N/A");
 				
 		if(drv_head->metadata.authors) {
-			char **authors = (uintptr_t)drv_head + (drv_head->metadata.authors - drv_base);
+			char **authors = (char **)elf_find_data(drv_elf, (uintptr_t)drv_head->metadata.authors);
 			size_t i = 0;
 			while(authors[i]) {
-				kprintf("\n  %s", ((uintptr_t)drv_head + (authors[i]- drv_base)));
+				kprintf("\n    %s", elf_find_data(drv_elf, (uintptr_t)authors[i]));
+				i++;
 			}
 		} else {
 			kprintf("N/A");
 		}
 		kprintf("\n  Requirements: ");
 		if(drv_head->metadata.requirements) {
-			char **requirements = (uintptr_t)drv_head + (drv_head->metadata.requirements - drv_base);
+			char **requirements = (char **)elf_find_data(drv_elf, (uintptr_t)drv_head->metadata.requirements);
 			size_t i = 0;
 			while(requirements[i]) {
-				kprintf("\n  %s", ((uintptr_t)drv_head + (requirements[i]- drv_base)));
+				kprintf("\n    %s", elf_find_data(drv_elf, (uintptr_t)requirements[i]));
+				i++;
 			}
 		} else {
 			kprintf("N/A");
