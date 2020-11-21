@@ -44,4 +44,10 @@ typedef struct {
     uint8_t __reserved;
 } lambda_version_t;
 
+#define LAMBDA_VERSION { \
+    .major = LAMBDA_VERSION_MAJOR, \
+    .minor = LAMBDA_VERSION_MINOR, \
+    .patch = LAMBDA_VERSION_PATCH  \
+}
+
 #endif

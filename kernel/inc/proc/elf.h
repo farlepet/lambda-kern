@@ -82,6 +82,22 @@ typedef struct
 	uint32_t p_align;
 } Elf32_Phdr;
 
+typedef enum {
+	PT_NULL    = 0,
+	PT_LOAD    = 1,
+	PT_DYNAMIC = 2,
+	PT_INTERP  = 3,
+	PT_NOTE    = 4,
+	PT_SHLIB   = 5,
+	PT_PHDR    = 6,
+	PT_TLS     = 7,
+
+	PT_LOOS    = 0x60000000,
+	PT_HIOS    = 0x6FFFFFFF,
+	PT_LOPROC  = 0x70000000,
+	PT_HIPROC  = 0x7FFFFFFF
+} elf32_phdr_type_e;
+
 typedef struct
 {
 	uint32_t sh_name;
@@ -223,6 +239,49 @@ typedef struct
 #define AT_EXECFN           31
 #define AT_SYSINFO          32
 #define AT_SYSINFO_EHDR     
+
+/** Dynamic table d_tag values: */
+typedef enum {
+	DT_NULL            = 0,
+	DT_NEEDED          = 1,
+	DT_PLTRELSZ        = 2,
+	DT_PLTGOT          = 3,
+	DT_HASH            = 4,
+	DT_STRTAB          = 5,
+	DT_SYMTAB          = 6,
+	DT_RELA            = 7,
+	DT_RELASZ          = 8,
+	DT_RELAENT         = 9,
+	DT_STRSZ           = 10,
+	DT_SYMENT          = 11,
+	DT_INIT            = 12,
+	DT_FINI            = 13,
+	DT_SONAME          = 14,
+	DT_RPATH           = 15,
+	DT_SYMBOLIC        = 16,
+	DT_REL             = 17,
+	DT_RELSZ           = 18,
+	DT_RELENT          = 19,
+	DT_PLTREL          = 20,
+	DT_DEBUG           = 21,
+	DT_TEXTREL         = 22,
+	DT_JMPREL          = 23,
+	DT_BIND_NOW        = 24,
+	DT_INIT_ARRAY      = 25,
+	DT_FINI_ARRAY      = 26,
+	DT_INIT_ARRAYSZ    = 27,
+	DT_FINI_ARRAYSZ    = 28,
+	DT_RUNPATH         = 29,
+	DT_FLAGS           = 30,
+	DT_ENCODING        = 31,
+	DT_PREINIT_ARRAY   = 32,
+	DT_PREINIT_ARRAYSZ = 33,
+
+	DT_LOOS            = 0x6000000D,
+	DT_HIOS            = 0x6FFFF000,
+	DT_LOPROC          = 0x70000000,
+	DT_HIPROC          = 0x7FFFFFFF
+} elf32_dyn_tag_e;
 
 
 

@@ -26,9 +26,17 @@ symbols.o: lambda.o
 	@scripts/symbols > symbols.c
 	@$(CC) $(CFLAGS) -c -o symbols.o symbols.c
 
-lambda.kern: lambda.o symbols.o arch.a
+lambda.lib: lambda.o symbols.o
 	@echo -e "\033[33m  \033[1mLinking kernel\033[0m"
-	@$(LD) $(LDFLAGS) -o lambda.kern lambda.o symbols.o
+	@$(LD) $(LDFLAGS) -r -o lambda.lib lambda.o symbols.o
+
+lambda.shared: lambda.lib
+	@echo -e "\033[33m  \033[1mLinking kernel\033[0m"
+	@$(CC) -m32 -shared -o lambda.shared lambda.lib
+
+lambda.kern: lambda.lib
+	@echo -e "\033[33m  \033[1mProducing kernel executable\033[0m"
+	@$(LD) $(LDFLAGS) -o lambda.kern lambda.lib
 
 initrd.cpio:
 	@echo -e "\033[33m  \033[1mGenerating InitCPIO\033[0m"
