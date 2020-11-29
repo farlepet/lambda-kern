@@ -6,17 +6,14 @@
 
 #include <libgen.h>
 
-static struct header_old_cpio *cpio = 0;
+static struct header_old_cpio *cpio = NULL;
 
-static int n_files = 0;
-/* TODO: To save space, check number of files present, then kmalloc this array. */
-static struct header_old_cpio *files[0x1000]; // Table of initrd file locations
-static char filenames[0x1000][128];           // Table of initrd filenames
+static size_t initrd_n_files = 0;
 
-#define n(x) ((x << 16) | (x >> 16))
+#define CPIO2LE(x) ((x << 16) | (x >> 16)) //!< Convert 32-bit CPIO values to little-endian
 
 static uint32_t initrd_read(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
-	if(!f->info | !cpio) return 0; // We must know where the CPIO file is
+	if(!f->info)         return 0; // We must know where the CPIO data is
 	if(off >= f->length) return 0; // We cannot read past the end of the file
 
 	uint8_t *data = f->info;
@@ -31,20 +28,19 @@ static uint32_t initrd_read(struct kfile *f, uint32_t off, uint32_t sz, uint8_t 
 }
 
 static uint32_t initrd_write(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
-	// These go unused
 	(void)f;
 	(void)off;
 	(void)sz;
 	(void)buff;
-
-	return 0; // There should be no reason to write to the files in the initrd
+	/* Writing to initrd is unsupported. */
+	return 0;
 }
 
 static void initrd_open(struct kfile *f, uint32_t flags) {
 	lock(&f->file_lock);
 
 	/* TODO: Maybe find a way to handle symlinks more globally, rather than
-	 * specifically withing the fs handler. */
+	 * specifically within the fs handler. */
 	if(f->flags & FS_SYMLINK) {
 		/* We need to find the file this symlinks to */
 		/* TODO: Ensure we do not exceed 127 characters */
@@ -83,36 +79,32 @@ void initrd_mount(struct kfile *mntpoint, uintptr_t initrd, size_t __unused len)
 	}
 
 	struct header_old_cpio *cfile = (struct header_old_cpio *)cpio;
-	int cidx = 0;
 
 	while (1) {
-		if(cfile->c_magic != 0x71C7) {
+		if(cfile->c_magic != 070707) {
 			kerror(ERR_MEDERR, "  -> Invalid or corrupt InitCPIO!\n");
 			return;
 		}
 
-		files[cidx] = cfile;
+		cfile->c_mtime    = CPIO2LE(cfile->c_mtime);
+		cfile->c_filesize = CPIO2LE(cfile->c_filesize);
 
-		cfile->c_mtime    = n(cfile->c_mtime);
-		cfile->c_filesize = n(cfile->c_filesize);
-
-		memcpy(filenames[cidx], (void *)((uint32_t)cfile + sizeof(struct header_old_cpio)), cfile->c_namesize);
-
-		if (!strcmp(filenames[cidx], "TRAILER!!!")) {
-			memset(&files[cidx], 0, sizeof(struct header_old_cpio));
+		char *filename = (char *)((uintptr_t)cfile + sizeof(struct header_old_cpio));
+		
+		if (!strcmp(filename, "TRAILER!!!")) {
+			/* End of file list. */
 			return;
 		}
 
-		uint32_t data = ((uint32_t)cfile + sizeof(struct header_old_cpio) + cfile->c_namesize + (cfile->c_namesize & 1));
-
+		uintptr_t data = ((uint32_t)cfile + sizeof(struct header_old_cpio) + cfile->c_namesize + (cfile->c_namesize & 1));
 
 		struct kfile *file = (struct kfile *)kmalloc(sizeof(struct kfile));
 		memset(file, 0, sizeof(struct kfile));
 
-		char *name = basename(filenames[cidx]);
+		char *name = basename(filename);
 		memcpy(file->name, name, strlen(name));
 
-		char *path = dirname(filenames[cidx]);
+		char *path = dirname(filename);
 
 		struct kfile *dir = mntpoint;
 		if(path[0] != '.') {
@@ -146,10 +138,10 @@ void initrd_mount(struct kfile *mntpoint, uintptr_t initrd, size_t __unused len)
 		
 		
 		file->length     = cfile->c_filesize;
-		file->impl       = dir->inode; //fs_root->inode; // FIXME
+		file->impl       = dir->inode;
 		file->uid        = cfile->c_uid;
 		file->gid        = cfile->c_gid;
-		file->link       = 0; // FIXME
+		file->link       = 0; /* NOTE: This is handled upon first open, if applicable. */
 		file->open_flags = 0;
 		file->pflags     = cfile->c_mode & 07777;
 		switch(cfile->c_mode & 0170000) {
@@ -182,9 +174,11 @@ void initrd_mount(struct kfile *mntpoint, uintptr_t initrd, size_t __unused len)
 				file->flags |= FS_PIPE;
 				break;
 		}
-		file->atime      = cfile->c_mtime;
+
+		/* CPIO only gives us modification time. */
+		file->atime      = 0;              /* Start access time afresh at each mount. */
 		file->mtime      = cfile->c_mtime;
-		file->ctime      = cfile->c_mtime; // Ehh....
+		file->ctime      = cfile->c_mtime;
 		
 		file->read      = &initrd_read;
 		file->write     = &initrd_write;
@@ -196,7 +190,6 @@ void initrd_mount(struct kfile *mntpoint, uintptr_t initrd, size_t __unused len)
 
 		cfile = (struct header_old_cpio *)(data + cfile->c_filesize + (cfile->c_filesize & 1));
 
-		cidx++;
-		n_files++;
+		initrd_n_files++;
 	}
 }
