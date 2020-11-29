@@ -203,7 +203,8 @@ static int kterm_run(int argc, char **argv) {
 	(void)argc;
 	(void)argv;
 
-	int pid = 0;
+	int *pid = (int *)malloc(sizeof(int));//0;
+	*pid = 0;
 
 	if(!strlen(exec_filename)) {
 		kprintf("No loaded executable to run\n");
@@ -211,14 +212,14 @@ static int kterm_run(int argc, char **argv) {
 	}
 
 	if(exec_type == EXEC_ELF) {
-		call_syscall(SYSCALL_FORK, (uint32_t *)&pid);
+		call_syscall(SYSCALL_FORK, (uint32_t *)pid);
 		//pid = fork();
 		if(pid == 0) {
 			kprintf("Child\n");
 			exec_elf(exec_data, exec_stat.st_size, (const char **)argv, (const char **)argv);
 			exit(1);
 		}
-		kprintf("Parent (of %d)\n", pid);
+		kprintf("Parent (of %d)\n", *pid);
 		//pid = load_elf(exec_data, exec_stat.st_size);
 
 		/*if(pid < 0) {
@@ -230,10 +231,10 @@ static int kterm_run(int argc, char **argv) {
 		return 1;
 	}
 
-	kerror(ERR_BOOTINFO, "Task PID: %d", pid);
+	kerror(ERR_BOOTINFO, "Task PID: %d", *pid);
 	
 	// TODO: Create helper functions for this:
-	int idx = proc_by_pid(pid);
+	int idx = proc_by_pid(*pid);
 	if(idx < 0) {
 		kerror(ERR_MEDERR, "kterm: Could not find spawned process!");
 		return 1;

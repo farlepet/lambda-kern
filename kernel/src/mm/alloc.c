@@ -1,7 +1,9 @@
 #include <string.h>
+#include <mm/mm.h>
 #include <mm/alloc.h>
 #include <err/error.h>
 #include <err/panic.h>
+#include <proc/mtask.h>
 #include <proc/atomic.h>
 
 static lock_t alloc_lock = 0;
@@ -234,6 +236,31 @@ void kfree(void *ptr)
 
 	unlock(&alloc_lock);
 }
+
+
+void *malloc(size_t sz) {
+	void *ret = kmalloc(sz);
+	if(!ret) {
+		return NULL;
+	}
+	struct kproc *proc = mtask_get_current_task();
+	if(proc) {
+		/* NOTE: Assuming one-to-one mapping. */
+		mm_proc_mmap_add(proc, (uintptr_t)ret, (uintptr_t)ret, sz);
+	}
+
+	return ret;
+}
+
+void free(void *ptr) {
+	struct kproc *proc = mtask_get_current_task();
+	if(proc) {
+		/* NOTE: Assuming allocation table is using physical addresses. */
+		mm_proc_mmap_remove_phys(proc, (uintptr_t)ptr);
+	}
+	kfree(ptr);
+}
+
 
 /**
  * Initialize allocation functions

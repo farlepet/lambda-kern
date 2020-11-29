@@ -133,6 +133,14 @@ int proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt_stac
  */
 int proc_create_kernel_stack(struct kproc *proc);
 
+/**
+ * @brief Get pointer to current process
+ * 
+ * @return Pointer to current process, NULL on error
+ */
+struct kproc *mtask_get_current_task(void);
+
+
 // TODO: Move x86-specific stack operation!
 #define STACK_PUSH(esp, data) do { \
         esp = esp - 4; \

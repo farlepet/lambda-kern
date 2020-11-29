@@ -15,6 +15,21 @@ struct alcent //!< Describes a block of memory
 };
 
 /**
+ * \brief Allocates a block of memory. Adds accounting to kmalloc.
+ * 
+ * @param sz Size of requested memory block
+ * @return Pointer to memory block on success, else NULL
+ */
+void *malloc(size_t sz);
+
+/**
+ * \brief Frees a previously allocated block of memory. Adds accounting to kfree,
+ * 
+ * @param ptr Pointer to previously-allocated memory block.
+ */
+void free(void *ptr);
+
+/**
  * Allocates a block of memory
  *
  * @param sz size of the required memory block

@@ -195,6 +195,15 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 
 
 
+struct kproc *mtask_get_current_task(void) {
+	if(tasking) {
+		/* NOTE: This is inefficient, and potentially unsafe. */
+		return &procs[proc_by_pid(current_pid)];
+	} else {
+		return NULL;
+	}
+}
+
 
 void init_multitasking(void *process, char *name) {
 	kerror(ERR_BOOTINFO, "Initializing multitasking");
