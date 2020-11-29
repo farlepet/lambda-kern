@@ -121,7 +121,7 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
         return -1;
     }
 
-    int kernel = (current_pid < 0);
+    int kernel = (parent->type & TYPE_KERNEL);
 
     // Doing a memcpy might be more efficient removing some instructions, but it
     // may also introduce bugs/security flaws if certain info isn't cleared properly.
@@ -163,12 +163,25 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
     child->arch.eip = (uint32_t)return_from_fork;
 
     proc_copy_stack(child, parent);
-    proc_copy_kernel_stack(child, parent);
+    //proc_copy_kernel_stack(child, parent);
 
     proc_copy_data(child, parent);
 
-    struct iret_regs *iret_stack   = (struct iret_regs *)(child->arch.kernel_stack - sizeof(struct iret_regs));
-    struct pusha_regs *pusha_stack = (struct pusha_regs *)((uintptr_t)iret_stack - sizeof(struct pusha_regs));
+    arch_iret_regs_t  *iret_stack  = (arch_iret_regs_t *)(child->arch.kernel_stack - sizeof(arch_iret_regs_t));
+    arch_pusha_regs_t *pusha_stack = (arch_pusha_regs_t *)((uintptr_t)iret_stack - sizeof(arch_pusha_regs_t));
+    
+    memcpy(iret_stack,  parent->arch.syscall_regs.iret,  sizeof(arch_iret_regs_t));
+    memcpy(pusha_stack, parent->arch.syscall_regs.pusha, sizeof(arch_pusha_regs_t));
+    
+    kerror(ERR_INFO, "IRET_STACK (%08X):", iret_stack);
+    for(size_t i = 0; i < 5; i++) {
+        kerror(ERR_INFO, "    %08X", ((uint32_t *)iret_stack)[i]);
+    }
+    kerror(ERR_INFO, "PUSHA_STACK (%08X):", pusha_stack);
+    for(size_t i = 0; i < 8; i++) {
+        kerror(ERR_INFO, "    %08X", ((uint32_t *)pusha_stack)[i]);
+    }
+
 
     uint32_t *syscall_args_virt = (uint32_t *)pusha_stack->ebx;
     uint32_t *syscall_args_phys = (uint32_t *)pgdir_get_phys_addr((uint32_t *)child->arch.cr3, syscall_args_virt);

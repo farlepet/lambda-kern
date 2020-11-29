@@ -3,6 +3,13 @@
 
 #include <stdint.h>
 
+#include <arch/intr/int.h>
+
+typedef struct {
+	arch_pusha_regs_t *pusha;
+	arch_iret_regs_t  *iret;
+} kproc_arch_syscall_regs_t;
+
 typedef struct {
 	int ring;           //!< Ring to run in (0-3)
 
@@ -16,6 +23,8 @@ typedef struct {
 
 	uint32_t stack_beg; //!< Beginning of stack
 	uint32_t stack_end; //!< Current end of stack
+
+	kproc_arch_syscall_regs_t syscall_regs; //!< Syscall registers
 } kproc_arch_t;
 
 /* Architecture-specific task creation parameters */

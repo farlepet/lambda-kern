@@ -153,7 +153,6 @@ static int kterm_help(int argc, char **argv) {
  * Executable file functions:
  */
 
-#define EXEC_BIN 0
 #define EXEC_ELF 1
 
 #define EXEC_STREAM_LEN 256
@@ -185,14 +184,14 @@ static int kterm_load(int argc, char **argv) {
 	exec_data = kmalloc(exec_stat.st_size);
 	fs_read(exec, 0, exec_stat.st_size, exec_data);
 
-	//kprintf("First 4 bytes of file: %02x, %02x, %02x, %02x\n", exec_data[0], exec_data[1], exec_data[2], exec_data[3]);
-
 	if(*(uint32_t *)exec_data == ELF_IDENT) {
 		exec_type = EXEC_ELF;
 		kprintf("Executable is an ELF executable.\n");
 	} else {
-		exec_type = EXEC_BIN;
-		kprintf("Executable is a raw binary executable.\n");
+		kprintf("Raw binary executables are no longer supported.\n");
+		fs_close(exec);
+		kfree(exec_data);
+		return 1;
 	}
 
 	kprintf("%s loaded\n", exec->name);
@@ -212,45 +211,23 @@ static int kterm_run(int argc, char **argv) {
 	}
 
 	if(exec_type == EXEC_ELF) {
-		pid = load_elf(exec_data, exec_stat.st_size);
+		call_syscall(SYSCALL_FORK, (uint32_t *)&pid);
+		//pid = fork();
+		if(pid == 0) {
+			kprintf("Child\n");
+			exec_elf(exec_data, exec_stat.st_size, (const char **)argv, (const char **)argv);
+			exit(1);
+		}
+		kprintf("Parent (of %d)\n", pid);
+		//pid = load_elf(exec_data, exec_stat.st_size);
 
-		if(pid < 0) {
+		/*if(pid < 0) {
 			kerror(ERR_MEDERR, "Could not load executable");
 			return 1;
-		}
-	}
-
-	else if(exec_type == EXEC_BIN) {
-#if defined(ARCH_X86)
-		arch_task_params_t arch_params;
-
-		//uint32_t *pagedir;
-		ptr_t exec_ep = 0x80000000;
-
-		// Keep it on a page boundry:
-		void *phys = kmalloc(exec_stat.st_size + 0x2000);
-		phys = (void *)(((uint32_t)phys & ~0xFFF) + 0x1000);
-
-		//map_page(phys, (void *)exec_ep, 0x03);
-
-		//uint32_t addr_tst = (uint32_t)get_page_entry((void *)exec_ep);
-		//kerror(ERR_SMERR, "Page entry: 0x%08X", addr_tst);
-		
-		memcpy(phys, exec_data, exec_stat.st_size);
-
-		//kerror(ERR_BOOTINFO, "Current CR3: 0x%08X", get_pagedir());
-
-		arch_params.pgdir = clone_kpagedir();
-		pgdir_map_page(arch_params.pgdir, phys, (void *)exec_ep, 0x07);
-		kerror(ERR_BOOTINFO, "Page entry: 0x%08X", pgdir_get_page_entry(arch_params.pgdir, (void *)exec_ep));
-
-		//pid = add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
-		pid = add_user_task_arch((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, &arch_params);
-		//int pid = add_kernel_task((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG);
-#else
-		/* TODO, or maybe not. Flat binaries don't have much purpose anymore
-		 * with ELF working properly. */
-#endif
+		}*/
+	} else {
+		kprintf("No executable loaded, or of unsupported type.");
+		return 1;
 	}
 
 	kerror(ERR_BOOTINFO, "Task PID: %d", pid);

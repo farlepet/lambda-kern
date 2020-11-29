@@ -19,16 +19,16 @@
 int interrupts_enabled();
 
 
-struct pusha_regs {
+typedef struct pusha_regs {
 	uint32_t edi, esi;
 	uint32_t ebp, esp;
 	uint32_t ebx, edx, ecx, eax;
-} __packed;
+} arch_pusha_regs_t;
 
-struct iret_regs {
+typedef struct iret_regs {
 	uint32_t eip, cs;
 	uint32_t eflags;
 	uint32_t esp, ds;
-} __packed;
+} arch_iret_regs_t;
 
 #endif

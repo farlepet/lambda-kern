@@ -54,7 +54,6 @@ struct syscall syscalls[] = {
 	[SYSCALL_WAIT]   = { (func0_t)wait,   1, 0 }
 };
 
-//void handle_syscall(uint32_t scn, uint32_t *args)
 int service_syscall(uint32_t scn, uint32_t *args) {
 	//kerror(ERR_BOOTINFO, "Syscall %d called with args at %08X", scn, args);
 	if(scn >= ARRAY_SZ(syscalls)) {
@@ -109,7 +108,7 @@ void init_syscalls()
 #endif
 }
 
-extern void call_syscall_int();
+extern void call_syscall_int(uint32_t, uint32_t *);
 void call_syscall(uint32_t scn, uint32_t *args)
 {
 	//kerror(ERR_BOOTINFO, "call_syscall: %d, %08X", scn, args);

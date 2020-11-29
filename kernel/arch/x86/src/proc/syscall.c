@@ -12,6 +12,9 @@ void handle_syscall(struct pusha_regs regs, struct iret_regs iregs) {
 	proc->arch.esp = (uint32_t)&regs;
 	proc->book.syscall_count++;
 
+	proc->arch.syscall_regs.pusha = &regs;
+	proc->arch.syscall_regs.iret  = &iregs;
+
 	uint32_t  scn  = regs.eax;
 	uint32_t *args = (uint32_t *)regs.ebx;
 
