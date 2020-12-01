@@ -69,22 +69,26 @@ typedef struct proc_elf_data {
 	const Elf32_Sym *dynamic_sym;     //!< Dynamic symbol table
 } proc_elf_data_t;
 
+/* TODO: Convert some static-size arrays in kproc to dynamically allocated memory. */
 struct kproc { //!< Structure of a process as seen by the kernel
 	char          name[64]; //!< Name of the process
 	int           pid;      //!< Process ID
 	int           uid;      //!< User who `owns` the process
 	int           gid;      //!< Group who `owns` the process
 
+	/* TODO: Currently parent anc childred are completely different, perhaps
+	 * they should both be pointers? */
 	int           parent;   //!< PID of parent process
 
 	uint32_t      type;     //!< Type of process
 
-	int           children[MAX_CHILDREN]; //!< Indexes of direct child processes (ex: NOT children's children)
+	struct kproc *children[MAX_CHILDREN]; //!< Pointers to direct child processes (ex: NOT children's children)
 
 	kproc_arch_t  arch; //!< Architecture-specific process data
 
 	uint32_t      entrypoint; //!< Program start
 
+	/* Old IPC method. TODO: remove. */
 	struct cbuff  messages;           //!< Message buffer structure
 	uint8_t       msg_buff[MSG_BUFF_SIZE]; //!< Actual buffer
 
@@ -98,6 +102,9 @@ struct kproc { //!< Structure of a process as seen by the kernel
 
 	proc_elf_data_t *elf_data; //!< Data specific for ELF executables
 
+	/* TODO: Might be best to simply deprecate this, similar could be done
+	 * using pipes, or other standard IPC techniques. Perhaps implement more
+	 * standard POSIX message queues. */
 	struct ipc_message *ipc_messages[MAX_PROCESS_MESSAGES]; //!< IPC message pointers
 	int                 blocked_ipc_pids[MAX_BLOCKED_PIDS]; //!< PIDs blocked from sending messages to this process
 
@@ -110,6 +117,10 @@ struct kproc { //!< Structure of a process as seen by the kernel
 	struct        proc_book book; //!< Bookkeeping stuff
 
 	struct kproc_mem_map_ent *mmap; //!< Memory map
+
+
+	struct kproc *next; /*!< Next process in linked list. */
+	struct kproc *prev; /*!< Previous process in linked list. */
 };
 
 
@@ -155,11 +166,11 @@ int proc_add_file(struct kproc *proc, struct kfile *file);
  * @brief Add child index to parent
  * 
  * @param parent Pointer to parent process struct
- * @param child_pid Index of child to add
+ * @param child Pointer to child to add
  * 
  * @return 0 on success, else 1
  */
-int proc_add_child(struct kproc *parent, int child_idx);
+int proc_add_child(struct kproc *parent, struct kproc *child);
 
 /**
  * @brief Reschedule processes
@@ -170,10 +181,8 @@ void sched_processes(void);
 
 /**
  * @brief Select next process to execute
- * 
- * @return int Process index
  */
-int sched_next_process(void);
+void sched_next_process(void);
 
 /**
  * @brief Add memory map record to process

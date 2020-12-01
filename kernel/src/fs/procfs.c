@@ -6,13 +6,10 @@
 
 uint32_t proc_fs_read(int desc, uint32_t off, uint32_t sz, uint8_t *buff) {
     if(desc > MAX_OPEN_FILES) return 0;
+    if(!curr_proc)            return 0;
     
-    int idx = proc_by_pid(current_pid);
-    if(idx < 0) return 0;
-    struct kproc *proc = &procs[idx];
-
-    if(proc->open_files[desc]) {
-        return fs_read(proc->open_files[desc], off, sz, buff);
+    if(curr_proc->open_files[desc]) {
+        return fs_read(curr_proc->open_files[desc], off, sz, buff);
     }
 
     return 0;
@@ -20,16 +17,14 @@ uint32_t proc_fs_read(int desc, uint32_t off, uint32_t sz, uint8_t *buff) {
 
 uint32_t proc_fs_read_blk(int desc, uint32_t off, uint32_t sz, uint8_t *buff) {
     if(desc > MAX_OPEN_FILES) return 0;
-    
-    int idx = proc_by_pid(current_pid);
-    if(idx < 0) return 0;
-    struct kproc *proc = &procs[idx];
+    if(!curr_proc)            return 0;
 
-    if(proc->open_files[desc]) {
-        if((proc->open_files[desc]->flags & FS_STREAM) && !(proc->open_files[desc]->open_flags & OFLAGS_NONBLOCK)) {
+    if(curr_proc->open_files[desc]) {
+        if((curr_proc->open_files[desc]->flags & FS_STREAM) &&
+          !(curr_proc->open_files[desc]->open_flags & OFLAGS_NONBLOCK)) {
             uint32_t count = 0;
             while(count < sz) {
-                uint32_t ret = fs_read(proc->open_files[desc], off, sz - count, buff + count);
+                uint32_t ret = fs_read(curr_proc->open_files[desc], off, sz - count, buff + count);
                 if(ret > 0x80000000) {
                     return count;
                 }
@@ -38,9 +33,9 @@ uint32_t proc_fs_read_blk(int desc, uint32_t off, uint32_t sz, uint8_t *buff) {
             }
             return count;
         } else {
-            off = proc->file_position[desc];
-            uint32_t n = fs_read(proc->open_files[desc], off, sz, buff);
-            proc->file_position[desc] += n;
+            off = curr_proc->file_position[desc];
+            uint32_t n = fs_read(curr_proc->open_files[desc], off, sz, buff);
+            curr_proc->file_position[desc] += n;
             return n;
         }
     }
@@ -50,36 +45,31 @@ uint32_t proc_fs_read_blk(int desc, uint32_t off, uint32_t sz, uint8_t *buff) {
 
 uint32_t proc_fs_write(int desc, uint32_t off, uint32_t sz, uint8_t *buff) {
     if(desc > MAX_OPEN_FILES) return 0;
-    
-    int idx = proc_by_pid(current_pid);
-    if(idx < 0) return 0;
-    struct kproc *proc = &procs[idx];
+    if(!curr_proc)            return 0;
 
-    if(proc->open_files[desc]) {
-        return fs_write(proc->open_files[desc], off, sz, buff);
+    if(curr_proc->open_files[desc]) {
+        return fs_write(curr_proc->open_files[desc], off, sz, buff);
     }
 
     return 0;
 }
 
 int proc_fs_open(const char *name, uint32_t flags) {
-    int idx = proc_by_pid(current_pid);
-    if(idx < 0) return -1;
-    struct kproc *proc = &procs[idx];
+    if(!curr_proc)            return 0;
 
-    if(proc->cwd) {
+    if(curr_proc->cwd) {
         char tmp[256];
         // TODO: Check for name length!
         memcpy(tmp, name, strlen(name)+1);
         //struct kfile *file = fs_finddir(proc->cwd, name);
-        struct kfile *file = fs_find_file(proc->cwd, tmp);
+        struct kfile *file = fs_find_file(curr_proc->cwd, tmp);
         if(file) {
             // TODO: Check if file is open!!!
             // TODO: Handle errors!
             // TODO: Make sure flags match up!
             fs_open(file, flags);
             // TODO: Handle errors!
-            return proc_add_file(proc, file);
+            return proc_add_file(curr_proc, file);
         } else {
             return -1;
         }
@@ -90,14 +80,11 @@ int proc_fs_open(const char *name, uint32_t flags) {
 
 int proc_fs_close(int desc) {
     if(desc > MAX_OPEN_FILES) return -1;
-    
-    int idx = proc_by_pid(current_pid);
-    if(idx < 0) return -1;
-    struct kproc *proc = &procs[idx];
+    if(!curr_proc)            return -1;
 
-    if(proc->open_files[desc]) {
-        fs_close(proc->open_files[desc]);
-        proc->open_files[desc] = NULL;
+    if(curr_proc->open_files[desc]) {
+        fs_close(curr_proc->open_files[desc]);
+        curr_proc->open_files[desc] = NULL;
         return 0; // TODO: Error checking!
     }
 
@@ -106,13 +93,10 @@ int proc_fs_close(int desc) {
 
 int proc_fs_mkdir(int desc, char *name, uint32_t perms) {
     if(desc > MAX_OPEN_FILES) return -1;
+    if(!curr_proc)            return -1;
     
-    int idx = proc_by_pid(current_pid);
-    if(idx < 0) return -1;
-    struct kproc *proc = &procs[idx];
-
-    if(proc->open_files[desc]) {
-        return fs_mkdir(proc->open_files[desc], name, perms);
+    if(curr_proc->open_files[desc]) {
+        return fs_mkdir(curr_proc->open_files[desc], name, perms);
     }
 
     return -1;
@@ -120,13 +104,10 @@ int proc_fs_mkdir(int desc, char *name, uint32_t perms) {
 
 int proc_fs_create(int desc, char *name, uint32_t perms) {
     if(desc > MAX_OPEN_FILES) return -1;
+    if(!curr_proc)            return -1;
     
-    int idx = proc_by_pid(current_pid);
-    if(idx < 0) return -1;
-    struct kproc *proc = &procs[idx];
-
-    if(proc->open_files[desc]) {
-        return fs_create(proc->open_files[desc], name, perms);
+    if(curr_proc->open_files[desc]) {
+        return fs_create(curr_proc->open_files[desc], name, perms);
     }
 
     return -1;
@@ -134,13 +115,10 @@ int proc_fs_create(int desc, char *name, uint32_t perms) {
 
 int proc_fs_ioctl(int desc, int req, void *args) {
     if(desc > MAX_OPEN_FILES) return -1;
+    if(!curr_proc)            return -1;
     
-    int idx = proc_by_pid(current_pid);
-    if(idx < 0) return -1;
-    struct kproc *proc = &procs[idx];
-
-    if(proc->open_files[desc]) {
-        return fs_ioctl(proc->open_files[desc], req, args);
+    if(curr_proc->open_files[desc]) {
+        return fs_ioctl(curr_proc->open_files[desc], req, args);
     }
 
     return -1;
@@ -148,13 +126,10 @@ int proc_fs_ioctl(int desc, int req, void *args) {
 
 int proc_fs_getdirinfo(int desc, struct dirinfo *dinfo) {
     if(desc > MAX_OPEN_FILES) return -1;
-    if(dinfo == NULL) return -1;
+    if(!curr_proc)            return -1;
+    if(dinfo == NULL)         return -1;
 
-    int idx = proc_by_pid(current_pid);
-    if(idx < 0) return -1;
-    struct kproc *proc = &procs[idx];
-
-    struct kfile *file = proc->open_files[desc];
+    struct kfile *file = curr_proc->open_files[desc];
 
     if(file) {
         dinfo->ino        = file->inode;

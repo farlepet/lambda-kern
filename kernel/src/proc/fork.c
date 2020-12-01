@@ -101,21 +101,11 @@ static int proc_copy_data(struct kproc *dest, const struct kproc *src) {
  * @param parent_idx Index of parent process in process array
  * @return int 0 on success 
  */
-static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_idx) {
+static int __no_inline fork_clone_process(struct kproc *child, struct kproc *parent) {
     // TODO: Sort out X86-specific bits!
     // TODO: Clean up!
 
-    struct kproc *child  = &procs[child_idx];
-    struct kproc *parent = &procs[parent_idx];
-
-    uint32_t i = 0;
-    for(; i < MAX_CHILDREN; i++) {
-        if(parent->children[i] < 0) {
-            parent->children[i] = child_idx;
-            break;
-        }
-    }
-    if(i == MAX_CHILDREN) {
+    if(proc_add_child(parent, child)) {
         kerror(ERR_SMERR, "mtask:add_task: Process %d has run out of children slots", parent->pid);
         unlock(&creat_task);
         return -1;
@@ -212,7 +202,7 @@ static int __no_inline fork_clone_process(uint32_t child_idx, uint32_t parent_id
 
 
 int fork(void) {
-    if(!tasking) {
+    if(!curr_proc) {
         kerror(ERR_MEDERR, "mtask:fork: Attempted to fork before multitasking enabled!!!");
         return -1;
     }
@@ -221,24 +211,20 @@ int fork(void) {
 	
     kerror(ERR_INFO, "mtask:fork()");
 
-    int p = get_next_open_proc();
-    if(p == -1) {
-        kerror(ERR_MEDERR, "mtask:fork: Too many processes, could not create new one.");
-        return -1;
-    }
+    struct kproc *child = (struct kproc *)kmalloc(sizeof(struct kproc));
 
-    struct kproc *child  = &procs[p];
-
-    fork_clone_process(p, proc_by_pid(current_pid));
+    fork_clone_process(child, curr_proc);
 
 #if defined(ARCH_X86)
     kerror(ERR_INFO, " -- Child Stack: %08X %08X", child->arch.esp, child->arch.ebp);
 #endif
 
-    child->parent = current_pid;
-    proc_add_child(&procs[proc_by_pid(current_pid)], p);
+    child->parent = curr_proc->pid;
+    proc_add_child(curr_proc, child);
 
     child->type |= TYPE_RUNNABLE;
+
+    mtask_insert_proc(child);
 
     unlock(&creat_task);
 

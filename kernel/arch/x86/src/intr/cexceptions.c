@@ -22,7 +22,7 @@ struct exception_handler {
 int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *iregs);
 int handle_gpf(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *iregs);
 
-static struct exception_handler exception_handlers[32] = {
+static const struct exception_handler exception_handlers[32] = {
 	{ .name = "Divide by Zero",                .handler = NULL,              .has_errcode = 0, .kill = 1 },
 	{ .name = "Debug",                         .handler = NULL,              .has_errcode = 0, .kill = 0 },
 	{ .name = "Non Maskable Interrupt",        .handler = NULL,              .has_errcode = 0, .kill = 0 },
@@ -95,26 +95,17 @@ int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_reg
 	kerror(ERR_MEDERR, "  -> Kernel pagedir: 0x%08X", kernel_cr3);
 
 
-	if(tasking)
-	{
-		int pid = current_pid;
-		int p = proc_by_pid(pid);
-		if(p < 0)
-		{
-			kerror(ERR_MEDERR, "Failed to get process index from pid (%d)", pid);
-			for(;;);
-		}
+	if(curr_proc) {
+		kerror(ERR_MEDERR, "  -> Caused by process %d [%s]", curr_proc->pid, curr_proc->name);
 
-		kerror(ERR_MEDERR, "  -> Caused by process %d [%s]", pid, procs[p].name);
-
-		if(((cr2 < procs[p].arch.stack_beg) && (cr2 > procs[p].arch.stack_end - STACK_SIZE)) || // Remember, the x86 stack is upside-down
-		   ((cr2 < procs[p].arch.stack_beg + STACK_SIZE) && (cr2 > procs[p].arch.stack_end)))
+		if(((cr2 < curr_proc->arch.stack_beg) && (cr2 > curr_proc->arch.stack_end - STACK_SIZE)) || // Remember, the x86 stack is upside-down
+		   ((cr2 < curr_proc->arch.stack_beg + STACK_SIZE) && (cr2 > curr_proc->arch.stack_end)))
 		{
-			kerror(ERR_MEDERR, "       -> Caused a stack overflow and is being dealt with", pid);
+			kerror(ERR_MEDERR, "       -> Caused a stack overflow and is being dealt with");
 		}
 	
 		if(regs->ebp != 0) {
-			stack_trace(15, (uint32_t *)regs->ebp, iregs->eip, procs[p].symbols);
+			stack_trace(15, (uint32_t *)regs->ebp, iregs->eip, curr_proc->symbols);
 		}
 
 		if(page_present(regs->esp)) {
@@ -153,18 +144,11 @@ int handle_gpf(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *ireg
 	dump_iregs(iregs);
 	dump_regs(regs);
 
-	if(tasking) {
-		int pid = current_pid;
-		int p = proc_by_pid(pid);
-		if(p < 0) {
-			kerror(ERR_MEDERR, "  -> Failed to get process index from pid (%d)", pid);
-			kpanic("GPF, halting");
-		}
-
-		kerror(ERR_MEDERR, "  -> Caused by process %d [%s]", pid, procs[p].name);
+	if(curr_proc) {
+		kerror(ERR_MEDERR, "  -> Caused by process %d [%s]", curr_proc->pid, curr_proc->name);
 	
 		if(regs->ebp != 0) {
-			stack_trace(15, (uint32_t *)regs->ebp, iregs->eip, procs[p].symbols);
+			stack_trace(15, (uint32_t *)regs->ebp, iregs->eip, curr_proc->symbols);
 		}
 	}
 
@@ -176,12 +160,12 @@ int handle_gpf(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *ireg
 
 void handle_exception(uint8_t exception, struct pusha_regs regs, uint32_t errcode, struct iret_regs iregs) {
 	if(exception < (sizeof(exception_handlers) / sizeof(exception_handlers[0]))) {
-		struct exception_handler *hand = &exception_handlers[exception];
+		const struct exception_handler *hand = &exception_handlers[exception];
 		kerror(ERR_MEDERR, "EXCEPTION OCCURED: %s", hand->name);
 
 		if(hand->handler) {
 			if(hand->handler(&regs, errcode, &iregs)) {
-				if(tasking) {
+				if(curr_proc) {
 					kerror(ERR_MEDERR, "Killing task");
 					exit(1);
 				}
@@ -196,7 +180,7 @@ void handle_exception(uint8_t exception, struct pusha_regs regs, uint32_t errcod
 			dump_regs(&regs);
 
 			if(hand->kill) {
-				if(tasking) {
+				if(curr_proc) {
 					kerror(ERR_MEDERR, "Killing task");
 					exit(1);
 				}

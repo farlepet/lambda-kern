@@ -37,16 +37,8 @@ int kfstat(struct kfile *f, struct stat *buf) {
 }
 
 int fstat(int fd, struct stat *buf) {
-    if(fd < 0) return -1;
+    if(fd < 0 || fd >= MAX_OPEN_FILES) return -1;
+    if(!curr_proc)                     return -1;
 
-    if(fd >= MAX_OPEN_FILES) {
-        return -1;
-    }
-
-    int idx = proc_by_pid(current_pid);
-    if(idx < 0 || idx > MAX_PROCESSES) {
-        return -1;
-    }
-
-    return kfstat(procs[idx].open_files[fd], buf);
+    return kfstat(curr_proc->open_files[fd], buf);
 }

@@ -16,8 +16,6 @@ extern lock_t creat_task; // From proc/mtask.c
 extern void sched_run(void);
 extern void *get_eip();      //!< Get the EIP value of the instruction after the call to this function
 
-static int c_proc = 0; //!< Index of current process
-
 void arch_multitasking_init(void) {
 	set_interrupt(INT_SCHED, sched_run);
 }
@@ -74,10 +72,9 @@ int arch_proc_create_kernel_stack(struct kproc *proc) {
 }
 
 void proc_jump_to_ring(void) {
-	int p = proc_by_pid(current_pid);
-	if(p > 0) {
-		if(procs[c_proc].entrypoint) {
-			enter_ring(procs[c_proc].arch.ring, (void *)procs[c_proc].entrypoint);
+	if(curr_proc) {
+		if(curr_proc->entrypoint) {
+			enter_ring(curr_proc->arch.ring, (void *)curr_proc->entrypoint);
 		}
 	}
 }
@@ -117,7 +114,7 @@ int arch_setup_task(struct kproc *proc, void *entrypoint, uint32_t stack_size, i
 
 
 __hot void do_task_switch(void) {
-	if(!tasking)   return;
+	if(!curr_proc) return;
 	if(creat_task) return; // We don't want to interrupt process creation
 
 	uint32_t esp, ebp, eip, cr3;
@@ -130,24 +127,22 @@ __hot void do_task_switch(void) {
 		return;
 	}
 
-
-	if(procs[c_proc].type & TYPE_RANONCE) {
-		procs[c_proc].arch.esp = esp;
-		procs[c_proc].arch.ebp = ebp;
-		procs[c_proc].arch.eip = eip;
+	if(curr_proc->type & TYPE_RANONCE) {
+		curr_proc->arch.esp = esp;
+		curr_proc->arch.ebp = ebp;
+		curr_proc->arch.eip = eip;
 	}
-	else procs[c_proc].type |= TYPE_RANONCE;
+	else curr_proc->type |= TYPE_RANONCE;
 
 	// Switch to next process here...
-	c_proc = sched_next_process();
+	sched_next_process();
 
+	tss_set_kern_stack(curr_proc->arch.kernel_stack);
 
-	tss_set_kern_stack(procs[c_proc].arch.kernel_stack);
-
-	esp = procs[c_proc].arch.esp;
-	ebp = procs[c_proc].arch.ebp;
-	eip = procs[c_proc].arch.eip;
-	cr3 = procs[c_proc].arch.cr3;
+	esp = curr_proc->arch.esp;
+	ebp = curr_proc->arch.ebp;
+	eip = curr_proc->arch.eip;
+	cr3 = curr_proc->arch.cr3;
 
 	asm volatile("mov %0, %%ebx\n"
 				 "mov %1, %%esp\n"

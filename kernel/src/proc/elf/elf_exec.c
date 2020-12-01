@@ -192,8 +192,6 @@ int load_elf(void *file, uint32_t length) {
 		return -1;
 	}
 
-	int p = proc_by_pid(current_pid);
-
 	arch_task_params_t arch_params;
 #if defined(ARCH_X86)
 	arch_params.pgdir = clone_kpagedir();
@@ -215,10 +213,10 @@ int load_elf(void *file, uint32_t length) {
 	// Old way of creating new process:
 	int pid = add_user_task_arch((void *)entrypoint, "UNNAMED_ELF", 0, PRIO_USERPROG, &arch_params);
 
-	p = proc_by_pid(pid);
-	procs[p].symbols   = symbols;
-	procs[p].symStrTab = symStrTab;
-	proc_add_mmap_ents(&procs[p], mmap_entries);
+	struct kproc *proc = proc_by_pid(pid);
+	proc->symbols   = symbols;
+	proc->symStrTab = symStrTab;
+	proc_add_mmap_ents(proc, mmap_entries);
 	
 	return pid;
 }

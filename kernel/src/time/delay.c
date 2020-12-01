@@ -2,6 +2,7 @@
 
 #include <proc/mtask.h>
 #include <time/time.h>
+#include <err/error.h>
 
 uint8_t timeup[500]; //!< Table of values corresponding to pid's telling if the timer is done yet
 
@@ -11,11 +12,12 @@ uint8_t timeup[500]; //!< Table of values corresponding to pid's telling if the 
  * corresponding to the callers pid to 1.
  * @param pid the pid of the caller to `delay`
  */
-static void time_over(int pid)
-{
-	int idx = proc_by_pid(pid);
+static void time_over(int pid) {
+	struct kproc *proc = proc_by_pid(pid);
 
-	procs[idx].blocked &= (uint32_t)~BLOCK_DELAY;
+	kerror(ERR_BOOTINFO, "time_over(%d)", pid);
+
+	proc->blocked &= (uint32_t)~BLOCK_DELAY;
 }
 
 /**
@@ -24,12 +26,10 @@ static void time_over(int pid)
  * time has run out.
  * @param delay number of ticks to wait for
  */
-void delay(uint64_t delay)
-{
-	int pid = current_pid;
-	int idx = proc_by_pid(pid);
-	add_time_block(&time_over, delay, pid);
-	procs[idx].blocked |= BLOCK_DELAY;
+void delay(uint64_t delay) {
+	add_time_block(&time_over, delay, curr_proc->pid);
+	curr_proc->blocked |= BLOCK_DELAY;
+	kerror(ERR_BOOTINFO, "delay(%d, %d)", curr_proc->pid, delay);
 	interrupt_halt(); // Halt until multitasking comes in
 }
 

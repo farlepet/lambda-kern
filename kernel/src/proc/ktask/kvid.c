@@ -10,7 +10,7 @@
  * Handles video I/O
  */
 __noreturn void kvid_task() {
-	ktask_pids[KVID_TASK_SLOT] = current_pid;
+	ktask_pids[KVID_TASK_SLOT] = curr_proc->pid;
 
 	for(;;)
 	{

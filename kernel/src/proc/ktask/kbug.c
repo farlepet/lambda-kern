@@ -14,7 +14,7 @@ static void idebug();
  * Kernel debugger task
  */
 __noreturn void kbug_task() {
-	ktask_pids[KBUG_TASK_SLOT] = current_pid;
+	ktask_pids[KBUG_TASK_SLOT] = curr_proc->pid;
 
 	for(;;) {
 		/*struct kbug_type_msg ktm;
@@ -52,8 +52,8 @@ __noreturn void kbug_task() {
 
 					case KBUG_PROC_UPROC: {
 						struct uproc proc;
-						int idx = proc_by_pid(ktpm->kpm.pid);
-						kproc_to_uproc(&procs[idx], &proc);
+						struct kproc *_proc = proc_by_pid(ktpm->kpm.pid);
+						kproc_to_uproc(_proc, &proc);
 
 						ipc_user_create_and_send_message(umsg.src_pid, &proc, sizeof(struct uproc));
 					} break;

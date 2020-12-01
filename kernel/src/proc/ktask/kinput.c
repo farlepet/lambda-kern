@@ -82,7 +82,7 @@ static int add_subscriber(int pid) {
 static int to_kterm = 1; //!< When 1, send all serial input to kterm
 
 __noreturn void kinput_task() {
-	ktask_pids[KINPUT_TASK_SLOT] = current_pid;
+	ktask_pids[KINPUT_TASK_SLOT] = curr_proc->pid;
 
 	if(strlen((const char *)boot_options.init_executable)) {
 		/* Make parent of init task a subscriber */

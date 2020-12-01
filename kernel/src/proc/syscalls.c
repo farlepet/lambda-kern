@@ -57,9 +57,7 @@ struct syscall syscalls[] = {
 int service_syscall(uint32_t scn, uint32_t *args) {
 	//kerror(ERR_BOOTINFO, "Syscall %d called with args at %08X", scn, args);
 	if(scn >= ARRAY_SZ(syscalls)) {
-		struct kproc *proc = &procs[proc_by_pid(current_pid)];
-		int pid = get_pid();
-		kerror(ERR_MEDERR, "Process %d (%s) has tried to call an invalid syscall: %u Args: %08X", pid, proc->name, scn, args);
+		kerror(ERR_MEDERR, "Process %d (%s) has tried to call an invalid syscall: %u Args: %08X", curr_proc->pid, curr_proc->name, scn, args);
 		return -1;
 	}
 

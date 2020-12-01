@@ -234,8 +234,8 @@ static int kterm_run(int argc, char **argv) {
 	kerror(ERR_BOOTINFO, "Task PID: %d", *pid);
 	
 	// TODO: Create helper functions for this:
-	int idx = proc_by_pid(*pid);
-	if(idx < 0) {
+	struct kproc *child = proc_by_pid(*pid);
+	if(!child) {
 		kerror(ERR_MEDERR, "kterm: Could not find spawned process!");
 		return 1;
 	}
@@ -262,13 +262,13 @@ static int kterm_run(int argc, char **argv) {
 	fs_open(stdout, OFLAGS_READ | OFLAGS_WRITE);
 	fs_open(stderr, OFLAGS_READ | OFLAGS_WRITE);
 
-	procs[idx].open_files[0] = stdin;
-	procs[idx].open_files[1] = stdout;
-	procs[idx].open_files[2] = stderr;
+	child->open_files[0] = stdin;
+	child->open_files[1] = stdout;
+	child->open_files[2] = stderr;
 
 	char buffer[EXEC_STREAM_LEN];
 
-	while(!(procs[idx].type & TYPE_ZOMBIE)) {
+	while(!(child->type & TYPE_ZOMBIE)) {
 		char t;
 		struct ipc_message_user umsg;
 

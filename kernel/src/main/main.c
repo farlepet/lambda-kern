@@ -142,18 +142,18 @@ static void spawn_init() {
 		kpanic("Failed to parse init executable or spawn task!");
 	}
 	
-	int idx = proc_by_pid(pid);
-	if(idx < 0) {
+	struct kproc *proc = proc_by_pid(pid);
+	if(!proc) {
 		kpanic("Could not find spawned init process!");
 	}
 
-	procs[idx].open_files[0] = stdin;
-	procs[idx].open_files[1] = stdout;
-	procs[idx].open_files[2] = stderr;
+	proc->open_files[0] = stdin;
+	proc->open_files[1] = stdout;
+	proc->open_files[2] = stderr;
 
 	char buffer[INIT_STREAM_LEN];
 
-	while(!(procs[idx].type & TYPE_ZOMBIE)) {
+	while(!(procs->type & TYPE_ZOMBIE)) {
 		char t;
 		struct ipc_message_user umsg;
 

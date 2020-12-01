@@ -67,10 +67,10 @@ int proc_add_mmap_ents(struct kproc *proc, struct kproc_mem_map_ent *entries) {
 	return 0;
 }
 
-int proc_add_child(struct kproc *parent, int child_idx) {
+int proc_add_child(struct kproc *parent, struct kproc *child) {
 	for(int i = 0; i < MAX_CHILDREN; i++) {
-		if(parent->children[i] < 0) {
-			parent->children[i] = child_idx;
+		if(!parent->children[i]) {
+			parent->children[i] = child;
 			return 0;
 		}
 	}
@@ -84,28 +84,22 @@ __hot void sched_processes()
 	// Nothing to do with  current state of the scheduler
 }
 
-__hot int sched_next_process()
+__hot void sched_next_process()
 {
-	static int c_proc;
-	int oc_proc = c_proc;
 	int nr = 0;
 
-	c_proc++;
-	while(!(procs[c_proc].type & TYPE_RUNNABLE) || procs[c_proc].blocked)
-	{
-		if(c_proc == oc_proc) nr++;
-		if(nr >= 2)
-		{
+	struct kproc *next = curr_proc->next;
+
+	while(!(next->type & TYPE_RUNNABLE) || next->blocked) {
+		if(next == curr_proc) nr++;
+		if(nr >= 2) {
 			// We couldn't get a new runnable task, so we panic and halt
 			kpanic("Could not schedule new task -- All tasks are blocked!");
 		}
 
-		c_proc++;
-		if(c_proc >= MAX_PROCESSES) c_proc = 0;
+		next = next->next;
 	}
-	current_pid = procs[c_proc].pid;
+	curr_proc = next;
 
-	procs[c_proc].book.schedule_count++;
-
-	return c_proc;
+	curr_proc->book.schedule_count++;
 }
