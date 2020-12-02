@@ -11,7 +11,7 @@ typedef struct {
 } kproc_arch_syscall_regs_t;
 
 typedef struct {
-	int ring;           //!< Ring to run in (0-3)
+	uint8_t ring;           //!< Ring to run in (0-3)
 
 	uint32_t esp;       //!< Stack pointer
 	uint32_t ebp;       //!< Stack base pointer
