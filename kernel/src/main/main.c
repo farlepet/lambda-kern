@@ -153,7 +153,7 @@ static void spawn_init() {
 
 	char buffer[INIT_STREAM_LEN];
 
-	while(!(procs->type & TYPE_ZOMBIE)) {
+	while(!(proc->type & TYPE_ZOMBIE)) {
 		char t;
 		struct ipc_message_user umsg;
 

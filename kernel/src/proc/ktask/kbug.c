@@ -32,8 +32,9 @@ __noreturn void kbug_task() {
 
 		switch(((struct kbug_type_msg *)data)->type) {
 			case KBUG_PROCINFO: {
-				struct kbug_type_proc_msg *ktpm = (struct kbug_type_proc_msg *)data;
+				//struct kbug_type_proc_msg *ktpm = (struct kbug_type_proc_msg *)data;
 
+				/* TODO: Update to new process storage structure.
 				switch(ktpm->kpm.type) {
 					case KBUG_PROC_NPROCS: {
 						int i = 0;
@@ -58,6 +59,7 @@ __noreturn void kbug_task() {
 						ipc_user_create_and_send_message(umsg.src_pid, &proc, sizeof(struct uproc));
 					} break;
 				}
+				*/
 			} break;
 
 			case KBUG_CPUINFO:
@@ -91,7 +93,8 @@ static void idebug() {
 
 	int i = 0;
 	for(; i < MAX_PROCESSES; i++)
-		if(procs[i].type & TYPE_VALID) {
+		/* TODO */
+		/*if(procs[i].type & TYPE_VALID) {
 			kprintf("% 02d % 02d % 02d %8d %8d   %c  %02d %08X %8d %8d %s\n", 
 				procs[i].pid, procs[i].uid, procs[i].gid,
 				procs[i].book.sent_msgs, procs[i].book.recvd_msgs,
@@ -99,7 +102,7 @@ static void idebug() {
 				procs[i].prio, procs[i].type, procs[i].book.schedule_count,
 				procs[i].book.syscall_count, procs[i].name
 			);
-		}
+		}*/
 
 	kerror(ERR_INFO, "IDEBUG finished");
 }

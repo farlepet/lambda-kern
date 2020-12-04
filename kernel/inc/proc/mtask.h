@@ -12,7 +12,6 @@
 
 /* TODO: Standardize naming (e.g. process vs task) */
 
-extern struct kproc *procs;      /*!< Circularly linked-list of processes, always points at the "root" (unless it is destroyed). */
 extern struct kproc *curr_proc; /*!< Currently running process */
 
 int get_pid(); //!< Get the PID of the currently running task

@@ -97,6 +97,9 @@ __hot void sched_next_process()
 			kpanic("Could not schedule new task -- All tasks are blocked!");
 		}
 
+		if(next->next == NULL) {
+			kpanic("Next task is NULL!");
+		}
 		next = next->next;
 	}
 	curr_proc = next;

@@ -17,8 +17,8 @@
 #  include <arch/mm/paging.h>
 #endif
 
-struct kproc *procs     = NULL;
-struct kproc *curr_proc = NULL;
+static struct kproc *procs = NULL;
+struct kproc *curr_proc    = NULL;
 
 static int next_pid = 1;
 
