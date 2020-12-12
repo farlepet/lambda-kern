@@ -4,7 +4,8 @@ Lambda OS
 
 Lambda OS is a hobby operating system developed by Peter Farley. Lambda OS
 is designed to be portable to multiple systems, and currently supports
-x86-based PCs, and ARMv7 (Cortex-A9) support is in progress.
+x86-based PCs, ARMv7 (Cortex-A9) support is in progress, and RISCV (RV64I)
+support is planned.
 
 Platform support:
   - x86
@@ -14,6 +15,9 @@ Platform support:
         - Versatile Express A9 (early stages)
      - Cortex-A7
         - Allwinner V3s (future plans)
+  - RISCV
+     - RV64I
+        - Kendryte K210 (future plans)
 
 *** Building ***
 
