@@ -52,6 +52,8 @@ static void elf_read_phdr(Elf32_Ehdr *elf, struct kproc_mem_map_ent **mmap_entri
 				for(uintptr_t pg = 0; pg < prog[i].p_memsz; pg += 0x1000) {
 					pgdir_map_page(arch_params->pgdir, (phys + pg), (void *)(prog[i].p_vaddr + pg), 0x07);
 				}
+#else
+	(void)arch_params;
 #endif
 			} break;
 			case PT_DYNAMIC:
