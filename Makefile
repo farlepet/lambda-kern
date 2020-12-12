@@ -75,11 +75,28 @@ else
 	$(CC) $(CFLAGS) -c -o $@ $<
 endif
 
+arch.a: arch_msg
+	@cd $(MAINDIR)/kernel/arch/$(ARCH); $(MAKE) CC=$(CC) AS=$(AS)
+	@cp $(MAINDIR)/kernel/arch/$(ARCH)/arch.a ./arch.a
+
+symbols.o: lambda.o
+	@echo -e "\033[33m  \033[1mCreating symbol table\033[0m"
+	@scripts/symbols > symbols.c
+	@$(CC) $(CFLAGS) -c -o symbols.o symbols.c
+
+initrd.cpio:
+	@echo -e "\033[33m  \033[1mGenerating InitCPIO\033[0m"
+	@cd initrd; find . | cpio -o -v -O../initrd.cpio &> /dev/null
+
+initrd.o: initrd.cpio
+	@echo -e "\033[33m  \033[1mGenerating InitCPIO Object\033[0m"
+	@$(LD) $(LDARCH) -r -b binary initrd.cpio -o initrd.o
 
 
 clean: arch_clean
 	@echo -e "\033[33m  \033[1mCleaning sources\033[0m"
 	@rm -f $(OBJS)
+	@rm -f initrd.cpio symbols.o symbols.c
 	@rm -r -f doc
 	@cd $(MAINDIR)/kernel/arch/$(ARCH); make clean
 

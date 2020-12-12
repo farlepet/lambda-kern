@@ -1,9 +1,16 @@
 #ifndef INITRD_H
 #define INITRD_H
 
-#include <multiboot.h>
-#include <types.h>
+#include <config.h>
+
+#include <stdint.h>
 #include <fs/fs.h>
+
+#if (FEATURE_INITRD_EMBEDDED)
+/* Linked in through initrd.o */
+extern int _binary_initrd_cpio_start;
+extern int _binary_initrd_cpio_end;
+#endif
 
 /**
  * @brief Load INITRD
@@ -13,7 +20,6 @@
  * @param len      length of initrd data
  */
 void initrd_mount(struct kfile *mntpoint, uintptr_t initrd, size_t len);
-//void initrd_init(struct multiboot_header* mboot_head);
 
 /**
  * @brief CPIO header

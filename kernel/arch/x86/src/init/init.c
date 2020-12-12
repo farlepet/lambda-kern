@@ -97,7 +97,12 @@ static void mm_locate_modules(struct multiboot_header *mboot_head) {
 		mod++;
 	}
 
-	kerror(ERR_BOOTINFO, "mm_init_alloc: Address space used by mulitboot modules: %08X->%08X", mods_begin, mods_end);
+	if(mods_end == 0x00000000) {
+		/* Modules take up 0 memory. */
+		mods_end = 0xFFFFFFFF;
+	} else {
+		kerror(ERR_BOOTINFO, "mm_init_alloc: Address space used by mulitboot modules: %08X->%08X", mods_begin, mods_end);
+	}
 
 	if(mods_end == 0) mods_end = FRAMES_START;
 }

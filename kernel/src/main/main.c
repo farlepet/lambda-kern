@@ -57,6 +57,11 @@ __noreturn int kmain(struct multiboot_header *mboot_head, uint32_t magic) {
 	check_multiboot_modules(mboot_head);
 #endif
 
+#if (FEATURE_INITRD_EMBEDDED)
+	kerror(ERR_BOOTINFO, "Embedded initrd: %08X-%08X", &_binary_initrd_cpio_start, &_binary_initrd_cpio_end);
+	initrd_mount(fs_root, (uintptr_t)&_binary_initrd_cpio_start, &_binary_initrd_cpio_end - &_binary_initrd_cpio_start);
+#endif
+
 	timer_init(100);
 
 	init_syscalls();
