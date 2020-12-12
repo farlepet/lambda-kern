@@ -116,11 +116,6 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 	if(arch_params->ring > 3) { kerror(ERR_MEDERR, "mtask:add_task: Ring is out of range (0-3): %d", arch_params->ring); return 0; }
 #endif
 
-	int parent = 0;
-	if(curr_proc) {
-		parent = curr_proc->pid;
-	}
-
 	struct kproc *proc = (struct kproc *)kmalloc(sizeof(struct kproc));
 	if(!proc) {
 		kerror(ERR_LGERR, "mtask:add_task: Not enough memory to allocate new task.");

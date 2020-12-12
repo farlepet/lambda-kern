@@ -57,7 +57,7 @@ static char keycode_to_char(struct input_event *iev)
 static void send_input_char(char c) {
 	for(int i = 0; i < KINPUT_MAX_SUBS; i++) {
 		if(input_subs[i]) {
-			if(proc_by_pid(input_subs[i]) < 0) {
+			if(!proc_by_pid(input_subs[i])) {
 				// Remove dead PID:
 				input_subs[i] = 0;
 			} else {
