@@ -17,9 +17,9 @@ int mm_check_addr(void *addr) {
 
 	return (page & 0x02) ? (2) : (1); // Check R/W bit
 #else
-	// Unimplemented for this architecture
+	/* Unimplemented for this architecture, assume address is good. */
 	(void)addr;
-	return 0;
+	return 2;
 #endif
 }
 
