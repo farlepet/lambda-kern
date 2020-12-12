@@ -119,7 +119,6 @@ void initrd_mount(struct kfile *mntpoint, uintptr_t initrd, size_t __unused len)
 						path[i] = '\0';
 
 						dir = fs_finddir(dir, path);
-						kerror(ERR_BOOTINFO, "  -> %08X", dir);
 						if(dir == NULL) { // Default to '/'
 							dir = fs_root;
 							break;
