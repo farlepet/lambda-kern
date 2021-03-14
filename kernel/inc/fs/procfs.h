@@ -4,6 +4,11 @@
 #include <fs/kfile.h>
 #include <fs/dirinfo.h>
 
+struct user_dirent {
+    uint32_t d_ino;
+    char     d_name[];
+};
+
 uint32_t proc_fs_read  (int desc, uint32_t off, uint32_t sz, uint8_t *buff);
 uint32_t proc_fs_write (int desc, uint32_t off, uint32_t sz, uint8_t *buff);
 int proc_fs_open       (const char *name, uint32_t flags);
@@ -14,5 +19,7 @@ int proc_fs_ioctl      (int desc, int req, void *args);
 uint32_t proc_fs_read_blk(int desc, uint32_t off, uint32_t sz, uint8_t *buff);
 
 int proc_fs_getdirinfo(int desc, struct dirinfo *dinfo);
+
+int proc_fs_readdir(int desc, uint32_t idx, struct user_dirent *buff, uint32_t buff_size);
 
 #endif

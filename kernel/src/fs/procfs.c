@@ -54,6 +54,16 @@ uint32_t proc_fs_write(int desc, uint32_t off, uint32_t sz, uint8_t *buff) {
     return 0;
 }
 
+int _open_check_flags(struct kfile *file, uint32_t flags) {
+    if(flags & OFLAGS_DIRECTORY) {
+        if(!(file->flags & FS_DIR)) {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
 int proc_fs_open(const char *name, uint32_t flags) {
     if(!curr_proc)            return 0;
 
@@ -67,6 +77,9 @@ int proc_fs_open(const char *name, uint32_t flags) {
             // TODO: Check if file is open!!!
             // TODO: Handle errors!
             // TODO: Make sure flags match up!
+            if(_open_check_flags(file, flags)) {
+                return -1;
+            }
             fs_open(file, flags);
             // TODO: Handle errors!
             return proc_add_file(curr_proc, file);
@@ -151,4 +164,44 @@ int proc_fs_getdirinfo(int desc, struct dirinfo *dinfo) {
     }
 
     return 0;
+}
+
+int proc_fs_readdir(int desc, uint32_t idx, struct user_dirent *buff, uint32_t buff_size) {
+    if(desc > MAX_OPEN_FILES) return -1;
+    if(!curr_proc)            return -1;
+    if(buff == NULL)          return -1;
+    if(buff_size == 0)        return -1;
+
+    struct kfile *file = curr_proc->open_files[desc];
+    if(file == NULL) return -1;
+
+    /* @todo Bounds checking */
+
+    if(idx == 0) {
+        /** . */
+        buff->d_ino = file->inode;
+        strcpy(buff->d_name, ".");
+    } else if(idx == 1) {
+        /** .. */
+        if(file->parent != NULL) file = file->parent;
+        buff->d_ino = file->inode;
+        strcpy(buff->d_name, "..");
+    } else {
+        idx -= 2;
+        file = file->child;
+        if(file == NULL) return -1;
+        
+        struct kfile *fchild = file;
+
+        while(idx--) {
+            file = file->next;
+            if(file == NULL)   return -1;
+            if(file == fchild) return -1;
+        }
+
+        buff->d_ino = file->inode;
+        strcpy(buff->d_name, file->name);
+    }
+
+    return (sizeof(struct user_dirent) + strlen(buff->d_name) + 1);
 }

@@ -6,11 +6,12 @@
 #include <arch/intr/int.h>
 
 enum syscalls {
+/* Following are likely to be deprecated and replaced: */
     SYSCALL_GET_KTASK = 0,
     SYSCALL_SEND_MSG  = 1,
     SYSCALL_RECV_MSG  = 2,
     SYSCALL_EXIT      = 3,
-
+/* Following are likely to be deprecated and replaced: */
     SYSCALL_IPC_SEND              = 4,
     SYSCALL_IPC_RECV              = 5,
     SYSCALL_IPC_RECV_PID          = 6,
@@ -35,7 +36,9 @@ enum syscalls {
     SYSCALL_EXECVE = 22,
     SYSCALL_WAIT   = 23,
 
-    SYSCALL_TASK_SWITCH = 24
+    SYSCALL_TASK_SWITCH = 24,
+    
+    SYSCALL_FS_READDIR = 25
 };
 
 

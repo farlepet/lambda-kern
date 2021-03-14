@@ -31,6 +31,8 @@ int strncmp(const char *str1, const char *str2, uint32_t num);
 
 char *strchr(const char *s, int c);
 
+char *strcpy(char *dest, const char *src);
+
 void *memcpy(void *dest, const void *src, uint32_t n);
 
 void *memset(void *s, int c, uint32_t n);

@@ -53,7 +53,9 @@ struct syscall syscalls[] = {
 	[SYSCALL_EXECVE] = { (func0_t)execve, 3, 0 },
 	[SYSCALL_WAIT]   = { (func0_t)wait,   1, 0 },
 
-	[SYSCALL_TASK_SWITCH] = { (func0_t)do_task_switch, 0, 0 }
+	[SYSCALL_TASK_SWITCH] = { (func0_t)do_task_switch, 0, 0 },
+	
+	[SYSCALL_FS_READDIR] = { (func0_t)proc_fs_readdir, 4, 0 }
 };
 
 int service_syscall(uint32_t scn, uint32_t *args) {
@@ -74,18 +76,22 @@ int service_syscall(uint32_t scn, uint32_t *args) {
 			break;
 
 		case 1:
+			kdebug(DEBUGSRC_SYSCALL, "  -> ARGS: { %08X }", args[0]);
 			args[0] = (uint32_t)((func1_t)func(args[0]));
 			break;
 
 		case 2:
+			kdebug(DEBUGSRC_SYSCALL, "  -> ARGS: { %08X %08X }", args[0], args[1]);
 			args[0] = (uint32_t)((func2_t)func(args[0], args[1]));
 			break;
 
 		case 3:
+			kdebug(DEBUGSRC_SYSCALL, "  -> ARGS: { %08X %08X %08X }", args[0], args[1], args[2]);
 			args[0] = (uint32_t)((func3_t)func(args[0], args[1], args[2]));
 			break;
 		
 		case 4:
+			kdebug(DEBUGSRC_SYSCALL, "  -> ARGS: { %08X %08X %08X %08X }", args[0], args[1], args[2], args[3]);
 			args[0] = (uint32_t)((func4_t)func(args[0], args[1], args[2], args[3]));
 			break;
 

@@ -8,12 +8,22 @@
 #include <proc/atomic.h>
 #include <fs/dirstream.h>
 
-#define OFLAGS_OPEN     1
-#define OFLAGS_WRITE    2
-#define OFLAGS_READ     4
-#define OFLAGS_APPEND   8
-#define OFLAGS_CREATE   16
-#define OFLAGS_NONBLOCK 32
+/* NOTE: Some of these flags don't matter after the file is opened, it might be
+ * useful to either map or simply mask off these flags. */
+#define OFLAGS_WRITE     0x00000001
+#define OFLAGS_READ      0x00000002
+#define OFLAGS_APPEND    0x00000004
+#define OFLAGS_CREATE    0x00000008
+#define OFLAGS_DSYNC     0x00000010
+#define OFLAGS_EXCL      0x00000020
+#define OFLAGS_NOCTTY    0x00000040
+#define OFLAGS_NONBLOCK  0x00000080
+#define OFLAGS_RSYNC     0x00000100
+#define OFLAGS_SYNC      0x00000200
+#define OFLAGS_TRUNC     0x00000400
+#define OFLAGS_CLOEXEC   0x00000800
+#define OFLAGS_DIRECTORY 0x00000800
+#define OFLAGS_OPEN      0x80000000
 
 #define FS_FILE     1
 #define FS_DIR      2
