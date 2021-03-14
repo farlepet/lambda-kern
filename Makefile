@@ -34,6 +34,8 @@ CFLAGS    += -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/$(ARC
 			 -pipe -g -fno-stack-protector -fdata-sections -ffunction-sections \
 			 -DKERNEL_GIT=\"$(GIT_VERSION)\"
 
+CPIOFILES = $(shell find initrd/)
+
 all: printinfo arch_all
 
 # Architecture-specific makefile options
@@ -86,7 +88,7 @@ symbols.o: lambda.o
 	@scripts/symbols > symbols.c
 	@$(CC) $(CFLAGS) -c -o symbols.o symbols.c
 
-initrd.cpio:
+initrd.cpio: $(CPIOFILES)
 	@echo -e "\033[33m  \033[1mGenerating InitCPIO\033[0m"
 	@cd initrd; find . | cpio -o -v -O../initrd.cpio &> /dev/null
 
