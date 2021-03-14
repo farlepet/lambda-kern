@@ -3,6 +3,7 @@
 *.ko
 *.bc
 *.ll
+*.d
 
 # Libraries
 *.lib

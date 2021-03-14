@@ -25,6 +25,7 @@ export VERBOSE
 
 SRCS       = $(wildcard $(SRC)/*.c) $(wildcard $(SRC)/*/*.c) $(wildcard $(SRC)/*/*/*.c)
 OBJS       = $(patsubst %.c,%.o,$(SRCS))
+DEPS       = $(patsubst %.c,%.d,$(SRCS))
 
 GIT_VERSION := "$(shell git describe --abbrev=8 --dirty=\* --always --tags)"
 
@@ -66,13 +67,14 @@ printinfo:
 	@echo -e "\033[32mBuilding kernel\033[0m"
 
 
-# gcc:
+-include $(DEPS)
+
 %.o: %.c
 ifeq ($(VERBOSE), 0)
 	@echo -e "\033[32m    \033[1mCC\033[21m    \033[34m$<\033[0m"
-	@$(CC) $(CFLAGS) -c -o $@ $<
+	@$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
 else
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
 endif
 
 arch.a: arch_msg
@@ -95,7 +97,7 @@ initrd.o: initrd.cpio
 
 clean: arch_clean
 	@echo -e "\033[33m  \033[1mCleaning sources\033[0m"
-	@rm -f $(OBJS)
+	@rm -f $(OBJS) $(DEPS)
 	@rm -f initrd.cpio symbols.o symbols.c
 	@rm -r -f doc
 	@cd $(MAINDIR)/kernel/arch/$(ARCH); make clean
