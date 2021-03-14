@@ -14,10 +14,8 @@ typedef enum { //!< Enumeration of error levels
 /**
  * \brief Prints information about the kernel.
  * 
- * Disables interrupts so it will not get interrupted, checks to see if the 
- * error level is >= the minimum level, and if so, prints the current
- * clock tick, then prints the error message. Then, if en_int != 0, it
- * enables interrupts again.
+ * Checks to see if the  error level is >= the minimum level, and if so,
+ * prints the current clock tick, then prints the error message.
  * 
  * @param errlvl the severity of the message
  * @param msg the format string
@@ -25,22 +23,28 @@ typedef enum { //!< Enumeration of error levels
  */
 void kerror(error_level_e errlvl, char *msg, ...);
 
+/** Enumeration of debug message sources */
 typedef enum {
-
+	DEBUGSRC_FS      = 0, /** Kernel filesystem interface */
+	DEBUGSRC_MM      = 1, /** Memory management */
+	DEBUGSRC_PROC    = 2, /** Process management */
+	DEBUGSRC_EXEC    = 3, /** Process creation and execution */
+	DEBUGSRC_SYSCALL = 4, /** System calls */
+	DEBUGSRC_DRIVER  = 5  /** Driver loading/unloading and management */
 } debug_source_e;
 
 /**
  * \brief Prints debug info from a specified kernel source
  * 
- * Disables interrupts so it will not get interrupted, checks to see if the 
- * error level is >= the minimum level, and if so, prints the current
- * clock tick, then prints the error message. Then, if en_int != 0, it
- * enables interrupts again.
+ * Similar to kerror, except it checks if the corresponding bit is set in the
+ * debug mask rather than checking error level.
  * 
- * @param errlvl the severity of the message
+ * @param src the source of the message
  * @param msg the format string
  * @param ... the arguments to go along with the format string
+ * 
+ * @see kerror
  */
-void kdebug(debug_source_e errlvl, char *msg, ...)
+void kdebug(debug_source_e src, char *msg, ...);
 
 #endif
