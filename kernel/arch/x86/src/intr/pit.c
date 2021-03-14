@@ -33,7 +33,8 @@ void pit_create_timerdev(hal_timer_dev_t *dev) {
  */
 void pit_handler()
 {
-	kerneltime++;
+	/* TODO: Determine from timer settings. */
+	kerneltime += 10;
 	
 	register uint32_t i = 0;
 	for(; i < MAX_TIME_BLOCKS; i++)
