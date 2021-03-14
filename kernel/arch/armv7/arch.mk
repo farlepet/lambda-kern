@@ -42,7 +42,7 @@ emu: lambda.kern
 	@qemu-system-arm -cpu cortex-a9 -machine vexpress-a9 -kernel lambda.kern -serial stdio -no-reboot
 
 emu-debug: lambda.kern
-	@qemu-system-arm -cpu cortex-a9 -machine vexpress-a9 -kernel lambda.kern -serial stdio -no-reboot -s -S -d int
+	@qemu-system-arm -cpu cortex-a9 -machine vexpress-a9 -kernel lambda.kern -serial stdio -no-reboot -s -S
 
 arch_clean:
 	@rm -f common.o lambda.o arch.a symbols.o initrd.cpio lambda.kern symbols.c

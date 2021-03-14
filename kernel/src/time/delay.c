@@ -15,8 +15,6 @@ uint8_t timeup[500]; //!< Table of values corresponding to pid's telling if the 
 static void time_over(int pid) {
 	struct kproc *proc = proc_by_pid(pid);
 
-	kerror(ERR_BOOTINFO, "time_over(%d)", pid);
-
 	proc->blocked &= (uint32_t)~BLOCK_DELAY;
 }
 
@@ -29,7 +27,9 @@ static void time_over(int pid) {
 void delay(uint64_t delay) {
 	add_time_block(&time_over, delay, curr_proc->pid);
 	curr_proc->blocked |= BLOCK_DELAY;
-	kerror(ERR_BOOTINFO, "delay(%d, %d)", curr_proc->pid, delay);
-	interrupt_halt(); // Halt until multitasking comes in
+
+	while(curr_proc->blocked & BLOCK_DELAY) {
+		interrupt_halt(); // Halt until multitasking comes in
+	}
 }
 

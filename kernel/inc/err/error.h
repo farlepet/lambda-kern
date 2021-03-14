@@ -9,7 +9,7 @@ typedef enum { //!< Enumeration of error levels
 	ERR_MEDERR,   //!< A slightly worse error, but can USUALLY be ignored
 	ERR_LGERR,    //!< Great error, system can continue, but a process may have to be killed
 	ERR_HALTING   //!< Kernel cannot continue operation bacause of this error
-} error_level;
+} error_level_e;
 
 /**
  * \brief Prints information about the kernel.
@@ -23,6 +23,24 @@ typedef enum { //!< Enumeration of error levels
  * @param msg the format string
  * @param ... the arguments to go along with the format string
  */
-void kerror(error_level errlvl, char *msg, ...);
+void kerror(error_level_e errlvl, char *msg, ...);
+
+typedef enum {
+
+} debug_source_e;
+
+/**
+ * \brief Prints debug info from a specified kernel source
+ * 
+ * Disables interrupts so it will not get interrupted, checks to see if the 
+ * error level is >= the minimum level, and if so, prints the current
+ * clock tick, then prints the error message. Then, if en_int != 0, it
+ * enables interrupts again.
+ * 
+ * @param errlvl the severity of the message
+ * @param msg the format string
+ * @param ... the arguments to go along with the format string
+ */
+void kdebug(debug_source_e errlvl, char *msg, ...)
 
 #endif

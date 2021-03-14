@@ -81,16 +81,16 @@ __hot void do_task_switch(void) {
 #pragma GCC diagnostic pop
 
         /* Save SP and LR: */
-        asm("mrs r0, cpsr \n"
-            "bic r0, r0, #0x1f \n"
-            "orr r0, r0, #0x1f \n"
-            "msr cpsr, r0 \n"
-            "mov %0, sp \n"
-            "mov %1, lr \n"
-            "bic r0, r0, #0x1f \n"
-            "orr r0, r0, #0x12 \n"
-            "msr cpsr, r0 \n"
-            : "=r" (curr_proc->arch.regs.sp), "=r" (curr_proc->arch.regs.lr));
+        asm volatile("mrs r0, cpsr \n"
+                     "orr r0, r0, #0x1f \n"
+                     "msr cpsr, r0 \n"
+
+                     "mov %0, sp \n"
+                     "mov %1, lr \n"
+
+                     "bic r0, r0, #0x0d \n"
+                     "msr cpsr, r0 \n"
+                     : "=r" (curr_proc->arch.regs.sp), "=r" (curr_proc->arch.regs.lr));
     } else {
         curr_proc->type |= TYPE_RANONCE;
     }
@@ -119,14 +119,14 @@ __hot void do_task_switch(void) {
 #pragma GCC diagnostic pop
 
     /* Restore SP and LR: */
-    asm("mrs r0, cpsr \n"
-        "bic r0, r0, #0x1f \n"
-        "orr r0, r0, #0x1f \n"
-        "msr cpsr, r0 \n"
-        "mov sp, %0 \n"
-        "mov lr, %1 \n"
-        "bic r0, r0, #0x1f \n"
-        "orr r0, r0, #0x12 \n"
-        "msr cpsr, r0 \n"
-		: : "r" (curr_proc->arch.regs.sp), "r" (curr_proc->arch.regs.lr));
+    asm volatile("mrs r0, cpsr \n"
+                 "orr r0, r0, #0x1f \n"
+                 "msr cpsr, r0 \n"
+
+                 "mov sp, %0 \n"
+                 "mov lr, %1 \n"
+
+                 "bic r0, r0, #0x0d \n"
+                 "msr cpsr, r0 \n"
+                 : : "r" (curr_proc->arch.regs.sp), "r" (curr_proc->arch.regs.lr));
 }

@@ -1,3 +1,4 @@
+#include <proc/mtask.h>
 #include <intr/intr.h>
 #include <err/panic.h>
 #include <types.h>
@@ -21,8 +22,11 @@ void __noreturn kpanic(char *msg, ...)
 	
 	__builtin_va_end(varg);
 	
+	if(curr_proc) {
+		kprintf("    Process %d [%s]\n", curr_proc->pid, curr_proc->name);
+	}
+
 	// Print regs here
-	
 	
 	for(;;) interrupt_halt();
 }

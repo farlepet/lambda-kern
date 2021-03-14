@@ -62,8 +62,23 @@ static void intr_fiq_handler(uint8_t __unused intn, uintptr_t __unused lr) {
 }
 
 __hot
-static void intr_stub_handler(uint8_t __unused intn, uintptr_t __unused lr) {
-    /* TODO? */
+static void intr_stub_handler(uint8_t intn, uintptr_t lr) {
+    static const char *int_name[INT_MAX] = {
+        [INT_RESET]         = "INT_RESET",
+        [INT_UNDEFINED]     = "INT_UNDEFINED",
+        [INT_SYSCALL]       = "INT_SYSCALL",
+        [INT_PREFETCHABORT] = "INT_PREFETCHABORT",
+        [INT_DATAABORT]     = "INT_DATAABORT",
+        [INT_HYPTRAP]       = "INT_HYPTRAP",
+        [INT_IRQ]           = "INT_IRQ",
+        [INT_FIQ]           = "INT_FIQ"
+    };
+
+    if(intn < INT_MAX) {
+        kpanic("intr_stub_handler(%s, %08X)\n", int_name[intn], lr);
+    } else {
+        kpanic("intr_stub_handler(%d, %08X)\n", intn, lr);
+    }
 }
 
 __hot

@@ -25,6 +25,8 @@
 .global __int_wrap_fiq
 
 .extern intr_handler
+.extern irq_stack_end
+.extern fiq_stack_end
 
 __int_wrap_undefined:
     ldr sp, =irq_stack_end
@@ -62,7 +64,6 @@ __int_wrap_hyptrap:
     bl intr_handler
     __INTR_END
 
-.extern irq_stack_end
 __int_wrap_irq:
     ldr sp, =irq_stack_end
     __INTR_BEGIN #6

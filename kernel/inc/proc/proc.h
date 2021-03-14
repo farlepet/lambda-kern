@@ -108,7 +108,7 @@ struct kproc { //!< Structure of a process as seen by the kernel
 	struct ipc_message *ipc_messages[MAX_PROCESS_MESSAGES]; //!< IPC message pointers
 	int                 blocked_ipc_pids[MAX_BLOCKED_PIDS]; //!< PIDs blocked from sending messages to this process
 
-	uint32_t      blocked;   //!< Contains flags telling whether or not this process is blocked, and by what
+	volatile uint32_t      blocked;   //!< Contains flags telling whether or not this process is blocked, and by what
 
 	int           exitcode;  //!< Exit code
 
