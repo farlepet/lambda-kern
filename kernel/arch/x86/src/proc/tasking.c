@@ -31,7 +31,7 @@ int arch_proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt
     uintptr_t stack_begin = (uintptr_t)kmalloc(stack_size + 4096);
 	stack_begin = (stack_begin + 4096) & 0xFFFFF000;
 
-	kerror(ERR_BOOTINFO, "proc_create_stack [size: %d] [end: %08X, beg: %08X]",
+	kdebug(DEBUGSRC_PROC, "proc_create_stack [size: %d] [end: %08X, beg: %08X]",
 		stack_size, stack_begin, stack_begin + stack_size
 	);
 
@@ -58,7 +58,7 @@ int arch_proc_create_kernel_stack(struct kproc *proc) {
 	proc->arch.kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE + 4096);
 	proc->arch.kernel_stack = (proc->arch.kernel_stack + 4096) & 0xFFFFF000;
 
-	kerror(ERR_BOOTINFO, "proc_create_kernel_stack [size: %d] [end: %08X, beg: %08X]",
+	kdebug(DEBUGSRC_PROC, "arch_proc_create_kernel_stack [size: %d] [end: %08X, beg: %08X]",
 		PROC_KERN_STACK_SIZE, proc->arch.kernel_stack, proc->arch.kernel_stack + PROC_KERN_STACK_SIZE
 	);
 

@@ -30,7 +30,9 @@ typedef enum {
 	DEBUGSRC_PROC    = 2, /** Process management */
 	DEBUGSRC_EXEC    = 3, /** Process creation and execution */
 	DEBUGSRC_SYSCALL = 4, /** System calls */
-	DEBUGSRC_DRIVER  = 5  /** Driver loading/unloading and management */
+	DEBUGSRC_DRIVER  = 5, /** Driver loading/unloading and management */
+
+	DEBUGSRC_MAX
 } debug_source_e;
 
 /**
@@ -38,6 +40,10 @@ typedef enum {
  * 
  * Similar to kerror, except it checks if the corresponding bit is set in the
  * debug mask rather than checking error level.
+ * 
+ * @note It may be better to implement this as a pre-compiler check, so this
+ * function isn't called in time-sensitive or frequent operations if debugging
+ * is occasionally desired there.
  * 
  * @param src the source of the message
  * @param msg the format string

@@ -51,7 +51,7 @@ int execve(const char *filename, const char **argv, const char **envp) {
     // registered on-the-fly
     // Check for the filetype:
     if(*(uint32_t *)execdata == ELF_IDENT) { // ELF
-        kerror(ERR_INFO, "execve: Determined filetype as ELF");
+        kdebug(DEBUGSRC_EXEC, "execve: Determined filetype as ELF");
         return exec_elf(execdata, execsz, argv, envp);
     } else if(*(uint16_t *)execdata == 0x3335) { // SHEBANG, NOTE: Byte order might be wrong!
         kerror(ERR_MEDERR, "execve: No support for shebang yet!");
@@ -89,7 +89,7 @@ static void exec_copy_arguments(struct kproc *proc, const char **argv, const cha
     /* NULL pointers at the end of argv and envp */
     data_sz += sizeof(char *) * 2;
     
-    kerror(ERR_INFO, "exec_copy_arguments(): ARGV: %08X, ENVP: %08X, SZ: %d",
+    kdebug(DEBUGSRC_EXEC, "exec_copy_arguments(): ARGV: %08X, ENVP: %08X, SZ: %d",
            argv, envp, data_sz);
 
     /* TODO: Find a better way to map some memory for this process, rather than potentially
@@ -124,7 +124,7 @@ static void exec_copy_arguments(struct kproc *proc, const char **argv, const cha
     new_envp[i] = NULL;
 
     if(c_off != data_sz) {
-        kerror(ERR_INFO, "  -> c_off (%d) != data_sz (%d)!", c_off, data_sz);
+        kdebug(DEBUGSRC_EXEC, "  -> c_off (%d) != data_sz (%d)!", c_off, data_sz);
     }
 
     (void)proc;
@@ -132,12 +132,12 @@ static void exec_copy_arguments(struct kproc *proc, const char **argv, const cha
     *n_argv = new_argv;
     *n_envp = new_envp;
 
-    kerror(ERR_INFO, "  -> New locations: ARGV: %08X, ENVP: %08X", *n_argv, *n_envp);    
+    kdebug(DEBUGSRC_EXEC, "  -> New locations: ARGV: %08X, ENVP: %08X", *n_argv, *n_envp);    
 }
 
 void exec_replace_process_image(void *entryp, const char *name, arch_task_params_t *arch_params, symbol_t *symbols, char *symbol_string_table, const char **argv, const char **envp) {
     // TODO: Clean this up, separate out portions where possible/sensical
-    kerror(ERR_INFO, "exec_replace_process_image @ %08X", entryp);
+    kdebug(DEBUGSRC_EXEC, "exec_replace_process_image @ %08X", entryp);
 
     struct kproc tmp_proc;
     
@@ -255,7 +255,7 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     STACK_PUSH(curr_proc->arch.esp, n_argv);
     STACK_PUSH(curr_proc->arch.esp, argc);    
 
-    kerror(ERR_INFO, "exec_replace_process_image(): Jumping into process");
+    kdebug(DEBUGSRC_EXEC, "exec_replace_process_image(): Jumping into process");
 
     enter_ring_newstack(curr_proc->arch.ring, entryp, (void *)curr_proc->arch.esp);
 #else

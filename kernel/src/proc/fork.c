@@ -163,24 +163,24 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
     memcpy(iret_stack,  parent->arch.syscall_regs.iret,  sizeof(arch_iret_regs_t));
     memcpy(pusha_stack, parent->arch.syscall_regs.pusha, sizeof(arch_pusha_regs_t));
     
-    kerror(ERR_INFO, "IRET_STACK (%08X):", iret_stack);
+    kdebug(DEBUGSRC_PROC, "IRET_STACK (%08X):", iret_stack);
     for(size_t i = 0; i < 5; i++) {
-        kerror(ERR_INFO, "    %08X", ((uint32_t *)iret_stack)[i]);
+        kdebug(DEBUGSRC_PROC, "    %08X", ((uint32_t *)iret_stack)[i]);
     }
-    kerror(ERR_INFO, "PUSHA_STACK (%08X):", pusha_stack);
+    kdebug(DEBUGSRC_PROC, "PUSHA_STACK (%08X):", pusha_stack);
     for(size_t i = 0; i < 8; i++) {
-        kerror(ERR_INFO, "    %08X", ((uint32_t *)pusha_stack)[i]);
+        kdebug(DEBUGSRC_PROC, "    %08X", ((uint32_t *)pusha_stack)[i]);
     }
 
 
     uint32_t *syscall_args_virt = (uint32_t *)pusha_stack->ebx;
     uint32_t *syscall_args_phys = (uint32_t *)pgdir_get_phys_addr((uint32_t *)child->arch.cr3, syscall_args_virt);
-    kerror(ERR_INFO, "ARGS_LOC: %08X -> %08X -> %08X", syscall_args_virt, syscall_args_phys, *(uint32_t *)syscall_args_phys);
+    kdebug(DEBUGSRC_PROC, "ARGS_LOC: %08X -> %08X -> %08X", syscall_args_virt, syscall_args_phys, *(uint32_t *)syscall_args_phys);
     syscall_args_phys[0] = 0; // <- Return 0 indicating child process
 
 
 
-    kerror(ERR_INFO, " -- eip: %08X esp: %08X ebp: %08X cr3: %08X", child->arch.eip, child->arch.esp, child->arch.ebp, child->arch.cr3);
+    kdebug(DEBUGSRC_PROC, " -- eip: %08X esp: %08X ebp: %08X cr3: %08X", child->arch.eip, child->arch.esp, child->arch.ebp, child->arch.cr3);
 #else
     /* TODO */
     proc_copy_data(child, parent);
@@ -209,14 +209,14 @@ int fork(void) {
 
     lock(&creat_task);
 	
-    kerror(ERR_INFO, "mtask:fork()");
+    kdebug(DEBUGSRC_PROC, "mtask:fork()");
 
     struct kproc *child = (struct kproc *)kmalloc(sizeof(struct kproc));
 
     fork_clone_process(child, curr_proc);
 
 #if defined(ARCH_X86)
-    kerror(ERR_INFO, " -- Child Stack: %08X %08X", child->arch.esp, child->arch.ebp);
+    kdebug(DEBUGSRC_PROC, " -- Child Stack: %08X %08X", child->arch.esp, child->arch.ebp);
 #endif
 
     child->parent = curr_proc->pid;

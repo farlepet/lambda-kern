@@ -163,7 +163,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 	memset(proc->children, 0, sizeof(proc->children));
 
 #if defined(ARCH_X86)
-	kerror(ERR_BOOTINFO, "PID: %d EIP: %08X CR3: %08X ESP: %08X", proc->pid, proc->arch.eip, proc->arch.cr3, proc->arch.esp);
+	kdebug(DEBUGSRC_PROC, "PID: %d EIP: %08X CR3: %08X ESP: %08X", proc->pid, proc->arch.eip, proc->arch.cr3, proc->arch.esp);
 #endif
 
 	mtask_insert_proc(proc);
@@ -219,7 +219,7 @@ void init_multitasking(void *process, char *name) {
 
 
 __noreturn void exit(int code) {
-	kerror(ERR_BOOTINFO, "exit(%d) called by process %d.", code, curr_proc->pid);
+	kdebug(DEBUGSRC_PROC, "exit(%d) called by process %d.", code, curr_proc->pid);
 
 	// If parent processis waiting for child to exit, allow it to continue execution:
 	if(curr_proc->parent) {

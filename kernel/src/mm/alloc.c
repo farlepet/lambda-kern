@@ -134,7 +134,7 @@ static int get_free_block()
 
 void *kmalloc(uint32_t sz)
 {
-	kerror(ERR_DETAIL, "Allocating %d bytes of memory", sz);
+	kdebug(DEBUGSRC_MM, "Allocating %d bytes of memory", sz);
 
 	// We don't want two processes using the same memory block!
 	lock(&alloc_lock);
@@ -199,7 +199,7 @@ void *kmalloc(uint32_t sz)
 	// Let other processes allocate memory
 	unlock(&alloc_lock);
 
-	kerror(ERR_DETAIL, "  -> %08X P", ae.addr);
+	kdebug(DEBUGSRC_MM, "  -> %08X P", ae.addr);
 	return (void *)ae.addr;
 }
 
@@ -218,7 +218,7 @@ void *kamalloc(uint32_t sz, uint32_t align) {
 
 void kfree(void *ptr)
 {
-	kerror(ERR_DETAIL, "Freeing %08X", ptr);
+	kdebug(DEBUGSRC_MM, "Freeing %08X", ptr);
 
 	lock(&alloc_lock);
 

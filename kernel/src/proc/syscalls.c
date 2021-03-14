@@ -57,7 +57,7 @@ struct syscall syscalls[] = {
 };
 
 int service_syscall(uint32_t scn, uint32_t *args) {
-	//kerror(ERR_BOOTINFO, "Syscall %d called with args at %08X", scn, args);
+	kdebug(DEBUGSRC_SYSCALL, "Syscall %d called with args at %08X", scn, args);
 	if(scn >= ARRAY_SZ(syscalls)) {
 		kerror(ERR_MEDERR, "Process %d (%s) has tried to call an invalid syscall: %u Args: %08X", curr_proc->pid, curr_proc->name, scn, args);
 		return -1;
@@ -93,8 +93,9 @@ int service_syscall(uint32_t scn, uint32_t *args) {
 			kpanic("Syscall error (%d): %d arguments not handled! Kernel programming error!", scn, syscalls[scn].nargs);
 	}
 
+	kdebug(DEBUGSRC_SYSCALL, "  -> Retval [0] = %d", args[0]);
+	
 	return 0;
-	//kerror(ERR_BOOTINFO, "  -> Retval [0] = %d", args[0]);
 }
 
 
@@ -111,7 +112,7 @@ void init_syscalls()
 extern void call_syscall_int(uint32_t, uint32_t *);
 void call_syscall(uint32_t scn, uint32_t *args)
 {
-	//kerror(ERR_BOOTINFO, "call_syscall: %d, %08X", scn, args);
+	kdebug(DEBUGSRC_SYSCALL, "call_syscall: %d, %08X", scn, args);
 #ifdef ARCH_X86
 	call_syscall_int(scn, args);
 #else

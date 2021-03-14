@@ -21,7 +21,7 @@ static void elf_read_phdr(Elf32_Ehdr *elf, struct kproc_mem_map_ent **mmap_entri
 	elf_data->dynamic = NULL;
 
 	for(size_t i = 0; i < elf->e_phnum; i++) {
-		kerror(ERR_INFO, "phdr[%2X/%2X] T:%X VADDR: %08X MSZ:%08X FSZ:%08X", i+1, elf->e_phnum, prog[i].p_type, prog[i].p_vaddr, prog[i].p_memsz, prog[i].p_filesz);
+		kdebug(DEBUGSRC_EXEC, "phdr[%2X/%2X] T:%X VADDR: %08X MSZ:%08X FSZ:%08X", i+1, elf->e_phnum, prog[i].p_type, prog[i].p_vaddr, prog[i].p_memsz, prog[i].p_filesz);
 		switch(prog[i].p_type) {
 			case PT_LOAD: {
 				/* TODO: Read entire header first, so we can avoid issues with
@@ -96,9 +96,9 @@ static uintptr_t elf_exec_common(void *data, uint32_t length, arch_task_params_t
 		Elf32_Shdr *shdr = &sections[i];
 
 		if(shdr->sh_type <= SHT_PREINIT_ARRAY) {
-			kerror(ERR_INFO, "shdr[%2X/%2X] N:%s T:%s OFF: %08X ADDR:%08X SZ:%08X", i+1, head->e_shnum, &strTabSecStr[shdr->sh_name], sht_strings[shdr->sh_type], shdr->sh_offset, shdr->sh_addr, shdr->sh_size);
+			kdebug(DEBUGSRC_EXEC, "shdr[%2X/%2X] N:%s T:%s OFF: %08X ADDR:%08X SZ:%08X", i+1, head->e_shnum, &strTabSecStr[shdr->sh_name], sht_strings[shdr->sh_type], shdr->sh_offset, shdr->sh_addr, shdr->sh_size);
 		} else {
-			kerror(ERR_INFO, "shdr[%2X/%2X] N:%s T:%X OFF: %08X ADDR:%08X SZ:%08X", i+1, head->e_shnum, &strTabSecStr[shdr->sh_name], shdr->sh_type, shdr->sh_offset, shdr->sh_addr, shdr->sh_size);
+			kdebug(DEBUGSRC_EXEC, "shdr[%2X/%2X] N:%s T:%X OFF: %08X ADDR:%08X SZ:%08X", i+1, head->e_shnum, &strTabSecStr[shdr->sh_name], shdr->sh_type, shdr->sh_offset, shdr->sh_addr, shdr->sh_size);
 		}
 
 		if((shdr->sh_type == SHT_SYMTAB) &&
@@ -210,7 +210,7 @@ int load_elf(void *file, uint32_t length) {
 	}
 
 
-	kerror(ERR_INFO, "Entrypoint: %08X", entrypoint);
+	kdebug(DEBUGSRC_EXEC, "Entrypoint: %08X", entrypoint);
 	
 	// Old way of creating new process:
 	int pid = add_user_task_arch((void *)entrypoint, "UNNAMED_ELF", 0, PRIO_USERPROG, &arch_params);
@@ -245,7 +245,7 @@ int exec_elf(void *data, uint32_t length, const char **argv, const char **envp) 
 		return -1;
 	}
 
-	kerror(ERR_INFO, "Entrypoint: %08X", entrypoint);
+	kdebug(DEBUGSRC_EXEC, "Entrypoint: %08X", entrypoint);
 
 	// TODO: Add generated memory map to this process
 
