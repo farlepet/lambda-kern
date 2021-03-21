@@ -101,7 +101,7 @@ static void exec_copy_arguments(kthread_t *thread, const char **argv, const char
 
 #if defined(ARCH_X86)
     for(ptr_t p = (ptr_t)new_buffer & 0xFFFFF000; p < ((ptr_t)new_buffer + data_sz); p += 0x1000) {
-        pgdir_map_page((uint32_t *)thread->arch.cr3, (void *)p, (void *)p, 0x07);
+        pgdir_map_page((uint32_t *)thread->process->arch.cr3, (void *)p, (void *)p, 0x07);
     }
 #endif
 
@@ -179,13 +179,13 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
 
 #if defined(ARCH_X86)
     // Copy architecture-specific bits:
-    curr_proc->threads[0].arch.ring = tmp_proc.threads[0].arch.ring;
+    curr_proc->arch.ring = tmp_proc.arch.ring;
     curr_proc->threads[0].arch.eip  = (uint32_t)entryp;
 
     // TODO: Free unused frames
     // TODO: Only keep required portions of pagedir
     //proc->cr3 = tmp_proc.cr3;
-    curr_proc->threads[0].arch.cr3 = (uint32_t)arch_params->pgdir;
+    curr_proc->arch.cr3 = (uint32_t)arch_params->pgdir;
 
     int kernel = (curr_proc->type & TYPE_KERNEL);
 
@@ -229,7 +229,6 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     #endif // STACK_PROTECTOR
 
     /*proc->kernel_stack      = tmp_proc.kernel_stack;
-    proc->kernel_stack_size = tmp_proc.kernel_stack_size;
 
     proc->stack_beg = tmp_proc.stack_beg;
     proc->stack_end = tmp_proc.stack_end;*/
@@ -257,7 +256,7 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
 
     kdebug(DEBUGSRC_EXEC, "exec_replace_process_image(): Jumping into process");
 
-    enter_ring_newstack(curr_proc->threads[0].arch.ring, entryp, (void *)curr_proc->threads[0].arch.esp);
+    enter_ring_newstack(curr_proc->arch.ring, entryp, (void *)curr_proc->threads[0].arch.esp);
 #else
     /* TODO */
     (void)arch_params;

@@ -11,20 +11,21 @@ typedef struct {
 } kproc_arch_syscall_regs_t;
 
 typedef struct {
-	int ring;           //!< Ring to run in (0-3)
+	uint32_t esp;               /** Stack pointer */
+	uint32_t ebp;               /** Stack base pointer */
+	uint32_t eip;               /** Instruction pointer */
 
-	uint32_t esp;       //!< Stack pointer
-	uint32_t ebp;       //!< Stack base pointer
-	uint32_t eip;       //!< Instruction pointer
-	uint32_t cr3;       //!< Page directory
+	uint32_t kernel_stack;      /** Kernel stack */
 
-	uint32_t kernel_stack;      //!< Kernel stack
-	uint32_t kernel_stack_size; //!< Size of kernel stack
-
-	uint32_t stack_beg; //!< Beginning of stack
-	uint32_t stack_end; //!< Current end of stack
+	uint32_t stack_beg;         /** Beginning of stack */
+	uint32_t stack_end;         /** Current end of stack */
 
 	kproc_arch_syscall_regs_t syscall_regs; //!< Syscall registers
+} kthread_arch_t;
+
+typedef struct {
+	int      ring; /** Ring to run in (0-3) */
+	uint32_t cr3;  /** Page directory */
 } kproc_arch_t;
 
 /* Architecture-specific task creation parameters */

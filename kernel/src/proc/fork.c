@@ -22,16 +22,12 @@ extern lock_t creat_task;
  * @param src Source process
  * @return int 0 on success
  */
-static int proc_copy_data(struct kproc *dest, const struct kproc *src) {
+static int proc_copy_data(kthread_t *dest, const kthread_t *src) {
     kerror(ERR_BOOTINFO, "proc_copy_data");
 
 #if defined(ARCH_X86)
-    struct kproc_mem_map_ent const *pent = src->mmap;
+    struct kproc_mem_map_ent const *pent = src->process->mmap;
     struct kproc_mem_map_ent *cent;
-    
-    /* @todo Simply pass in dest and src threads */
-    kthread_t       *dthread = &dest->threads[0];
-    //const kthread_t *sthread = &src->threads[0];
 
     // TODO: Split out architecture-dependant portions (e.g. memory mapping)
 
@@ -40,10 +36,10 @@ static int proc_copy_data(struct kproc *dest, const struct kproc *src) {
         n_ents++;
         pent = pent->next;
     }
-    pent = src->mmap;
+    pent = src->process->mmap;
 
-    dest->mmap = (struct kproc_mem_map_ent *)kmalloc(sizeof(struct kproc_mem_map_ent) * n_ents);
-    cent = dest->mmap;
+    dest->process->mmap = (struct kproc_mem_map_ent *)kmalloc(sizeof(struct kproc_mem_map_ent) * n_ents);
+    cent = dest->process->mmap;
 
     while(pent != NULL) {
         if(pent->next != NULL) {
@@ -68,7 +64,7 @@ static int proc_copy_data(struct kproc *dest, const struct kproc *src) {
 
         // Map memory (TODO: Optimize):
         for(size_t offset = 0; offset < pent->length; offset += 0x1000) {
-            pgdir_map_page((uint32_t *)dthread->arch.cr3,
+            pgdir_map_page((uint32_t *)dest->process->arch.cr3,
                 (void *)(cent->phys_address & ~0xFFF) + offset,
                 (void *)(cent->virt_address & ~0xFFF) + offset,
                 0x7 // TODO: Check flags of origional map, or add flag to kproc_mem_map_ent to determine type
@@ -135,15 +131,16 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
     child->uid  = parent->uid;
     child->gid  = parent->gid;
 
-    child->type = TYPE_VALID | TYPE_RANONCE;
+    child->type = TYPE_VALID;
     if(kernel) child->type |= TYPE_KERNEL;
+    cthread->flags |= KTHREAD_FLAG_RANONCE;
 
     child->prio = parent->prio;
 
 #if defined(ARCH_X86)
-    cthread->arch.ring  = pthread->arch.ring;
+    child->arch.ring  = parent->arch.ring;
     cthread->entrypoint = pthread->entrypoint;
-    cthread->arch.cr3   = (uint32_t)clone_pagedir_full((void *)pthread->arch.cr3);
+    child->arch.cr3   = (uint32_t)clone_pagedir_full((void *)parent->arch.cr3);
 
     uint32_t stack_size = pthread->arch.stack_beg - pthread->arch.stack_end;
     uint32_t virt_stack_begin;
@@ -164,7 +161,7 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
     proc_copy_stack(cthread, pthread);
     //proc_copy_kernel_stack(child, parent);
 
-    proc_copy_data(child, parent);
+    proc_copy_data(cthread, pthread);
 
     arch_iret_regs_t  *iret_stack  = (arch_iret_regs_t *)(cthread->arch.kernel_stack - sizeof(arch_iret_regs_t));
     arch_pusha_regs_t *pusha_stack = (arch_pusha_regs_t *)((uintptr_t)iret_stack - sizeof(arch_pusha_regs_t));
@@ -183,13 +180,13 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
 
 
     uint32_t *syscall_args_virt = (uint32_t *)pusha_stack->ebx;
-    uint32_t *syscall_args_phys = (uint32_t *)pgdir_get_phys_addr((uint32_t *)cthread->arch.cr3, syscall_args_virt);
+    uint32_t *syscall_args_phys = (uint32_t *)pgdir_get_phys_addr((uint32_t *)child->arch.cr3, syscall_args_virt);
     kdebug(DEBUGSRC_PROC, "ARGS_LOC: %08X -> %08X -> %08X", syscall_args_virt, syscall_args_phys, *(uint32_t *)syscall_args_phys);
     syscall_args_phys[0] = 0; // <- Return 0 indicating child process
 
 
 
-    kdebug(DEBUGSRC_PROC, " -- eip: %08X esp: %08X ebp: %08X cr3: %08X", cthread->arch.eip, cthread->arch.esp, cthread->arch.ebp, cthread->arch.cr3);
+    kdebug(DEBUGSRC_PROC, " -- eip: %08X esp: %08X ebp: %08X cr3: %08X", cthread->arch.eip, cthread->arch.esp, cthread->arch.ebp, child->arch.cr3);
 #else
     /* TODO */
     proc_copy_data(child, parent);

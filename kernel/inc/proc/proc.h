@@ -20,11 +20,10 @@ typedef struct kpric   kproc_t;
 #define PROC_KERN_STACK_SIZE 4096 //!< Size of kernel stack allocated to process
 
 #define TYPE_RUNNABLE 0x00000001 //!< Is this process runnable?
-#define TYPE_RANONCE  0x00000002 //!< Can this process save its registers yet?
-#define TYPE_VALID    0x00000004 //!< Is this a valid process? Can it be overwritten?
-#define TYPE_ZOMBIE   0x00000008 //!< Has this task been killed?
-#define TYPE_REAP     0x00000010 //!< Should this task be reaped?
-#define TYPE_KERNEL   0x80000000 //!< Does this process run in kernel land?
+#define TYPE_ZOMBIE   0x00000002 //!< Has this task been killed?
+#define TYPE_REAP     0x00000004 //!< Should this task be reaped?
+#define TYPE_KERNEL   0x40000000 //!< Does this process run in kernel land?
+#define TYPE_VALID    0x80000000 //!< Is this a valid process? Can it be overwritten?
 
 #define BLOCK_DELAY       0x00000001 //!< Process is blocked waiting for a delay
 #define BLOCK_MESSAGE     0x00000002 //!< Process is blocked waiting for a message
@@ -85,8 +84,7 @@ struct kthread {
 
 	struct kproc     *process;    /** Pointer to owning process */
 
-	/* @todo Split out process- and thread-specific architecture data. */
-	kproc_arch_t      arch;       /** Architecture-specific thread data */
+	kthread_arch_t    arch;       /** Architecture-specific thread data */
 	uint32_t          entrypoint; /** Program start */
 };
 
@@ -102,6 +100,8 @@ struct kproc { //!< Structure of a process as seen by the kernel
 	int           parent;   //!< PID of parent process
 
 	uint32_t      type;     //!< Type of process
+	
+	kproc_arch_t  arch;     /** Architecture-specific process data */
 
 	struct kproc *children[MAX_CHILDREN]; //!< Pointers to direct child processes (ex: NOT children's children)
 

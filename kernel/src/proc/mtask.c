@@ -155,6 +155,9 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 	memcpy(proc->name, name, strlen(name));
 
 	proc->pid = get_next_pid();
+	
+	proc->threads[0].process = proc;
+	proc->threads[0].tid     = proc->pid;
 
 	// TODO:
 	proc->uid  = 0;
@@ -162,7 +165,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 
 	proc->parent = curr_proc->pid;
 
-	proc->type = TYPE_RUNNABLE | TYPE_VALID | TYPE_RANONCE;
+	proc->type = TYPE_RUNNABLE | TYPE_VALID;
 
 	if(kernel) proc->type |= TYPE_KERNEL;
 
@@ -184,12 +187,10 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 	memset(proc->children, 0, sizeof(proc->children));
 
 #if defined(ARCH_X86)
-	kdebug(DEBUGSRC_PROC, "PID: %d EIP: %08X CR3: %08X ESP: %08X", proc->pid, proc->threads[0].arch.eip, proc->threads[0].arch.cr3, proc->threads[0].arch.esp);
+	kdebug(DEBUGSRC_PROC, "PID: %d EIP: %08X CR3: %08X ESP: %08X", proc->pid, proc->threads[0].arch.eip, proc->arch.cr3, proc->threads[0].arch.esp);
 #endif
 
 	proc->threads[0].flags  |= KTHREAD_FLAG_VALID | KTHREAD_FLAG_RANONCE;
-	proc->threads[0].process = proc;
-	proc->threads[0].tid     = proc->pid;
 	
 	mtask_insert_proc(proc);
 

@@ -39,8 +39,8 @@ int arch_proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_
 
     // Map stack memory
 	for(size_t i = 0; i < stack_size; i+= 0x1000) {
-		if(is_kernel) pgdir_map_page((uint32_t *)thread->arch.cr3, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
-		else          pgdir_map_page((uint32_t *)thread->arch.cr3, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
+		if(is_kernel) pgdir_map_page((uint32_t *)thread->process->arch.cr3, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
+		else          pgdir_map_page((uint32_t *)thread->process->arch.cr3, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
 	}
 
 	thread->arch.stack_end = virt_stack_begin;
@@ -64,7 +64,7 @@ int arch_proc_create_kernel_stack(kthread_t *thread) {
 	);
 
 	for(size_t i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
-		pgdir_map_page((uint32_t *)thread->arch.cr3, (void *)(thread->arch.kernel_stack + i), (void *)(thread->arch.kernel_stack + i), 0x03);
+		pgdir_map_page((uint32_t *)thread->process->arch.cr3, (void *)(thread->arch.kernel_stack + i), (void *)(thread->arch.kernel_stack + i), 0x03);
 	}
 
 	thread->arch.kernel_stack += PROC_KERN_STACK_SIZE;
@@ -75,16 +75,17 @@ int arch_proc_create_kernel_stack(kthread_t *thread) {
 void proc_jump_to_ring(void) {
 	if(curr_proc) {
 		if(curr_proc->threads[curr_thread].entrypoint) {
-			enter_ring(curr_proc->threads[curr_thread].arch.ring, (void *)curr_proc->threads[curr_thread].entrypoint);
+			enter_ring(curr_proc->arch.ring, (void *)curr_proc->threads[curr_thread].entrypoint);
 		}
 	}
 }
 
 int arch_setup_task(kthread_t *thread, void *entrypoint, uint32_t stack_size, int kernel, arch_task_params_t *arch_params) {
-	thread->arch.ring  = arch_params->ring;
+	/* @todo Process arch settings might make more sense elsewhere. */
+	thread->process->arch.ring  = arch_params->ring;
 	thread->arch.eip   = (uint32_t)entrypoint;
 	thread->entrypoint = (uint32_t)entrypoint;
-	thread->arch.cr3   = (uint32_t)arch_params->pgdir;
+	thread->process->arch.cr3   = (uint32_t)arch_params->pgdir;
 
 	uint32_t /*stack_begin, */virt_stack_begin;
 	if(!kernel) virt_stack_begin = 0xFF000000;
@@ -139,7 +140,7 @@ __hot void do_task_switch(void) {
 	esp = thread->arch.esp;
 	ebp = thread->arch.ebp;
 	eip = thread->arch.eip;
-	cr3 = thread->arch.cr3;
+	cr3 = curr_proc->arch.cr3;
 
 	asm volatile("mov %0, %%ebx\n"
 				 "mov %1, %%esp\n"
