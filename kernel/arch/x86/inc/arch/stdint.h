@@ -18,4 +18,7 @@ typedef int32_t  intptr_t;   //!< Signed pointer
 
 typedef uint32_t size_t; //!< Size/length
 
+/* @todo Move this elsewhere */
+typedef uint32_t syscallarg_t; /** Syscall argument type */
+
 #endif

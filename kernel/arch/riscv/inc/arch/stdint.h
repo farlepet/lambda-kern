@@ -18,6 +18,10 @@ typedef uint64_t uintptr_t;  //!< Unsigned pointer
 typedef int64_t  intptr_t;   //!< Signed pointer
 
 typedef uint64_t size_t; //!< Size/length
+
+/* @todo Move this elsewhere */
+typedef uint64_t syscallarg_t; /** Syscall argument type */
+
 #elif (__LAMBDA_PLATFORM_CPU__ == PLATFORM_CPU_RISCV_RV32I) || \
       (__LAMBDA_PLATFORM_CPU__ == PLATFORM_CPU_RISCV_RV32E)
 typedef signed char int8_t;  //!< Signed 8 bit value
@@ -36,6 +40,10 @@ typedef uint32_t uintptr_t;  //!< Unsigned pointer
 typedef int32_t intptr_t;   //!< Signed pointer
 
 typedef uint32_t size_t; //!< Size/length
+
+/* @todo Move this elsewhere */
+typedef uint32_t syscallarg_t; /** Syscall argument type */
+
 #endif /* __LAMBDA_PLATFORM_CPU__ */
 
 #endif

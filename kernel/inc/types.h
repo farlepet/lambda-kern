@@ -64,11 +64,11 @@ typedef enum BOOL { FALSE, TRUE } bool;
 
 void __builtin_ia32_pause(); //!< Energy-saving alternative to `nop`
 
-typedef uint32_t (*func0_t)();
-typedef uint32_t (*func1_t)(uint32_t);
-typedef uint32_t (*func2_t)(uint32_t, uint32_t);
-typedef uint32_t (*func3_t)(uint32_t, uint32_t, uint32_t);
-typedef uint32_t (*func4_t)(uint32_t, uint32_t, uint32_t, uint32_t);
-typedef uint32_t (*func5_t)(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
+typedef syscallarg_t (*func0_t)();
+typedef syscallarg_t (*func1_t)(syscallarg_t);
+typedef syscallarg_t (*func2_t)(syscallarg_t, syscallarg_t);
+typedef syscallarg_t (*func3_t)(syscallarg_t, syscallarg_t, syscallarg_t);
+typedef syscallarg_t (*func4_t)(syscallarg_t, syscallarg_t, syscallarg_t, syscallarg_t);
+typedef syscallarg_t (*func5_t)(syscallarg_t, syscallarg_t, syscallarg_t, syscallarg_t, syscallarg_t);
 
 #endif
