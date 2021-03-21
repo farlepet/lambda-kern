@@ -1,11 +1,16 @@
 #ifndef PROC_H
 #define PROC_H
 
+struct kthread;
 struct kproc;
 struct uproc;
 
+typedef struct kthread kthread_t;
+typedef struct kpric   kproc_t;
+
 #define MAX_PROCESSES        16 //!< Maximum amount of running processes
 #define MAX_CHILDREN         8  //!< Maximum number of children a parent can handle
+#define MAX_THREADS          16 //!< Maximum number of threads a process can contain
 #define MAX_PROCESS_MESSAGES 64 //!< Maximum number of messages a process can retain
 #define MAX_BLOCKED_PIDS     (MAX_PROCESSES - 1)
 #define MAX_OPEN_FILES       8  //!< Maximum number of files opened by any particular process, including 0-2
@@ -69,6 +74,22 @@ typedef struct proc_elf_data {
 	const Elf32_Sym *dynamic_sym;     //!< Dynamic symbol table
 } proc_elf_data_t;
 
+struct kthread {
+	char              name[64];   /** Name of thread */
+	uint32_t          tid;        /** Thread ID */
+#define KTHREAD_FLAG_VALID   0x80000000 /** Thread contents is valid */
+#define KTHREAD_FLAG_RANONCE 0x00000001 /** Thread has ran at least once */
+	uint32_t          flags;      /** Thread flags */
+
+	volatile uint32_t blocked;    /** Contains flags telling whether or not this thread is blocked, and by what */
+
+	struct kproc     *process;    /** Pointer to owning process */
+
+	/* @todo Split out process- and thread-specific architecture data. */
+	kproc_arch_t      arch;       /** Architecture-specific thread data */
+	uint32_t          entrypoint; /** Program start */
+};
+
 /* TODO: Convert some static-size arrays in kproc to dynamically allocated memory. */
 struct kproc { //!< Structure of a process as seen by the kernel
 	char          name[64]; //!< Name of the process
@@ -84,9 +105,9 @@ struct kproc { //!< Structure of a process as seen by the kernel
 
 	struct kproc *children[MAX_CHILDREN]; //!< Pointers to direct child processes (ex: NOT children's children)
 
-	kproc_arch_t  arch; //!< Architecture-specific process data
-
-	uint32_t      entrypoint; //!< Program start
+	//kproc_arch_t  arch; //!< Architecture-specific process data
+	/* @todo If kthread_t gets larger, allocate threads dynamically instead. */
+	kthread_t     threads[MAX_THREADS];
 
 	/* Old IPC method. TODO: remove. */
 	struct cbuff  messages;           //!< Message buffer structure
@@ -108,8 +129,6 @@ struct kproc { //!< Structure of a process as seen by the kernel
 	struct ipc_message *ipc_messages[MAX_PROCESS_MESSAGES]; //!< IPC message pointers
 	int                 blocked_ipc_pids[MAX_BLOCKED_PIDS]; //!< PIDs blocked from sending messages to this process
 
-	volatile uint32_t      blocked;   //!< Contains flags telling whether or not this process is blocked, and by what
-
 	int           exitcode;  //!< Exit code
 
 	int           prio;      //!< Task priority
@@ -123,7 +142,7 @@ struct kproc { //!< Structure of a process as seen by the kernel
 	struct kproc *prev; /*!< Previous process in linked list. */
 };
 
-
+/* @todo Deprecate this */
 struct uproc { //!< Structure of a process as seen by a user process
 	char name[64]; //!< Name of the process
 	int pid;       //!< Process ID

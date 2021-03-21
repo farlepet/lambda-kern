@@ -28,6 +28,10 @@ static int proc_copy_data(struct kproc *dest, const struct kproc *src) {
 #if defined(ARCH_X86)
     struct kproc_mem_map_ent const *pent = src->mmap;
     struct kproc_mem_map_ent *cent;
+    
+    /* @todo Simply pass in dest and src threads */
+    kthread_t       *dthread = &dest->threads[0];
+    //const kthread_t *sthread = &src->threads[0];
 
     // TODO: Split out architecture-dependant portions (e.g. memory mapping)
 
@@ -64,7 +68,7 @@ static int proc_copy_data(struct kproc *dest, const struct kproc *src) {
 
         // Map memory (TODO: Optimize):
         for(size_t offset = 0; offset < pent->length; offset += 0x1000) {
-            pgdir_map_page((uint32_t *)dest->arch.cr3,
+            pgdir_map_page((uint32_t *)dthread->arch.cr3,
                 (void *)(cent->phys_address & ~0xFFF) + offset,
                 (void *)(cent->virt_address & ~0xFFF) + offset,
                 0x7 // TODO: Check flags of origional map, or add flag to kproc_mem_map_ent to determine type
@@ -120,8 +124,13 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
     memcpy(child->name, parent->name, strlen(parent->name));
 
 	memset(child->children, 0xFF, sizeof(child->children));
+
+    kthread_t *cthread = &child->threads[0];
+    /* @todo Currently assuming first thread */
+    kthread_t *pthread = &parent->threads[0];
  
-    child->pid = get_next_pid();
+    child->pid   = get_next_pid();
+    cthread->tid = child->pid;
 
     child->uid  = parent->uid;
     child->gid  = parent->gid;
@@ -132,36 +141,36 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
     child->prio = parent->prio;
 
 #if defined(ARCH_X86)
-    child->arch.ring  = parent->arch.ring;
-    child->entrypoint = parent->entrypoint;
-    child->arch.cr3   = (uint32_t)clone_pagedir_full((void *)parent->arch.cr3);
+    cthread->arch.ring  = pthread->arch.ring;
+    cthread->entrypoint = pthread->entrypoint;
+    cthread->arch.cr3   = (uint32_t)clone_pagedir_full((void *)pthread->arch.cr3);
 
-    uint32_t stack_size = parent->arch.stack_beg - parent->arch.stack_end;
+    uint32_t stack_size = pthread->arch.stack_beg - pthread->arch.stack_end;
     uint32_t virt_stack_begin;
 
     if(!kernel) virt_stack_begin = 0xFF000000;
     else        virt_stack_begin = 0x7F000000;
 
 
-    proc_create_stack(child, stack_size, virt_stack_begin, kernel);
-    proc_create_kernel_stack(child);
+    proc_create_stack(cthread, stack_size, virt_stack_begin, kernel);
+    proc_create_kernel_stack(cthread);
 
-    child->arch.ebp = parent->arch.ebp;
+    cthread->arch.ebp = cthread->arch.ebp;
     
     // POPAD: 8 DWORDS, IRETD: 5 DWORDS
-    child->arch.esp = child->arch.kernel_stack - 52;
-    child->arch.eip = (uint32_t)return_from_fork;
+    cthread->arch.esp = cthread->arch.kernel_stack - 52;
+    cthread->arch.eip = (uint32_t)return_from_fork;
 
-    proc_copy_stack(child, parent);
+    proc_copy_stack(cthread, pthread);
     //proc_copy_kernel_stack(child, parent);
 
     proc_copy_data(child, parent);
 
-    arch_iret_regs_t  *iret_stack  = (arch_iret_regs_t *)(child->arch.kernel_stack - sizeof(arch_iret_regs_t));
+    arch_iret_regs_t  *iret_stack  = (arch_iret_regs_t *)(cthread->arch.kernel_stack - sizeof(arch_iret_regs_t));
     arch_pusha_regs_t *pusha_stack = (arch_pusha_regs_t *)((uintptr_t)iret_stack - sizeof(arch_pusha_regs_t));
     
-    memcpy(iret_stack,  parent->arch.syscall_regs.iret,  sizeof(arch_iret_regs_t));
-    memcpy(pusha_stack, parent->arch.syscall_regs.pusha, sizeof(arch_pusha_regs_t));
+    memcpy(iret_stack,  pthread->arch.syscall_regs.iret,  sizeof(arch_iret_regs_t));
+    memcpy(pusha_stack, pthread->arch.syscall_regs.pusha, sizeof(arch_pusha_regs_t));
     
     kdebug(DEBUGSRC_PROC, "IRET_STACK (%08X):", iret_stack);
     for(size_t i = 0; i < 5; i++) {
@@ -174,13 +183,13 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
 
 
     uint32_t *syscall_args_virt = (uint32_t *)pusha_stack->ebx;
-    uint32_t *syscall_args_phys = (uint32_t *)pgdir_get_phys_addr((uint32_t *)child->arch.cr3, syscall_args_virt);
+    uint32_t *syscall_args_phys = (uint32_t *)pgdir_get_phys_addr((uint32_t *)cthread->arch.cr3, syscall_args_virt);
     kdebug(DEBUGSRC_PROC, "ARGS_LOC: %08X -> %08X -> %08X", syscall_args_virt, syscall_args_phys, *(uint32_t *)syscall_args_phys);
     syscall_args_phys[0] = 0; // <- Return 0 indicating child process
 
 
 
-    kdebug(DEBUGSRC_PROC, " -- eip: %08X esp: %08X ebp: %08X cr3: %08X", child->arch.eip, child->arch.esp, child->arch.ebp, child->arch.cr3);
+    kdebug(DEBUGSRC_PROC, " -- eip: %08X esp: %08X ebp: %08X cr3: %08X", cthread->arch.eip, cthread->arch.esp, cthread->arch.ebp, cthread->arch.cr3);
 #else
     /* TODO */
     proc_copy_data(child, parent);
@@ -212,11 +221,12 @@ int fork(void) {
     kdebug(DEBUGSRC_PROC, "mtask:fork()");
 
     struct kproc *child = (struct kproc *)kmalloc(sizeof(struct kproc));
+    kthread_t *cthread = &child->threads[0];
 
     fork_clone_process(child, curr_proc);
 
 #if defined(ARCH_X86)
-    kdebug(DEBUGSRC_PROC, " -- Child Stack: %08X %08X", child->arch.esp, child->arch.ebp);
+    kdebug(DEBUGSRC_PROC, " -- Child Stack: %08X %08X", cthread->arch.esp, cthread->arch.ebp);
 #endif
 
     child->parent = curr_proc->pid;

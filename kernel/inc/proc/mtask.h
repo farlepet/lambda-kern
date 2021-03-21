@@ -12,7 +12,8 @@
 
 /* TODO: Standardize naming (e.g. process vs task) */
 
-extern struct kproc *curr_proc; /*!< Currently running process */
+extern struct kproc *curr_proc;   /*!< Currently running process */
+extern uint32_t      curr_thread; /*!< Currently running thread index */
 
 int get_pid(); //!< Get the PID of the currently running task
 
@@ -98,6 +99,14 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 struct kproc *proc_by_pid(int pid);
 
 /**
+ * @brief Get thread pointer given TID
+ * 
+ * @param tid TID of thread to find
+ * @return Pointer to thread if found, else NULL
+ */
+kthread_t *thread_by_tid(int tid);
+
+/**
  * @brief Stop calling process
  * 
  * @param code Exit code to return with
@@ -120,7 +129,7 @@ int fork(void);
  * @param is_kernel Whether or not process is a kernel process
  * @return int 0 on success
  */
-int proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel);
+int proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel);
 
 /**
  * @brief Create kernel stack for process
@@ -128,7 +137,7 @@ int proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt_stac
  * @param proc Process for which to create kernel stack
  * @return int 0 on success
  */
-int proc_create_kernel_stack(struct kproc *proc);
+int proc_create_kernel_stack(kthread_t *thread);
 
 /**
  * @brief Get pointer to current process

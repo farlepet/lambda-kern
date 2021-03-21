@@ -7,12 +7,13 @@
 
 void handle_syscall(struct pusha_regs regs, struct iret_regs iregs) {
 	(void)iregs;
+	kthread_t *thread = &curr_proc->threads[curr_thread];
 	
-	curr_proc->arch.esp = (uint32_t)&regs;
+	thread->arch.esp = (uint32_t)&regs;
 	curr_proc->book.syscall_count++;
 
-	curr_proc->arch.syscall_regs.pusha = &regs;
-	curr_proc->arch.syscall_regs.iret  = &iregs;
+	thread->arch.syscall_regs.pusha = &regs;
+	thread->arch.syscall_regs.iret  = &iregs;
 
 	uint32_t  scn  = regs.eax;
 	uint32_t *args = (uint32_t *)regs.ebx;

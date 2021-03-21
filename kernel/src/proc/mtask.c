@@ -19,6 +19,7 @@
 
 static struct kproc *procs = NULL;
 struct kproc *curr_proc    = NULL;
+uint32_t      curr_thread  = 0;
 
 static int next_pid = 1;
 
@@ -35,6 +36,26 @@ struct kproc *proc_by_pid(int pid) {
 	do {
 		if(proc->pid == pid) {
 			return proc;
+		}
+		proc = proc->next;
+	} while(proc && proc != procs);
+	
+	return NULL;
+}
+
+kthread_t *thread_by_tid(int tid) {
+	if(!procs) {
+		return NULL;
+	}
+
+	struct kproc *proc = procs;
+
+	do {
+		for(uint32_t i = 0; i < MAX_THREADS; i++) {
+			if((proc->threads[i].flags & KTHREAD_FLAG_VALID) &&
+			   (proc->threads[i].tid == (uint32_t)tid)) {
+				return &proc->threads[i];
+			}
 		}
 		proc = proc->next;
 	} while(proc && proc != procs);
@@ -86,16 +107,16 @@ int add_user_task_arch(void *process, char *name, uint32_t stack_size, int pri, 
 	return add_task(process, name, stack_size, pri, 0, arch_params);
 }
 
-int proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel) {
-	if(arch_proc_create_stack(proc, stack_size, virt_stack_begin, is_kernel)) {
+int proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel) {
+	if(arch_proc_create_stack(thread, stack_size, virt_stack_begin, is_kernel)) {
 		return 1;
 	}
 
 	return 0;
 }
 
-int proc_create_kernel_stack(struct kproc *proc) {
-	if(arch_proc_create_kernel_stack(proc)) {
+int proc_create_kernel_stack(kthread_t *thread) {
+	if(arch_proc_create_kernel_stack(thread)) {
 		return 1;
 	}
 
@@ -147,9 +168,9 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 
 	proc->prio = pri;
 
-	arch_setup_task(proc, process, stack_size, kernel, arch_params);
+	arch_setup_task(&proc->threads[0], process, stack_size, kernel, arch_params);
 
-	proc_create_kernel_stack(proc);
+	proc_create_kernel_stack(&proc->threads[0]);
 
 	/* Set up message buffer */
 	proc->messages.head  = 0;
@@ -163,9 +184,13 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 	memset(proc->children, 0, sizeof(proc->children));
 
 #if defined(ARCH_X86)
-	kdebug(DEBUGSRC_PROC, "PID: %d EIP: %08X CR3: %08X ESP: %08X", proc->pid, proc->arch.eip, proc->arch.cr3, proc->arch.esp);
+	kdebug(DEBUGSRC_PROC, "PID: %d EIP: %08X CR3: %08X ESP: %08X", proc->pid, proc->threads[0].arch.eip, proc->threads[0].arch.cr3, proc->threads[0].arch.esp);
 #endif
 
+	proc->threads[0].flags  |= KTHREAD_FLAG_VALID | KTHREAD_FLAG_RANONCE;
+	proc->threads[0].process = proc;
+	proc->threads[0].tid     = proc->pid;
+	
 	mtask_insert_proc(proc);
 
 	unlock(&creat_task);
@@ -175,6 +200,8 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 
 
 int mtask_insert_proc(struct kproc *proc) {
+	proc->threads[0].flags |= KTHREAD_FLAG_VALID;
+
 	if(!procs) {
 		procs = proc;
 		proc->next = proc;
@@ -204,14 +231,17 @@ struct kproc *mtask_get_current_task(void) {
 void init_multitasking(void *process, char *name) {
 	kerror(ERR_BOOTINFO, "Initializing multitasking");
 
-	int pid = add_kernel_task(process, name, 0x10000, PRIO_KERNEL);
-	struct kproc *proc = proc_by_pid(pid);
+	int tid = add_kernel_task(process, name, 0x10000, PRIO_KERNEL);
+	kthread_t *thread = thread_by_tid(tid);
+	if(thread == NULL) {
+		kpanic("Could not find initial kernel thread!");
+	}
 
-	proc->type &= (uint32_t)~(TYPE_RANONCE); // Don't save registers right away for the first task
+	thread->flags &= (uint32_t)~(KTHREAD_FLAG_RANONCE); // Don't save registers right away for the first task
 
 	arch_multitasking_init();
 
-	curr_proc = proc;
+	curr_proc = thread->process;
 
 	kerror(ERR_BOOTINFO, "Multitasking enabled");
 }
@@ -224,9 +254,11 @@ __noreturn void exit(int code) {
 	// If parent processis waiting for child to exit, allow it to continue execution:
 	if(curr_proc->parent) {
 		struct kproc *parent = proc_by_pid(curr_proc->parent);
-		parent->blocked &= (uint32_t)~(BLOCK_WAIT);
+		/* @todo Unblock the thread waiting on exit */
+		parent->threads[0].blocked &= (uint32_t)~(BLOCK_WAIT);
 	}
 
+	/* @todo Migrate this to threads*/
 	curr_proc->type &= (uint32_t)~(TYPE_RUNNABLE);
 	curr_proc->type |= TYPE_ZOMBIE; // It isn't removed unless it's parent inquires on it
 	curr_proc->exitcode = code;

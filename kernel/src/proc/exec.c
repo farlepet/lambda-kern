@@ -69,7 +69,7 @@ int execve(const char *filename, const char **argv, const char **envp) {
 #if defined(ARCH_ARMV7)
 __unused
 #endif
-static void exec_copy_arguments(struct kproc *proc, const char **argv, const char **envp, char ***n_argv, char ***n_envp) {
+static void exec_copy_arguments(kthread_t *thread, const char **argv, const char **envp, char ***n_argv, char ***n_envp) {
     size_t   data_sz = 0;
     uint32_t argc = 0;
     uint32_t envc = 0;
@@ -101,7 +101,7 @@ static void exec_copy_arguments(struct kproc *proc, const char **argv, const cha
 
 #if defined(ARCH_X86)
     for(ptr_t p = (ptr_t)new_buffer & 0xFFFFF000; p < ((ptr_t)new_buffer + data_sz); p += 0x1000) {
-        pgdir_map_page((uint32_t *)proc->arch.cr3, (void *)p, (void *)p, 0x07);
+        pgdir_map_page((uint32_t *)thread->arch.cr3, (void *)p, (void *)p, 0x07);
     }
 #endif
 
@@ -127,7 +127,7 @@ static void exec_copy_arguments(struct kproc *proc, const char **argv, const cha
         kdebug(DEBUGSRC_EXEC, "  -> c_off (%d) != data_sz (%d)!", c_off, data_sz);
     }
 
-    (void)proc;
+    (void)thread;
 
     *n_argv = new_argv;
     *n_envp = new_envp;
@@ -163,7 +163,7 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     // Not sure whether or not these should carry over:
     memcpy(curr_proc->children, tmp_proc.children, sizeof(curr_proc->children));
 
-    curr_proc->entrypoint = (uint32_t)entryp;
+    curr_proc->threads[0].entrypoint = (uint32_t)entryp;
 
     curr_proc->cwd = tmp_proc.cwd;
     memcpy(curr_proc->open_files, tmp_proc.open_files, sizeof(curr_proc->open_files));
@@ -179,17 +179,17 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
 
 #if defined(ARCH_X86)
     // Copy architecture-specific bits:
-    curr_proc->arch.ring = tmp_proc.arch.ring;
-    curr_proc->arch.eip  = (uint32_t)entryp;
+    curr_proc->threads[0].arch.ring = tmp_proc.threads[0].arch.ring;
+    curr_proc->threads[0].arch.eip  = (uint32_t)entryp;
 
     // TODO: Free unused frames
     // TODO: Only keep required portions of pagedir
     //proc->cr3 = tmp_proc.cr3;
-    curr_proc->arch.cr3 = (uint32_t)arch_params->pgdir;
+    curr_proc->threads[0].arch.cr3 = (uint32_t)arch_params->pgdir;
 
     int kernel = (curr_proc->type & TYPE_KERNEL);
 
-    uint32_t stack_size = tmp_proc.arch.stack_beg - tmp_proc.arch.stack_end;
+    uint32_t stack_size = tmp_proc.threads[0].arch.stack_beg - tmp_proc.threads[0].arch.stack_end;
 
     uint32_t stack_begin, virt_stack_begin;
     if(!kernel) virt_stack_begin = 0xFF000000;
@@ -201,11 +201,11 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
         curr_proc->ebp  += (stack_size + 0x1000);
     #else // STACK_PROTECTOR
         stack_begin = ((uint32_t)kmalloc(stack_size));
-        curr_proc->arch.ebp   = virt_stack_begin;
-        curr_proc->arch.ebp  += stack_size;
+        curr_proc->threads[0].arch.ebp   = virt_stack_begin;
+        curr_proc->threads[0].arch.ebp  += stack_size;
     #endif // !STACK_PROTECTOR
 
-    curr_proc->arch.esp = curr_proc->arch.ebp;
+    curr_proc->threads[0].arch.esp = curr_proc->threads[0].arch.ebp;
 
     uint32_t i = 0;
     for(; i < stack_size; i+= 0x1000) {
@@ -214,13 +214,13 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
             //(void *)(procs[p].esp - i), (void *)(procs[p].esp - i), 0x03);
     }
 
-    curr_proc->arch.kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE) + PROC_KERN_STACK_SIZE;
+    curr_proc->threads[0].arch.kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE) + PROC_KERN_STACK_SIZE;
     for(i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
-        pgdir_map_page(arch_params->pgdir, (void *)(curr_proc->arch.kernel_stack - i), (void *)(curr_proc->arch.kernel_stack - i), 0x03);
+        pgdir_map_page(arch_params->pgdir, (void *)(curr_proc->threads[0].arch.kernel_stack - i), (void *)(curr_proc->threads[0].arch.kernel_stack - i), 0x03);
     }
 
-    curr_proc->arch.stack_end = curr_proc->arch.ebp - stack_size;
-    curr_proc->arch.stack_beg = curr_proc->arch.ebp;
+    curr_proc->threads[0].arch.stack_end = curr_proc->threads[0].arch.ebp - stack_size;
+    curr_proc->threads[0].arch.stack_beg = curr_proc->threads[0].arch.ebp;
 
     #ifdef STACK_PROTECTOR
     // TODO: Fix stack guarding:
@@ -247,17 +247,17 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     char **n_argv;
     char **n_envp;
 
-    exec_copy_arguments(curr_proc, argv, envp, &n_argv, &n_envp);
+    exec_copy_arguments(&curr_proc->threads[0], argv, envp, &n_argv, &n_envp);
     
     set_pagedir(arch_params->pgdir);
 
-    STACK_PUSH(curr_proc->arch.esp, n_envp);
-    STACK_PUSH(curr_proc->arch.esp, n_argv);
-    STACK_PUSH(curr_proc->arch.esp, argc);    
+    STACK_PUSH(curr_proc->threads[0].arch.esp, n_envp);
+    STACK_PUSH(curr_proc->threads[0].arch.esp, n_argv);
+    STACK_PUSH(curr_proc->threads[0].arch.esp, argc);    
 
     kdebug(DEBUGSRC_EXEC, "exec_replace_process_image(): Jumping into process");
 
-    enter_ring_newstack(curr_proc->arch.ring, entryp, (void *)curr_proc->arch.esp);
+    enter_ring_newstack(curr_proc->threads[0].arch.ring, entryp, (void *)curr_proc->threads[0].arch.esp);
 #else
     /* TODO */
     (void)arch_params;

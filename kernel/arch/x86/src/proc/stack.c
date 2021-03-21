@@ -5,7 +5,7 @@
 #include <err/error.h>
 #include <string.h>
 
-int proc_copy_stack(struct kproc *dest, const struct kproc *src) {
+int proc_copy_stack(kthread_t *dest, const kthread_t *src) {
     kdebug(DEBUGSRC_PROC, "proc_copy_stack %08X (%08X) -> %08X (%08X)",
         src->arch.stack_beg, (pgdir_get_page_entry((uint32_t *)src->arch.cr3, (void *)(src->arch.stack_beg - 4096)) & (~0xFFF)) + 4096,
         dest->arch.stack_beg, (pgdir_get_page_entry((uint32_t *)dest->arch.cr3, (void *)(dest->arch.stack_beg - 4096)) & (~0xFFF)) + 4096
@@ -33,7 +33,7 @@ int proc_copy_stack(struct kproc *dest, const struct kproc *src) {
     return 0;
 }
 
-int proc_copy_kernel_stack(struct kproc *dest, const struct kproc *src) {
+int proc_copy_kernel_stack(kthread_t *dest, const kthread_t *src) {
     kdebug(DEBUGSRC_PROC, "proc_copy_kernel_stack %08X (%08X) -> %08X (%08X)",
         src->arch.kernel_stack, (pgdir_get_page_entry((uint32_t *)src->arch.cr3, (void *)(src->arch.kernel_stack - 4096)) & (~0xFFF)) + 4096,
         dest->arch.kernel_stack, (pgdir_get_page_entry((uint32_t *)dest->arch.cr3, (void *)(dest->arch.kernel_stack - 4096)) & (~0xFFF)) + 4096

@@ -7,6 +7,7 @@
 #include <err/panic.h>
 #include <types.h>
 #include <video.h>
+#include <mm/mm.h>
 
 struct exception_handler {
 	/** Name of exception */
@@ -96,10 +97,13 @@ int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_reg
 
 
 	if(curr_proc) {
-		kerror(ERR_MEDERR, "  -> Caused by process %d [%s]", curr_proc->pid, curr_proc->name);
+		kthread_t *thread = &curr_proc->threads[curr_thread];
 
-		if(((cr2 < curr_proc->arch.stack_beg) && (cr2 > curr_proc->arch.stack_end - STACK_SIZE)) || // Remember, the x86 stack is upside-down
-		   ((cr2 < curr_proc->arch.stack_beg + STACK_SIZE) && (cr2 > curr_proc->arch.stack_end)))
+		kerror(ERR_MEDERR, "  -> Caused by process %d [%s]", curr_proc->pid, curr_proc->name);
+		kerror(ERR_MEDERR, "      -> Thread %d [%s]", thread->tid, thread->name);
+
+		if(((cr2 < thread->arch.stack_beg) && (cr2 > thread->arch.stack_end - STACK_SIZE)) || // Remember, the x86 stack is upside-down
+		   ((cr2 < thread->arch.stack_beg + STACK_SIZE) && (cr2 > thread->arch.stack_end)))
 		{
 			kerror(ERR_MEDERR, "       -> Caused a stack overflow and is being dealt with");
 		}
@@ -112,6 +116,9 @@ int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_reg
 			kerror(ERR_MEDERR, "      -> Stack contents:");
 			uint32_t *stack = (uint32_t *)regs->ebp;
 			for(int i = -4; i < 8; i++) {
+				if(!mm_check_addr(&stack[i])) {
+					break;
+				}
 				if(i == -4 || i == 0 || i == 4) {
 					kprintf("\n<%8X(%d)>: ", &stack[i], i);
 				}

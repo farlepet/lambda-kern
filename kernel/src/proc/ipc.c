@@ -28,7 +28,8 @@ int send_message(int dest, void *msg, int size) {
 
 	uint32_t err = (uint32_t)write_cbuff((uint8_t *)msg, size, buff);
 
-	proc->blocked &= (uint32_t)~BLOCK_MESSAGE;
+	/* @todo */
+	proc->threads[0].blocked &= (uint32_t)~BLOCK_MESSAGE;
 
 	unlock(&send_lock);
 
@@ -49,7 +50,7 @@ int recv_message(void *msg, int size) {
 
 	uint32_t err;
 	while((err = (uint32_t)read_cbuff((uint8_t *)msg, size, buff)) & (CBUFF_EMPTY | CBUFF_NENOD)) {
-		curr_proc->blocked |= BLOCK_MESSAGE;
+		curr_proc->threads[curr_thread].blocked |= BLOCK_MESSAGE;
 		busy_wait();
 	}
 
@@ -129,7 +130,8 @@ int ipc_send_message(struct ipc_message *msg) {
 	for(int i = 0; i < MAX_PROCESS_MESSAGES; i++) {
 		if(messages[i] == NULL) {
 			messages[i] = msg;
-			proc->blocked &= (uint32_t)~BLOCK_IPC_MESSAGE;
+			/* @todo */
+			proc->threads[0].blocked &= (uint32_t)~BLOCK_IPC_MESSAGE;
 			return 0;
 		}
 	}
@@ -184,7 +186,7 @@ int ipc_user_recv_message_blocking(struct ipc_message_user *umsg) {
 
 	int ret;
 	while((ret = ipc_user_recv_message(umsg)) == -1) {
-		curr_proc->blocked |= BLOCK_IPC_MESSAGE;
+		curr_proc->threads[curr_thread].blocked |= BLOCK_IPC_MESSAGE;
 		busy_wait();
 	}
 
@@ -196,7 +198,7 @@ int ipc_user_recv_message_pid_blocking(struct ipc_message_user *umsg, int pid) {
 
 	int ret;
 	while((ret = ipc_user_recv_message_pid(umsg, pid)) == -1) {
-		curr_proc->blocked |= BLOCK_IPC_MESSAGE;
+		curr_proc->threads[curr_thread].blocked |= BLOCK_IPC_MESSAGE;
 		busy_wait();
 	}
 
