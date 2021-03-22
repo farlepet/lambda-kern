@@ -29,9 +29,6 @@ struct ipc_message_user {
 extern struct ipc_message *ipc_messages[IPC_MAX_MESSAGES];
 
 
-int send_message(int dest, void *msg, int size);
-
-int recv_message(void *msg, int size);
 
 
 

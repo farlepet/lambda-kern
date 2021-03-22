@@ -12,63 +12,6 @@
 #  include <arch/mm/paging.h>
 #endif
 
-static lock_t send_lock = 0; //!< Make sure only 1 message is sent at a time
-
-int send_message(int dest, void *msg, int size) {
-	// We don't want to be cut off doing this
-	lock(&send_lock);
-	
-	// Get physical location of the message:
-	//msg = get_phys_page(msg);
-	//kerror(ERR_BOOTINFO, "Sending message of size %d from 0x%08X to %d", size, msg, dest);
-
-	kthread_t *thread = thread_by_tid(dest);
-
-	struct cbuff *buff = &(thread->messages);
-
-	uint32_t err = (uint32_t)write_cbuff((uint8_t *)msg, size, buff);
-
-	thread->blocked &= (uint32_t)~BLOCK_MESSAGE;
-
-	unlock(&send_lock);
-
-	if(err & 0xFF000000)
-	{
-		kerror(ERR_SMERR, "send_message: couldn't send message to tid %d due to error: 0x%X", dest, (err & 0xFF000000));
-		return (int)err;
-	}
-
-	thread->process->book.sent_msgs++;
-	thread->process->book.sent_bytes += (uint32_t)size;
-
-	return 0;
-}
-
-int recv_message(void *msg, int size) {
-	kthread_t *thread = &curr_proc->threads[curr_thread];
-
-	struct cbuff *buff = &(thread->messages);
-
-	uint32_t err;
-	while((err = (uint32_t)read_cbuff((uint8_t *)msg, size, buff)) & (CBUFF_EMPTY | CBUFF_NENOD)) {
-		thread->blocked |= BLOCK_MESSAGE;
-		busy_wait();
-	}
-
-	if(err & 0xFF000000) {
-		kerror(ERR_SMERR, "recv_message: couldn't receive message due to error");
-		return (int)err;
-	}
-
-	curr_proc->book.recvd_msgs++;
-	curr_proc->book.recvd_bytes += (uint32_t)size;
-
-	return 0;
-}
-
-/*********************
- * New IPC functions *
- *********************/
 
 struct ipc_message *ipc_messages[IPC_MAX_MESSAGES];
 

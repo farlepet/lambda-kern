@@ -8,8 +8,7 @@
 enum syscalls {
 /* Following are likely to be deprecated and replaced: */
     SYSCALL_GET_KTASK = 0,
-    SYSCALL_SEND_MSG  = 1,
-    SYSCALL_RECV_MSG  = 2,
+    
     SYSCALL_EXIT      = 3,
 /* Following are likely to be deprecated and replaced: */
     SYSCALL_IPC_SEND              = 4,

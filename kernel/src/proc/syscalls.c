@@ -25,8 +25,7 @@ typedef struct {
 
 syscall_desc_t syscalls[] = {
 	[SYSCALL_GET_KTASK] = { (func0_t)get_ktask,    2, 0 },
-	[SYSCALL_SEND_MSG]  = { (func0_t)send_message, 3, 0 },
-	[SYSCALL_RECV_MSG]  = { (func0_t)recv_message, 2, 0 },
+	
 	[SYSCALL_EXIT]      = { (func0_t)exit,         1, 0 },
 	
 	[SYSCALL_IPC_SEND]              = { (func0_t)ipc_user_create_and_send_message,   3, 0 },
