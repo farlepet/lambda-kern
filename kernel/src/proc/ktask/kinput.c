@@ -89,28 +89,40 @@ __noreturn void kinput_task() {
 
 	for(;;) {
 		struct input_event iev;
-		recv_message(&iev, sizeof(struct input_event));
-		if(iev.type == EVENT_KEYPRESS &&
-		   iev.data == 0x01) { // ESC -> DEBUG for now
+		size_t i = 0;
+		/* @todo Refactor input device driver system, add read block ability to cbuffs */
+		for(; i < MAX_INPUT_DEVICES; i++) {
+			if(idevs[i].valid    &&
+			   idevs[i].iev_buff &&
+			   !(read_cbuff((uint8_t *)&iev, sizeof(struct input_event), idevs[i].iev_buff) & CBUFF_ERRMSK)) {
+				break;
+			}
+		}
+		if(i < MAX_INPUT_DEVICES) {
+			if(iev.type == EVENT_KEYPRESS &&
+			   iev.data == 0x01) { // ESC -> DEBUG for now
 				if(ktask_pids[KBUG_TASK_SLOT]) {
 					struct kbug_type_msg ktm;
 					ktm.type = KBUG_IDEBUG;
 					ipc_user_create_and_send_message(ktask_pids[KBUG_TASK_SLOT], &ktm, sizeof(struct kbug_type_msg));
 				}
-		} else {
-			// TODO: Send char to some other process
-			if(to_kterm) {
-				if(ktask_pids[KTERM_TASK_SLOT] != 0) {
-					// Add kterm PID, and if it was added, clear to_kterm
-					to_kterm = (add_subscriber(ktask_pids[KTERM_TASK_SLOT]) < 0);
+			} else {
+				// TODO: Send char to some other process
+				if(to_kterm) {
+					if(ktask_pids[KTERM_TASK_SLOT] != 0) {
+						// Add kterm PID, and if it was added, clear to_kterm
+						to_kterm = (add_subscriber(ktask_pids[KTERM_TASK_SLOT]) < 0);
+					}
+				}
+
+				if(iev.type == EVENT_KEYPRESS) {
+					send_input_char(keycode_to_char(&iev));
+				} else {
+					send_input_char(iev.data);
 				}
 			}
-
-			if(iev.type == EVENT_KEYPRESS) {
-				send_input_char(keycode_to_char(&iev));
-			} else {
-				send_input_char(iev.data);
-			}
+		} else {
+			delay(10);
 		}
 	}
 }

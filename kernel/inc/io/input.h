@@ -3,6 +3,8 @@
 
 #include <types.h>
 
+#include <mm/cbuff.h>
+
 #define MAX_INPUT_DEVICES 64 //!< Maximum number of registered input devices
 
 union input_id
@@ -49,13 +51,11 @@ struct input_event
 
 struct input_dev
 {
-	union input_id id;
-
-	uint32_t state;         //!< State of the device, different for every device type
-
-	char name[64];     //!< When mounted, it will be at /dev/name
-
-	uint8_t  valid;         //!< Whether or not this slot is being used
+	union input_id id;       /** Device ID */
+	uint32_t       state;    /** State of the device, different for every device type */
+	char           name[64]; /** When mounted, it will be at /dev/name */
+	uint8_t        valid;    /** Whether or not this slot is being used */
+	cbuff_t       *iev_buff; /** Input event buffer */
 };
 
 extern struct input_dev idevs[MAX_INPUT_DEVICES];
