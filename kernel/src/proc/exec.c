@@ -172,7 +172,7 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     curr_proc->symbols = symbols;
     curr_proc->symStrTab = symbol_string_table;
 
-    curr_proc->prio = tmp_proc.prio;
+    curr_proc->threads[0].prio = tmp_proc.threads[0].prio;
 
     curr_proc->next = tmp_proc.next;
     curr_proc->prev = tmp_proc.prev;

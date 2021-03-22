@@ -135,7 +135,7 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
     if(kernel) child->type |= TYPE_KERNEL;
     cthread->flags |= KTHREAD_FLAG_RANONCE;
 
-    child->prio = parent->prio;
+    cthread->prio = pthread->prio;
 
 #if defined(ARCH_X86)
     child->arch.ring  = parent->arch.ring;
@@ -193,8 +193,8 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
 #endif
 
     // Set up message buffer
-    child->messages.size  = MSG_BUFF_SIZE;
-    child->messages.buff  = child->msg_buff;
+    cthread->messages.size  = MSG_BUFF_SIZE;
+    cthread->messages.buff  = cthread->msg_buff;
 
     // Copy open file descriptors:
     memcpy(child->open_files, parent->open_files, sizeof(child->open_files));

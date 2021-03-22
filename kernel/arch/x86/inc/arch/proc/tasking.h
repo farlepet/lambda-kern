@@ -61,7 +61,9 @@ int arch_proc_create_kernel_stack(kthread_t *thread);
 /**
  * \brief Architecture-specific process creation routine
  */
-int arch_setup_task(kthread_t *thread, void *entrypoint, uint32_t stack_size, int kernel, arch_task_params_t *arch_params);
+int arch_setup_task(kthread_t *thread, void *entrypoint, uint32_t stack_size, arch_task_params_t *arch_params);
+
+int arch_setup_thread(kthread_t *thread, void *entrypoint, uint32_t stack_size, void *data);
 
 /**
  * \brief Architecture-specific multitasking initialization.

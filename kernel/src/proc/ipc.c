@@ -22,35 +22,36 @@ int send_message(int dest, void *msg, int size) {
 	//msg = get_phys_page(msg);
 	//kerror(ERR_BOOTINFO, "Sending message of size %d from 0x%08X to %d", size, msg, dest);
 
-	struct kproc *proc = proc_by_pid(dest);
+	kthread_t *thread = thread_by_tid(dest);
 
-	struct cbuff *buff = &(proc->messages);
+	struct cbuff *buff = &(thread->messages);
 
 	uint32_t err = (uint32_t)write_cbuff((uint8_t *)msg, size, buff);
 
-	/* @todo */
-	proc->threads[0].blocked &= (uint32_t)~BLOCK_MESSAGE;
+	thread->blocked &= (uint32_t)~BLOCK_MESSAGE;
 
 	unlock(&send_lock);
 
 	if(err & 0xFF000000)
 	{
-		kerror(ERR_SMERR, "send_message: couldn't send message to pid %d due to error: 0x%X", dest, (err & 0xFF000000));
+		kerror(ERR_SMERR, "send_message: couldn't send message to tid %d due to error: 0x%X", dest, (err & 0xFF000000));
 		return (int)err;
 	}
 
-	proc->book.sent_msgs++;
-	proc->book.sent_bytes += (uint32_t)size;
+	thread->process->book.sent_msgs++;
+	thread->process->book.sent_bytes += (uint32_t)size;
 
 	return 0;
 }
 
 int recv_message(void *msg, int size) {
-	struct cbuff *buff = &(curr_proc->messages);
+	kthread_t *thread = &curr_proc->threads[curr_thread];
+
+	struct cbuff *buff = &(thread->messages);
 
 	uint32_t err;
 	while((err = (uint32_t)read_cbuff((uint8_t *)msg, size, buff)) & (CBUFF_EMPTY | CBUFF_NENOD)) {
-		curr_proc->threads[curr_thread].blocked |= BLOCK_MESSAGE;
+		thread->blocked |= BLOCK_MESSAGE;
 		busy_wait();
 	}
 
@@ -123,15 +124,15 @@ int ipc_copy_message_data(struct ipc_message *msg, void *dest) {
 int ipc_send_message(struct ipc_message *msg) {
 	if(msg == NULL) return -1;
 
-	struct kproc *proc = proc_by_pid(msg->dest_pid);
+	kthread_t *thread = thread_by_tid(msg->dest_pid);
 
-	struct ipc_message **messages = proc->ipc_messages;
+	struct ipc_message **messages = thread->ipc_messages;
 
 	for(int i = 0; i < MAX_PROCESS_MESSAGES; i++) {
 		if(messages[i] == NULL) {
 			messages[i] = msg;
 			/* @todo */
-			proc->threads[0].blocked &= (uint32_t)~BLOCK_IPC_MESSAGE;
+			thread->blocked &= (uint32_t)~BLOCK_IPC_MESSAGE;
 			return 0;
 		}
 	}
@@ -148,7 +149,7 @@ int ipc_send_message(struct ipc_message *msg) {
 int ipc_user_recv_message(struct ipc_message_user *umsg) {
 	if(umsg == NULL) return -2;
 
-	struct ipc_message **messages = curr_proc->ipc_messages;
+	struct ipc_message **messages = curr_proc->threads[curr_thread].ipc_messages;
 
 	for(int i = 0; i < MAX_PROCESS_MESSAGES; i++) {
 		if(messages[i] != NULL) {
@@ -165,7 +166,7 @@ int ipc_user_recv_message(struct ipc_message_user *umsg) {
 int ipc_user_recv_message_pid(struct ipc_message_user *umsg, int pid) {
 	if(umsg == NULL) return -2;
 
-	struct ipc_message **messages = curr_proc->ipc_messages;
+	struct ipc_message **messages = curr_proc->threads[curr_thread].ipc_messages;
 
 	for(int i = 0; i < MAX_PROCESS_MESSAGES; i++) {
 		if(messages[i] != NULL) {
@@ -208,7 +209,7 @@ int ipc_user_recv_message_pid_blocking(struct ipc_message_user *umsg, int pid) {
 int ipc_user_copy_message(uint32_t message_id, void *dest) {
 	if(dest == NULL) return -2;
 
-	struct ipc_message **messages = curr_proc->ipc_messages;
+	struct ipc_message **messages = curr_proc->threads[curr_thread].ipc_messages;
 
 	for(int i = 0; i < MAX_PROCESS_MESSAGES; i++) {
 		if(messages[i] != NULL) {
@@ -229,10 +230,10 @@ int ipc_user_copy_message(uint32_t message_id, void *dest) {
 int ipc_user_create_and_send_message(int dest_pid, void *message, uint32_t length) {
 	struct ipc_message *msg;
 
-	struct kproc *proc = proc_by_pid(dest_pid);
+	kthread_t *thread = thread_by_tid(dest_pid);
 
 	for(int i = 0; i < MAX_BLOCKED_PIDS; i++) {
-		if(proc->blocked_ipc_pids[i] == curr_proc->pid) {
+		if(thread->blocked_ipc_pids[i] == curr_proc->pid) {
 			return -3; // Blocked by receiving process
 		}
 	}
@@ -244,7 +245,7 @@ int ipc_user_create_and_send_message(int dest_pid, void *message, uint32_t lengt
 }
 
 int ipc_user_delete_message(uint32_t message_id) {
-	struct ipc_message **messages = curr_proc->ipc_messages;
+	struct ipc_message **messages = curr_proc->threads[curr_thread].ipc_messages;
 
 	for(int i = 0; i < MAX_PROCESS_MESSAGES; i++) {
 		if(messages[i] != NULL) {
@@ -262,8 +263,10 @@ int ipc_user_delete_message(uint32_t message_id) {
 }
 
 int ipc_user_block_pid(int pid) {
-	struct ipc_message **messages         = curr_proc->ipc_messages;
-	int                 *blocked_ipc_pids = curr_proc->blocked_ipc_pids;
+	kthread_t *thread = &curr_proc->threads[curr_thread];
+	
+	struct ipc_message **messages         = thread->ipc_messages;
+	int                 *blocked_ipc_pids = thread->blocked_ipc_pids;
 
 	for(int i = 0; i < MAX_BLOCKED_PIDS; i++) {
 		if(blocked_ipc_pids[i] == pid) {

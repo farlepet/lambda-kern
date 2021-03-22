@@ -10,7 +10,6 @@
 #include <mm/alloc.h>
 #include <string.h>
 #include <mm/mm.h>
-#include <video.h>
 #include <fs/fs.h>
 
 #if defined(ARCH_X86)
@@ -169,18 +168,16 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 
 	if(kernel) proc->type |= TYPE_KERNEL;
 
-	proc->prio = pri;
+	proc->threads[0].prio = pri;
 
-	arch_setup_task(&proc->threads[0], process, stack_size, kernel, arch_params);
-
-	proc_create_kernel_stack(&proc->threads[0]);
+	arch_setup_task(&proc->threads[0], process, stack_size, arch_params);
 
 	/* Set up message buffer */
-	proc->messages.head  = 0;
-	proc->messages.tail  = 0;
-	proc->messages.count = 0;
-	proc->messages.size  = MSG_BUFF_SIZE;
-	proc->messages.buff  = proc->msg_buff;
+	proc->threads[0].messages.head  = 0;
+	proc->threads[0].messages.tail  = 0;
+	proc->threads[0].messages.count = 0;
+	proc->threads[0].messages.size  = MSG_BUFF_SIZE;
+	proc->threads[0].messages.buff  = proc->threads[0].msg_buff;
 
 	proc->cwd = fs_root;
 

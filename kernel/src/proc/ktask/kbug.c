@@ -14,8 +14,6 @@ static void idebug();
  * Kernel debugger task
  */
 __noreturn void kbug_task() {
-	ktask_pids[KBUG_TASK_SLOT] = curr_proc->pid;
-
 	for(;;) {
 		/*struct kbug_type_msg ktm;
 		recv_message(&ktm, sizeof(struct kbug_type_msg));*/

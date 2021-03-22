@@ -101,6 +101,7 @@ int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_reg
 
 		kerror(ERR_MEDERR, "  -> Caused by process %d [%s]", curr_proc->pid, curr_proc->name);
 		kerror(ERR_MEDERR, "      -> Thread %d [%s]", thread->tid, thread->name);
+		kerror(ERR_MEDERR, "      -> Entrypoint: %08X", thread->entrypoint);
 
 		if(((cr2 < thread->arch.stack_beg) && (cr2 > thread->arch.stack_end - STACK_SIZE)) || // Remember, the x86 stack is upside-down
 		   ((cr2 < thread->arch.stack_beg + STACK_SIZE) && (cr2 > thread->arch.stack_end)))
@@ -120,10 +121,14 @@ int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_reg
 					break;
 				}
 				if(i == -4 || i == 0 || i == 4) {
-					kprintf("\n<%8X(%d)>: ", &stack[i], i);
+					if(i != -4) {
+						kput('\n');
+					}
+					kprintf("<%8X(%d)>: ", &stack[i], i);
 				}
 				kprintf("[%08X] ", stack[i]);
 			}
+			kput('\n');
 		}
 
 		/* Halt */

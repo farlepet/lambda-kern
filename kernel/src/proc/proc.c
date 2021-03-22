@@ -16,7 +16,7 @@ void kproc_to_uproc(struct kproc *kp, struct uproc *up)
     up->type     = kp->type;
     //up->blocked  = kp->blocked;
     up->exitcode = kp->exitcode;
-    up->prio     = kp->prio;
+    //up->prio     = kp->prio;
 
 	memcpy(up->children, kp->children, MAX_CHILDREN * sizeof(int));
 

@@ -80,17 +80,21 @@ void proc_jump_to_ring(void) {
 	}
 }
 
-int arch_setup_task(kthread_t *thread, void *entrypoint, uint32_t stack_size, int kernel, arch_task_params_t *arch_params) {
-	/* @todo Process arch settings might make more sense elsewhere. */
-	thread->process->arch.ring  = arch_params->ring;
+int arch_setup_thread(kthread_t *thread, void *entrypoint, uint32_t stack_size, void *data) {
+	/* @todo */
+	(void)data;
+
+	int kernel = (thread->process->type & TYPE_KERNEL);
+	
 	thread->arch.eip   = (uint32_t)entrypoint;
-	thread->entrypoint = (uint32_t)entrypoint;
-	thread->process->arch.cr3   = (uint32_t)arch_params->pgdir;
 
 	uint32_t /*stack_begin, */virt_stack_begin;
 	if(!kernel) virt_stack_begin = 0xFF000000;
 	else        virt_stack_begin = 0x7F000000;
+	/* @todo Find better scheme to separate thread stacks. */
+	virt_stack_begin -= (((ptr_t)thread - (ptr_t)thread->process->threads) / sizeof(kthread_t)) * 0x10000;
 	proc_create_stack(thread, stack_size, virt_stack_begin, kernel);
+	proc_create_kernel_stack(thread);
 
 
 	thread->arch.esp = thread->arch.ebp = virt_stack_begin + stack_size;
@@ -98,10 +102,20 @@ int arch_setup_task(kthread_t *thread, void *entrypoint, uint32_t stack_size, in
 	if(kernel == 0) {
 		thread->arch.eip = (uint32_t)proc_jump_to_ring;
 	}
+    
+	kdebug(DEBUGSRC_PROC, "arch_setup_thread EIP: %08X CR3: %08X ESP: %08X", thread->arch.eip, thread->process->arch.cr3, thread->arch.esp);
 
     return 0;
 }
 
+int arch_setup_task(kthread_t *thread, void *entrypoint, uint32_t stack_size, arch_task_params_t *arch_params) {
+	thread->process->arch.ring  = arch_params->ring;
+	thread->process->arch.cr3   = (uint32_t)arch_params->pgdir;
+
+	arch_setup_thread(thread, entrypoint, stack_size, NULL);
+
+    return 0;
+}
 
 
 

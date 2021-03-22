@@ -57,8 +57,8 @@ static char keycode_to_char(struct input_event *iev)
 static void send_input_char(char c) {
 	for(int i = 0; i < KINPUT_MAX_SUBS; i++) {
 		if(input_subs[i]) {
-			if(!proc_by_pid(input_subs[i])) {
-				// Remove dead PID:
+			if(!thread_by_tid(input_subs[i])) {
+				// Remove dead TID:
 				input_subs[i] = 0;
 			} else {
 				ipc_user_create_and_send_message(input_subs[i], &c, sizeof(char));
@@ -81,8 +81,6 @@ static int add_subscriber(int pid) {
 static int to_kterm = 1; //!< When 1, send all serial input to kterm
 
 __noreturn void kinput_task() {
-	ktask_pids[KINPUT_TASK_SLOT] = curr_proc->pid;
-
 	if(strlen((const char *)boot_options.init_executable)) {
 		/* Make parent of init task a subscriber */
 		add_subscriber(1);

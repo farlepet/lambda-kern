@@ -79,6 +79,7 @@ struct kthread {
 #define KTHREAD_FLAG_VALID   0x80000000 /** Thread contents is valid */
 #define KTHREAD_FLAG_RANONCE 0x00000001 /** Thread has ran at least once */
 	uint32_t          flags;      /** Thread flags */
+	int               prio;       /** Thread priority */
 
 	volatile uint32_t blocked;    /** Contains flags telling whether or not this thread is blocked, and by what */
 
@@ -86,6 +87,16 @@ struct kthread {
 
 	kthread_arch_t    arch;       /** Architecture-specific thread data */
 	uint32_t          entrypoint; /** Program start */
+	
+	/* Old IPC method. TODO: remove. */
+	struct cbuff  messages;           //!< Message buffer structure
+	uint8_t       msg_buff[MSG_BUFF_SIZE]; //!< Actual buffer
+	
+	/* TODO: Might be best to simply deprecate this, similar could be done
+	 * using pipes, or other standard IPC techniques. Perhaps implement more
+	 * standard POSIX message queues. */
+	struct ipc_message *ipc_messages[MAX_PROCESS_MESSAGES]; //!< IPC message pointers
+	int                 blocked_ipc_pids[MAX_BLOCKED_PIDS]; //!< PIDs blocked from sending messages to this process
 };
 
 /* TODO: Convert some static-size arrays in kproc to dynamically allocated memory. */
@@ -109,10 +120,6 @@ struct kproc { //!< Structure of a process as seen by the kernel
 	/* @todo If kthread_t gets larger, allocate threads dynamically instead. */
 	kthread_t     threads[MAX_THREADS];
 
-	/* Old IPC method. TODO: remove. */
-	struct cbuff  messages;           //!< Message buffer structure
-	uint8_t       msg_buff[MSG_BUFF_SIZE]; //!< Actual buffer
-
 	struct kfile *cwd; //!< Current working directory
 
 	struct kfile *open_files[MAX_OPEN_FILES]; //!< Open file descriptors
@@ -123,15 +130,7 @@ struct kproc { //!< Structure of a process as seen by the kernel
 
 	proc_elf_data_t *elf_data; //!< Data specific for ELF executables
 
-	/* TODO: Might be best to simply deprecate this, similar could be done
-	 * using pipes, or other standard IPC techniques. Perhaps implement more
-	 * standard POSIX message queues. */
-	struct ipc_message *ipc_messages[MAX_PROCESS_MESSAGES]; //!< IPC message pointers
-	int                 blocked_ipc_pids[MAX_BLOCKED_PIDS]; //!< PIDs blocked from sending messages to this process
-
 	int           exitcode;  //!< Exit code
-
-	int           prio;      //!< Task priority
 
 	struct        proc_book book; //!< Bookkeeping stuff
 
