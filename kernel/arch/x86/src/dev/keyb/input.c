@@ -6,7 +6,6 @@
 #include <intr/intr.h>
 #include <err/error.h>
 #include <io/input.h>
-#include <proc/ipc.h>
 #include <mm/cbuff.h>
 #include <video.h>
 
@@ -62,16 +61,13 @@ void keyb_handle(uint32_t keycode)
 {
 	// Doesn't do a whole lot... YET...
 	process_code(keycode);
-	if(ktask_pids[KINPUT_TASK_SLOT]) // Only send the message if the input task has started
-	{
-		struct input_event iev;
-		iev.origin.s.driver = IDRIVER_KEYBOARD;
-		iev.origin.s.device = keyb_dev->id.s.device;
-		iev.type = EVENT_KEYPRESS;
-		iev.data = keycode;
-		write_cbuff((uint8_t *)&iev, sizeof(struct input_event), keyb_dev->iev_buff);
-		//send_message(ktask_pids[KINPUT_TASK_SLOT], &iev, sizeof(struct input_event));
-	}
+	
+	struct input_event iev;
+	iev.origin.s.driver = IDRIVER_KEYBOARD;
+	iev.origin.s.device = keyb_dev->id.s.device;
+	iev.type = EVENT_KEYPRESS;
+	iev.data = keycode;
+	write_cbuff((uint8_t *)&iev, sizeof(struct input_event), keyb_dev->iev_buff);
 }
 
 /**

@@ -44,14 +44,6 @@ int kthread_create(void *entrypoint, void *data, const char *name, size_t stack_
     thread->process    = curr_proc;
     thread->prio       = prio;
 	
-    /* Set up message buffer */
-	thread->messages.head  = 0;
-	thread->messages.tail  = 0;
-	thread->messages.count = 0;
-	thread->messages.size  = MSG_BUFF_SIZE;
-	thread->messages.buff  = thread->msg_buff;
-
-
     kdebug(DEBUGSRC_PROC, "kthread_create [%s] @ %08X | IDX: %d TID: %d", name, entrypoint, slot, thread->tid);
     
     arch_setup_thread(thread, entrypoint, stack_size, data);

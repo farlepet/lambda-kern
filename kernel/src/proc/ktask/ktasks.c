@@ -5,7 +5,6 @@
 #include <err/error.h>
 #include <err/panic.h>
 #include <time/time.h>
-#include <proc/ipc.h>
 #include <video.h>
 #include <string.h>
 
@@ -39,11 +38,6 @@ void init_ktasks() {
 		kpanic("init_ktask: Could not create kernel idle task");
 	}
 
-	kerror(ERR_BOOTINFO, "Starting kernel video thread");
-	if((ktask_pids[KVID_TASK_SLOT] = kthread_create((void *)&kvid_task, NULL, "kvid", 0x1000, PRIO_DRIVER)) < 0) {
-		kpanic("init_ktask: Could not create kernel video task");
-	}
-
 	if(!strlen((const char *)boot_options.init_executable)) {
 		kerror(ERR_BOOTINFO, "Starting kernel terminal thread");
 		if((ktask_pids[KTERM_TASK_SLOT] = kthread_create((void *)&kterm_task, NULL, "kterm", 0x1000, PRIO_DRIVER)) < 0) {
@@ -51,9 +45,9 @@ void init_ktasks() {
 		}
 	}
 
-#ifdef DEBUGGER
+#if DEBUGGER
 	kerror(ERR_BOOTINFO, "Starting kernel debug thread");
-	if((ktask_pids[KVID_TASK_SLOT] = kthread_create((void *)&kbug_task, NULL, "kbug", 0x1000, PRIO_DRIVER)) < 0) {
+	if((ktask_pids[KBUG_TASK_SLOT] = kthread_create((void *)&kbug_task, NULL, "kbug", 0x1000, PRIO_DRIVER)) < 0) {
 		kpanic("init_ktask: Could not create kernel debug task");
 	}
 #endif // DEBUGGER

@@ -7,7 +7,6 @@
 #include <proc/ktasks.h>
 #include <err/error.h>
 #include <intr/intr.h>
-#include <proc/ipc.h>
 #include <mm/cbuff.h>
 #include <io/input.h>
 #include <types.h>
@@ -68,16 +67,12 @@ void serial_init(uint16_t port)
 
 static void handle_input(char ch)
 {
-	if(ktask_pids[KINPUT_TASK_SLOT])
-	{
-		struct input_event iev;
-		iev.origin.s.driver = IDRIVER_SERIAL;
-		iev.origin.s.device = serial_dev->id.s.device;
-		iev.type = EVENT_CHAR;
-		iev.data = ch;
-		write_cbuff((uint8_t *)&iev, sizeof(struct input_event), serial_dev->iev_buff);
-		//send_message(ktask_pids[KINPUT_TASK_SLOT], &iev, sizeof(struct input_event));
-	}
+	struct input_event iev;
+	iev.origin.s.driver = IDRIVER_SERIAL;
+	iev.origin.s.device = serial_dev->id.s.device;
+	iev.type = EVENT_CHAR;
+	iev.data = ch;
+	write_cbuff((uint8_t *)&iev, sizeof(struct input_event), serial_dev->iev_buff);
 }
 
 // TODO: Add support for all 4 serial ports

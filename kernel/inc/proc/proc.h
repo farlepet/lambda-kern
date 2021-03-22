@@ -88,10 +88,6 @@ struct kthread {
 	kthread_arch_t    arch;       /** Architecture-specific thread data */
 	uint32_t          entrypoint; /** Program start */
 	
-	/* Old IPC method. TODO: remove. */
-	struct cbuff  messages;           //!< Message buffer structure
-	uint8_t       msg_buff[MSG_BUFF_SIZE]; //!< Actual buffer
-	
 	/* TODO: Might be best to simply deprecate this, similar could be done
 	 * using pipes, or other standard IPC techniques. Perhaps implement more
 	 * standard POSIX message queues. */

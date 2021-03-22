@@ -172,13 +172,6 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 
 	arch_setup_task(&proc->threads[0], process, stack_size, arch_params);
 
-	/* Set up message buffer */
-	proc->threads[0].messages.head  = 0;
-	proc->threads[0].messages.tail  = 0;
-	proc->threads[0].messages.count = 0;
-	proc->threads[0].messages.size  = MSG_BUFF_SIZE;
-	proc->threads[0].messages.buff  = proc->threads[0].msg_buff;
-
 	proc->cwd = fs_root;
 
 	memset(proc->children, 0, sizeof(proc->children));

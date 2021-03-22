@@ -192,10 +192,6 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
     proc_copy_data(child, parent);
 #endif
 
-    // Set up message buffer
-    cthread->messages.size  = MSG_BUFF_SIZE;
-    cthread->messages.buff  = cthread->msg_buff;
-
     // Copy open file descriptors:
     memcpy(child->open_files, parent->open_files, sizeof(child->open_files));
     memcpy(child->file_position, parent->file_position, sizeof(child->file_position));
