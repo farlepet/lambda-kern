@@ -136,6 +136,10 @@ void serial_write(uint16_t port, char a)
 
 
 static void chardev_putc(void *data, int c) {
+	/* TODO: Make this configurable */
+	if(c == '\n') {
+		serial_write((uint16_t)(uint32_t)data, '\r');
+	}
 	serial_write((uint16_t)(uint32_t)data, (char)c);
 }
 
