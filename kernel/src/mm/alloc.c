@@ -64,6 +64,9 @@ static void rm_alloc(int block, int idx) {
 				   (!allocs[j][i].used)) {
 					kdebug(DEBUGSRC_MM, "  -> Merging free'd block (%08X,%d) with (%08X,%d)", addr, size, allocs[j][i].addr, allocs[j][i].size);
 					allocs[j][i].size += size;
+					if(allocs[j][i].addr > addr) {
+						allocs[j][i].addr = addr;
+					}
 					allocs[block][idx].valid = 0;
 					return;
 				}
@@ -98,7 +101,11 @@ static uint32_t _find_hole(size_t sz, size_t align)
 		}
 		for(i = 0; i < ALLOC_BLOCK; i++) {
 			if(allocs[j][i].valid && !allocs[j][i].used) { // Is it a valid and unused slot?
-				if((allocs[j][i].size - (align - (allocs[j][i].addr % align))) > sz) { // Is it big enough, and allow the required alignment?
+				uint32_t off = align - (allocs[j][i].addr % align);
+				if(off == align) {
+					off = 0;
+				}
+				if((allocs[j][i].size - off) >= sz) { // Is it big enough, and allow the required alignment?
 					if(allocs[j][i].size < size) { // Is it smaller than the previously found block (if any)?
 						idx = (uint16_t)i | j << 16;
 						size = allocs[j][i].size;
@@ -179,6 +186,7 @@ void *kamalloc(size_t sz, size_t align) {
 	int block = idx >> 16;
 	int index;
 
+	/* TODO: This should be checking all free slots, not just in the returned block */
 	if(_empty_slots(block) == 4) {
 		_alloc_new_block();
 	}
