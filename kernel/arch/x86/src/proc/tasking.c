@@ -9,6 +9,7 @@
 #include <proc/proc.h>
 #include <intr/intr.h>
 #include <err/error.h>
+#include <err/panic.h>
 #include <mm/alloc.h>
 #include <types.h>
 
@@ -29,8 +30,7 @@ int arch_proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_
 #endif // !STACK_PROTECTOR*/
 
 	// TODO: Use better method, so as not to waste 4K of memory for every process.
-    uintptr_t stack_begin = (uintptr_t)kmalloc(stack_size + 4096);
-	stack_begin = (stack_begin + 4096) & 0xFFFFF000;
+    uintptr_t stack_begin = (uintptr_t)kmamalloc(stack_size, 4096);
 
 	kdebug(DEBUGSRC_PROC, "proc_create_stack [size: %d] [end: %08X, beg: %08X]",
 		stack_size, stack_begin, stack_begin + stack_size
@@ -56,8 +56,7 @@ int arch_proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_
 }
 
 int arch_proc_create_kernel_stack(kthread_t *thread) {
-	thread->arch.kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE + 4096);
-	thread->arch.kernel_stack = (thread->arch.kernel_stack + 4096) & 0xFFFFF000;
+	thread->arch.kernel_stack = (uint32_t)kmamalloc(PROC_KERN_STACK_SIZE, 4096);
 
 	kdebug(DEBUGSRC_PROC, "arch_proc_create_kernel_stack [size: %d] [end: %08X, beg: %08X]",
 		PROC_KERN_STACK_SIZE, thread->arch.kernel_stack, thread->arch.kernel_stack + PROC_KERN_STACK_SIZE
@@ -148,7 +147,10 @@ __hot void do_task_switch(void) {
 	sched_next_process();
 
 	thread = &curr_proc->threads[curr_thread];
-	
+
+	if (!thread->arch.kernel_stack) {	
+		kpanic("do_task_switch: No kernel stack set for thread!");
+	}
 	tss_set_kern_stack(thread->arch.kernel_stack);
 
 	esp = thread->arch.esp;

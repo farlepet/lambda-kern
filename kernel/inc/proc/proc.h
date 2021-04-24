@@ -6,7 +6,7 @@ struct kproc;
 struct uproc;
 
 typedef struct kthread kthread_t;
-typedef struct kpric   kproc_t;
+typedef struct kproc   kproc_t;
 
 #define MAX_PROCESSES        16 //!< Maximum amount of running processes
 #define MAX_CHILDREN         8  //!< Maximum number of children a parent can handle

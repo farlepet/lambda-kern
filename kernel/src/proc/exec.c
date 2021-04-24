@@ -16,7 +16,7 @@
 #endif
 
 int execve(const char *filename, const char **argv, const char **envp) {
-    kerror(ERR_BOOTINFO, "execve: %s (%08X, %08X)", filename, argv, envp);
+    kdebug(DEBUGSRC_EXEC, "execve: %s (%08X, %08X)", filename, argv, envp);
     if(!mm_check_addr(argv)) {
         kerror(ERR_BOOTINFO, "  -> ARGV invalid address?");
     }
@@ -25,11 +25,11 @@ int execve(const char *filename, const char **argv, const char **envp) {
     }
 
 #if defined(ARCH_X86)
-    kerror(ERR_BOOTINFO, "execve pgdir: %08X", get_pagedir());
+    kdebug(DEBUGSRC_EXEC, "execve pgdir: %08X", get_pagedir());
 #endif
 
     for(int i = 0; argv[i]; i++) {
-        kerror(ERR_BOOTINFO, "execve argv[%d]: %08X '%s'", i, argv[i], argv[i]);
+        kdebug(DEBUGSRC_EXEC, "execve argv[%d]: %08X '%s'", i, argv[i], argv[i]);
     }
 
     int _exec = proc_fs_open(filename, OFLAGS_READ); //NOTE: The flag here may be wrong
@@ -95,12 +95,12 @@ static void exec_copy_arguments(kthread_t *thread, const char **argv, const char
     /* TODO: Find a better way to map some memory for this process, rather than potentially
      * re-mapping kernel memory to allow user access */
 
-    char *new_buffer = kmalloc(data_sz);
+    char *new_buffer = kmamalloc(data_sz, 0x1000);
     char **new_argv  = (char **)new_buffer;
     char **new_envp  = NULL;
 
 #if defined(ARCH_X86)
-    for(ptr_t p = (ptr_t)new_buffer & 0xFFFFF000; p < ((ptr_t)new_buffer + data_sz); p += 0x1000) {
+    for(ptr_t p = (ptr_t)new_buffer; p < ((ptr_t)new_buffer + data_sz); p += 0x1000) {
         pgdir_map_page((uint32_t *)thread->process->arch.cr3, (void *)p, (void *)p, 0x07);
     }
 #endif
@@ -196,11 +196,11 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     else        virt_stack_begin = 0x7F000000;
 
     #ifdef STACK_PROTECTOR
-        stack_begin = (uint32_t)kmalloc(stack_size + 0x2000);
+        stack_begin = (uint32_t)kamalloc(stack_size + 0x2000, 0x1000);
         curr_proc->ebp   = virt_stack_begin + 0x1000;
         curr_proc->ebp  += (stack_size + 0x1000);
     #else // STACK_PROTECTOR
-        stack_begin = ((uint32_t)kmalloc(stack_size));
+        stack_begin = ((uint32_t)kmamalloc(stack_size, 0x1000));
         curr_proc->threads[0].arch.ebp   = virt_stack_begin;
         curr_proc->threads[0].arch.ebp  += stack_size;
     #endif // !STACK_PROTECTOR
@@ -214,7 +214,7 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
             //(void *)(procs[p].esp - i), (void *)(procs[p].esp - i), 0x03);
     }
 
-    curr_proc->threads[0].arch.kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE) + PROC_KERN_STACK_SIZE;
+    curr_proc->threads[0].arch.kernel_stack = (uint32_t)kmamalloc(PROC_KERN_STACK_SIZE, 0x1000) + PROC_KERN_STACK_SIZE;
     for(i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
         pgdir_map_page(arch_params->pgdir, (void *)(curr_proc->threads[0].arch.kernel_stack - i), (void *)(curr_proc->threads[0].arch.kernel_stack - i), 0x03);
     }

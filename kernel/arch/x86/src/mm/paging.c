@@ -176,7 +176,7 @@ void map_page(void *physaddr, void *virtualaddr, uint32_t flags) {
 }
 
 void pgdir_map_page(uint32_t *pgdir, void *physaddr, void *virtualaddr, uint32_t flags) {
-	//kerror(ERR_BOOTINFO, "Mapping %8X to %8X (%03X) in %8X", physaddr, virtualaddr, flags, pgdir);
+	kdebug(DEBUGSRC_MM, "Mapping %8X to %8X (%03X) in %8X", virtualaddr, physaddr, flags, pgdir);
 
 	virtualaddr = (void *)((uint32_t)virtualaddr & 0xFFFFF000);
 	physaddr    = (void *)((uint32_t)physaddr    & 0xFFFFF000);
@@ -185,7 +185,7 @@ void pgdir_map_page(uint32_t *pgdir, void *physaddr, void *virtualaddr, uint32_t
 	uint32_t ptindex = (uint32_t)virtualaddr >> 12 & 0x03FF;
 
 	if(!(pgdir[pdindex] & 0x01)) {
-		pgdir[pdindex] = (((uint32_t)kmalloc(0x2000) + 0x1000) & ~0xFFF) | 0x03;
+		pgdir[pdindex] = (uint32_t)kamalloc(0x1000, 0x1000) | 0x03;
 
 		int i = 0;
 		for(; i < 1024; i++)
@@ -286,6 +286,7 @@ void paging_init(uint32_t som, uint32_t eom) {
 
 	kerror(ERR_BOOTINFO, "  -> Filling first 4 page tables");
 
+	/* @todo Base this on the actual used memory, rather than automatically taking up 16 MiB */
 	// Identity-map first 16 MiB for kernel use. (flags: present, writable, global)
 	fill_pagetable((void *)init_tbls[0], 0x00000000, 0x103);
 	fill_pagetable((void *)init_tbls[1], 0x00400000, 0x103);
@@ -328,7 +329,7 @@ uint32_t *clone_kpagedir() {
 
 uint32_t *clone_pagedir(uint32_t *pgdir) {
 	// TODO: Make 1024 an actual constant:
-	uint32_t *pgd = (uint32_t *)(((ptr_t)kmalloc((1024 * sizeof(uint32_t)) + 0x1000) + 0x1000) & 0xFFFFF000);
+	uint32_t *pgd = kamalloc(1024 * sizeof(uint32_t), 0x1000);
 
 	// kmalloc doesn't always gaive us mapped pages
 	uint32_t i = 0;
@@ -349,7 +350,7 @@ uint32_t *clone_pagedir_full(uint32_t *pgdir) {
 	}
 
 	// TODO: Make 1024 an actual constant:
-	uint32_t *pgd = (uint32_t *)(((ptr_t)kmalloc((0x1000 + (0x1000 * n_tables)) + 0x1000) + 0x1000) & 0xFFFFF000);
+	uint32_t *pgd = kamalloc((0x1000 + (0x1000 * n_tables)), 0x1000);
 
 	// kmalloc doesn't always gaive us mapped pages
 	for(uint32_t i = 0; i < sizeof(pgdir); i += 0x1000)
@@ -397,32 +398,21 @@ uint32_t *clone_pagedir_full(uint32_t *pgdir) {
  * @param size the minimum size of the hole
  * @return the location of the memory hole
  */
-static void *get_first_avail_hole(uint32_t size)
-{
+static void *get_first_avail_hole(uint32_t size) {
 	int num_4k = 0;
 	int size4k = size / 0x1000;
 	if(size & 0x0FFF) size4k += 1;
 	uint32_t i = 0;
 	uint32_t base_i = 0;
 
-	for(; i < nframes; i++)
-	{
-		if(!test_frame(i))
-		{
+	for(; i < nframes; i++) {
+		if(!test_frame(i)) {
 			if(base_i == 0xFFFFFFFF) base_i = i;
 			num_4k++;
-			if(num_4k >= size4k)
-			{
+			if(num_4k >= size4k) {
 				uint32_t q = base_i;
-				for(; q <= i; q++)
-				{
+				for(; q <= i; q++) {
 					set_frame(q, 1);
-
-					// BUG: This crashes while using kmalloc at some points...
-					//
-					//
-					//
-					//map_page((void *)((q * 0x1000) + (uint32_t)firstframe), (void *)((q * 0x1000) + (uint32_t)firstframe), 3);
 				}
 				return (void *)((base_i * 0x1000) + firstframe);
 			}
@@ -438,7 +428,7 @@ struct alloc_head //!< Header for allocated blocks
 	uint32_t addr;  //!< Address of block
 	uint32_t size;  //!< Size of block, including this header, AND padding
 	uint32_t magic; //!< 0xA110CA1E
-} __align(16);
+};
 
 /**
  * Allocate a region of memory to be used later.

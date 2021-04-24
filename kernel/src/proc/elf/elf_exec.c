@@ -28,8 +28,13 @@ static void elf_read_phdr(Elf32_Ehdr *elf, struct kproc_mem_map_ent **mmap_entri
 				 * overlapping memory regions. Or create more sophisticated mmap
 				 * system. */
 				/* Allocate physical memory */
-				void *phys = kmalloc(prog[i].p_memsz + 0x2000); // + 0x2000 so we can page-align it
-				phys = (void *)((uintptr_t)phys & ~0xFFF) + 0x1000 + (prog[i].p_vaddr & 0xFFF);
+				void *phys;
+				if(prog[i].p_memsz & 0xFFF) {
+					phys = kmamalloc(prog[i].p_memsz + 0x1000, 0x1000); // + 0x1000 so we can align it
+					phys = phys + (prog[i].p_vaddr & 0xFFF);
+				} else {
+					phys = kmamalloc(prog[i].p_memsz, 0x1000);
+				}
 
 				/* Copy data and/or clear memory */
 				if(prog[i].p_filesz) {
@@ -249,7 +254,7 @@ int exec_elf(void *data, uint32_t length, const char **argv, const char **envp) 
 
 	// TODO: Add generated memory map to this process
 
-	exec_replace_process_image((void *)entrypoint, "ELF_PROG", &arch_params, symbols, symStrTab, argv, envp);
+	exec_replace_process_image((void *)entrypoint, argv[0], &arch_params, symbols, symStrTab, argv, envp);
 
 	/* We shouldn't get this far */
 	return -1;
