@@ -46,24 +46,23 @@ static void add_alloc(struct alcent *al)
  *
  * @param idx index of the block to remove
  */
-static void rm_alloc(int block, int idx)
-{
+static void rm_alloc(int block, int idx) {
 	uint32_t addr = allocs[block][idx].addr;
 	uint32_t size = allocs[block][idx].size;
 
 	int i, j = 0;
 
 	// See if this block immediately preceeds or proceeds any other block
-	for(; j < ALLOC_BLOCKS; j++)
-	{
-		if(!allocs[j]) continue;
-		for(i = 0; i < ALLOC_BLOCK; i++)
-		{
-			if(allocs[j][i].valid)
-			{
-				if((((allocs[j][i].addr + size - 1) == addr) ||
-				(allocs[j][i].addr == (addr + size - 1))) && (!allocs[j][i].used))
-				{
+	for(; j < ALLOC_BLOCKS; j++) {
+		if(!allocs[j]) {
+			continue;
+		}
+		for(i = 0; i < ALLOC_BLOCK; i++) {
+			if(allocs[j][i].valid) {
+				if((((allocs[j][i].addr + size) == addr)  ||
+				    (allocs[j][i].addr == (addr + size))) &&
+				   (!allocs[j][i].used)) {
+					kdebug(DEBUGSRC_MM, "  -> Merging free'd block (%08X,%d) with (%08X,%d)", addr, size, allocs[j][i].addr, allocs[j][i].size);
 					allocs[j][i].size += size;
 					allocs[block][idx].valid = 0;
 					return;
@@ -72,6 +71,7 @@ static void rm_alloc(int block, int idx)
 		}
 	}
 
+	kdebug(DEBUGSRC_MM, "  -> Marking free'd block (%08X,%d)", addr, size);
 	// No preceeding or proceeding block found
 	allocs[block][idx].used = 0;
 }
