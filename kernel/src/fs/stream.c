@@ -14,8 +14,8 @@ struct kfile *stream_create(int length) {
     struct kfile *file = (struct kfile *)kmalloc(sizeof(struct kfile));
     memset(file, 0, sizeof(struct kfile));
 
-    struct cbuff *buff = (struct cbuff *)kmalloc(sizeof(struct cbuff));
-    buff->buff  = (uint8_t *)kmalloc(length);
+    struct cbuff *buff = (struct cbuff *)kmalloc(sizeof(struct cbuff) + length);
+    buff->buff  = (uint8_t *)((ptr_t)buff + sizeof(struct cbuff));
     buff->head  = 0;
     buff->tail  = 0;
     buff->count = 0;
@@ -84,5 +84,6 @@ static void stream_close(struct kfile *f)
 {
 	lock(&f->file_lock);
 	f->open = 0;
+    kfree(f->info);
 	unlock(&f->file_lock);
 }
