@@ -163,6 +163,7 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     // Not sure whether or not these should carry over:
     memcpy(curr_proc->children, tmp_proc.children, sizeof(curr_proc->children));
 
+    curr_proc->threads[0].process    = curr_proc;
     curr_proc->threads[0].entrypoint = (uint32_t)entryp;
 
     curr_proc->cwd = tmp_proc.cwd;
@@ -195,7 +196,7 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     if(!kernel) virt_stack_begin = 0xFF000000;
     else        virt_stack_begin = 0x7F000000;
 
-    #ifdef STACK_PROTECTOR
+    #ifdef STACK_PROTECTORexec_copy_arguments
         stack_begin = (uint32_t)kamalloc(stack_size + 0x2000, 0x1000);
         curr_proc->ebp   = virt_stack_begin + 0x1000;
         curr_proc->ebp  += (stack_size + 0x1000);
