@@ -38,21 +38,18 @@ int execve(const char *filename, const char **argv, const char **envp) {
         return -1;
     }
 
-    /* TODO: Use regular fstat with _exec */
     struct stat exec_stat;
     fstat(_exec, &exec_stat);
-    int execsz = exec_stat.st_size;
 
-
-    void *execdata = kmalloc(execsz);
-    proc_fs_read(_exec, 0, execsz, execdata);
+    void *execdata = kmalloc(exec_stat.st_size);
+    proc_fs_read(_exec, 0, exec_stat.st_size, execdata);
 
     // TODO: Add executable type handlers in the future, so that they can be
     // registered on-the-fly
     // Check for the filetype:
     if(*(uint32_t *)execdata == ELF_IDENT) { // ELF
         kdebug(DEBUGSRC_EXEC, "execve: Determined filetype as ELF");
-        return exec_elf(execdata, execsz, argv, envp);
+        return exec_elf(execdata, exec_stat.st_size, argv, envp);
     } else if(*(uint16_t *)execdata == 0x3335) { // SHEBANG, NOTE: Byte order might be wrong!
         kerror(ERR_MEDERR, "execve: No support for shebang yet!");
     } else { // UNKNOWN
@@ -92,9 +89,8 @@ static void exec_copy_arguments(kthread_t *thread, const char **argv, const char
     kdebug(DEBUGSRC_EXEC, "exec_copy_arguments(): ARGV: %08X, ENVP: %08X, SZ: %d",
            argv, envp, data_sz);
 
-    /* TODO: Find a better way to map some memory for this process, rather than potentially
-     * re-mapping kernel memory to allow user access */
-
+    /* TODO: We are wasting space when doing this, we could add it to the process' memory map such
+     * that it is available for the process. */
     char *new_buffer = kmamalloc(data_sz, 0x1000);
     char **new_argv  = (char **)new_buffer;
     char **new_envp  = NULL;
@@ -111,6 +107,7 @@ static void exec_copy_arguments(kthread_t *thread, const char **argv, const char
     for(i = 0; i < argc; i++) {
         new_argv[i] = &new_buffer[c_off];
         memcpy(&new_buffer[c_off], argv[i], strlen(argv[i]) + 1);
+        kdebug(DEBUGSRC_EXEC, " -> ARG[%d]: %s", i, &new_buffer[c_off]);
         c_off += strlen(argv[i]) + 1;
     }
     new_argv[i] = NULL;
@@ -119,6 +116,7 @@ static void exec_copy_arguments(kthread_t *thread, const char **argv, const char
     for(i = 0; i < envc; i++) {
         new_envp[i] = &new_buffer[c_off];
         memcpy(&new_buffer[c_off], envp[i], strlen(envp[i]) + 1);
+        kdebug(DEBUGSRC_EXEC, " -> ENV[%d]: %s", i, &new_buffer[c_off]);
         c_off += strlen(envp[i]) + 1;
     }
     new_envp[i] = NULL;
@@ -135,12 +133,60 @@ static void exec_copy_arguments(kthread_t *thread, const char **argv, const char
     kdebug(DEBUGSRC_EXEC, "  -> New locations: ARGV: %08X, ENVP: %08X", *n_argv, *n_envp);    
 }
 
+static void *_store_arguments(const char **argv, const char **envp, char ***_argv, char ***_envp) {
+    /* At minimum, we have two null pointers. */
+    size_t data_sz = 2 * sizeof(char *);
+    size_t argc    = 0;
+    size_t envc    = 0;
+    size_t off     = 0;
+    
+    for(; argv[argc]; argc++) {
+        /* argv pointer + argv[i] length + NULL terminator */
+        data_sz += sizeof(char *) + strlen(argv[argc]) + 1;
+    }
+    for(; envp[envc]; envc++) {
+        /* envp pointer + envp[i] length + NULL terminator */
+        data_sz += sizeof(char *) + strlen(envp[envc]) + 1;
+    }
+
+
+    void *data = kmalloc(data_sz);
+
+    *_argv = (char **)data;
+    *_envp = &(*_argv)[argc + 1];
+    
+    off = (argc + envc + 2) * sizeof(char *);
+
+    for(size_t i = 0; i < argc; i++) {
+        (*_argv)[i] = (char *)(data + off);
+        memcpy((*_argv)[i], argv[i], strlen(argv[i]) + 1);
+        off += strlen(argv[i]) + 1;
+    }
+    (*_argv)[argc] = NULL;
+    
+    for(size_t i = 0; i < envc; i++) {
+        (*_envp)[i] = (char *)(data + off);
+        memcpy((*_envp)[i], envp[i], strlen(envp[i]) + 1);
+        off += strlen(envp[i]) + 1;
+    }
+    (*_envp)[envc] = NULL;
+    
+    if(off != data_sz) {
+        kdebug(DEBUGSRC_EXEC, "  -> off (%d) != data_sz (%d)!", off, data_sz);
+    }
+
+    return data;
+}
+
 void exec_replace_process_image(void *entryp, const char *name, arch_task_params_t *arch_params, symbol_t *symbols, char *symbol_string_table, const char **argv, const char **envp) {
     // TODO: Clean this up, separate out portions where possible/sensical
     kdebug(DEBUGSRC_EXEC, "exec_replace_process_image @ %08X", entryp);
 
     struct kproc tmp_proc;
     
+    char **_argv, **_envp;
+    void *_arg_alloc = _store_arguments(argv, envp, &_argv, &_envp);
+
     // Copy data to temporary struct for easy copying of requred portions
     // Probably innefecient, and could be done better
     memcpy(&tmp_proc, curr_proc, sizeof(struct kproc));
@@ -196,15 +242,15 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     if(!kernel) virt_stack_begin = 0xFF000000;
     else        virt_stack_begin = 0x7F000000;
 
-    #ifdef STACK_PROTECTORexec_copy_arguments
-        stack_begin = (uint32_t)kamalloc(stack_size + 0x2000, 0x1000);
-        curr_proc->ebp   = virt_stack_begin + 0x1000;
-        curr_proc->ebp  += (stack_size + 0x1000);
-    #else // STACK_PROTECTOR
-        stack_begin = ((uint32_t)kmamalloc(stack_size, 0x1000));
-        curr_proc->threads[0].arch.ebp   = virt_stack_begin;
-        curr_proc->threads[0].arch.ebp  += stack_size;
-    #endif // !STACK_PROTECTOR
+#  ifdef STACK_PROTECTORexec_copy_arguments
+    stack_begin = (uint32_t)kamalloc(stack_size + 0x2000, 0x1000);
+    curr_proc->ebp   = virt_stack_begin + 0x1000;
+    curr_proc->ebp  += (stack_size + 0x1000);
+#  else // STACK_PROTECTOR
+    stack_begin = ((uint32_t)kmamalloc(stack_size, 0x1000));
+    curr_proc->threads[0].arch.ebp   = virt_stack_begin;
+    curr_proc->threads[0].arch.ebp  += stack_size;
+#  endif // !STACK_PROTECTOR
 
     curr_proc->threads[0].arch.esp = curr_proc->threads[0].arch.ebp;
 
@@ -223,11 +269,11 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     curr_proc->threads[0].arch.stack_end = curr_proc->threads[0].arch.ebp - stack_size;
     curr_proc->threads[0].arch.stack_beg = curr_proc->threads[0].arch.ebp;
 
-    #ifdef STACK_PROTECTOR
+#  ifdef STACK_PROTECTOR
     // TODO: Fix stack guarding:
-        block_page(curr_proc->arch.stack_end - 0x1000); // <-- Problematic line
-        block_page(curr_proc->arch.stack_beg + 0x1000);
-    #endif // STACK_PROTECTOR
+    block_page(curr_proc->arch.stack_end - 0x1000); // <-- Problematic line
+    block_page(curr_proc->arch.stack_beg + 0x1000);
+#  endif // STACK_PROTECTOR
 
     /*proc->kernel_stack      = tmp_proc.kernel_stack;
 
@@ -238,8 +284,6 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
 
     //enable_interrupts();
 
-    //enable_interrupts();
-
 
     uint32_t argc = 0;
     while(argv[argc]) argc++;
@@ -247,8 +291,9 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     char **n_argv;
     char **n_envp;
 
-    exec_copy_arguments(&curr_proc->threads[0], argv, envp, &n_argv, &n_envp);
-    
+    exec_copy_arguments(&curr_proc->threads[0], (const char **)_argv, (const char **)_envp, &n_argv, &n_envp);
+    kfree(_arg_alloc);
+
     set_pagedir(arch_params->pgdir);
 
     STACK_PUSH(curr_proc->threads[0].arch.esp, n_envp);

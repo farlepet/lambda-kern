@@ -169,6 +169,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 	if(kernel) proc->type |= TYPE_KERNEL;
 
 	proc->threads[0].prio = pri;
+	proc->threads[0].entrypoint = (ptr_t)process;
 
 	arch_setup_task(&proc->threads[0], process, stack_size, arch_params);
 
@@ -222,7 +223,7 @@ struct kproc *mtask_get_current_task(void) {
 void init_multitasking(void *process, char *name) {
 	kerror(ERR_BOOTINFO, "Initializing multitasking");
 
-	int tid = add_kernel_task(process, name, 0x10000, PRIO_KERNEL);
+	int tid = add_kernel_task(process, name, 0x2000, PRIO_KERNEL);
 	kthread_t *thread = thread_by_tid(tid);
 	if(thread == NULL) {
 		kpanic("Could not find initial kernel thread!");

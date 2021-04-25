@@ -115,7 +115,7 @@ int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_reg
 
 		if(page_present(regs->esp)) {
 			kerror(ERR_MEDERR, "      -> Stack contents:");
-			uint32_t *stack = (uint32_t *)regs->ebp;
+			uint32_t *stack = (uint32_t *)regs->esp;
 			for(int i = -4; i < 8; i++) {
 				if(!mm_check_addr(&stack[i])) {
 					break;

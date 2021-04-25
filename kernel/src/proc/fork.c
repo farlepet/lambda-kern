@@ -1,5 +1,6 @@
 #include <proc/mtask.h>
 #include <err/error.h>
+#include <err/panic.h>
 #include <mm/alloc.h>
 #include <string.h>
 
@@ -23,7 +24,7 @@ extern lock_t creat_task;
  * @return int 0 on success
  */
 static int proc_copy_data(kthread_t *dest, const kthread_t *src) {
-    kerror(ERR_BOOTINFO, "proc_copy_data");
+    kdebug(DEBUGSRC_PROC, "proc_copy_data");
 
 #if defined(ARCH_X86)
     struct kproc_mem_map_ent const *pent = src->process->mmap;
@@ -50,7 +51,7 @@ static int proc_copy_data(kthread_t *dest, const kthread_t *src) {
         cent->virt_address = pent->virt_address;
         cent->length       = pent->length;
 
-        kerror(ERR_BOOTINFO, "  -> %08X (%d B)", cent->virt_address, cent->length);
+        kdebug(DEBUGSRC_PROC, "  -> %08X (%d B)", cent->virt_address, cent->length);
 
         // Allocate new memory:
         cent->phys_address = (uintptr_t)kmalloc(cent->length + 0x1000);
@@ -124,7 +125,8 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
     kthread_t *cthread = &child->threads[0];
     /* @todo Currently assuming first thread */
     kthread_t *pthread = &parent->threads[0];
- 
+
+    cthread->process = child;
     child->pid   = get_next_pid();
     cthread->tid = child->pid;
 
@@ -138,9 +140,9 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
     cthread->prio = pthread->prio;
 
 #if defined(ARCH_X86)
-    child->arch.ring  = parent->arch.ring;
+    child->arch.ring    = parent->arch.ring;
     cthread->entrypoint = pthread->entrypoint;
-    child->arch.cr3   = (uint32_t)clone_pagedir_full((void *)parent->arch.cr3);
+    child->arch.cr3     = (uint32_t)clone_pagedir_full((void *)parent->arch.cr3);
 
     uint32_t stack_size = pthread->arch.stack_beg - pthread->arch.stack_end;
     uint32_t virt_stack_begin;
@@ -152,7 +154,7 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
     proc_create_stack(cthread, stack_size, virt_stack_begin, kernel);
     proc_create_kernel_stack(cthread);
 
-    cthread->arch.ebp = cthread->arch.ebp;
+    cthread->arch.ebp = pthread->arch.ebp;
     
     // POPAD: 8 DWORDS, IRETD: 5 DWORDS
     cthread->arch.esp = cthread->arch.kernel_stack - 52;
@@ -205,8 +207,7 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
 
 int fork(void) {
     if(!curr_proc) {
-        kerror(ERR_MEDERR, "mtask:fork: Attempted to fork before multitasking enabled!!!");
-        return -1;
+        kpanic("mtask:fork: Attempted to fork before multitasking enabled!!!");
     }
 
     lock(&creat_task);
