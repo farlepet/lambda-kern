@@ -13,7 +13,7 @@
 extern void keyb_int(); //!< Assembly interrupt handler
 void keyb_handle(uint32_t);
 
-struct input_dev *keyb_dev; //!< Device struct for the keyboard input handler
+input_dev_t keyb_dev; //!< Device struct for the keyboard input handler
 
 #define KEYB_BUFF_CNT 16
 static cbuff_t _keyb_buff = STATIC_CBUFF(sizeof(struct input_event) * KEYB_BUFF_CNT);
@@ -28,23 +28,23 @@ static void process_code(uint32_t keycode)
 	switch(keycode)
 	{
 		case 0x2A:
-		case 0x36:	keyb_dev->state |= KEYB_STATE_SHIFT;
+		case 0x36:	keyb_dev.state |= KEYB_STATE_SHIFT;
 					break;
 
 		case 0xAA:
-		case 0xB6:	keyb_dev->state &= (uint32_t)~KEYB_STATE_SHIFT;
+		case 0xB6:	keyb_dev.state &= (uint32_t)~KEYB_STATE_SHIFT;
 					break;
 
-		case 0x1D:	keyb_dev->state |= KEYB_STATE_CTRL;
+		case 0x1D:	keyb_dev.state |= KEYB_STATE_CTRL;
 					break;
 
-		case 0x9D:	keyb_dev->state &= (uint32_t)~KEYB_STATE_CTRL;
+		case 0x9D:	keyb_dev.state &= (uint32_t)~KEYB_STATE_CTRL;
 					break;
 
-		case 0x38:	keyb_dev->state |= KEYB_STATE_ALT;
+		case 0x38:	keyb_dev.state |= KEYB_STATE_ALT;
 					break;
 
-		case 0xB8:	keyb_dev->state &= (uint32_t)~KEYB_STATE_ALT;
+		case 0xB8:	keyb_dev.state &= (uint32_t)~KEYB_STATE_ALT;
 					break;
 	}
 }
@@ -64,10 +64,10 @@ void keyb_handle(uint32_t keycode)
 	
 	struct input_event iev;
 	iev.origin.s.driver = IDRIVER_KEYBOARD;
-	iev.origin.s.device = keyb_dev->id.s.device;
+	iev.origin.s.device = keyb_dev.id.s.device;
 	iev.type = EVENT_KEYPRESS;
 	iev.data = keycode;
-	write_cbuff((uint8_t *)&iev, sizeof(struct input_event), keyb_dev->iev_buff);
+	write_cbuff((uint8_t *)&iev, sizeof(struct input_event), keyb_dev.iev_buff);
 }
 
 /**
@@ -114,11 +114,6 @@ void keyb_init()
 	set_interrupt(INT_KEYBOARD, (void *)&keyb_int);
 	enable_irq(1);
 
-	keyb_dev = add_input_dev(IDRIVER_KEYBOARD, "keyb", 0, 0);
-	if(!keyb_dev)
-	{
-		kerror(ERR_MEDERR, "Could not set up keyboard input device");
-		return;
-	}
-	keyb_dev->iev_buff = &_keyb_buff;
+	add_input_dev(&keyb_dev, IDRIVER_KEYBOARD, "keyb", 0, 0);
+	keyb_dev.iev_buff = &_keyb_buff;
 }

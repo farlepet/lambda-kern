@@ -3,9 +3,16 @@
 
 #include <types.h>
 
+#include <data/llist.h>
 #include <data/cbuff.h>
 
 #define MAX_INPUT_DEVICES 64 //!< Maximum number of registered input devices
+
+typedef enum   event_type       event_type_e;
+typedef enum   builtin_idrivers builtin_idrivers_e;
+typedef enum   keyb_idrv_state  keyb_idrv_state_e;
+typedef struct input_event      input_event_t;
+typedef struct input_dev        input_dev_t;
 
 union input_id
 {
@@ -51,27 +58,27 @@ struct input_event
 
 struct input_dev
 {
-	union input_id id;       /** Device ID */
-	uint32_t       state;    /** State of the device, different for every device type */
-	char           name[64]; /** When mounted, it will be at /dev/name */
-	uint8_t        valid;    /** Whether or not this slot is being used */
-	cbuff_t       *iev_buff; /** Input event buffer */
+	union input_id id;        /** Device ID */
+	uint32_t       state;     /** State of the device, different for every device type */
+	char           name[64];  /** When mounted, it will be at /dev/name */
+	cbuff_t       *iev_buff;  /** Input event buffer */
+	llist_item_t   list_item; /** List item */
 };
 
-extern struct input_dev idevs[MAX_INPUT_DEVICES];
-
+extern llist_t idevs;
 
 /**
  * Adds an input device to `input_dev`
- * 
+ *
+ * @param idev pointer to where the device struct is stored 
  * @param driver the driver that the device will use
  * @param name the base name for the driver
  * @param name_by_id whether or not to append the device number to the name
  * @param id_to_alpha convert device id to a letter, only used if name_by_id == 1
  */
-struct input_dev *add_input_dev(uint16_t driver, char *name, uint8_t name_by_id, uint8_t id_to_alpha);
+void add_input_dev(input_dev_t *idev, uint16_t driver, char *name, uint8_t name_by_id, uint8_t id_to_alpha);
 
 
-struct input_dev *get_idevice(uint16_t driver, uint16_t device);
+input_dev_t *get_idevice(uint16_t driver, uint16_t device);
 
 #endif

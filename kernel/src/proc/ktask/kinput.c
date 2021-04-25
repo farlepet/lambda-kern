@@ -67,37 +67,36 @@ static void send_input_char(char c) {
 __noreturn void kinput_task() {
 	for(;;) {
 		struct input_event iev;
-		size_t i = 0;
 		/* @todo Refactor input device driver system, add read block ability to cbuffs */
-		for(; i < MAX_INPUT_DEVICES; i++) {
-			if(idevs[i].valid    &&
-			   idevs[i].iev_buff &&
-			   !(read_cbuff((uint8_t *)&iev, sizeof(struct input_event), idevs[i].iev_buff) & CBUFF_ERRMSK)) {
-				break;
-			}
-		}
-		if(i < MAX_INPUT_DEVICES) {
+		input_dev_t     *idev;
+		llist_iterator_t iter;
+		llist_iterator_init(&idevs, &iter);
+		while(llist_iterate(&iter, (void **)&idev)) {
+			if(idev->iev_buff) {
+				while(!(read_cbuff((uint8_t *)&iev, sizeof(struct input_event), idev->iev_buff) & CBUFF_ERRMSK)) {
 #if DEBUGGER
-			if(iev.type == EVENT_KEYPRESS &&
-			   iev.data == 0x01) { // ESC -> DEBUG for now
-				if(ktask_pids[KBUG_TASK_SLOT]) {
-					/*struct kbug_type_msg ktm;
-					ktm.type = KBUG_IDEBUG;
-					ipc_user_create_and_send_message(ktask_pids[KBUG_TASK_SLOT], &ktm, sizeof(struct kbug_type_msg));*/
-					/* @todo (Or not) */
-				}
-			} else {
+					if(iev.type == EVENT_KEYPRESS &&
+					iev.data == 0x01) { // ESC -> DEBUG for now
+						if(ktask_pids[KBUG_TASK_SLOT]) {
+							/*struct kbug_type_msg ktm;
+							ktm.type = KBUG_IDEBUG;
+							ipc_user_create_and_send_message(ktask_pids[KBUG_TASK_SLOT], &ktm, sizeof(struct kbug_type_msg));*/
+							/* @todo (Or not) */
+						}
+					} else {
 #endif /* DEBUGGER */
-				if(iev.type == EVENT_KEYPRESS) {
-					send_input_char(keycode_to_char(&iev));
-				} else {
-					send_input_char(iev.data);
-				}
+						if(iev.type == EVENT_KEYPRESS) {
+							send_input_char(keycode_to_char(&iev));
+						} else {
+							send_input_char(iev.data);
+						}
 #if DEBUGGER
-			}
+					}
 #endif
-		} else {
-			delay(10);
+				}
+			}
 		}
+
+		delay(10);
 	}
 }

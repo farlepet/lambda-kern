@@ -13,7 +13,7 @@
 
 extern void serial_interrupt(void);
 
-struct input_dev *serial_dev;
+input_dev_t serial_dev;
 
 #define SERIAL_BUFF_CNT 16
 static cbuff_t _serial_buff = STATIC_CBUFF(sizeof(struct input_event) * SERIAL_BUFF_CNT);
@@ -57,22 +57,18 @@ void serial_init(uint16_t port)
 	enable_irq(4);
 	enable_irq(3);
 
-	serial_dev = add_input_dev(IDRIVER_SERIAL, "ser", 1, 0);
-	if(!serial_dev)
-	{
-		kerror(ERR_MEDERR, "Could not set up serial device");
-	}
-	serial_dev->iev_buff = &_serial_buff;
+	add_input_dev(&serial_dev, IDRIVER_SERIAL, "ser", 1, 0);
+	serial_dev.iev_buff = &_serial_buff;
 }
 
 static void handle_input(char ch)
 {
 	struct input_event iev;
 	iev.origin.s.driver = IDRIVER_SERIAL;
-	iev.origin.s.device = serial_dev->id.s.device;
+	iev.origin.s.device = serial_dev.id.s.device;
 	iev.type = EVENT_CHAR;
 	iev.data = ch;
-	write_cbuff((uint8_t *)&iev, sizeof(struct input_event), serial_dev->iev_buff);
+	write_cbuff((uint8_t *)&iev, sizeof(struct input_event), serial_dev.iev_buff);
 }
 
 // TODO: Add support for all 4 serial ports
