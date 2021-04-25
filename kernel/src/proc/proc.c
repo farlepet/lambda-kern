@@ -85,48 +85,56 @@ __hot void sched_processes()
 	// Nothing to do with  current state of the scheduler
 }
 
+__optimize_none
 __hot void sched_next_process()
 {
 	/*
 	 * Next thread is chosen by going process-by-process, looking at each thread
 	 * until we find one that we can schedule.
 	 */
-	int nr = 0;
 
-	kproc_t *next   = curr_proc;
-	uint32_t thread = curr_thread + 1;
-	if(thread >= MAX_THREADS) {
-		next   = (kproc_t *)curr_proc->list_item.next->data;
-		thread = 0;
-	}
+	kproc_t         *proc   = curr_proc;
+	kthread_t       *thread = curr_thread;
+	llist_iterator_t p_iter = {
+		.first = (llist_item_t *)0xFFFFFFFF,
+		.curr  = &proc->list_item
+	};
+	llist_iterator_t t_iter = {
+		.first = proc->threads.list,
+		.curr  = &curr_thread->list_item
+	};
 
 	/* @todo The present implementation is somewhat ineffecient. */
-	while(!(next->type & TYPE_RUNNABLE)                       ||
-	      !(next->threads[thread].flags & KTHREAD_FLAG_VALID) ||
-		  next->threads[thread].blocked) {
+	do {
 
 	    /*if(next->threads[thread].flags & KTHREAD_FLAG_VALID) {
             kdebug(DEBUGSRC_PROC, "TID: %d | BLK: %08X | PROC: %s", next->threads[thread].tid, next->threads[thread].blocked, next->name);
 		}*/
 
-		thread++;
-		if (thread >= MAX_THREADS) {
-			if((next->list_item.next       == NULL) ||
-			   (next->list_item.next->data == NULL)) {
+		if(!llist_iterate(&t_iter, (void **)&thread)) {
+			if((proc->list_item.next       == NULL) ||
+			   (proc->list_item.next->data == NULL)) {
 				kpanic("Next task is NULL!");
 			}
-			next = (kproc_t *)next->list_item.next->data;
-
-			thread = 0;
-			
-			if(next == curr_proc) nr++;
-			if(nr >= 2) {
-				// We couldn't get a new runnable task, so we panic and halt
+			if(!llist_iterate(&p_iter, (void **)&proc)) {
 				kpanic("Could not schedule new task -- All tasks are blocked!");
 			}
+			if(p_iter.curr == (llist_item_t *)0xFFFFFFFF) {
+				/* We don't want to fault unless we go through all of the
+				 * process a second time. */
+				p_iter.first = p_iter.curr;
+			}
+
+			llist_iterator_init(&proc->threads, &t_iter);
+			if(!llist_iterate(&t_iter, (void **)&thread)) {
+				kpanic("Process contains no threads!");
+			}
 		}
-	}
-	curr_proc   = next;
+	} while(!(proc->type & TYPE_RUNNABLE)         ||
+	        !(thread->flags & KTHREAD_FLAG_VALID) ||
+			thread->blocked);
+
+	curr_proc   = proc;
 	curr_thread = thread;
 
 	curr_proc->book.schedule_count++;

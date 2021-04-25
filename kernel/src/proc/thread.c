@@ -1,31 +1,20 @@
 #include <proc/atomic.h>
 #include <proc/mtask.h>
 #include <err/error.h>
+#include <err/panic.h>
 #include <mm/alloc.h>
 
 #include <string.h>
 
-/* @todo Linked-list of kthreads, rather than a static array */
-static int _kthread_find_empty_slot() {
-    for(int i = 0; i < MAX_THREADS; i++) {
-        if(!(curr_proc->threads[i].flags & KTHREAD_FLAG_VALID)) {
-            return i;
-        }
-    }
-
-    return -1;
-}
-
 int kthread_create(void *entrypoint, void *data, const char *name, size_t stack_size, int prio) {
-    int slot = _kthread_find_empty_slot();
-    if(slot < 0) {
-        kerror(ERR_MEDERR, "kthread_create: No empty thread slots for %d [%s]", curr_proc->pid, curr_proc->name);
-        return -1;
+	kthread_t *thread = (kthread_t *)kmalloc(sizeof(kthread_t));
+    if(thread == NULL) {
+        kpanic("kthread_create: Ran out of memory attempting to allocate thread!");
     }
-
-    kthread_t *thread = &curr_proc->threads[slot];
-
     memset(thread, 0, sizeof(kthread_t));
+	thread->list_item.data = thread;
+	llist_append(&curr_proc->threads, &thread->list_item);
+
 
     if(name) {
         strncpy(thread->name, name, sizeof(thread->name) - 1);
@@ -34,7 +23,7 @@ int kthread_create(void *entrypoint, void *data, const char *name, size_t stack_
         strcpy(thread->name, curr_proc->name);
     }
 
-    if(slot) {
+    if(&thread->list_item != curr_proc->threads.list) {
         thread->tid    = get_next_pid();
     } else {
         /* @todo What if the first thread exited while other(s) continued? */
@@ -44,7 +33,7 @@ int kthread_create(void *entrypoint, void *data, const char *name, size_t stack_
     thread->process    = curr_proc;
     thread->prio       = prio;
 	
-    kdebug(DEBUGSRC_PROC, "kthread_create [%s] @ %08X | IDX: %d TID: %d", name, entrypoint, slot, thread->tid);
+    kdebug(DEBUGSRC_PROC, "kthread_create [%s] @ %08X | TID: %d", name, entrypoint, thread->tid);
     
     arch_setup_thread(thread, entrypoint, stack_size, data);
 

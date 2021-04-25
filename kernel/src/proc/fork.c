@@ -114,17 +114,13 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
 
     int kernel = (parent->type & TYPE_KERNEL);
 
-    // Doing a memcpy might be more efficient removing some instructions, but it
-    // may also introduce bugs/security flaws if certain info isn't cleared properly.
-    memset(child, 0, sizeof(struct kproc));
 
     memcpy(child->name, parent->name, strlen(parent->name));
 
 	memset(child->children, 0xFF, sizeof(child->children));
 
-    kthread_t *cthread = &child->threads[0];
-    /* @todo Currently assuming first thread */
-    kthread_t *pthread = &parent->threads[0];
+    kthread_t *cthread = (kthread_t *)child->threads.list->data;
+    kthread_t *pthread = curr_thread;
 
     cthread->process = child;
     child->pid   = get_next_pid();
@@ -215,9 +211,21 @@ int fork(void) {
     kdebug(DEBUGSRC_PROC, "mtask:fork()");
 
     struct kproc *child = (struct kproc *)kmalloc(sizeof(struct kproc));
-    kthread_t *cthread = &child->threads[0];
+    // Doing a memcpy might be more efficient removing some instructions, but it
+    // may also introduce bugs/security flaws if certain info isn't cleared properly.
+    memset(child, 0, sizeof(struct kproc));
+    
+    kthread_t *cthread = (kthread_t *)kmalloc(sizeof(kthread_t));
+    if(cthread == NULL) {
+        kpanic("kthread_create: Ran out of memory attempting to allocate thread!");
+    }
+    memset(cthread, 0, sizeof(kthread_t));
+	cthread->list_item.data = cthread;
+    llist_init(&child->threads);
+	llist_append(&child->threads, &cthread->list_item);
 
     fork_clone_process(child, curr_proc);
+    
 
 #if defined(ARCH_X86)
     kdebug(DEBUGSRC_PROC, " -- Child Stack: %08X %08X", cthread->arch.esp, cthread->arch.ebp);
@@ -227,6 +235,7 @@ int fork(void) {
     proc_add_child(curr_proc, child);
 
     child->type |= TYPE_RUNNABLE;
+    cthread->flags |= KTHREAD_FLAG_VALID;
 
     mtask_insert_proc(child);
 

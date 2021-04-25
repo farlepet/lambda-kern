@@ -72,9 +72,9 @@ int arch_proc_create_kernel_stack(kthread_t *thread) {
 }
 
 void proc_jump_to_ring(void) {
-	if(curr_proc) {
-		if(curr_proc->threads[curr_thread].entrypoint) {
-			enter_ring(curr_proc->arch.ring, (void *)curr_proc->threads[curr_thread].entrypoint);
+	if(curr_proc && curr_thread) {
+		if(curr_thread->entrypoint) {
+			enter_ring(curr_proc->arch.ring, (void *)curr_thread->entrypoint);
 		}
 	}
 }
@@ -91,7 +91,8 @@ int arch_setup_thread(kthread_t *thread, void *entrypoint, uint32_t stack_size, 
 	if(!kernel) virt_stack_begin = 0xFF000000;
 	else        virt_stack_begin = 0x7F000000;
 	/* @todo Find better scheme to separate thread stacks. */
-	virt_stack_begin -= (((ptr_t)thread - (ptr_t)thread->process->threads) / sizeof(kthread_t)) * 0x10000;
+	int tpos = llist_get_position(&thread->process->threads, &thread->list_item);
+	virt_stack_begin -= tpos * 0x10000;
 	proc_create_stack(thread, stack_size, virt_stack_begin, kernel);
 	proc_create_kernel_stack(thread);
 
@@ -121,11 +122,9 @@ int arch_setup_task(kthread_t *thread, void *entrypoint, uint32_t stack_size, ar
 
 
 __hot void do_task_switch(void) {
-	if(!curr_proc) return;
+	if(!curr_proc || !curr_thread) return;
 	if(creat_task) return; // We don't want to interrupt process creation
 
-	kthread_t *thread = &curr_proc->threads[curr_thread];
-	
 	uint32_t esp, ebp, eip, cr3;
 	asm volatile ("mov %%esp, %0" : "=r" (esp));
 	asm volatile ("mov %%ebp, %0" : "=r" (ebp));
@@ -136,26 +135,24 @@ __hot void do_task_switch(void) {
 		return;
 	}
 
-	if(thread->flags & KTHREAD_FLAG_RANONCE) {
-		thread->arch.esp = esp;
-		thread->arch.ebp = ebp;
-		thread->arch.eip = eip;
+	if(curr_thread->flags & KTHREAD_FLAG_RANONCE) {
+		curr_thread->arch.esp = esp;
+		curr_thread->arch.ebp = ebp;
+		curr_thread->arch.eip = eip;
 	}
-	else thread->flags |= KTHREAD_FLAG_RANONCE;
+	else curr_thread->flags |= KTHREAD_FLAG_RANONCE;
 
 	// Switch to next process here...
 	sched_next_process();
 
-	thread = &curr_proc->threads[curr_thread];
-
-	if (!thread->arch.kernel_stack) {	
+	if (!curr_thread->arch.kernel_stack) {	
 		kpanic("do_task_switch: No kernel stack set for thread!");
 	}
-	tss_set_kern_stack(thread->arch.kernel_stack);
+	tss_set_kern_stack(curr_thread->arch.kernel_stack);
 
-	esp = thread->arch.esp;
-	ebp = thread->arch.ebp;
-	eip = thread->arch.eip;
+	esp = curr_thread->arch.esp;
+	ebp = curr_thread->arch.ebp;
+	eip = curr_thread->arch.eip;
 	cr3 = curr_proc->arch.cr3;
 
 	asm volatile("mov %0, %%ebx\n"

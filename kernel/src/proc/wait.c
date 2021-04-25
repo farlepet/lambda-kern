@@ -47,7 +47,7 @@ int wait(int *stat_loc) {
     }
 
     // Block and wait for scheduler
-    curr_proc->threads[curr_thread].blocked |= BLOCK_WAIT;
+    curr_thread->blocked |= BLOCK_WAIT;
     //interrupt_halt();
     run_sched();
 

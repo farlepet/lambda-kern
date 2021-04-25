@@ -12,8 +12,8 @@
 
 /* TODO: Standardize naming (e.g. process vs task) */
 
-extern struct kproc *curr_proc;   /*!< Currently running process */
-extern uint32_t      curr_thread; /*!< Currently running thread index */
+extern kproc_t   *curr_proc;   /*!< Currently running process */
+extern kthread_t *curr_thread; /*!< Currently running thread index */
 
 int get_pid(); //!< Get the PID of the currently running task
 

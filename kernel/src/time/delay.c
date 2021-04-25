@@ -25,10 +25,10 @@ static void time_over(int tid) {
  * @param delay number of ticks to wait for
  */
 void delay(uint64_t delay) {
-	add_time_block(&time_over, delay, curr_proc->threads[curr_thread].tid);
-	curr_proc->threads[curr_thread].blocked |= BLOCK_DELAY;
+	add_time_block(&time_over, delay, curr_thread->tid);
+	curr_thread->blocked |= BLOCK_DELAY;
 
-	while(curr_proc->threads[curr_thread].blocked & BLOCK_DELAY) {
+	while(curr_thread->blocked & BLOCK_DELAY) {
 		interrupt_halt(); // Halt until multitasking comes in
 	}
 }

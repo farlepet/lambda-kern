@@ -191,6 +191,8 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     // Probably innefecient, and could be done better
     memcpy(&tmp_proc, curr_proc, sizeof(struct kproc));
 
+    kthread_t *old_thread = (kthread_t *)tmp_proc.threads.list->data;
+
 #if defined(ARCH_X86) // Ensure we do not get interrupted
     disable_interrupts();
 #endif
@@ -209,8 +211,16 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     // Not sure whether or not these should carry over:
     memcpy(curr_proc->children, tmp_proc.children, sizeof(curr_proc->children));
 
-    curr_proc->threads[0].process    = curr_proc;
-    curr_proc->threads[0].entrypoint = (uint32_t)entryp;
+    /* @todo: Free old thread. */
+	llist_init(&curr_proc->threads);
+	kthread_t *thread = (kthread_t *)kmalloc(sizeof(kthread_t));
+	thread->list_item.data = thread;
+	llist_append(&curr_proc->threads, &thread->list_item);
+    curr_thread = thread;
+ 
+    thread->process    = curr_proc;
+    thread->entrypoint = (uint32_t)entryp;
+    thread->prio       = old_thread->prio;
 
     curr_proc->cwd = tmp_proc.cwd;
     memcpy(curr_proc->open_files, tmp_proc.open_files, sizeof(curr_proc->open_files));
@@ -219,7 +229,6 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     curr_proc->symbols = symbols;
     curr_proc->symStrTab = symbol_string_table;
 
-    curr_proc->threads[0].prio = tmp_proc.threads[0].prio;
 
     curr_proc->list_item = tmp_proc.list_item;
     curr_proc->list_item.data = curr_proc;
@@ -227,8 +236,8 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
 #if defined(ARCH_X86)
     // Copy architecture-specific bits:
     curr_proc->arch.ring = tmp_proc.arch.ring;
-    curr_proc->threads[0].arch.eip  = (uint32_t)entryp;
-
+    thread->arch.eip  = (uint32_t)entryp;
+    
     // TODO: Free unused frames
     // TODO: Only keep required portions of pagedir
     //proc->cr3 = tmp_proc.cr3;
@@ -236,23 +245,23 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
 
     int kernel = (curr_proc->type & TYPE_KERNEL);
 
-    uint32_t stack_size = tmp_proc.threads[0].arch.stack_beg - tmp_proc.threads[0].arch.stack_end;
+    uint32_t stack_size = old_thread->arch.stack_beg - old_thread->arch.stack_end;
 
     uint32_t stack_begin, virt_stack_begin;
     if(!kernel) virt_stack_begin = 0xFF000000;
     else        virt_stack_begin = 0x7F000000;
 
-#  ifdef STACK_PROTECTORexec_copy_arguments
+#  ifdef STACK_PROTECTOR
     stack_begin = (uint32_t)kamalloc(stack_size + 0x2000, 0x1000);
-    curr_proc->ebp   = virt_stack_begin + 0x1000;
-    curr_proc->ebp  += (stack_size + 0x1000);
+    thread->arch.ebp  = virt_stack_begin + 0x1000;
+    thread->arch.ebp += (stack_size + 0x1000);
 #  else // STACK_PROTECTOR
     stack_begin = ((uint32_t)kmamalloc(stack_size, 0x1000));
-    curr_proc->threads[0].arch.ebp   = virt_stack_begin;
-    curr_proc->threads[0].arch.ebp  += stack_size;
+    thread->arch.ebp  = virt_stack_begin;
+    thread->arch.ebp += stack_size;
 #  endif // !STACK_PROTECTOR
 
-    curr_proc->threads[0].arch.esp = curr_proc->threads[0].arch.ebp;
+    thread->arch.esp = thread->arch.ebp;
 
     uint32_t i = 0;
     for(; i < stack_size; i+= 0x1000) {
@@ -261,18 +270,18 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
             //(void *)(procs[p].esp - i), (void *)(procs[p].esp - i), 0x03);
     }
 
-    curr_proc->threads[0].arch.kernel_stack = (uint32_t)kmamalloc(PROC_KERN_STACK_SIZE, 0x1000) + PROC_KERN_STACK_SIZE;
+    thread->arch.kernel_stack = (uint32_t)kmamalloc(PROC_KERN_STACK_SIZE, 0x1000) + PROC_KERN_STACK_SIZE;
     for(i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
-        pgdir_map_page(arch_params->pgdir, (void *)(curr_proc->threads[0].arch.kernel_stack - i), (void *)(curr_proc->threads[0].arch.kernel_stack - i), 0x03);
+        pgdir_map_page(arch_params->pgdir, (void *)(thread->arch.kernel_stack - i), (void *)(thread->arch.kernel_stack - i), 0x03);
     }
 
-    curr_proc->threads[0].arch.stack_end = curr_proc->threads[0].arch.ebp - stack_size;
-    curr_proc->threads[0].arch.stack_beg = curr_proc->threads[0].arch.ebp;
+    thread->arch.stack_end = thread->arch.ebp - stack_size;
+    thread->arch.stack_beg = thread->arch.ebp;
 
 #  ifdef STACK_PROTECTOR
     // TODO: Fix stack guarding:
-    block_page(curr_proc->arch.stack_end - 0x1000); // <-- Problematic line
-    block_page(curr_proc->arch.stack_beg + 0x1000);
+    block_page(thread->arch.stack_end - 0x1000);
+    block_page(thread->arch.stack_beg + 0x1000);
 #  endif // STACK_PROTECTOR
 
     /*proc->kernel_stack      = tmp_proc.kernel_stack;
@@ -291,18 +300,18 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     char **n_argv;
     char **n_envp;
 
-    exec_copy_arguments(&curr_proc->threads[0], (const char **)_argv, (const char **)_envp, &n_argv, &n_envp);
+    exec_copy_arguments(thread, (const char **)_argv, (const char **)_envp, &n_argv, &n_envp);
     kfree(_arg_alloc);
 
     set_pagedir(arch_params->pgdir);
 
-    STACK_PUSH(curr_proc->threads[0].arch.esp, n_envp);
-    STACK_PUSH(curr_proc->threads[0].arch.esp, n_argv);
-    STACK_PUSH(curr_proc->threads[0].arch.esp, argc);    
+    STACK_PUSH(thread->arch.esp, n_envp);
+    STACK_PUSH(thread->arch.esp, n_argv);
+    STACK_PUSH(thread->arch.esp, argc);    
 
     kdebug(DEBUGSRC_EXEC, "exec_replace_process_image(): Jumping into process");
 
-    enter_ring_newstack(curr_proc->arch.ring, entryp, (void *)curr_proc->threads[0].arch.esp);
+    enter_ring_newstack(curr_proc->arch.ring, entryp, (void *)thread->arch.esp);
 #else
     /* TODO */
     (void)arch_params;

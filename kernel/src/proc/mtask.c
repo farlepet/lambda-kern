@@ -18,8 +18,8 @@
 
 static llist_t procs;
 
-struct kproc *curr_proc    = NULL;
-uint32_t      curr_thread  = 0;
+kproc_t   *curr_proc    = NULL;
+kthread_t *curr_thread  = NULL;
 
 static int next_pid = 1;
 
@@ -32,13 +32,14 @@ struct kproc *proc_by_pid(int pid) {
 		return NULL;
 	}
 
-	llist_item_t *item = procs.list;
-	do {
-		if(((kproc_t *)item->data)->pid == pid) {
-			return (kproc_t *)item->data;
+	kproc_t         *proc;
+	llist_iterator_t p_iter;
+	llist_iterator_init(&procs, &p_iter);
+	while(llist_iterate(&p_iter, (void **)&proc)) {
+		if(proc->pid == pid) {
+			return proc;
 		}
-		item = item->next;
-	} while(item && item != procs.list);
+	}
 	
 	return NULL;
 }
@@ -48,17 +49,21 @@ kthread_t *thread_by_tid(int tid) {
 		return NULL;
 	}
 
-	llist_item_t *item = procs.list;
-	do {
-		kthread_t *threads = ((kproc_t *)item->data)->threads;
-		for(uint32_t i = 0; i < MAX_THREADS; i++) {
-			if((threads[i].flags & KTHREAD_FLAG_VALID) &&
-			   (threads[i].tid == (uint32_t)tid)) {
-				return &threads[i];
+	llist_iterator_t p_iter;
+	llist_iterator_t t_iter;
+
+	kproc_t   *proc;
+	kthread_t *thread;
+
+	llist_iterator_init(&procs, &p_iter);
+	while(llist_iterate(&p_iter, (void **)&proc)) {
+		llist_iterator_init(&proc->threads, &t_iter);
+		while(llist_iterate(&t_iter, (void **)&thread)) {
+			if(thread->tid == (uint32_t)tid) {
+				return thread;
 			}
 		}
-		item = item->next;
-	} while(item && item != procs.list);
+	}
 	
 	return NULL;
 }
@@ -155,9 +160,14 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 	memcpy(proc->name, name, strlen(name));
 
 	proc->pid = get_next_pid();
-	
-	proc->threads[0].process = proc;
-	proc->threads[0].tid     = proc->pid;
+
+	llist_init(&proc->threads);
+	kthread_t *thread = (kthread_t *)kmalloc(sizeof(kthread_t));
+	thread->list_item.data = thread;
+	llist_append(&proc->threads, &thread->list_item);
+
+	thread->process = proc;
+	thread->tid     = proc->pid;
 
 	// TODO:
 	proc->uid  = 0;
@@ -169,20 +179,20 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 
 	if(kernel) proc->type |= TYPE_KERNEL;
 
-	proc->threads[0].prio = pri;
-	proc->threads[0].entrypoint = (ptr_t)process;
+	thread->prio = pri;
+	thread->entrypoint = (ptr_t)process;
 
-	arch_setup_task(&proc->threads[0], process, stack_size, arch_params);
+	arch_setup_task(thread, process, stack_size, arch_params);
 
 	proc->cwd = fs_root;
 
 	memset(proc->children, 0, sizeof(proc->children));
 
 #if defined(ARCH_X86)
-	kdebug(DEBUGSRC_PROC, "PID: %d EIP: %08X CR3: %08X ESP: %08X", proc->pid, proc->threads[0].arch.eip, proc->arch.cr3, proc->threads[0].arch.esp);
+	kdebug(DEBUGSRC_PROC, "PID: %d EIP: %08X CR3: %08X ESP: %08X", proc->pid, thread->arch.eip, proc->arch.cr3, thread->arch.esp);
 #endif
 
-	proc->threads[0].flags  |= KTHREAD_FLAG_VALID | KTHREAD_FLAG_RANONCE;
+	thread->flags |= KTHREAD_FLAG_VALID | KTHREAD_FLAG_RANONCE;
 	
 	mtask_insert_proc(proc);
 
@@ -193,8 +203,6 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 
 
 int mtask_insert_proc(struct kproc *proc) {
-	proc->threads[0].flags |= KTHREAD_FLAG_VALID;
-
 	proc->list_item.data = proc;
 	llist_append(&procs, &proc->list_item);
 
@@ -222,7 +230,8 @@ void init_multitasking(void *process, char *name) {
 
 	arch_multitasking_init();
 
-	curr_proc = thread->process;
+	curr_proc   = thread->process;
+	curr_thread = thread;
 
 	kerror(ERR_BOOTINFO, "Multitasking enabled");
 }
@@ -236,7 +245,7 @@ __noreturn void exit(int code) {
 	if(curr_proc->parent) {
 		struct kproc *parent = proc_by_pid(curr_proc->parent);
 		/* @todo Unblock the thread waiting on exit */
-		parent->threads[0].blocked &= (uint32_t)~(BLOCK_WAIT);
+		((kthread_t *)parent->threads.list->data)->blocked &= (uint32_t)~(BLOCK_WAIT);
 	}
 
 	/* @todo Migrate this to threads*/

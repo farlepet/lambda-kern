@@ -94,6 +94,8 @@ struct kthread {
 	 * standard POSIX message queues. */
 	struct ipc_message *ipc_messages[MAX_PROCESS_MESSAGES]; //!< IPC message pointers
 	int                 blocked_ipc_pids[MAX_BLOCKED_PIDS]; //!< PIDs blocked from sending messages to this process
+	
+	llist_item_t list_item;
 };
 
 /* TODO: Convert some static-size arrays in kproc to dynamically allocated memory. */
@@ -115,7 +117,8 @@ struct kproc { //!< Structure of a process as seen by the kernel
 
 	//kproc_arch_t  arch; //!< Architecture-specific process data
 	/* @todo If kthread_t gets larger, allocate threads dynamically instead. */
-	kthread_t     threads[MAX_THREADS];
+	//kthread_t     threads[MAX_THREADS];
+	llist_t       threads;
 
 	struct kfile *cwd; //!< Current working directory
 
