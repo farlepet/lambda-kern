@@ -26,14 +26,23 @@ To be able to build Lambda OS, you need the following tools:
   - `make`
   - `cpio`
   - `eu-readelf` (elfutils)
-  - `xorriso` and `grub-mkrescue`
+  - For ISO image:
+     - `xorriso`
+     - `grub-mkrescue`
+  - For floppy image:
+     - `mkdosfs`
+     - `mcopy`
+     - `syslinux`
+        - NOTE: This expects syslinux modules to be located in `/usr/lib/syslinux/bios/`
 
 To build Lambda OS:
   - (If fisrt time) Clone the Lambda OS code repository.
   - (If not first time) Run `git pull`
   - Make: `make`
      - Defaults to x86
+     - For clang: `make CC=clang AS=clang`
      - For ARMv7: `make CROSS_COMPILE=<gcc prefix> ARCH=armv7`
+     - To speed up compilation, add `-j<threads>` argument to the `make` command
 
 
 *** More Documentation ***
