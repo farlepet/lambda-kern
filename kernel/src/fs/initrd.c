@@ -1,6 +1,7 @@
 #include <multiboot.h>
 #include <fs/initrd.h>
 #include <err/error.h>
+#include <err/panic.h>
 #include <mm/alloc.h>
 #include <string.h>
 
@@ -99,6 +100,9 @@ void initrd_mount(struct kfile *mntpoint, uintptr_t initrd, size_t __unused len)
 		uintptr_t data = ((uint32_t)cfile + sizeof(struct header_old_cpio) + cfile->c_namesize + (cfile->c_namesize & 1));
 
 		struct kfile *file = (struct kfile *)kmalloc(sizeof(struct kfile));
+		if(!file) {
+			kpanic("Could not allocate enough memory for initrd file structures!");
+		}
 		memset(file, 0, sizeof(struct kfile));
 
 		char *name = basename(filename);
@@ -114,9 +118,7 @@ void initrd_mount(struct kfile *mntpoint, uintptr_t initrd, size_t __unused len)
 						char *nextPath = &path[i+1];
 						path[i] = '\0';
 
-						//kerror(ERR_BOOTINFO, "initrd: looking for dir: [%s]", path);
 						dir = fs_finddir(dir, path);
-						kerror(ERR_BOOTINFO, "  -> %08X", dir);
 						if(dir == NULL) { // Default to '/'
 							dir = fs_root;
 							break;

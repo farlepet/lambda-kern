@@ -1,3 +1,4 @@
+#include <arch/proc/tasking.h>
 #include <arch/proc/user.h>
 #include <arch/intr/int.h>
 #include <arch/mm/paging.h>
@@ -8,6 +9,7 @@
 #include <proc/proc.h>
 #include <intr/intr.h>
 #include <err/error.h>
+#include <err/panic.h>
 #include <mm/alloc.h>
 #include <types.h>
 
@@ -20,7 +22,7 @@ void arch_multitasking_init(void) {
 	set_interrupt(INT_SCHED, sched_run);
 }
 
-int arch_proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel) {
+int arch_proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel) {
 /*#ifdef STACK_PROTECTOR
 	stack_begin = (uintptr_t)kmalloc(stack_size + 0x2000);
 #else // STACK_PROTECTOR
@@ -28,93 +30,99 @@ int arch_proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt
 #endif // !STACK_PROTECTOR*/
 
 	// TODO: Use better method, so as not to waste 4K of memory for every process.
-    uintptr_t stack_begin = (uintptr_t)kmalloc(stack_size + 4096);
-	stack_begin = (stack_begin + 4096) & 0xFFFFF000;
+    uintptr_t stack_begin = (uintptr_t)kmamalloc(stack_size, 4096);
 
-	kerror(ERR_BOOTINFO, "proc_create_stack [size: %d] [end: %08X, beg: %08X]",
+	kdebug(DEBUGSRC_PROC, "proc_create_stack [size: %d] [end: %08X, beg: %08X]",
 		stack_size, stack_begin, stack_begin + stack_size
 	);
 
 
     // Map stack memory
 	for(size_t i = 0; i < stack_size; i+= 0x1000) {
-		if(is_kernel) pgdir_map_page((uint32_t *)proc->arch.cr3, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
-		else          pgdir_map_page((uint32_t *)proc->arch.cr3, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
+		if(is_kernel) pgdir_map_page((uint32_t *)thread->process->arch.cr3, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
+		else          pgdir_map_page((uint32_t *)thread->process->arch.cr3, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
 	}
 
-	proc->arch.stack_end = virt_stack_begin;
-	proc->arch.stack_beg = virt_stack_begin + stack_size;
+	thread->arch.stack_end = virt_stack_begin;
+	thread->arch.stack_beg = virt_stack_begin + stack_size;
 
 #ifdef STACK_PROTECTOR
 // TODO: Fix stack guarding:
-	block_page(proc->stack_end - 0x1000);
-	block_page(proc->stack_beg);
+	block_page(thread->stack_end - 0x1000);
+	block_page(thread->stack_beg);
 #endif // STACK_PROTECTOR
 
 	return 0;
 }
 
-int arch_proc_create_kernel_stack(struct kproc *proc) {
-	proc->arch.kernel_stack = (uint32_t)kmalloc(PROC_KERN_STACK_SIZE + 4096);
-	proc->arch.kernel_stack = (proc->arch.kernel_stack + 4096) & 0xFFFFF000;
+int arch_proc_create_kernel_stack(kthread_t *thread) {
+	thread->arch.kernel_stack = (uint32_t)kmamalloc(PROC_KERN_STACK_SIZE, 4096);
 
-	kerror(ERR_BOOTINFO, "proc_create_kernel_stack [size: %d] [end: %08X, beg: %08X]",
-		PROC_KERN_STACK_SIZE, proc->arch.kernel_stack, proc->arch.kernel_stack + PROC_KERN_STACK_SIZE
+	kdebug(DEBUGSRC_PROC, "arch_proc_create_kernel_stack [size: %d] [end: %08X, beg: %08X]",
+		PROC_KERN_STACK_SIZE, thread->arch.kernel_stack, thread->arch.kernel_stack + PROC_KERN_STACK_SIZE
 	);
 
 	for(size_t i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
-		pgdir_map_page((uint32_t *)proc->arch.cr3, (void *)(proc->arch.kernel_stack + i), (void *)(proc->arch.kernel_stack + i), 0x03);
+		pgdir_map_page((uint32_t *)thread->process->arch.cr3, (void *)(thread->arch.kernel_stack + i), (void *)(thread->arch.kernel_stack + i), 0x03);
 	}
 
-	proc->arch.kernel_stack += PROC_KERN_STACK_SIZE;
+	thread->arch.kernel_stack += PROC_KERN_STACK_SIZE;
 
     return 0;
 }
 
 void proc_jump_to_ring(void) {
-	if(curr_proc) {
-		if(curr_proc->entrypoint) {
-			enter_ring(curr_proc->arch.ring, (void *)curr_proc->entrypoint);
+	if(curr_proc && curr_thread) {
+		if(curr_thread->entrypoint) {
+			enter_ring(curr_proc->arch.ring, (void *)curr_thread->entrypoint);
 		}
 	}
 }
 
-int arch_setup_task(struct kproc *proc, void *entrypoint, uint32_t stack_size, int kernel, arch_task_params_t *arch_params) {
-	proc->arch.ring  = arch_params->ring;
-	proc->arch.eip   = (uint32_t)entrypoint;
-	proc->entrypoint = (uint32_t)entrypoint;
-	proc->arch.cr3   = (uint32_t)arch_params->pgdir;
+int arch_setup_thread(kthread_t *thread, void *entrypoint, uint32_t stack_size, void *data) {
+	/* @todo */
+	(void)data;
+
+	int kernel = (thread->process->type & TYPE_KERNEL);
+	
+	thread->arch.eip   = (uint32_t)entrypoint;
 
 	uint32_t /*stack_begin, */virt_stack_begin;
 	if(!kernel) virt_stack_begin = 0xFF000000;
 	else        virt_stack_begin = 0x7F000000;
-	proc_create_stack(proc, stack_size, virt_stack_begin, kernel);
+	/* @todo Find better scheme to separate thread stacks. */
+	int tpos = llist_get_position(&thread->process->threads, &thread->list_item);
+	virt_stack_begin -= tpos * 0x10000;
+	proc_create_stack(thread, stack_size, virt_stack_begin, kernel);
+	proc_create_kernel_stack(thread);
 
 
-	proc->arch.esp = proc->arch.ebp = virt_stack_begin + stack_size;
+	thread->arch.esp = thread->arch.ebp = virt_stack_begin + stack_size;
 
 	if(kernel == 0) {
-		/*STACK_PUSH(stack_begin, 0xFFFFAAAA);//process);
-		kerror(ERR_BOOTINFO, "STACK_PEEK[%08X]: %08X", stack_begin, *(uint32_t *)stack_begin);
-		STACK_PUSH(stack_begin, ring);
-		kerror(ERR_BOOTINFO, "STACK_PEEK[%08X]: %08X", stack_begin, *(uint32_t *)stack_begin);
-		STACK_PUSH(stack_begin, 0xFEAFBEEF); // Return Address
-		kerror(ERR_BOOTINFO, "STACK_PEEK[%08X]: %08X", stack_begin, *(uint32_t *)stack_begin);
-		procs[p].eip = (uint32_t)enter_ring;
-		procs[p].esp -= 12;*/
-		proc->arch.eip = (uint32_t)proc_jump_to_ring;
+		thread->arch.eip = (uint32_t)proc_jump_to_ring;
 	}
+    
+	kdebug(DEBUGSRC_PROC, "arch_setup_thread EIP: %08X CR3: %08X ESP: %08X", thread->arch.eip, thread->process->arch.cr3, thread->arch.esp);
 
     return 0;
 }
 
+int arch_setup_task(kthread_t *thread, void *entrypoint, uint32_t stack_size, arch_task_params_t *arch_params) {
+	thread->process->arch.ring  = arch_params->ring;
+	thread->process->arch.cr3   = (uint32_t)arch_params->pgdir;
+
+	arch_setup_thread(thread, entrypoint, stack_size, NULL);
+
+    return 0;
+}
 
 
 
 
 
 __hot void do_task_switch(void) {
-	if(!curr_proc) return;
+	if(!curr_proc || !curr_thread) return;
 	if(creat_task) return; // We don't want to interrupt process creation
 
 	uint32_t esp, ebp, eip, cr3;
@@ -127,21 +135,24 @@ __hot void do_task_switch(void) {
 		return;
 	}
 
-	if(curr_proc->type & TYPE_RANONCE) {
-		curr_proc->arch.esp = esp;
-		curr_proc->arch.ebp = ebp;
-		curr_proc->arch.eip = eip;
+	if(curr_thread->flags & KTHREAD_FLAG_RANONCE) {
+		curr_thread->arch.esp = esp;
+		curr_thread->arch.ebp = ebp;
+		curr_thread->arch.eip = eip;
 	}
-	else curr_proc->type |= TYPE_RANONCE;
+	else curr_thread->flags |= KTHREAD_FLAG_RANONCE;
 
 	// Switch to next process here...
 	sched_next_process();
 
-	tss_set_kern_stack(curr_proc->arch.kernel_stack);
+	if (!curr_thread->arch.kernel_stack) {	
+		kpanic("do_task_switch: No kernel stack set for thread!");
+	}
+	tss_set_kern_stack(curr_thread->arch.kernel_stack);
 
-	esp = curr_proc->arch.esp;
-	ebp = curr_proc->arch.ebp;
-	eip = curr_proc->arch.eip;
+	esp = curr_thread->arch.esp;
+	ebp = curr_thread->arch.ebp;
+	eip = curr_thread->arch.eip;
 	cr3 = curr_proc->arch.cr3;
 
 	asm volatile("mov %0, %%ebx\n"

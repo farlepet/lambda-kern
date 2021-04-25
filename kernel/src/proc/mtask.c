@@ -10,15 +10,16 @@
 #include <mm/alloc.h>
 #include <string.h>
 #include <mm/mm.h>
-#include <video.h>
 #include <fs/fs.h>
 
 #if defined(ARCH_X86)
 #  include <arch/mm/paging.h>
 #endif
 
-struct kproc *procs     = NULL;
-struct kproc *curr_proc = NULL;
+static llist_t procs;
+
+kproc_t   *curr_proc    = NULL;
+kthread_t *curr_thread  = NULL;
 
 static int next_pid = 1;
 
@@ -27,17 +28,42 @@ lock_t creat_task = 0; //!< Lock used when creating tasks
 void proc_jump_to_ring(void);
 
 struct kproc *proc_by_pid(int pid) {
-	if(!procs) {
+	if(!procs.list) {
 		return NULL;
 	}
 
-	struct kproc *proc = procs;
-	do {
+	kproc_t         *proc;
+	llist_iterator_t p_iter;
+	llist_iterator_init(&procs, &p_iter);
+	while(llist_iterate(&p_iter, (void **)&proc)) {
 		if(proc->pid == pid) {
 			return proc;
 		}
-		proc = proc->next;
-	} while(proc && proc != procs);
+	}
+	
+	return NULL;
+}
+
+kthread_t *thread_by_tid(int tid) {
+	if(!procs.list) {
+		return NULL;
+	}
+
+	llist_iterator_t p_iter;
+	llist_iterator_t t_iter;
+
+	kproc_t   *proc;
+	kthread_t *thread;
+
+	llist_iterator_init(&procs, &p_iter);
+	while(llist_iterate(&p_iter, (void **)&proc)) {
+		llist_iterator_init(&proc->threads, &t_iter);
+		while(llist_iterate(&t_iter, (void **)&thread)) {
+			if(thread->tid == (uint32_t)tid) {
+				return thread;
+			}
+		}
+	}
 	
 	return NULL;
 }
@@ -86,16 +112,16 @@ int add_user_task_arch(void *process, char *name, uint32_t stack_size, int pri, 
 	return add_task(process, name, stack_size, pri, 0, arch_params);
 }
 
-int proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel) {
-	if(arch_proc_create_stack(proc, stack_size, virt_stack_begin, is_kernel)) {
+int proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel) {
+	if(arch_proc_create_stack(thread, stack_size, virt_stack_begin, is_kernel)) {
 		return 1;
 	}
 
 	return 0;
 }
 
-int proc_create_kernel_stack(struct kproc *proc) {
-	if(arch_proc_create_kernel_stack(proc)) {
+int proc_create_kernel_stack(kthread_t *thread) {
+	if(arch_proc_create_kernel_stack(thread)) {
 		return 1;
 	}
 
@@ -116,18 +142,13 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 	if(arch_params->ring > 3) { kerror(ERR_MEDERR, "mtask:add_task: Ring is out of range (0-3): %d", arch_params->ring); return 0; }
 #endif
 
-	int parent = 0;
-	if(curr_proc) {
-		parent = curr_proc->pid;
-	}
-
 	struct kproc *proc = (struct kproc *)kmalloc(sizeof(struct kproc));
 	if(!proc) {
 		kerror(ERR_LGERR, "mtask:add_task: Not enough memory to allocate new task.");
 		return -1;
 	}
 
-	if(procs && proc_add_child(curr_proc, proc)) {
+	if(procs.list && proc_add_child(curr_proc, proc)) {
 		kerror(ERR_SMERR, "mtask:add_task: Process %d has run out of children slots", curr_proc->pid);
 		unlock(&creat_task);
 		kfree(proc);
@@ -140,37 +161,39 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 
 	proc->pid = get_next_pid();
 
+	llist_init(&proc->threads);
+	kthread_t *thread = (kthread_t *)kmalloc(sizeof(kthread_t));
+	thread->list_item.data = thread;
+	llist_append(&proc->threads, &thread->list_item);
+
+	thread->process = proc;
+	thread->tid     = proc->pid;
+
 	// TODO:
 	proc->uid  = 0;
 	proc->gid  = 0;
 
 	proc->parent = curr_proc->pid;
 
-	proc->type = TYPE_RUNNABLE | TYPE_VALID | TYPE_RANONCE;
+	proc->type = TYPE_RUNNABLE | TYPE_VALID;
 
 	if(kernel) proc->type |= TYPE_KERNEL;
 
-	proc->prio = pri;
+	thread->prio = pri;
+	thread->entrypoint = (ptr_t)process;
 
-	arch_setup_task(proc, process, stack_size, kernel, arch_params);
-
-	proc_create_kernel_stack(proc);
-
-	/* Set up message buffer */
-	proc->messages.head  = 0;
-	proc->messages.tail  = 0;
-	proc->messages.count = 0;
-	proc->messages.size  = MSG_BUFF_SIZE;
-	proc->messages.buff  = proc->msg_buff;
+	arch_setup_task(thread, process, stack_size, arch_params);
 
 	proc->cwd = fs_root;
 
 	memset(proc->children, 0, sizeof(proc->children));
 
 #if defined(ARCH_X86)
-	kerror(ERR_BOOTINFO, "PID: %d EIP: %08X CR3: %08X ESP: %08X", proc->pid, proc->arch.eip, proc->arch.cr3, proc->arch.esp);
+	kdebug(DEBUGSRC_PROC, "PID: %d EIP: %08X CR3: %08X ESP: %08X", proc->pid, thread->arch.eip, proc->arch.cr3, thread->arch.esp);
 #endif
 
+	thread->flags |= KTHREAD_FLAG_VALID | KTHREAD_FLAG_RANONCE;
+	
 	mtask_insert_proc(proc);
 
 	unlock(&creat_task);
@@ -180,22 +203,8 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 
 
 int mtask_insert_proc(struct kproc *proc) {
-	if(!procs) {
-		procs = proc;
-		proc->next = proc;
-		proc->prev = proc;
-	} else {
-		/* TODO: Keep track of last proc? */
-		struct kproc *last = procs;
-		while(last->next && last->next != procs) {
-			last = last->next;
-		}
-		/* Insert after last process: */
-		proc->prev  = last;
-		proc->next  = procs;
-		last->next  = proc;
-		procs->prev = proc;
-	}
+	proc->list_item.data = proc;
+	llist_append(&procs, &proc->list_item);
 
 	return 0;
 }
@@ -209,14 +218,20 @@ struct kproc *mtask_get_current_task(void) {
 void init_multitasking(void *process, char *name) {
 	kerror(ERR_BOOTINFO, "Initializing multitasking");
 
-	int pid = add_kernel_task(process, name, 0x10000, PRIO_KERNEL);
-	struct kproc *proc = proc_by_pid(pid);
+	llist_init(&procs);
 
-	proc->type &= (uint32_t)~(TYPE_RANONCE); // Don't save registers right away for the first task
+	int tid = add_kernel_task(process, name, 0x2000, PRIO_KERNEL);
+	kthread_t *thread = thread_by_tid(tid);
+	if(thread == NULL) {
+		kpanic("Could not find initial kernel thread!");
+	}
+
+	thread->flags &= (uint32_t)~(KTHREAD_FLAG_RANONCE); // Don't save registers right away for the first task
 
 	arch_multitasking_init();
 
-	curr_proc = proc;
+	curr_proc   = thread->process;
+	curr_thread = thread;
 
 	kerror(ERR_BOOTINFO, "Multitasking enabled");
 }
@@ -224,14 +239,16 @@ void init_multitasking(void *process, char *name) {
 
 
 __noreturn void exit(int code) {
-	kerror(ERR_BOOTINFO, "exit(%d) called by process %d.", code, curr_proc->pid);
+	kdebug(DEBUGSRC_PROC, "exit(%d) called by process %d.", code, curr_proc->pid);
 
 	// If parent processis waiting for child to exit, allow it to continue execution:
 	if(curr_proc->parent) {
 		struct kproc *parent = proc_by_pid(curr_proc->parent);
-		parent->blocked &= (uint32_t)~(BLOCK_WAIT);
+		/* @todo Unblock the thread waiting on exit */
+		((kthread_t *)parent->threads.list->data)->blocked &= (uint32_t)~(BLOCK_WAIT);
 	}
 
+	/* @todo Migrate this to threads*/
 	curr_proc->type &= (uint32_t)~(TYPE_RUNNABLE);
 	curr_proc->type |= TYPE_ZOMBIE; // It isn't removed unless it's parent inquires on it
 	curr_proc->exitcode = code;

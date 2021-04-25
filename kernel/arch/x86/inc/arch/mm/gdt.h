@@ -49,6 +49,46 @@
 #define GDT_CODE_RING3 GDT_ENTRY(0x00000000, 0xFFFFF, 0xCFFA)
 #define GDT_DATA_RING3 GDT_ENTRY(0x00000000, 0xFFFFF, 0xCFF2)
 
+typedef struct {
+	uint16_t link;
+	uint16_t reserved_00;
+	uint32_t esp0;
+	uint16_t ss0;
+	uint16_t reserved_01;
+	uint32_t esp1;
+	uint16_t ss1;
+	uint16_t reserved_02;
+	uint32_t esp2;
+	uint16_t ss2;
+	uint16_t reserved_03;
+	uint32_t cr3;
+	uint32_t eip;
+	uint32_t eflags;
+	uint32_t eax;
+	uint32_t ecx;
+	uint32_t edx;
+	uint32_t ebx;
+	uint32_t esp;
+	uint32_t ebp;
+	uint32_t esi;
+	uint32_t edi;
+	uint16_t es;
+	uint16_t reserved_04;
+	uint16_t cs;
+	uint16_t reserved_05;
+	uint16_t ss;
+	uint16_t reserved_06;
+	uint16_t ds;
+	uint16_t reserved_07;
+	uint16_t fs;
+	uint16_t reserved_08;
+	uint16_t gs;
+	uint16_t reserved_09;
+	uint16_t ldtr;
+	uint16_t reserved_10;
+	uint16_t reserved_11;
+	uint16_t iopb_offset;
+} __packed tss_t;
 
 /**
  * \brief Initialize the GDT

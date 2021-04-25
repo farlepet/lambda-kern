@@ -17,9 +17,9 @@ int mm_check_addr(void *addr) {
 
 	return (page & 0x02) ? (2) : (1); // Check R/W bit
 #else
-	// Unimplemented for this architecture
+	/* Unimplemented for this architecture, assume address is good. */
 	(void)addr;
-	return 0;
+	return 2;
 #endif
 }
 
@@ -35,7 +35,7 @@ void *mm_translate_proc_addr(struct kproc *proc, const void *addr) {
 }
 
 int mm_proc_mmap_add(struct kproc *proc, uintptr_t phys, uintptr_t virt, size_t sz) {
-	kerror(ERR_BOOTINFO, "mm_proc_mmap_add(%s, %08X, %08X, %d)", proc->name, phys, virt, sz);
+	kdebug(DEBUGSRC_MM, "mm_proc_mmap_add(%s, %08X, %08X, %d)", proc->name, phys, virt, sz);
 	
 	struct kproc_mem_map_ent *mmap_ent = (struct kproc_mem_map_ent *)kmalloc(sizeof(struct kproc_mem_map_ent));
 	if(!mmap_ent) {
@@ -57,7 +57,7 @@ int mm_proc_mmap_add(struct kproc *proc, uintptr_t phys, uintptr_t virt, size_t 
 }
 
 int mm_proc_mmap_remove_virt(struct kproc *proc, uintptr_t virt) {
-	kerror(ERR_BOOTINFO, "mm_proc_mmap_remove_virt(%s, %08X)", proc->name, virt);
+	kdebug(DEBUGSRC_MM, "mm_proc_mmap_remove_virt(%s, %08X)", proc->name, virt);
 	
 	struct kproc_mem_map_ent *mmap_ent  = proc->mmap;
 	struct kproc_mem_map_ent *mmap_prev = NULL;
@@ -80,7 +80,7 @@ int mm_proc_mmap_remove_virt(struct kproc *proc, uintptr_t virt) {
 }
 
 int mm_proc_mmap_remove_phys(struct kproc *proc, uintptr_t phys) {
-	kerror(ERR_BOOTINFO, "mm_proc_mmap_remove_phys(%s, %08X)", proc->name, phys);
+	kdebug(DEBUGSRC_MM, "mm_proc_mmap_remove_phys(%s, %08X)", proc->name, phys);
 	
 	struct kproc_mem_map_ent *mmap_ent  = proc->mmap;
 	struct kproc_mem_map_ent *mmap_prev = NULL;

@@ -35,7 +35,7 @@ void free(void *ptr);
  * @param sz size of the required memory block
  * @returns pointer to memory block on success, else NULL
  */
-void *kmalloc(uint32_t sz);
+void *kmalloc(size_t sz);
 
 /**
  * Allocates a block of memory with requested alignment
@@ -44,7 +44,17 @@ void *kmalloc(uint32_t sz);
  * @param align desired alignment
  * @returns pointer to memory block on success, else NULL
  */
-void *kamalloc(uint32_t sz, uint32_t align);
+void *kamalloc(size_t sz, size_t align);
+
+/**
+ * Allocates a block of memory with requested alignment, in multiples of the
+ * alignment value
+ *
+ * @param sz    size of the required memory block
+ * @param align desired alignment
+ * @returns pointer to memory block on success, else NULL
+ */
+void *kmamalloc(size_t sz, size_t align);
 
 /**
  * Free an allocated memory block

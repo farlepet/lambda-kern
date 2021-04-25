@@ -12,7 +12,7 @@
  * @param src Source process
  * @return int 0 on success
  */
-int proc_copy_stack(struct kproc *dest, const struct kproc *src);
+int proc_copy_stack(kthread_t *dest, const kthread_t *src);
 
 /**
  * @brief Copies the kernel stack to that of the child process.
@@ -23,6 +23,6 @@ int proc_copy_stack(struct kproc *dest, const struct kproc *src);
  * @param src Source process
  * @return int 0 on success
  */
-int proc_copy_kernel_stack(struct kproc *dest, const struct kproc *src);
+int proc_copy_kernel_stack(kthread_t *dest, const kthread_t *src);
 
 #endif // ARCH_X86_PROC_STACK_H

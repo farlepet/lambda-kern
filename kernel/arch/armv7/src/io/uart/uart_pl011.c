@@ -2,6 +2,10 @@
 
 #include <arch/io/uart/uart_pl011.h>
 
+#include <proc/ktasks.h>
+#include <err/error.h>
+#include <proc/ipc.h>
+
 static void chardev_putc(void *data, int c);
 static int  chardev_getc(void *data);
 static int  chardev_chavail(void *data);
@@ -60,7 +64,25 @@ int uart_pl011_init(uart_pl011_handle_t *hand, void *base, uint32_t baud) {
                       (1UL << UART_PL011_CR_TXE__POS)    |
                       (1UL << UART_PL011_CR_RXE__POS);
 
+    hand->idev = add_input_dev(IDRIVER_SERIAL, "ttyS", 1, 0);
+	if(!hand->idev) {
+		kerror(ERR_MEDERR, "Could not set up serial device");
+	}
+
     return 0;
+}
+
+static void handle_input(uart_pl011_handle_t *hand, char ch)
+{
+	if(ktask_pids[KINPUT_TASK_SLOT])
+	{
+		struct input_event iev;
+		iev.origin.s.driver = IDRIVER_SERIAL;
+		iev.origin.s.device = hand->idev->id.s.device;
+		iev.type = EVENT_CHAR;
+		iev.data = ch;
+		send_message(ktask_pids[KINPUT_TASK_SLOT], &iev, sizeof(struct input_event));
+	}
 }
 
 static void intr_recv_handler(uint32_t int_n, void *data) {
@@ -70,8 +92,7 @@ static void intr_recv_handler(uint32_t int_n, void *data) {
 
     uint8_t inp = (uint8_t)hand->base->DR;
 
-    /* For testing only: */
-    chardev_putc(data, inp);
+    handle_input(hand, inp);
 
     /* Clear all UART interrupts */
     hand->base->ICR = 0x07FF;

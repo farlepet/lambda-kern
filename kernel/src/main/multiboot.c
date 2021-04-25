@@ -106,8 +106,8 @@ void check_multiboot_modules(struct multiboot_header *mboot_head) {
 
 	for(uint32_t i = 0; i < modcnt; i++) {
 #if defined(ARCH_X86)
-		ptr_t mod_start = (uint32_t)mod->mod_start;
-		ptr_t mod_end   = (uint32_t)mod->mod_end;
+		uintptr_t mod_start = (uintptr_t)mod->mod_start;
+		uintptr_t mod_end   = (uintptr_t)mod->mod_end;
 
 		uint32_t b = ((mod_start - (uint32_t)firstframe) / 0x1000);
 		for(; b < ((mod_end - (uint32_t)firstframe) / 0x1000) + 1; b++) {
@@ -117,10 +117,12 @@ void check_multiboot_modules(struct multiboot_header *mboot_head) {
 #endif
 
 		kerror(ERR_BOOTINFO, "  -> MOD[%d/%d]: %s", i+1, modcnt, mod->string);
-
+	
+#if (!FEATURE_INITRD_EMBEDDED)
 		if(!strcmp((char *)mod->string, (const char *)boot_options.init_ramdisk_name)) {
 			initrd_mount(fs_root, mod->mod_start, mod->mod_end - mod->mod_start);
 		}
+#endif /* (!FEATURE_INITRD_EMBEDDED) */
 		mod++;
 	}
 }

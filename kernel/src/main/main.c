@@ -1,10 +1,10 @@
+#include <proc/ktask/kinput.h>
 #include <lambda/version.h>
 #include <proc/syscalls.h>
 #include <proc/ktasks.h>
 #include <proc/mtask.h>
 #include <proc/exec.h>
 #include <proc/elf.h>
-#include <proc/ipc.h>
 #include <mm/alloc.h>
 #include <multiboot.h>
 #include <err/panic.h>
@@ -55,6 +55,11 @@ __noreturn int kmain(struct multiboot_header *mboot_head, uint32_t magic) {
 	fs_init();
 #if defined(ARCH_X86)
 	check_multiboot_modules(mboot_head);
+#endif
+
+#if (FEATURE_INITRD_EMBEDDED)
+	kerror(ERR_BOOTINFO, "Embedded initrd: %08X-%08X", &_binary_initrd_cpio_start, &_binary_initrd_cpio_end);
+	initrd_mount(fs_root, (uintptr_t)&_binary_initrd_cpio_start, &_binary_initrd_cpio_end - &_binary_initrd_cpio_start);
 #endif
 
 	timer_init(100);
@@ -151,22 +156,12 @@ static void spawn_init() {
 	proc->open_files[1] = stdout;
 	proc->open_files[2] = stderr;
 
+	/* Route input to init process */
+	kinput_dest = stdin;
+
 	char buffer[INIT_STREAM_LEN];
 
-	while(!(procs->type & TYPE_ZOMBIE)) {
-		char t;
-		struct ipc_message_user umsg;
-
-		if(ipc_user_recv_message(&umsg) >= 0) {
-			if(umsg.length > sizeof(char)) {
-				ipc_user_delete_message(umsg.message_id);
-			} else {
-				ipc_user_copy_message(umsg.message_id, &t);
-				fs_write(stdin, 0, 1, (uint8_t *)&t);
-				kput(t); // TODO: Handle this better		
-			}
-		}
-
+	while(!(proc->type & TYPE_ZOMBIE)) {
 		if(stdout->length > 0) {
 			int sz = fs_read(stdout, 0, stdout->length, (uint8_t *)&buffer);
 			for(int i = 0; i < sz; i++) {
@@ -180,6 +175,8 @@ static void spawn_init() {
 				kput(buffer[i]);
 			}
 		}
+
+		delay(1);
 	}
 		
 	kpanic("Init process exited!");

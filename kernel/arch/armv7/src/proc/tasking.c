@@ -7,8 +7,6 @@
 
 extern lock_t creat_task; // From proc/mtask.c
 
-static int c_proc = 0; //!< Index of current process
-
 extern uint32_t irq_stack_end[];
 
 
@@ -53,10 +51,10 @@ void arch_multitasking_init(void) {
 }
 
 __hot void do_task_switch(void) {
-	if(!tasking)   return;
+	if(!curr_proc)   return;
 	if(creat_task) return; /* We don't want to interrupt process creation */
 
-    if(procs[c_proc].type & TYPE_RANONCE) {
+    if(curr_proc->type & TYPE_RANONCE) {
         /* Save registers */
         /* push {lr}
          * push {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12}
@@ -65,70 +63,70 @@ __hot void do_task_switch(void) {
         /* TODO: Cleanup */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
-        procs[c_proc].arch.regs.pc   = irq_stack_end[-1];
-        procs[c_proc].arch.regs.r0   = irq_stack_end[-2];
-        procs[c_proc].arch.regs.r1   = irq_stack_end[-3];
-        procs[c_proc].arch.regs.r2   = irq_stack_end[-4];
-        procs[c_proc].arch.regs.r3   = irq_stack_end[-5];
-        procs[c_proc].arch.regs.r4   = irq_stack_end[-6];
-        procs[c_proc].arch.regs.r5   = irq_stack_end[-7];
-        procs[c_proc].arch.regs.r6   = irq_stack_end[-8];
-        procs[c_proc].arch.regs.r7   = irq_stack_end[-9];
-        procs[c_proc].arch.regs.r8   = irq_stack_end[-10];
-        procs[c_proc].arch.regs.r9   = irq_stack_end[-11];
-        procs[c_proc].arch.regs.r10  = irq_stack_end[-12];
-        procs[c_proc].arch.regs.r11  = irq_stack_end[-13];
-        procs[c_proc].arch.regs.r12  = irq_stack_end[-14];
-        procs[c_proc].arch.regs.cpsr = irq_stack_end[-15];
+        curr_proc->arch.regs.pc   = irq_stack_end[-1];
+        curr_proc->arch.regs.r0   = irq_stack_end[-2];
+        curr_proc->arch.regs.r1   = irq_stack_end[-3];
+        curr_proc->arch.regs.r2   = irq_stack_end[-4];
+        curr_proc->arch.regs.r3   = irq_stack_end[-5];
+        curr_proc->arch.regs.r4   = irq_stack_end[-6];
+        curr_proc->arch.regs.r5   = irq_stack_end[-7];
+        curr_proc->arch.regs.r6   = irq_stack_end[-8];
+        curr_proc->arch.regs.r7   = irq_stack_end[-9];
+        curr_proc->arch.regs.r8   = irq_stack_end[-10];
+        curr_proc->arch.regs.r9   = irq_stack_end[-11];
+        curr_proc->arch.regs.r10  = irq_stack_end[-12];
+        curr_proc->arch.regs.r11  = irq_stack_end[-13];
+        curr_proc->arch.regs.r12  = irq_stack_end[-14];
+        curr_proc->arch.regs.cpsr = irq_stack_end[-15];
 #pragma GCC diagnostic pop
 
         /* Save SP and LR: */
-        asm("mrs r0, cpsr \n"
-            "bic r0, r0, #0x1f \n"
-            "orr r0, r0, #0x1f \n"
-            "msr cpsr, r0 \n"
-            "mov %0, sp \n"
-            "mov %1, lr \n"
-            "bic r0, r0, #0x1f \n"
-            "orr r0, r0, #0x12 \n"
-            "msr cpsr, r0 \n"
-            : "=r" (procs[c_proc].arch.regs.sp), "=r" (procs[c_proc].arch.regs.lr));
+        asm volatile("mrs r0, cpsr \n"
+                     "orr r0, r0, #0x1f \n"
+                     "msr cpsr, r0 \n"
+
+                     "mov %0, sp \n"
+                     "mov %1, lr \n"
+
+                     "bic r0, r0, #0x0d \n"
+                     "msr cpsr, r0 \n"
+                     : "=r" (curr_proc->arch.regs.sp), "=r" (curr_proc->arch.regs.lr));
     } else {
-        procs[c_proc].type |= TYPE_RANONCE;
+        curr_proc->type |= TYPE_RANONCE;
     }
 
     /* Get next process to run. */
-    c_proc = sched_next_process();
+    sched_next_process();
 
     /* Load registers: */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
-    irq_stack_end[-1]  = procs[c_proc].arch.regs.pc;
-    irq_stack_end[-2]  = procs[c_proc].arch.regs.r0;
-    irq_stack_end[-3]  = procs[c_proc].arch.regs.r1;
-    irq_stack_end[-4]  = procs[c_proc].arch.regs.r2;
-    irq_stack_end[-5]  = procs[c_proc].arch.regs.r3;
-    irq_stack_end[-6]  = procs[c_proc].arch.regs.r4;
-    irq_stack_end[-7]  = procs[c_proc].arch.regs.r5;
-    irq_stack_end[-8]  = procs[c_proc].arch.regs.r6;
-    irq_stack_end[-9]  = procs[c_proc].arch.regs.r7;
-    irq_stack_end[-10] = procs[c_proc].arch.regs.r8;
-    irq_stack_end[-11] = procs[c_proc].arch.regs.r9;
-    irq_stack_end[-12] = procs[c_proc].arch.regs.r10;
-    irq_stack_end[-13] = procs[c_proc].arch.regs.r11;
-    irq_stack_end[-14] = procs[c_proc].arch.regs.r12;
-    irq_stack_end[-15] = procs[c_proc].arch.regs.cpsr;
+    irq_stack_end[-1]  = curr_proc->arch.regs.pc;
+    irq_stack_end[-2]  = curr_proc->arch.regs.r0;
+    irq_stack_end[-3]  = curr_proc->arch.regs.r1;
+    irq_stack_end[-4]  = curr_proc->arch.regs.r2;
+    irq_stack_end[-5]  = curr_proc->arch.regs.r3;
+    irq_stack_end[-6]  = curr_proc->arch.regs.r4;
+    irq_stack_end[-7]  = curr_proc->arch.regs.r5;
+    irq_stack_end[-8]  = curr_proc->arch.regs.r6;
+    irq_stack_end[-9]  = curr_proc->arch.regs.r7;
+    irq_stack_end[-10] = curr_proc->arch.regs.r8;
+    irq_stack_end[-11] = curr_proc->arch.regs.r9;
+    irq_stack_end[-12] = curr_proc->arch.regs.r10;
+    irq_stack_end[-13] = curr_proc->arch.regs.r11;
+    irq_stack_end[-14] = curr_proc->arch.regs.r12;
+    irq_stack_end[-15] = curr_proc->arch.regs.cpsr;
 #pragma GCC diagnostic pop
 
     /* Restore SP and LR: */
-    asm("mrs r0, cpsr \n"
-        "bic r0, r0, #0x1f \n"
-        "orr r0, r0, #0x1f \n"
-        "msr cpsr, r0 \n"
-        "mov sp, %0 \n"
-        "mov lr, %1 \n"
-        "bic r0, r0, #0x1f \n"
-        "orr r0, r0, #0x12 \n"
-        "msr cpsr, r0 \n"
-		: : "r" (procs[c_proc].arch.regs.sp), "r" (procs[c_proc].arch.regs.lr));
+    asm volatile("mrs r0, cpsr \n"
+                 "orr r0, r0, #0x1f \n"
+                 "msr cpsr, r0 \n"
+
+                 "mov sp, %0 \n"
+                 "mov lr, %1 \n"
+
+                 "bic r0, r0, #0x0d \n"
+                 "msr cpsr, r0 \n"
+                 : : "r" (curr_proc->arch.regs.sp), "r" (curr_proc->arch.regs.lr));
 }

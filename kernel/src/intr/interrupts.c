@@ -34,12 +34,16 @@ void set_interrupt(interrupt_idx_e n, void *handler) {
 /* TODO: Move elsewhere */
 __hot
 static void clk_count() {
-	kerneltime++;
+	/* TODO: Determine from timer struct */
+	kerneltime += 10;
 	
-	for(uint32_t i = 0; i < MAX_TIME_BLOCKS; i++)
-		if(time_blocks[i].event)
-			if(--time_blocks[i].count == 0x00000000)
+	for(uint32_t i = 0; i < MAX_TIME_BLOCKS; i++) {
+		if(time_blocks[i].event) {
+			if(--time_blocks[i].count == 0x00000000) {
 				do_time_block_timeup(i);
+			}
+		}
+	}
 }
 #endif
 
@@ -62,9 +66,11 @@ void timer_init(uint32_t quantum) {
     timer_sp804_init(&sp804, VEXPRESS_A9_PERIPH_TIMER01_BASE);
 	timer_sp804_int_attach(&sp804, &intctlr, VEXPRESSA9_INT_TIM01);
 	timer_sp804_create_timerdev(&sp804, &timer);
+	/* Task switch timer: */
 	hal_timer_dev_setfreq(&timer, 0, quantum);
 	hal_timer_dev_attach(&timer, 0, do_task_switch);
-	hal_timer_dev_setfreq(&timer, 1, 1000);
+	/* Kernel time timer: */
+	hal_timer_dev_setfreq(&timer, 1, 100);
 	hal_timer_dev_attach(&timer, 1, clk_count);
 #endif
 	kerror(ERR_BOOTINFO, "Timer initialized");

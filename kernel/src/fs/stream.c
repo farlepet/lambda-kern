@@ -1,3 +1,4 @@
+#include <data/cbuff.h>
 #include <fs/stream.h>
 #include <mm/alloc.h>
 #include <string.h>
@@ -14,8 +15,8 @@ struct kfile *stream_create(int length) {
     struct kfile *file = (struct kfile *)kmalloc(sizeof(struct kfile));
     memset(file, 0, sizeof(struct kfile));
 
-    struct cbuff *buff = (struct cbuff *)kmalloc(sizeof(struct cbuff));
-    buff->buff  = (uint8_t *)kmalloc(length);
+    struct cbuff *buff = (struct cbuff *)kmalloc(sizeof(struct cbuff) + length);
+    buff->buff  = (uint8_t *)((ptr_t)buff + sizeof(struct cbuff));
     buff->head  = 0;
     buff->tail  = 0;
     buff->count = 0;
@@ -61,9 +62,8 @@ static uint32_t stream_write(struct kfile *f, uint32_t off, uint32_t sz, uint8_t
     (void)off; // Offset goes unused, this is basically a queue
 
     uint32_t count = 0;
-    int ret;
 
-    while((count < sz) && !((ret = put_cbuff(buff[count], (struct cbuff *)f->info)) & CBUFF_ERRMSK)) {
+    while((count < sz) && !(put_cbuff(buff[count], (struct cbuff *)f->info) & CBUFF_ERRMSK)) {
         count++;
     }
 
@@ -84,5 +84,6 @@ static void stream_close(struct kfile *f)
 {
 	lock(&f->file_lock);
 	f->open = 0;
+    kfree(f->info);
 	unlock(&f->file_lock);
 }

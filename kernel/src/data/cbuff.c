@@ -1,5 +1,4 @@
-#include <err/error.h>
-#include <mm/cbuff.h>
+#include <data/cbuff.h>
 
 int put_cbuff(uint8_t data, struct cbuff *buff) {
 	if(!buff || !buff->buff) return CBUFF_INVAL; // Invalid buffer

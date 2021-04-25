@@ -21,15 +21,20 @@ static void elf_read_phdr(Elf32_Ehdr *elf, struct kproc_mem_map_ent **mmap_entri
 	elf_data->dynamic = NULL;
 
 	for(size_t i = 0; i < elf->e_phnum; i++) {
-		kerror(ERR_INFO, "phdr[%2X/%2X] T:%X VADDR: %08X MSZ:%08X FSZ:%08X", i+1, elf->e_phnum, prog[i].p_type, prog[i].p_vaddr, prog[i].p_memsz, prog[i].p_filesz);
+		kdebug(DEBUGSRC_EXEC, "phdr[%2X/%2X] T:%X VADDR: %08X MSZ:%08X FSZ:%08X", i+1, elf->e_phnum, prog[i].p_type, prog[i].p_vaddr, prog[i].p_memsz, prog[i].p_filesz);
 		switch(prog[i].p_type) {
 			case PT_LOAD: {
 				/* TODO: Read entire header first, so we can avoid issues with
 				 * overlapping memory regions. Or create more sophisticated mmap
 				 * system. */
 				/* Allocate physical memory */
-				void *phys = kmalloc(prog[i].p_memsz + 0x2000); // + 0x2000 so we can page-align it
-				phys = (void *)((uintptr_t)phys & ~0xFFF) + 0x1000 + (prog[i].p_vaddr & 0xFFF);
+				void *phys;
+				if(prog[i].p_memsz & 0xFFF) {
+					phys = kmamalloc(prog[i].p_memsz + 0x1000, 0x1000); // + 0x1000 so we can align it
+					phys = phys + (prog[i].p_vaddr & 0xFFF);
+				} else {
+					phys = kmamalloc(prog[i].p_memsz, 0x1000);
+				}
 
 				/* Copy data and/or clear memory */
 				if(prog[i].p_filesz) {
@@ -52,6 +57,8 @@ static void elf_read_phdr(Elf32_Ehdr *elf, struct kproc_mem_map_ent **mmap_entri
 				for(uintptr_t pg = 0; pg < prog[i].p_memsz; pg += 0x1000) {
 					pgdir_map_page(arch_params->pgdir, (phys + pg), (void *)(prog[i].p_vaddr + pg), 0x07);
 				}
+#else
+	(void)arch_params;
 #endif
 			} break;
 			case PT_DYNAMIC:
@@ -94,9 +101,9 @@ static uintptr_t elf_exec_common(void *data, uint32_t length, arch_task_params_t
 		Elf32_Shdr *shdr = &sections[i];
 
 		if(shdr->sh_type <= SHT_PREINIT_ARRAY) {
-			kerror(ERR_INFO, "shdr[%2X/%2X] N:%s T:%s OFF: %08X ADDR:%08X SZ:%08X", i+1, head->e_shnum, &strTabSecStr[shdr->sh_name], sht_strings[shdr->sh_type], shdr->sh_offset, shdr->sh_addr, shdr->sh_size);
+			kdebug(DEBUGSRC_EXEC, "shdr[%2X/%2X] N:%s T:%s OFF: %08X ADDR:%08X SZ:%08X", i+1, head->e_shnum, &strTabSecStr[shdr->sh_name], sht_strings[shdr->sh_type], shdr->sh_offset, shdr->sh_addr, shdr->sh_size);
 		} else {
-			kerror(ERR_INFO, "shdr[%2X/%2X] N:%s T:%X OFF: %08X ADDR:%08X SZ:%08X", i+1, head->e_shnum, &strTabSecStr[shdr->sh_name], shdr->sh_type, shdr->sh_offset, shdr->sh_addr, shdr->sh_size);
+			kdebug(DEBUGSRC_EXEC, "shdr[%2X/%2X] N:%s T:%X OFF: %08X ADDR:%08X SZ:%08X", i+1, head->e_shnum, &strTabSecStr[shdr->sh_name], shdr->sh_type, shdr->sh_offset, shdr->sh_addr, shdr->sh_size);
 		}
 
 		if((shdr->sh_type == SHT_SYMTAB) &&
@@ -208,7 +215,7 @@ int load_elf(void *file, uint32_t length) {
 	}
 
 
-	kerror(ERR_INFO, "Entrypoint: %08X", entrypoint);
+	kdebug(DEBUGSRC_EXEC, "Entrypoint: %08X", entrypoint);
 	
 	// Old way of creating new process:
 	int pid = add_user_task_arch((void *)entrypoint, "UNNAMED_ELF", 0, PRIO_USERPROG, &arch_params);
@@ -243,11 +250,11 @@ int exec_elf(void *data, uint32_t length, const char **argv, const char **envp) 
 		return -1;
 	}
 
-	kerror(ERR_INFO, "Entrypoint: %08X", entrypoint);
+	kdebug(DEBUGSRC_EXEC, "Entrypoint: %08X", entrypoint);
 
 	// TODO: Add generated memory map to this process
 
-	exec_replace_process_image((void *)entrypoint, "ELF_PROG", &arch_params, symbols, symStrTab, argv, envp);
+	exec_replace_process_image((void *)entrypoint, argv[0], &arch_params, symbols, symStrTab, argv, envp);
 
 	/* We shouldn't get this far */
 	return -1;

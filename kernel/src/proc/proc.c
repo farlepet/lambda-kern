@@ -5,25 +5,6 @@
 #include <mm/alloc.h>
 #include <string.h>
 
-void kproc_to_uproc(struct kproc *kp, struct uproc *up)
-{
-	memcpy(up->name, kp->name, 64);
-
-    up->pid      = kp->pid;
-    up->uid      = kp->uid;
-    up->gid      = kp->gid;
-    up->type     = kp->type;
-    up->blocked  = kp->blocked;
-    up->exitcode = kp->exitcode;
-    up->prio     = kp->prio;
-
-	memcpy(up->children, kp->children, MAX_CHILDREN * sizeof(int));
-
-#ifdef ARCH_X86
-	up->ip = kp->arch.eip;
-#endif
-}
-
 
 int proc_add_file(struct kproc *proc, struct kfile *file) {
 	for(int i = 0; i < MAX_OPEN_FILES; i++) {
@@ -84,22 +65,57 @@ __hot void sched_processes()
 	// Nothing to do with  current state of the scheduler
 }
 
+__optimize_none
 __hot void sched_next_process()
 {
-	int nr = 0;
+	/*
+	 * Next thread is chosen by going process-by-process, looking at each thread
+	 * until we find one that we can schedule.
+	 */
 
-	struct kproc *next = curr_proc->next;
+	kproc_t         *proc   = curr_proc;
+	kthread_t       *thread = curr_thread;
+	llist_iterator_t p_iter = {
+		.first = (llist_item_t *)0xFFFFFFFF,
+		.curr  = &proc->list_item
+	};
+	llist_iterator_t t_iter = {
+		.first = proc->threads.list,
+		.curr  = &curr_thread->list_item
+	};
 
-	while(!(next->type & TYPE_RUNNABLE) || next->blocked) {
-		if(next == curr_proc) nr++;
-		if(nr >= 2) {
-			// We couldn't get a new runnable task, so we panic and halt
-			kpanic("Could not schedule new task -- All tasks are blocked!");
+	/* @todo The present implementation is somewhat ineffecient. */
+	do {
+
+	    /*if(next->threads[thread].flags & KTHREAD_FLAG_VALID) {
+            kdebug(DEBUGSRC_PROC, "TID: %d | BLK: %08X | PROC: %s", next->threads[thread].tid, next->threads[thread].blocked, next->name);
+		}*/
+
+		if(!llist_iterate(&t_iter, (void **)&thread)) {
+			if((proc->list_item.next       == NULL) ||
+			   (proc->list_item.next->data == NULL)) {
+				kpanic("Next task is NULL!");
+			}
+			if(!llist_iterate(&p_iter, (void **)&proc)) {
+				kpanic("Could not schedule new task -- All tasks are blocked!");
+			}
+			if(p_iter.curr == (llist_item_t *)0xFFFFFFFF) {
+				/* We don't want to fault unless we go through all of the
+				 * process a second time. */
+				p_iter.first = p_iter.curr;
+			}
+
+			llist_iterator_init(&proc->threads, &t_iter);
+			if(!llist_iterate(&t_iter, (void **)&thread)) {
+				kpanic("Process contains no threads!");
+			}
 		}
+	} while(!(proc->type & TYPE_RUNNABLE)         ||
+	        !(thread->flags & KTHREAD_FLAG_VALID) ||
+			thread->blocked);
 
-		next = next->next;
-	}
-	curr_proc = next;
+	curr_proc   = proc;
+	curr_thread = thread;
 
 	curr_proc->book.schedule_count++;
 }
