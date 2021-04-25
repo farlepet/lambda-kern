@@ -53,3 +53,54 @@ void llist_remove(llist_t *list, llist_item_t *item) {
 
     unlock(&list->lock);
 }
+
+int llist_get_position(llist_t *list, llist_item_t *item) {
+    if((list == NULL) ||
+       (item == NULL)) {
+        return -1;
+    }
+
+    llist_item_t *citem = list->list;
+    int i = 0;
+    do {
+        if(citem == item) {
+            return i;
+        }
+        citem = citem->next;
+        i++;
+    } while(citem != list->list);
+
+    return -1;
+}
+
+void llist_iterator_init(llist_t *list, llist_iterator_t *iter) {
+    if((list == NULL) ||
+       (iter == NULL)) {
+        return;
+    }
+
+    iter->first = list->list;
+    iter->curr  = NULL;
+}
+
+int llist_iterate(llist_iterator_t *iter, void **data) {
+    if((iter        == NULL) ||
+       (data        == NULL) ||
+       (iter->first == NULL)) {
+        return 0;
+    }
+    
+    if(iter->curr == NULL) {
+        iter->curr = iter->first;
+    } else {
+        iter->curr = iter->curr->next;
+        if(iter->curr == iter->first) {
+            /* Done iterating */
+            return 0;
+        }
+    }
+
+    *data = iter->curr->data;
+
+    return 1;
+}

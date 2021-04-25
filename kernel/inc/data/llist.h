@@ -3,8 +3,9 @@
 
 #include <proc/atomic.h>
 
-typedef struct llist_item llist_item_t;
-typedef struct llist      llist_t;
+typedef struct llist_item     llist_item_t;
+typedef struct llist          llist_t;
+typedef struct llist_iterator llist_iterator_t;
 
 /**
  * Represents an item in a linked list
@@ -23,6 +24,13 @@ struct llist {
     lock_t        lock; /** Lock to ensure only a single thread touches the list at a time */
 };
 
+/**
+ * llist iterator state
+ */
+struct llist_iterator {
+    llist_item_t *first; /** First item encountered in list */
+    llist_item_t *curr;  /** Current list item */
+};
 
 /**
  * \brief Initialize linked list
@@ -49,5 +57,33 @@ void llist_append(llist_t *list, llist_item_t *item);
  * @param item Item to remove from list
  */
 void llist_remove(llist_t *list, llist_item_t *item);
+
+/**
+ * \brief Get position of specified item in the list
+ * 
+ * @param list List item is a part of
+ * @param item Item to get position of
+ * 
+ * @return -1 if item not found, else 0-indexed position of item
+ */
+int llist_get_position(llist_t *list, llist_item_t *item);
+
+/**
+ * \brief Initialize llist iterator
+ * 
+ * @param list List to iterate over
+ * @param iter Iterator to initialize
+ */
+void llist_iterator_init(llist_t *list, llist_iterator_t *iter);
+
+/**
+ * \brief Iterate over llist
+ * 
+ * @param iter Iterator object
+ * @param data Value of current list item
+ * 
+ * @return 0 on invalid data or end of list, else 1
+ */
+int llist_iterate(llist_iterator_t *iter, void **data);
 
 #endif
