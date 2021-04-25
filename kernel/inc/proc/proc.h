@@ -3,7 +3,6 @@
 
 struct kthread;
 struct kproc;
-struct uproc;
 
 typedef struct kthread kthread_t;
 typedef struct kproc   kproc_t;
@@ -132,34 +131,6 @@ struct kproc { //!< Structure of a process as seen by the kernel
 	llist_item_t list_item;
 };
 
-/* @todo Deprecate this */
-struct uproc { //!< Structure of a process as seen by a user process
-	char name[64]; //!< Name of the process
-	int pid;       //!< Process ID
-	int uid;       //!< User who `owns` the process
-	int gid;       //!< Group who `owns` the process
-
-	uint32_t type;      //!< Type of process
-
-	int children[MAX_CHILDREN]; //!< Indexes of direct child processes (ex: NOT children's children)
-
-	uint32_t ip;        //!< Instruction pointer
-
-	uint32_t blocked;   //!< Contains flags telling whether or not this process is blocked, and by what
-
-	int exitcode;  //!< Exit code
-
-	int prio;      //!< Task priority
-};
-
-/**
- * @brief Convert kproc structure to uproc structure for transmission to
- * userland application.
- * 
- * @param kp Source kproc structure
- * @param up Destination uproc structure
- */
-void kproc_to_uproc(struct kproc *kp, struct uproc *up);
 
 /**
  * \brief Adds file to process

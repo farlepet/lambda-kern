@@ -5,26 +5,6 @@
 #include <mm/alloc.h>
 #include <string.h>
 
-/* @todo remove */
-void kproc_to_uproc(struct kproc *kp, struct uproc *up)
-{
-	memcpy(up->name, kp->name, 64);
-
-    up->pid      = kp->pid;
-    up->uid      = kp->uid;
-    up->gid      = kp->gid;
-    up->type     = kp->type;
-    //up->blocked  = kp->blocked;
-    up->exitcode = kp->exitcode;
-    //up->prio     = kp->prio;
-
-	memcpy(up->children, kp->children, MAX_CHILDREN * sizeof(int));
-
-#ifdef ARCH_X86
-	//up->ip = kp->arch.eip;
-#endif
-}
-
 
 int proc_add_file(struct kproc *proc, struct kfile *file) {
 	for(int i = 0; i < MAX_OPEN_FILES; i++) {
