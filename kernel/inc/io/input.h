@@ -3,7 +3,7 @@
 
 #include <types.h>
 
-#include <mm/cbuff.h>
+#include <data/cbuff.h>
 
 #define MAX_INPUT_DEVICES 64 //!< Maximum number of registered input devices
 

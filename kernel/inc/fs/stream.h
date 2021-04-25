@@ -2,7 +2,6 @@
 #define FS_STREAM_H
 
 #include <fs/fs.h>
-#include <mm/cbuff.h>
 
 /**
  * \brief Creates a new stream, and returns the file representation

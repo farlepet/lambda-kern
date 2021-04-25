@@ -3,10 +3,10 @@
 #include <arch/intr/idt.h>
 
 #include <proc/ktasks.h>
+#include <data/cbuff.h>
 #include <intr/intr.h>
 #include <err/error.h>
 #include <io/input.h>
-#include <mm/cbuff.h>
 #include <video.h>
 
 

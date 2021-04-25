@@ -1,3 +1,4 @@
+#include <data/cbuff.h>
 #include <fs/stream.h>
 #include <mm/alloc.h>
 #include <string.h>
@@ -61,9 +62,8 @@ static uint32_t stream_write(struct kfile *f, uint32_t off, uint32_t sz, uint8_t
     (void)off; // Offset goes unused, this is basically a queue
 
     uint32_t count = 0;
-    int ret;
 
-    while((count < sz) && !((ret = put_cbuff(buff[count], (struct cbuff *)f->info)) & CBUFF_ERRMSK)) {
+    while((count < sz) && !(put_cbuff(buff[count], (struct cbuff *)f->info) & CBUFF_ERRMSK)) {
         count++;
     }
 

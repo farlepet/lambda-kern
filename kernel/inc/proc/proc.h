@@ -39,7 +39,6 @@ typedef struct kproc   kproc_t;
 #include <stdint.h>
 
 #include <data/llist.h>
-#include <mm/cbuff.h>
 #include <fs/kfile.h>
 #include <mm/symbols.h>
 #include <proc/syscalls.h>
