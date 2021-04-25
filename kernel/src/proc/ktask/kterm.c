@@ -1,8 +1,9 @@
+#include <proc/ktask/kinput.h>
 #include <proc/ktasks.h>
 #include <err/error.h>
+#include <err/panic.h>
 #include <time/time.h>
 #include <fs/stream.h>
-#include <proc/ipc.h>
 #include <proc/elf.h>
 #include <mm/alloc.h>
 #include <string.h>
@@ -50,14 +51,22 @@ uint32_t hash(char *str) {
 	return hash;
 }
 
+#define KTERM_STREAM_LEN 64
+
+static struct kfile *kterm_stdin = NULL;
+
 __noreturn void kterm_task() {
 	uint32_t i = 0;
 	for(; i < (sizeof(kterm_ents)/sizeof(kterm_ents[0])); i++)
 		kterm_ents[i].hash = hash(kterm_ents[i].string);
 
-	//delay(10); // Wait for things to be initialized
-
 	int retval = 0;
+	
+	kterm_stdin = stream_create(KTERM_STREAM_LEN);
+	if(!kterm_stdin) {
+		kpanic("kterm: Could not create main input stream!");
+	}
+	kinput_dest = kterm_stdin;
 	
 	kprintf("\n+----------------------------+\n"
 	        "| Kernel debug shell \"kterm\" |\n"
@@ -75,18 +84,9 @@ __noreturn void kterm_task() {
 
 		char t = 0;
 		while(1) {
-			int ret;
-			struct ipc_message_user umsg;
-			while((ret = ipc_user_recv_message_blocking(&umsg)) < 0) {
-				kerror(ERR_MEDERR, "KTERM: IPC error: %d", ret);
+			while(!fs_read(kterm_stdin, 0, 1, (uint8_t *)&t)) {
+				delay(1);
 			}
-
-			if(umsg.length > sizeof(char)) {
-				ipc_user_delete_message(umsg.message_id);
-				continue;
-			}
-
-			ipc_user_copy_message(umsg.message_id, &t);
 
 			if(t == '\n' || t == '\r') break;
 			if(t == '\b') {
@@ -261,19 +261,9 @@ static int kterm_run(int argc, char **argv) {
 
 	while(!(child->type & TYPE_ZOMBIE)) {
 		char t;
-		struct ipc_message_user umsg;
-
-		if(ipc_user_recv_message(&umsg) >= 0) {
-			if(umsg.length > sizeof(char)) {
-				ipc_user_delete_message(umsg.message_id);
-			} else {
-				ipc_user_copy_message(umsg.message_id, &t);
-				fs_write(stdin, 0, 1, (uint8_t *)&t);
-				kput(t); // TODO: Handle this better		
-			}
+		while(fs_read(kterm_stdin, 0, 1, (uint8_t *)&t)) {
+			fs_write(stdin, 0, 1, (uint8_t *)&t);
 		}
-
-		
 
 		if(stdout->length > 0) {
 			int sz = fs_read(stdout, 0, stdout->length, (uint8_t *)&buffer);

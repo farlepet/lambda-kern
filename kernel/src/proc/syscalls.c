@@ -14,7 +14,6 @@
 #include <proc/ktasks.h>
 #include <proc/mtask.h>
 #include <proc/exec.h>
-#include <proc/ipc.h>
 #include <fs/procfs.h>
 
 typedef struct {
@@ -25,19 +24,9 @@ typedef struct {
 
 syscall_desc_t syscalls[] = {
 	[SYSCALL_GET_KTASK] = { (func0_t)get_ktask,    2, 0 },
-	[SYSCALL_SEND_MSG]  = { (func0_t)send_message, 3, 0 },
-	[SYSCALL_RECV_MSG]  = { (func0_t)recv_message, 2, 0 },
+	
 	[SYSCALL_EXIT]      = { (func0_t)exit,         1, 0 },
 	
-	[SYSCALL_IPC_SEND]              = { (func0_t)ipc_user_create_and_send_message,   3, 0 },
-	[SYSCALL_IPC_RECV]              = { (func0_t)ipc_user_recv_message,              1, 0 },
-	[SYSCALL_IPC_RECV_PID]          = { (func0_t)ipc_user_recv_message_pid,          2, 0 },
-	[SYSCALL_IPC_RECV_BLOCKING]     = { (func0_t)ipc_user_recv_message_blocking,     1, 0 },
-	[SYSCALL_IPC_RECV_PID_BLOCKING] = { (func0_t)ipc_user_recv_message_pid_blocking, 2, 0 },
-	[SYSCALL_IPC_COPY_MSG]          = { (func0_t)ipc_user_copy_message,              2, 0 },
-	[SYSCALL_IPC_DELETE_MSG]        = { (func0_t)ipc_user_delete_message,            1, 0 },
-	[SYSCALL_IPC_BLOCK_PID]         = { (func0_t)ipc_user_block_pid,                 1, 0 },
-
 	[SYSCALL_FS_READ]     = { (func0_t)proc_fs_read,     4, 0 },
 	[SYSCALL_FS_WRITE]    = { (func0_t)proc_fs_write,    4, 0 },
 	[SYSCALL_FS_OPEN]     = { (func0_t)proc_fs_open,     2, 0 },

@@ -73,7 +73,7 @@ static void interrupts_init(void) {
 static ptr_t mods_begin = 0xFFFFFFFF;
 static ptr_t mods_end   = 0x00000000;
 
-static void mm_locate_modules(struct multiboot_header *mboot_head) {
+static void _mm_locate_modules(struct multiboot_header *mboot_head) {
 	struct mboot_module *mod = (struct mboot_module *)mboot_head->mod_addr;
 	uint32_t modcnt = mboot_head->mod_count;
 
@@ -82,17 +82,10 @@ static void mm_locate_modules(struct multiboot_header *mboot_head) {
 		ptr_t mod_start = mod->mod_start;
 		ptr_t mod_end   = mod->mod_end;
 
-		kerror(ERR_BOOTINFO, "mm_init_alloc: multiboot module: %08X->%08X", mod_start, mod_end);
+		kerror(ERR_BOOTINFO, "_mm_locate_modules: multiboot module: %08X->%08X", mod_start, mod_end);
 
 		if(mod_start < mods_begin) mods_begin = mod_start;
 		if(mod_end   > mods_end)   mods_end   = mod_end;
-
-		uint32_t b = ((mod_start - (uint32_t)firstframe) / 0x1000);
-		for(; b < ((mod_end - (uint32_t)firstframe) / 0x1000) + 1; b++)
-		{
-			set_frame(b, 1); // Make sure that the module is not overwritten
-			map_page((b * 0x1000) + firstframe, (b * 0x1000) + firstframe, 3);
-		}
 		i++;
 		mod++;
 	}
@@ -101,7 +94,7 @@ static void mm_locate_modules(struct multiboot_header *mboot_head) {
 		/* Modules take up 0 memory. */
 		mods_end = 0xFFFFFFFF;
 	} else {
-		kerror(ERR_BOOTINFO, "mm_init_alloc: Address space used by mulitboot modules: %08X->%08X", mods_begin, mods_end);
+		kerror(ERR_BOOTINFO, "_mm_locate_modules: Address space used by mulitboot modules: %08X->%08X", mods_begin, mods_end);
 	}
 
 	if(mods_end == 0) mods_end = FRAMES_START;
@@ -120,8 +113,7 @@ static void mm_init(struct multiboot_header *mboot_head) {
 	if(!(mboot_head->flags & MBOOT_MEMINFO))
 		kpanic("Multiboot header entries mem_* are not available!");
 
-	mm_locate_modules(mboot_head);
-
+	_mm_locate_modules(mboot_head);
 	kerror(ERR_BOOTINFO, "  -> Paging");
 	paging_init(mods_end, mboot_head->mem_upper * 1024); // memory in mem_tag is in KiB
 

@@ -7,7 +7,7 @@
 #include <video.h>
 
 error_level_e minlvl    = ERR_INFO; //!< Minimal level where messages are shown
-uint32_t      debugmask = 0;
+uint32_t      debugmask = (1UL << DEBUGSRC_PROC);
 
 lock_t kerror_lock = 0; //!< Only 1 message can be printed at a time
 

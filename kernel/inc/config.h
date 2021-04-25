@@ -2,7 +2,7 @@
 #define CONFIG_H
 
 /* Include the kernel debugger task */
-#define DEBUGGER 1
+#define DEBUGGER 0
 
 /* Color-code the output the kernel produces */
 #define KERNEL_COLORCODE 1

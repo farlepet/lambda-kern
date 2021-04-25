@@ -1,15 +1,16 @@
 #include <proc/ktasks.h>
 #include <err/error.h>
 #include <io/input.h>
-#include <proc/ipc.h>
-#include <string.h>
+#include <fs/fs.h>
 #include <video.h>
+
+#include <string.h>
 
 #if defined(ARCH_X86)
 #  include <arch/io/serial.h>
 #endif
 
-static int input_subs[KINPUT_MAX_SUBS];
+struct kfile *kinput_dest = NULL;
 
 static char keytab_x86_a[2][256] =
 {
@@ -55,64 +56,48 @@ static char keycode_to_char(struct input_event *iev)
 
 
 static void send_input_char(char c) {
-	for(int i = 0; i < KINPUT_MAX_SUBS; i++) {
-		if(input_subs[i]) {
-			if(!proc_by_pid(input_subs[i])) {
-				// Remove dead PID:
-				input_subs[i] = 0;
-			} else {
-				ipc_user_create_and_send_message(input_subs[i], &c, sizeof(char));
-			}
-		}
+	/* @todo Make data available at /dev/... rather than sending directly to a
+	 * thread. */
+	if(kinput_dest) {
+		fs_write(kinput_dest, 0, 1, (uint8_t *)&c);
 	}
 }
 
-static int add_subscriber(int pid) {
-	for(int i = 0; i < KINPUT_MAX_SUBS; i++) {
-		if(!input_subs[i]) {
-			input_subs[i] = pid;
-			return i;
-		}
-	}
-	return -1;
-}
-
-
-static int to_kterm = 1; //!< When 1, send all serial input to kterm
 
 __noreturn void kinput_task() {
-	ktask_pids[KINPUT_TASK_SLOT] = curr_proc->pid;
-
-	if(strlen((const char *)boot_options.init_executable)) {
-		/* Make parent of init task a subscriber */
-		add_subscriber(1);
-		to_kterm = 0;
-	}
-
 	for(;;) {
 		struct input_event iev;
-		recv_message(&iev, sizeof(struct input_event));
-		if(iev.type == EVENT_KEYPRESS &&
-		   iev.data == 0x01) { // ESC -> DEBUG for now
+		size_t i = 0;
+		/* @todo Refactor input device driver system, add read block ability to cbuffs */
+		for(; i < MAX_INPUT_DEVICES; i++) {
+			if(idevs[i].valid    &&
+			   idevs[i].iev_buff &&
+			   !(read_cbuff((uint8_t *)&iev, sizeof(struct input_event), idevs[i].iev_buff) & CBUFF_ERRMSK)) {
+				break;
+			}
+		}
+		if(i < MAX_INPUT_DEVICES) {
+#if DEBUGGER
+			if(iev.type == EVENT_KEYPRESS &&
+			   iev.data == 0x01) { // ESC -> DEBUG for now
 				if(ktask_pids[KBUG_TASK_SLOT]) {
-					struct kbug_type_msg ktm;
+					/*struct kbug_type_msg ktm;
 					ktm.type = KBUG_IDEBUG;
-					ipc_user_create_and_send_message(ktask_pids[KBUG_TASK_SLOT], &ktm, sizeof(struct kbug_type_msg));
+					ipc_user_create_and_send_message(ktask_pids[KBUG_TASK_SLOT], &ktm, sizeof(struct kbug_type_msg));*/
+					/* @todo (Or not) */
 				}
-		} else {
-			// TODO: Send char to some other process
-			if(to_kterm) {
-				if(ktask_pids[KTERM_TASK_SLOT] != 0) {
-					// Add kterm PID, and if it was added, clear to_kterm
-					to_kterm = (add_subscriber(ktask_pids[KTERM_TASK_SLOT]) < 0);
-				}
-			}
-
-			if(iev.type == EVENT_KEYPRESS) {
-				send_input_char(keycode_to_char(&iev));
 			} else {
-				send_input_char(iev.data);
+#endif /* DEBUGGER */
+				if(iev.type == EVENT_KEYPRESS) {
+					send_input_char(keycode_to_char(&iev));
+				} else {
+					send_input_char(iev.data);
+				}
+#if DEBUGGER
 			}
+#endif
+		} else {
+			delay(10);
 		}
 	}
 }

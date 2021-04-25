@@ -8,18 +8,8 @@
 enum syscalls {
 /* Following are likely to be deprecated and replaced: */
     SYSCALL_GET_KTASK = 0,
-    SYSCALL_SEND_MSG  = 1,
-    SYSCALL_RECV_MSG  = 2,
+    
     SYSCALL_EXIT      = 3,
-/* Following are likely to be deprecated and replaced: */
-    SYSCALL_IPC_SEND              = 4,
-    SYSCALL_IPC_RECV              = 5,
-    SYSCALL_IPC_RECV_PID          = 6,
-    SYSCALL_IPC_RECV_BLOCKING     = 7,
-    SYSCALL_IPC_RECV_PID_BLOCKING = 8,
-    SYSCALL_IPC_COPY_MSG          = 9,
-    SYSCALL_IPC_DELETE_MSG        = 10,
-    SYSCALL_IPC_BLOCK_PID         = 11,
 
     SYSCALL_FS_READ    = 12,
     SYSCALL_FS_WRITE   = 13,

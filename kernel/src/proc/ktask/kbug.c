@@ -1,7 +1,6 @@
 #include <proc/ktasks.h>
 #include <time/time.h>
 #include <err/error.h>
-#include <proc/ipc.h>
 #include <mm/alloc.h>
 #include <config.h>
 #include <video.h>
@@ -12,24 +11,12 @@ static void idebug();
 
 /**
  * Kernel debugger task
+ * 
+ * @todo Update to use something other than IPC, or remove altogether (likely
+ * the latter).
  */
 __noreturn void kbug_task() {
-	ktask_pids[KBUG_TASK_SLOT] = curr_proc->pid;
-
 	for(;;) {
-		/*struct kbug_type_msg ktm;
-		recv_message(&ktm, sizeof(struct kbug_type_msg));*/
-
-		int ret;
-		struct ipc_message_user umsg;
-		while((ret = ipc_user_recv_message_blocking(&umsg)) < 0) {
-			kerror(ERR_MEDERR, "KBUG: IPC error: %d", ret);
-		}
-
-		void *data = kmalloc(umsg.length);
-
-		ipc_user_copy_message(umsg.message_id, data);
-
 		switch(((struct kbug_type_msg *)data)->type) {
 			case KBUG_PROCINFO: {
 				//struct kbug_type_proc_msg *ktpm = (struct kbug_type_proc_msg *)data;

@@ -33,6 +33,8 @@ char *strchr(const char *s, int c);
 
 char *strcpy(char *dest, const char *src);
 
+char *strncpy(char *dest, const char *src, size_t n);
+
 void *memcpy(void *dest, const void *src, uint32_t n);
 
 void *memset(void *s, int c, uint32_t n);

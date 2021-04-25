@@ -6,7 +6,7 @@
 #include <intr/intr.h>
 #include <err/error.h>
 #include <io/input.h>
-#include <proc/ipc.h>
+#include <mm/cbuff.h>
 #include <video.h>
 
 
@@ -14,6 +14,9 @@ extern void keyb_int(); //!< Assembly interrupt handler
 void keyb_handle(uint32_t);
 
 struct input_dev *keyb_dev; //!< Device struct for the keyboard input handler
+
+#define KEYB_BUFF_CNT 16
+static cbuff_t _keyb_buff = STATIC_CBUFF(sizeof(struct input_event) * KEYB_BUFF_CNT);
 
 /**
  * Called every time a keyboard IRQ occurs. Checks to see if shift, ctrl, or alt are pressed or released
@@ -58,15 +61,13 @@ void keyb_handle(uint32_t keycode)
 {
 	// Doesn't do a whole lot... YET...
 	process_code(keycode);
-	if(ktask_pids[KINPUT_TASK_SLOT]) // Only send the message if the input task has started
-	{
-		struct input_event iev;
-		iev.origin.s.driver = IDRIVER_KEYBOARD;
-		iev.origin.s.device = keyb_dev->id.s.device;
-		iev.type = EVENT_KEYPRESS;
-		iev.data = keycode;
-		send_message(ktask_pids[KINPUT_TASK_SLOT], &iev, sizeof(struct input_event));
-	}
+	
+	struct input_event iev;
+	iev.origin.s.driver = IDRIVER_KEYBOARD;
+	iev.origin.s.device = keyb_dev->id.s.device;
+	iev.type = EVENT_KEYPRESS;
+	iev.data = keycode;
+	write_cbuff((uint8_t *)&iev, sizeof(struct input_event), keyb_dev->iev_buff);
 }
 
 /**
@@ -74,9 +75,9 @@ void keyb_handle(uint32_t keycode)
  */
 static inline void kbd_wait(void)
 {
-	asm("1:   inb   $0x64,%al\n"
-		"testb   $0x02,%al\n"
-		"jne   1b");
+	asm("1: inb $0x64,%al\n"
+		"testb  $0x02,%al\n"
+		"jne    1b");
 }
 
 /**
@@ -117,5 +118,7 @@ void keyb_init()
 	if(!keyb_dev)
 	{
 		kerror(ERR_MEDERR, "Could not set up keyboard input device");
+		return;
 	}
+	keyb_dev->iev_buff = &_keyb_buff;
 }
