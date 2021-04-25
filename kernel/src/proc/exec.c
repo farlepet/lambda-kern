@@ -221,8 +221,8 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
 
     curr_proc->threads[0].prio = tmp_proc.threads[0].prio;
 
-    curr_proc->next = tmp_proc.next;
-    curr_proc->prev = tmp_proc.prev;
+    curr_proc->list_item = tmp_proc.list_item;
+    curr_proc->list_item.data = curr_proc;
 
 #if defined(ARCH_X86)
     // Copy architecture-specific bits:

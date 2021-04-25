@@ -38,6 +38,7 @@ typedef struct kproc   kproc_t;
 
 #include <stdint.h>
 
+#include <data/llist.h>
 #include <mm/cbuff.h>
 #include <fs/kfile.h>
 #include <mm/symbols.h>
@@ -132,9 +133,7 @@ struct kproc { //!< Structure of a process as seen by the kernel
 
 	struct kproc_mem_map_ent *mmap; //!< Memory map
 
-
-	struct kproc *next; /*!< Next process in linked list. */
-	struct kproc *prev; /*!< Previous process in linked list. */
+	llist_item_t list_item;
 };
 
 /* @todo Deprecate this */

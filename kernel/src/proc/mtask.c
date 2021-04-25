@@ -16,7 +16,8 @@
 #  include <arch/mm/paging.h>
 #endif
 
-static struct kproc *procs = NULL;
+static llist_t procs;
+
 struct kproc *curr_proc    = NULL;
 uint32_t      curr_thread  = 0;
 
@@ -27,37 +28,37 @@ lock_t creat_task = 0; //!< Lock used when creating tasks
 void proc_jump_to_ring(void);
 
 struct kproc *proc_by_pid(int pid) {
-	if(!procs) {
+	if(!procs.list) {
 		return NULL;
 	}
 
-	struct kproc *proc = procs;
+	llist_item_t *item = procs.list;
 	do {
-		if(proc->pid == pid) {
-			return proc;
+		if(((kproc_t *)item->data)->pid == pid) {
+			return (kproc_t *)item->data;
 		}
-		proc = proc->next;
-	} while(proc && proc != procs);
+		item = item->next;
+	} while(item && item != procs.list);
 	
 	return NULL;
 }
 
 kthread_t *thread_by_tid(int tid) {
-	if(!procs) {
+	if(!procs.list) {
 		return NULL;
 	}
 
-	struct kproc *proc = procs;
-
+	llist_item_t *item = procs.list;
 	do {
+		kthread_t *threads = ((kproc_t *)item->data)->threads;
 		for(uint32_t i = 0; i < MAX_THREADS; i++) {
-			if((proc->threads[i].flags & KTHREAD_FLAG_VALID) &&
-			   (proc->threads[i].tid == (uint32_t)tid)) {
-				return &proc->threads[i];
+			if((threads[i].flags & KTHREAD_FLAG_VALID) &&
+			   (threads[i].tid == (uint32_t)tid)) {
+				return &threads[i];
 			}
 		}
-		proc = proc->next;
-	} while(proc && proc != procs);
+		item = item->next;
+	} while(item && item != procs.list);
 	
 	return NULL;
 }
@@ -142,7 +143,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 		return -1;
 	}
 
-	if(procs && proc_add_child(curr_proc, proc)) {
+	if(procs.list && proc_add_child(curr_proc, proc)) {
 		kerror(ERR_SMERR, "mtask:add_task: Process %d has run out of children slots", curr_proc->pid);
 		unlock(&creat_task);
 		kfree(proc);
@@ -194,22 +195,8 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 int mtask_insert_proc(struct kproc *proc) {
 	proc->threads[0].flags |= KTHREAD_FLAG_VALID;
 
-	if(!procs) {
-		procs = proc;
-		proc->next = proc;
-		proc->prev = proc;
-	} else {
-		/* TODO: Keep track of last proc? */
-		struct kproc *last = procs;
-		while(last->next && last->next != procs) {
-			last = last->next;
-		}
-		/* Insert after last process: */
-		proc->prev  = last;
-		proc->next  = procs;
-		last->next  = proc;
-		procs->prev = proc;
-	}
+	proc->list_item.data = proc;
+	llist_append(&procs, &proc->list_item);
 
 	return 0;
 }
@@ -222,6 +209,8 @@ struct kproc *mtask_get_current_task(void) {
 
 void init_multitasking(void *process, char *name) {
 	kerror(ERR_BOOTINFO, "Initializing multitasking");
+
+	llist_init(&procs);
 
 	int tid = add_kernel_task(process, name, 0x2000, PRIO_KERNEL);
 	kthread_t *thread = thread_by_tid(tid);

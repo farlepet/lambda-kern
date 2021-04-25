@@ -93,10 +93,10 @@ __hot void sched_next_process()
 	 */
 	int nr = 0;
 
-	struct kproc *next   = curr_proc;
-	uint32_t      thread = curr_thread + 1;
+	kproc_t *next   = curr_proc;
+	uint32_t thread = curr_thread + 1;
 	if(thread >= MAX_THREADS) {
-		next   = curr_proc->next;
+		next   = (kproc_t *)curr_proc->list_item.next->data;
 		thread = 0;
 	}
 
@@ -111,10 +111,11 @@ __hot void sched_next_process()
 
 		thread++;
 		if (thread >= MAX_THREADS) {
-			if(next->next == NULL) {
+			if((next->list_item.next       == NULL) ||
+			   (next->list_item.next->data == NULL)) {
 				kpanic("Next task is NULL!");
 			}
-			next = next->next;
+			next = (kproc_t *)next->list_item.next->data;
 
 			thread = 0;
 			
