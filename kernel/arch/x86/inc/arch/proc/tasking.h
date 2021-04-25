@@ -24,7 +24,7 @@ typedef struct {
 } kthread_arch_t;
 
 typedef struct {
-	int      ring; /** Ring to run in (0-3) */
+	uint8_t  ring; /** Ring to run in (0-3) */
 	uint32_t cr3;  /** Page directory */
 } kproc_arch_t;
 
