@@ -10,27 +10,6 @@
 
 int ktask_pids[KTASK_SLOTS] = { 0 }; //!< PID's of these tasks
 
-/**
- * Get a kernel task PID
- *
- * @param n kernel task number
- * @param time max number of clock ticks to wait (0 = infinite)
- */
-int get_ktask(int n, uint64_t time) {
-	if(n >= KTASK_SLOTS) {
-		kerror(ERR_MEDERR, "Kernel requested pid of invalid ktask: %d", n);
-		return 0;
-	}
-	
-	uint64_t end = kerneltime + time;
-	while((kerneltime < end) || (time == 0)) {
-		if(ktask_pids[n]) return ktask_pids[n];
-		busy_wait();
-	}
-	kerror(ERR_MEDERR, "Could not get pid of ktask %d within %d ticks", n, time);
-	return 0;
-}
-
 void init_ktasks() {
 	// Small stack size here was effecting interrupts?
 	kerror(ERR_BOOTINFO, "Starting kernel idle thread");

@@ -23,8 +23,6 @@ typedef struct {
 } syscall_desc_t;
 
 syscall_desc_t syscalls[] = {
-	[SYSCALL_GET_KTASK] = { (func0_t)get_ktask,    2, 0 },
-	
 	[SYSCALL_EXIT]      = { (func0_t)exit,         1, 0 },
 	
 	[SYSCALL_FS_READ]     = { (func0_t)proc_fs_read,     4, 0 },

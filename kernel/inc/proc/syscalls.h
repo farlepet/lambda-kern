@@ -6,9 +6,6 @@
 #include <arch/intr/int.h>
 
 enum syscalls {
-/* Following are likely to be deprecated and replaced: */
-    SYSCALL_GET_KTASK = 0,
-    
     SYSCALL_EXIT      = 3,
 
     SYSCALL_FS_READ    = 12,
