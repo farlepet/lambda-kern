@@ -88,13 +88,7 @@ struct kthread {
 	kthread_arch_t    arch;       /** Architecture-specific thread data */
 	uint32_t          entrypoint; /** Program start */
 	
-	/* TODO: Might be best to simply deprecate this, similar could be done
-	 * using pipes, or other standard IPC techniques. Perhaps implement more
-	 * standard POSIX message queues. */
-	struct ipc_message *ipc_messages[MAX_PROCESS_MESSAGES]; //!< IPC message pointers
-	int                 blocked_ipc_pids[MAX_BLOCKED_PIDS]; //!< PIDs blocked from sending messages to this process
-	
-	llist_item_t list_item;
+	llist_item_t      list_item;
 };
 
 /* TODO: Convert some static-size arrays in kproc to dynamically allocated memory. */
@@ -213,8 +207,6 @@ int proc_add_mmap_ent(struct kproc *proc, uintptr_t virt_address, uintptr_t phys
 /**
  * @brief Add multiple memory map records to a process
  * 
-
-// TODO: Documentations to add records to
  * @param entries Linked-list of memory map entries to add.
  * @return int 0 on success
  */
