@@ -25,6 +25,7 @@ export VERBOSE
 
 SRCS       = $(wildcard $(SRC)/*.c) $(wildcard $(SRC)/*/*.c) $(wildcard $(SRC)/*/*/*.c)
 OBJS       = $(patsubst %.c,%.o,$(SRCS))
+DEPS       = $(patsubst %.c,%.d,$(SRCS))
 
 GIT_VERSION := "$(shell git describe --abbrev=8 --dirty=\* --always --tags)"
 
@@ -32,6 +33,8 @@ CFLAGS    += -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/$(ARC
 			 -nostdlib -nostdinc -ffreestanding -Wall -Wextra -Werror -O2 \
 			 -pipe -g -fno-stack-protector -fdata-sections -ffunction-sections \
 			 -DKERNEL_GIT=\"$(GIT_VERSION)\"
+
+CPIOFILES = $(shell find initrd/)
 
 all: printinfo arch_all
 
@@ -66,20 +69,38 @@ printinfo:
 	@echo -e "\033[32mBuilding kernel\033[0m"
 
 
-# gcc:
+-include $(DEPS)
+
 %.o: %.c
 ifeq ($(VERBOSE), 0)
 	@echo -e "\033[32m    \033[1mCC\033[21m    \033[34m$<\033[0m"
-	@$(CC) $(CFLAGS) -c -o $@ $<
+	@$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
 else
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
 endif
 
+arch.a: arch_msg
+	@cd $(MAINDIR)/kernel/arch/$(ARCH); $(MAKE) CC=$(CC) AS=$(AS)
+	@cp $(MAINDIR)/kernel/arch/$(ARCH)/arch.a ./arch.a
+
+symbols.o: lambda.o
+	@echo -e "\033[33m  \033[1mCreating symbol table\033[0m"
+	@scripts/symbols > symbols.c
+	@$(CC) $(CFLAGS) -c -o symbols.o symbols.c
+
+initrd.cpio: $(CPIOFILES)
+	@echo -e "\033[33m  \033[1mGenerating InitCPIO\033[0m"
+	@cd initrd; find . | cpio -o -v -O../initrd.cpio &> /dev/null
+
+initrd.o: initrd.cpio
+	@echo -e "\033[33m  \033[1mGenerating InitCPIO Object\033[0m"
+	@$(LD) $(LDARCH) -r -b binary initrd.cpio -o initrd.o
 
 
 clean: arch_clean
 	@echo -e "\033[33m  \033[1mCleaning sources\033[0m"
-	@rm -f $(OBJS)
+	@rm -f $(OBJS) $(DEPS)
+	@rm -f initrd.cpio symbols.o symbols.c
 	@rm -r -f doc
 	@cd $(MAINDIR)/kernel/arch/$(ARCH); make clean
 

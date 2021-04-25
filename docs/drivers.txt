@@ -4,6 +4,18 @@ Creating Lambda OS drivers
 
 This document will help you get started with creating a very basic driver. This will provide you with some sample code and explain all of it to you.
 
+*** Structure ***
+
+Lambda kernel drivers are in the form of non-executable ELF binaries. The data
+necessary to load them is kept in a special ELF section, `lamnda_drv_data`. The
+format of the main data structure found at the beginning of this structure can
+found in `drv/driver.h::drv_head_t`.
+
+All pointers to metadata must be in the same `lambda_drv_data` section.
+Pointers to functions and other data can be in any section.
+
+
+
 *** Example Code ***
 
 #include <lambda/drv.h> // DRIVER_*

@@ -25,13 +25,17 @@
 .global __int_wrap_fiq
 
 .extern intr_handler
+.extern irq_stack_end
+.extern fiq_stack_end
 
 __int_wrap_undefined:
+    ldr sp, =irq_stack_end
     __INTR_BEGIN #1
     bl intr_handler
     __INTR_END
 
 __int_wrap_syscall:
+    ldr sp, =irq_stack_end
     push {lr}
     push {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12}
     mov  r0, #2
@@ -43,26 +47,31 @@ __int_wrap_syscall:
     ldm sp!, {pc}^
 
 __int_wrap_prefetchabort:
+    ldr sp, =irq_stack_end
     __INTR_BEGIN #3
     bl intr_handler
     __INTR_END
 
 __int_wrap_dataabort:
+    ldr sp, =irq_stack_end
     __INTR_BEGIN #4
     bl intr_handler
     __INTR_END
 
 __int_wrap_hyptrap:
+    ldr sp, =irq_stack_end
     __INTR_BEGIN #5
     bl intr_handler
     __INTR_END
 
 __int_wrap_irq:
+    ldr sp, =irq_stack_end
     __INTR_BEGIN #6
     bl intr_handler
     __INTR_END
 
 __int_wrap_fiq:
+    ldr sp, =fiq_stack_end
     __INTR_BEGIN #7
     bl intr_handler
     __INTR_END

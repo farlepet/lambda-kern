@@ -7,6 +7,7 @@
 
 #include <hal/io/char/char.h>
 #include <hal/intr/int_ctlr.h>
+#include <io/input.h>
 
 typedef struct {
     volatile uint32_t DR;    /** Data register */
@@ -73,6 +74,8 @@ typedef struct {
 
 typedef struct {
     uart_pl011_regmap_t *base;
+    /* TODO: Should this be incorporated into hal_io_char_dev_t? */
+    struct input_dev    *idev;
 } uart_pl011_handle_t;
 
 int uart_pl011_create_chardev(uart_pl011_handle_t *hand, hal_io_char_dev_t *chardev);

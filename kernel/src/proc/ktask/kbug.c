@@ -1,7 +1,6 @@
 #include <proc/ktasks.h>
 #include <time/time.h>
 #include <err/error.h>
-#include <proc/ipc.h>
 #include <mm/alloc.h>
 #include <config.h>
 #include <video.h>
@@ -12,28 +11,17 @@ static void idebug();
 
 /**
  * Kernel debugger task
+ * 
+ * @todo Update to use something other than IPC, or remove altogether (likely
+ * the latter).
  */
 __noreturn void kbug_task() {
-	ktask_pids[KBUG_TASK_SLOT] = current_pid;
-
 	for(;;) {
-		/*struct kbug_type_msg ktm;
-		recv_message(&ktm, sizeof(struct kbug_type_msg));*/
-
-		int ret;
-		struct ipc_message_user umsg;
-		while((ret = ipc_user_recv_message_blocking(&umsg)) < 0) {
-			kerror(ERR_MEDERR, "KBUG: IPC error: %d", ret);
-		}
-
-		void *data = kmalloc(umsg.length);
-
-		ipc_user_copy_message(umsg.message_id, data);
-
 		switch(((struct kbug_type_msg *)data)->type) {
 			case KBUG_PROCINFO: {
-				struct kbug_type_proc_msg *ktpm = (struct kbug_type_proc_msg *)data;
+				//struct kbug_type_proc_msg *ktpm = (struct kbug_type_proc_msg *)data;
 
+				/* TODO: Update to new process storage structure.
 				switch(ktpm->kpm.type) {
 					case KBUG_PROC_NPROCS: {
 						int i = 0;
@@ -52,12 +40,13 @@ __noreturn void kbug_task() {
 
 					case KBUG_PROC_UPROC: {
 						struct uproc proc;
-						int idx = proc_by_pid(ktpm->kpm.pid);
-						kproc_to_uproc(&procs[idx], &proc);
+						struct kproc *_proc = proc_by_pid(ktpm->kpm.pid);
+						kproc_to_uproc(_proc, &proc);
 
 						ipc_user_create_and_send_message(umsg.src_pid, &proc, sizeof(struct uproc));
 					} break;
 				}
+				*/
 			} break;
 
 			case KBUG_CPUINFO:
@@ -91,7 +80,8 @@ static void idebug() {
 
 	int i = 0;
 	for(; i < MAX_PROCESSES; i++)
-		if(procs[i].type & TYPE_VALID) {
+		/* TODO */
+		/*if(procs[i].type & TYPE_VALID) {
 			kprintf("% 02d % 02d % 02d %8d %8d   %c  %02d %08X %8d %8d %s\n", 
 				procs[i].pid, procs[i].uid, procs[i].gid,
 				procs[i].book.sent_msgs, procs[i].book.recvd_msgs,
@@ -99,7 +89,7 @@ static void idebug() {
 				procs[i].prio, procs[i].type, procs[i].book.schedule_count,
 				procs[i].book.syscall_count, procs[i].name
 			);
-		}
+		}*/
 
 	kerror(ERR_INFO, "IDEBUG finished");
 }

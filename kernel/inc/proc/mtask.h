@@ -10,12 +10,10 @@
 
 //#define STACK_PROTECTOR //!< Whether or not to enable stack protectors (currently broken?)
 
+/* TODO: Standardize naming (e.g. process vs task) */
 
-extern struct kproc procs[MAX_PROCESSES];
-
-extern int current_pid; //!< The PID of the currently running process
-
-extern int tasking; //!< Whether or not multitasking has been started or not
+extern struct kproc *curr_proc;   /*!< Currently running process */
+extern uint32_t      curr_thread; /*!< Currently running thread index */
 
 int get_pid(); //!< Get the PID of the currently running task
 
@@ -93,12 +91,20 @@ int add_user_task_arch(void *process, char *name, uint32_t stack_size, int pri, 
 int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel, arch_task_params_t *arch_params);
 
 /**
- * @brief Get process index given PID
+ * @brief Get process pointer given PID
  * 
  * @param pid PID of process to find
- * @return int Index of process, else -1
+ * @return Pointer to process if found, else NULL
  */
-int proc_by_pid(int pid);
+struct kproc *proc_by_pid(int pid);
+
+/**
+ * @brief Get thread pointer given TID
+ * 
+ * @param tid TID of thread to find
+ * @return Pointer to thread if found, else NULL
+ */
+kthread_t *thread_by_tid(int tid);
 
 /**
  * @brief Stop calling process
@@ -123,7 +129,7 @@ int fork(void);
  * @param is_kernel Whether or not process is a kernel process
  * @return int 0 on success
  */
-int proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel);
+int proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel);
 
 /**
  * @brief Create kernel stack for process
@@ -131,7 +137,22 @@ int proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt_stac
  * @param proc Process for which to create kernel stack
  * @return int 0 on success
  */
-int proc_create_kernel_stack(struct kproc *proc);
+int proc_create_kernel_stack(kthread_t *thread);
+
+/**
+ * @brief Get pointer to current process
+ * 
+ * @return Pointer to current process, NULL on error
+ */
+struct kproc *mtask_get_current_task(void);
+
+/**
+ * \brief Insert process into process list.
+ * 
+ * @param proc Process to insert
+ * @return 0 on success, else non-zero
+ */
+int mtask_insert_proc(struct kproc *proc);
 
 // TODO: Move x86-specific stack operation!
 #define STACK_PUSH(esp, data) do { \

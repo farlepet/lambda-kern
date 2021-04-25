@@ -3,8 +3,7 @@
 
 #include <types.h>
 
-#define KINPUT_MAX_SUBS 8 ///< Maximum number of processes subscribed to kinput
-
+extern struct kfile *kinput_dest;
 
 __noreturn void kinput_task(void);
 

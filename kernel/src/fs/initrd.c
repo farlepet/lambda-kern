@@ -1,29 +1,20 @@
 #include <multiboot.h>
 #include <fs/initrd.h>
 #include <err/error.h>
+#include <err/panic.h>
 #include <mm/alloc.h>
 #include <string.h>
-#include <fs/fs.h>
 
 #include <libgen.h>
 
-#if defined(ARCH_X86)
-#  include <arch/mm/paging.h>
-#endif
+static struct header_old_cpio *cpio = NULL;
 
-struct mboot_module *initrd = 0;
+static size_t initrd_n_files = 0;
 
-
-static struct header_old_cpio *cpio = 0;
-
-static int n_files = 0;
-static struct header_old_cpio *files[0x1000]; // Table of initrd file locations
-static char filenames[0x1000][128];           // Table of initrd filenames
-
-#define n(x) ((x << 16) | (x >> 16))
+#define CPIO2LE(x) ((x << 16) | (x >> 16)) //!< Convert 32-bit CPIO values to little-endian
 
 static uint32_t initrd_read(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
-	if(!f->info | !cpio) return 0; // We must know where the CPIO file is
+	if(!f->info)         return 0; // We must know where the CPIO data is
 	if(off >= f->length) return 0; // We cannot read past the end of the file
 
 	uint8_t *data = f->info;
@@ -38,20 +29,19 @@ static uint32_t initrd_read(struct kfile *f, uint32_t off, uint32_t sz, uint8_t 
 }
 
 static uint32_t initrd_write(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
-	// These go unused
 	(void)f;
 	(void)off;
 	(void)sz;
 	(void)buff;
-
-	return 0; // There should be no reason to write to the files in the initrd
+	/* Writing to initrd is unsupported. */
+	return 0;
 }
 
 static void initrd_open(struct kfile *f, uint32_t flags) {
 	lock(&f->file_lock);
 
 	/* TODO: Maybe find a way to handle symlinks more globally, rather than
-	 * specifically withing the fs handler. */
+	 * specifically within the fs handler. */
 	if(f->flags & FS_SYMLINK) {
 		/* We need to find the file this symlinks to */
 		/* TODO: Ensure we do not exceed 127 characters */
@@ -81,48 +71,8 @@ static void initrd_open(struct kfile *f, uint32_t flags) {
 
 
 
-void initrd_init(struct multiboot_header* mboot_head) {
-	kerror(ERR_BOOTINFO, "Loading GRUB modules");
-
-	if(!strlen((const char *)boot_options.init_ramdisk_name)) {
-		kerror(ERR_BOOTINFO, "  -> No initrd module specified.");
-		return;
-	}
-
-	if(!(mboot_head->flags & MBOOT_MODULES)) {
-		kerror(ERR_BOOTINFO, "  -> No modules to load");
-		return;
-	}
-
-	kerror(ERR_BOOTINFO, "Looking for initrd module [%s]", boot_options.init_ramdisk_name);
-
-	struct mboot_module *mod = (struct mboot_module *)mboot_head->mod_addr;
-	uint32_t modcnt = mboot_head->mod_count;
-
-	for(uint32_t i = 0; i < modcnt; i++) {
-	#if defined(ARCH_X86)
-		ptr_t mod_start = (uint32_t)mod->mod_start;
-		ptr_t mod_end   = (uint32_t)mod->mod_end;
-
-		uint32_t b = ((mod_start - (uint32_t)firstframe) / 0x1000);
-		for(; b < ((mod_end - (uint32_t)firstframe) / 0x1000) + 1; b++) {
-			set_frame(b, 1); // Make sure that the module is not overwritten
-			map_page((b * 0x1000) + firstframe, (b * 0x1000) + firstframe, 3);
-		}
-	#endif
-
-		kerror(ERR_BOOTINFO, "  -> MOD[%d/%d]: %s", i+1, modcnt, mod->string);
-
-		if(!strcmp((char *)mod->string, (const char *)boot_options.init_ramdisk_name)) initrd = mod;
-		mod++;
-	}
-	
-	if(!initrd) {
-		kerror(ERR_MEDERR, "  -> Could not locate InitCPIO module!");
-		return;
-	}
-
-	cpio = (struct header_old_cpio *)initrd->mod_start;
+void initrd_mount(struct kfile *mntpoint, uintptr_t initrd, size_t __unused len) {
+	cpio = (struct header_old_cpio *)initrd;
 
 	if(cpio->c_magic != 070707) {
 		kerror(ERR_MEDERR, "  -> Invalid CPIO magic number");
@@ -130,44 +80,37 @@ void initrd_init(struct multiboot_header* mboot_head) {
 	}
 
 	struct header_old_cpio *cfile = (struct header_old_cpio *)cpio;
-	int cidx = 0;
 
 	while (1) {
-		if(cfile->c_magic != 0x71C7) {
+		if(cfile->c_magic != 070707) {
 			kerror(ERR_MEDERR, "  -> Invalid or corrupt InitCPIO!\n");
 			return;
 		}
 
-		files[cidx] = cfile;
+		cfile->c_mtime    = CPIO2LE(cfile->c_mtime);
+		cfile->c_filesize = CPIO2LE(cfile->c_filesize);
 
-		cfile->c_mtime    = n(cfile->c_mtime);
-		cfile->c_filesize = n(cfile->c_filesize);
-
-		memcpy(filenames[cidx], (void *)((uint32_t)cfile + sizeof(struct header_old_cpio)), cfile->c_namesize);
-
-		if (!strcmp(filenames[cidx], "TRAILER!!!")) {
-			memset(&files[cidx], 0, sizeof(struct header_old_cpio));
+		char *filename = (char *)((uintptr_t)cfile + sizeof(struct header_old_cpio));
+		
+		if (!strcmp(filename, "TRAILER!!!")) {
+			/* End of file list. */
 			return;
 		}
 
-		uint32_t data = ((uint32_t)cfile + sizeof(struct header_old_cpio) + cfile->c_namesize + (cfile->c_namesize & 1));
-
+		uintptr_t data = ((uint32_t)cfile + sizeof(struct header_old_cpio) + cfile->c_namesize + (cfile->c_namesize & 1));
 
 		struct kfile *file = (struct kfile *)kmalloc(sizeof(struct kfile));
+		if(!file) {
+			kpanic("Could not allocate enough memory for initrd file structures!");
+		}
 		memset(file, 0, sizeof(struct kfile));
 
-		char *name = basename(filenames[cidx]);
-		//memset(file->name, 0, FILE_NAME_MAX);
+		char *name = basename(filename);
 		memcpy(file->name, name, strlen(name));
 
-		//kerror(ERR_BOOTINFO, "INITRD: File: %s [CFILE: %08X, DATA: %08X]", filenames[cidx], cfile, data);
+		char *path = dirname(filename);
 
-		//char tmp[64];
-		char *path = dirname(filenames[cidx]);
-
-		//kerror(ERR_BOOTINFO, "INITRD: Path: %s Name: %s", path, file->name);
-
-		struct kfile *dir = fs_root;
+		struct kfile *dir = mntpoint;
 		if(path[0] != '.') {
 			while(1) {
 				for(uint32_t i = 0; i < strlen(path); i++) {
@@ -175,9 +118,7 @@ void initrd_init(struct multiboot_header* mboot_head) {
 						char *nextPath = &path[i+1];
 						path[i] = '\0';
 
-						//kerror(ERR_BOOTINFO, "initrd: looking for dir: [%s]", path);
 						dir = fs_finddir(dir, path);
-						kerror(ERR_BOOTINFO, "  -> %08X", dir);
 						if(dir == NULL) { // Default to '/'
 							dir = fs_root;
 							break;
@@ -198,13 +139,11 @@ void initrd_init(struct multiboot_header* mboot_head) {
 		}
 		
 		
-		//kerror(ERR_BOOTINFO, " -> containing dir: [%s]", dir->name);
-
 		file->length     = cfile->c_filesize;
-		file->impl       = dir->inode; //fs_root->inode; // FIXME
+		file->impl       = dir->inode;
 		file->uid        = cfile->c_uid;
 		file->gid        = cfile->c_gid;
-		file->link       = 0; // FIXME
+		file->link       = 0; /* NOTE: This is handled upon first open, if applicable. */
 		file->open_flags = 0;
 		file->pflags     = cfile->c_mode & 07777;
 		switch(cfile->c_mode & 0170000) {
@@ -237,22 +176,22 @@ void initrd_init(struct multiboot_header* mboot_head) {
 				file->flags |= FS_PIPE;
 				break;
 		}
-		file->atime      = cfile->c_mtime;
+
+		/* CPIO only gives us modification time. */
+		file->atime      = 0;              /* Start access time afresh at each mount. */
 		file->mtime      = cfile->c_mtime;
-		file->ctime      = cfile->c_mtime; // Ehh....
+		file->ctime      = cfile->c_mtime;
 		
 		file->read      = &initrd_read;
 		file->write     = &initrd_write;
 		file->open      = &initrd_open;
 
-		//file->info      = (void *)cfile;
 		file->info      = (void *)data;
 
 		cfile->c_ino    = fs_add_file(file, dir);
 
 		cfile = (struct header_old_cpio *)(data + cfile->c_filesize + (cfile->c_filesize & 1));
 
-		cidx++;
-		n_files++;
+		initrd_n_files++;
 	}
 }

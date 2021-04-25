@@ -8,8 +8,6 @@
  */
 __noreturn void idle_task()
 {
-	ktask_pids[IDLE_TASK_SLOT] = current_pid;
-
 	for(;;)
 	{
 		busy_wait();

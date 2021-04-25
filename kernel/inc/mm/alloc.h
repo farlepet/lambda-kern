@@ -15,12 +15,27 @@ struct alcent //!< Describes a block of memory
 };
 
 /**
+ * \brief Allocates a block of memory. Adds accounting to kmalloc.
+ * 
+ * @param sz Size of requested memory block
+ * @return Pointer to memory block on success, else NULL
+ */
+void *malloc(size_t sz);
+
+/**
+ * \brief Frees a previously allocated block of memory. Adds accounting to kfree,
+ * 
+ * @param ptr Pointer to previously-allocated memory block.
+ */
+void free(void *ptr);
+
+/**
  * Allocates a block of memory
  *
  * @param sz size of the required memory block
  * @returns pointer to memory block on success, else NULL
  */
-void *kmalloc(uint32_t sz);
+void *kmalloc(size_t sz);
 
 /**
  * Allocates a block of memory with requested alignment
@@ -29,7 +44,17 @@ void *kmalloc(uint32_t sz);
  * @param align desired alignment
  * @returns pointer to memory block on success, else NULL
  */
-void *kamalloc(uint32_t sz, uint32_t align);
+void *kamalloc(size_t sz, size_t align);
+
+/**
+ * Allocates a block of memory with requested alignment, in multiples of the
+ * alignment value
+ *
+ * @param sz    size of the required memory block
+ * @param align desired alignment
+ * @returns pointer to memory block on success, else NULL
+ */
+void *kmamalloc(size_t sz, size_t align);
 
 /**
  * Free an allocated memory block

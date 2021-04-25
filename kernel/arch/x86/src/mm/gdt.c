@@ -4,7 +4,7 @@
 
 static uint8_t system_stack[0x2000];
 
-uint32_t TSS[26] = { 0, }; //!< The Task State Segment
+tss_t TSS = { 0, };
 
 uint64_t GDT[10] =          //!< The Global Descriptor Table
 {
@@ -33,26 +33,23 @@ extern void load_tss();           //!< Sets the TSS descriptor
  * \brief Initialize the GDT
  * Initializes the GDT then the TSS.
  */
-void gdt_init()
-{
-	GDT[9] = GDT_ENTRY((uint32_t)&TSS, sizeof(TSS)-1, 0x40E9/*0x4089*//*0x0089*/); // Or should it be 0x00E9?
+void gdt_init() {
+	TSS.ss0 = 0x10;
+	TSS.ss1 = 0x21;
+	TSS.ss2 = 0x32;
+
+	TSS.esp0 = (uint32_t)system_stack;
+
+	TSS.es = 0x13;
+	TSS.cs = 0x0B;
+	TSS.ss = 0x13;
+	TSS.ds = 0x13;
+	TSS.fs = 0x13;
+	TSS.gs = 0x13;
+
+	TSS.iopb_offset = sizeof(tss_t);
 	
-	TSS[2]  = 0x10; // SS0
-	//TSS[4]  = 0x21; // SS1
-	//TSS[6]  = 0x32; // SS2
-
-	TSS[18] = 0x13; // ES
-	TSS[19] = 0x0B; // CS
-	TSS[20] = 0x13; // SS
-	TSS[21] = 0x13; // DS
-	TSS[22] = 0x13; // FS
-	TSS[23] = 0x13; // GS
-
-	TSS[1] = (uint32_t)system_stack; // ESP0
-	//TSS[3] = (uint32_t)system_stack; // ESP1
-	//TSS[5] = (uint32_t)system_stack; // ESP2
-
-	TSS[25] = sizeof(TSS); // IOPB
+	GDT[9] = GDT_ENTRY((uint32_t)&TSS, sizeof(TSS)-1, 0x40E9);
 
 	load_gdt(GDT, sizeof(GDT));
 	seg_reload();
@@ -60,5 +57,5 @@ void gdt_init()
 }
 
 void tss_set_kern_stack(uint32_t stack) {
-	TSS[1] = stack;
+	TSS.esp0 = stack;
 }

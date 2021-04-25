@@ -1,14 +1,16 @@
+#include <proc/ktask/kinput.h>
 #include <proc/ktasks.h>
 #include <err/error.h>
+#include <err/panic.h>
 #include <time/time.h>
 #include <fs/stream.h>
-#include <proc/ipc.h>
 #include <proc/elf.h>
 #include <mm/alloc.h>
 #include <string.h>
 #include <fs/fs.h>
 #include <video.h>
 #include <sys/stat.h>
+#include <drv/driver.h>
 
 #if defined(ARCH_X86)
 #  include <arch/mm/paging.h>
@@ -17,12 +19,13 @@
 #define prompt  "%skterm\e[0m> ", \
 				(retval ? "\e[31m" : "\e[32m")
 
-static int help(int, char **);
-static int load(int, char **);
-static int run(int, char **);
-static int unload(int, char **);
-static int ls(int, char **);
-static int dbgc(int, char **);
+static int kterm_help(int, char **);
+static int kterm_load(int, char **);
+static int kterm_run(int, char **);
+static int kterm_unload(int, char **);
+static int kterm_ls(int, char **);
+static int kterm_drv(int, char **);
+static int kterm_dbgc(int, char **);
 
 struct kterm_entry {
 	uint32_t   hash;
@@ -31,12 +34,13 @@ struct kterm_entry {
 };
 
 struct kterm_entry kterm_ents[] = {
-	{ 0, "help",   &help   },
-	{ 0, "load",   &load   },
-	{ 0, "run",    &run    },
-	{ 0, "unload", &unload },
-	{ 0, "ls",     &ls     },
-	{ 0, "dbgc",   &dbgc   },
+	{ 0, "help",   &kterm_help   },
+	{ 0, "load",   &kterm_load   },
+	{ 0, "run",    &kterm_run    },
+	{ 0, "unload", &kterm_unload },
+	{ 0, "ls",     &kterm_ls     },
+	{ 0, "drv",    &kterm_drv    },
+	{ 0, "dbgc",   &kterm_dbgc   },
 };
 
 uint32_t hash(char *str) {
@@ -47,18 +51,26 @@ uint32_t hash(char *str) {
 	return hash;
 }
 
+#define KTERM_STREAM_LEN 64
+
+static struct kfile *kterm_stdin = NULL;
+
 __noreturn void kterm_task() {
 	uint32_t i = 0;
 	for(; i < (sizeof(kterm_ents)/sizeof(kterm_ents[0])); i++)
 		kterm_ents[i].hash = hash(kterm_ents[i].string);
 
-	delay(100); // Wait for things to be initialized
-
 	int retval = 0;
 	
-	kprintf("\n+----------------------------+\n");
-	kprintf("| Kernel debug shell \"kterm\" |\n");
-	kprintf("+----------------------------+\n\n");
+	kterm_stdin = stream_create(KTERM_STREAM_LEN);
+	if(!kterm_stdin) {
+		kpanic("kterm: Could not create main input stream!");
+	}
+	kinput_dest = kterm_stdin;
+	
+	kprintf("\n+----------------------------+\n"
+	        "| Kernel debug shell \"kterm\" |\n"
+	        "+----------------------------+\n\n");
 
 	for(;;) {
 		kprintf(prompt);
@@ -72,18 +84,9 @@ __noreturn void kterm_task() {
 
 		char t = 0;
 		while(1) {
-			int ret;
-			struct ipc_message_user umsg;
-			while((ret = ipc_user_recv_message_blocking(&umsg)) < 0) {
-				kerror(ERR_MEDERR, "KTERM: IPC error: %d", ret);
+			while(!fs_read(kterm_stdin, 0, 1, (uint8_t *)&t)) {
+				delay(1);
 			}
-
-			if(umsg.length > sizeof(char)) {
-				ipc_user_delete_message(umsg.message_id);
-				continue;
-			}
-
-			ipc_user_copy_message(umsg.message_id, &t);
 
 			if(t == '\n' || t == '\r') break;
 			if(t == '\b') {
@@ -131,7 +134,7 @@ __noreturn void kterm_task() {
 }
 
 
-static int help(int argc, char **argv) {
+static int kterm_help(int argc, char **argv) {
 	(void)argc;
 	(void)argv;
 	kprintf("Kterm help:\n");
@@ -150,7 +153,6 @@ static int help(int argc, char **argv) {
  * Executable file functions:
  */
 
-#define EXEC_BIN 0
 #define EXEC_ELF 1
 
 #define EXEC_STREAM_LEN 256
@@ -161,7 +163,7 @@ struct stat   exec_stat;
 uint8_t	     *exec_data = NULL;
 int           exec_type = 0;
 
-static int load(int argc, char **argv) {
+static int kterm_load(int argc, char **argv) {
 	if(argc < 2) {
 		kprintf("No executable specified\n");
 		return 1;
@@ -182,14 +184,14 @@ static int load(int argc, char **argv) {
 	exec_data = kmalloc(exec_stat.st_size);
 	fs_read(exec, 0, exec_stat.st_size, exec_data);
 
-	//kprintf("First 4 bytes of file: %02x, %02x, %02x, %02x\n", exec_data[0], exec_data[1], exec_data[2], exec_data[3]);
-
 	if(*(uint32_t *)exec_data == ELF_IDENT) {
 		exec_type = EXEC_ELF;
 		kprintf("Executable is an ELF executable.\n");
 	} else {
-		exec_type = EXEC_BIN;
-		kprintf("Executable is a raw binary executable.\n");
+		kprintf("Raw binary executables are no longer supported.\n");
+		fs_close(exec);
+		kfree(exec_data);
+		return 1;
 	}
 
 	kprintf("%s loaded\n", exec->name);
@@ -197,7 +199,7 @@ static int load(int argc, char **argv) {
 	return 0;
 }
 
-static int run(int argc, char **argv) {
+static int kterm_run(int argc, char **argv) {
 	(void)argc;
 	(void)argv;
 
@@ -215,46 +217,16 @@ static int run(int argc, char **argv) {
 			kerror(ERR_MEDERR, "Could not load executable");
 			return 1;
 		}
-	}
-
-	else if(exec_type == EXEC_BIN) {
-#if defined(ARCH_X86)
-		arch_task_params_t arch_params;
-
-		//uint32_t *pagedir;
-		ptr_t exec_ep = 0x80000000;
-
-		// Keep it on a page boundry:
-		void *phys = kmalloc(exec_stat.st_size + 0x2000);
-		phys = (void *)(((uint32_t)phys & ~0xFFF) + 0x1000);
-
-		//map_page(phys, (void *)exec_ep, 0x03);
-
-		//uint32_t addr_tst = (uint32_t)get_page_entry((void *)exec_ep);
-		//kerror(ERR_SMERR, "Page entry: 0x%08X", addr_tst);
-		
-		memcpy(phys, exec_data, exec_stat.st_size);
-
-		//kerror(ERR_BOOTINFO, "Current CR3: 0x%08X", get_pagedir());
-
-		arch_params.pgdir = clone_kpagedir();
-		pgdir_map_page(arch_params.pgdir, phys, (void *)exec_ep, 0x07);
-		kerror(ERR_BOOTINFO, "Page entry: 0x%08X", pgdir_get_page_entry(arch_params.pgdir, (void *)exec_ep));
-
-		//pid = add_kernel_task_pdir((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, pagedir);
-		pid = add_user_task_arch((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG, &arch_params);
-		//int pid = add_kernel_task((void *)exec_ep, exec_filename, 0x2000, PRIO_USERPROG);
-#else
-		/* TODO, or maybe not. Flat binaries don't have much purpose anymore
-		 * with ELF working properly. */
-#endif
+	} else {
+		kprintf("No executable loaded, or of unsupported type.");
+		return 1;
 	}
 
 	kerror(ERR_BOOTINFO, "Task PID: %d", pid);
 	
 	// TODO: Create helper functions for this:
-	int idx = proc_by_pid(pid);
-	if(idx < 0) {
+	struct kproc *child = proc_by_pid(pid);
+	if(!child) {
 		kerror(ERR_MEDERR, "kterm: Could not find spawned process!");
 		return 1;
 	}
@@ -281,27 +253,17 @@ static int run(int argc, char **argv) {
 	fs_open(stdout, OFLAGS_READ | OFLAGS_WRITE);
 	fs_open(stderr, OFLAGS_READ | OFLAGS_WRITE);
 
-	procs[idx].open_files[0] = stdin;
-	procs[idx].open_files[1] = stdout;
-	procs[idx].open_files[2] = stderr;
+	child->open_files[0] = stdin;
+	child->open_files[1] = stdout;
+	child->open_files[2] = stderr;
 
 	char buffer[EXEC_STREAM_LEN];
 
-	while(!(procs[idx].type & TYPE_ZOMBIE)) {
+	while(!(child->type & TYPE_ZOMBIE)) {
 		char t;
-		struct ipc_message_user umsg;
-
-		if(ipc_user_recv_message(&umsg) >= 0) {
-			if(umsg.length > sizeof(char)) {
-				ipc_user_delete_message(umsg.message_id);
-			} else {
-				ipc_user_copy_message(umsg.message_id, &t);
-				fs_write(stdin, 0, 1, (uint8_t *)&t);
-				kput(t); // TODO: Handle this better		
-			}
+		while(fs_read(kterm_stdin, 0, 1, (uint8_t *)&t)) {
+			fs_write(stdin, 0, 1, (uint8_t *)&t);
 		}
-
-		
 
 		if(stdout->length > 0) {
 			int sz = fs_read(stdout, 0, stdout->length, (uint8_t *)&buffer);
@@ -337,7 +299,7 @@ static int run(int argc, char **argv) {
 	return 0;
 }
 
-static int unload(int argc, char **argv) {
+static int kterm_unload(int argc, char **argv) {
 	(void)argc;
 	(void)argv;
 
@@ -353,7 +315,7 @@ static int unload(int argc, char **argv) {
 	return 0;
 }
 
-static int ls(int argc, char **argv) {
+static int kterm_ls(int argc, char **argv) {
 	(void)argc;
 	(void)argv;
 
@@ -392,7 +354,95 @@ static int ls(int argc, char **argv) {
 	return 0;
 }
 
-static int dbgc(int argc, char **argv) {
+static int kterm_drv(int argc, char **argv) {
+	if(argc < 2) {
+		kprintf("No command specified!");
+		return 1;
+	}
+
+	if(!strcmp(argv[1], "help")) {
+		kprintf("drv help\n"
+		        "  help:        Displays this help message\n"
+		        "  info <file>: Display information about the specified driver\n"
+				"  load <file>: Load the specified driver\n");
+	} else if(!strcmp(argv[1], "info")) {
+		if(argc < 3) {
+			kprintf("No driver specified!\n");
+			return 1;
+		}
+
+		struct kfile *drv = fs_find_file(fs_root, argv[2]);
+		if(!drv) {
+			kprintf("Could not find %s\n", argv[2]);
+			return 1;
+		}
+		fs_open(exec, OFLAGS_OPEN | OFLAGS_READ);
+
+		kprintf("Loading driver info.\n");
+		lambda_drv_head_t *drv_head;
+		uintptr_t          drv_base;
+		Elf32_Ehdr        *drv_elf;
+		if(driver_read(drv, &drv_head, &drv_base, &drv_elf)) {
+			kprintf("Issue while loading driver section.\n");
+			return 1;
+		}
+
+		kprintf("Driver info:\n"
+				"  Magic:   %08X\n"
+				"  Version: %hu\n"
+				"  Type:    %04hX\n"
+				"  Kernel:  %hu.%hu.%hu\n",
+				drv_head->head_magic,
+				drv_head->head_version,
+				drv_head->drv_type,
+				drv_head->kernel.major,
+				drv_head->kernel.minor,
+				drv_head->kernel.patch);
+		
+		kprintf("Metadata:\n"
+		        "  Identifier:   %s\n"
+		        "  Name:         %s\n"
+				"  Description:  %s\n"
+				"  License:      %s\n"
+				"  Authors:      ",
+				drv_head->metadata.ident       ? (char *)elf_find_data(drv_elf, (uintptr_t)drv_head->metadata.ident)       : "N/A",
+				drv_head->metadata.name        ? (char *)elf_find_data(drv_elf, (uintptr_t)drv_head->metadata.name)        : "N/A",
+				drv_head->metadata.description ? (char *)elf_find_data(drv_elf, (uintptr_t)drv_head->metadata.description) : "N/A",
+				drv_head->metadata.license     ? (char *)elf_find_data(drv_elf, (uintptr_t)drv_head->metadata.license)     : "N/A");
+				
+		if(drv_head->metadata.authors) {
+			char **authors = (char **)elf_find_data(drv_elf, (uintptr_t)drv_head->metadata.authors);
+			size_t i = 0;
+			while(authors[i]) {
+				kprintf("\n    %s", elf_find_data(drv_elf, (uintptr_t)authors[i]));
+				i++;
+			}
+		} else {
+			kprintf("N/A");
+		}
+		kprintf("\n  Requirements: ");
+		if(drv_head->metadata.requirements) {
+			char **requirements = (char **)elf_find_data(drv_elf, (uintptr_t)drv_head->metadata.requirements);
+			size_t i = 0;
+			while(requirements[i]) {
+				kprintf("\n    %s", elf_find_data(drv_elf, (uintptr_t)requirements[i]));
+				i++;
+			}
+		} else {
+			kprintf("N/A");
+		}
+		kprintf("\n");
+	} else if (!strcmp(argv[1], "load")) {
+		kprintf("IMPLEMENTATION PENDING\n");
+	} else {
+		kprintf("Unknown drv command!\n");
+		return 1;
+	}
+
+	return 0;
+}
+
+static int kterm_dbgc(int argc, char **argv) {
 	if(argc < 2) {
 		kprintf("No command specified!");
 		return 1;

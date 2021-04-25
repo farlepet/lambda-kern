@@ -3,8 +3,12 @@
 
 #include <stdint.h>
 
+#include <err/panic.h>
+
+#include <arch/intr/int.h>
+
 typedef struct {
-    struct {
+    volatile struct {
         uint32_t r0;
         uint32_t r1;
         uint32_t r2;
@@ -39,7 +43,12 @@ typedef struct {
 #include <proc/proc.h>
 
 static inline void run_sched(void) {
-	/* TODO */
+	/* TODO: Force scheduler to run */
+    if(!interrupts_enabled()) {
+        kpanic("run_sched: Interrupts not enabled!");
+    }
+    /* Wait for timer interrupt to fire: */
+    interrupt_halt();
 }
 
 /**

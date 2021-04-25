@@ -1,4 +1,3 @@
-.global handle_int
 .global load_idt
 .global dummy_int
 

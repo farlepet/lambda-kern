@@ -1,11 +1,16 @@
 #ifndef PROC_H
 #define PROC_H
 
+struct kthread;
 struct kproc;
 struct uproc;
 
+typedef struct kthread kthread_t;
+typedef struct kproc   kproc_t;
+
 #define MAX_PROCESSES        16 //!< Maximum amount of running processes
 #define MAX_CHILDREN         8  //!< Maximum number of children a parent can handle
+#define MAX_THREADS          16 //!< Maximum number of threads a process can contain
 #define MAX_PROCESS_MESSAGES 64 //!< Maximum number of messages a process can retain
 #define MAX_BLOCKED_PIDS     (MAX_PROCESSES - 1)
 #define MAX_OPEN_FILES       8  //!< Maximum number of files opened by any particular process, including 0-2
@@ -15,11 +20,10 @@ struct uproc;
 #define PROC_KERN_STACK_SIZE 4096 //!< Size of kernel stack allocated to process
 
 #define TYPE_RUNNABLE 0x00000001 //!< Is this process runnable?
-#define TYPE_RANONCE  0x00000002 //!< Can this process save its registers yet?
-#define TYPE_VALID    0x00000004 //!< Is this a valid process? Can it be overwritten?
-#define TYPE_ZOMBIE   0x00000008 //!< Has this task been killed?
-#define TYPE_REAP     0x00000010 //!< Should this task be reaped?
-#define TYPE_KERNEL   0x80000000 //!< Does this process run in kernel land?
+#define TYPE_ZOMBIE   0x00000002 //!< Has this task been killed?
+#define TYPE_REAP     0x00000004 //!< Should this task be reaped?
+#define TYPE_KERNEL   0x40000000 //!< Does this process run in kernel land?
+#define TYPE_VALID    0x80000000 //!< Is this a valid process? Can it be overwritten?
 
 #define BLOCK_DELAY       0x00000001 //!< Process is blocked waiting for a delay
 #define BLOCK_MESSAGE     0x00000002 //!< Process is blocked waiting for a message
@@ -38,6 +42,7 @@ struct uproc;
 #include <fs/kfile.h>
 #include <mm/symbols.h>
 #include <proc/syscalls.h>
+#include <proc/elf.h>
 
 #include <arch/proc/tasking.h>
 
@@ -60,49 +65,79 @@ struct kproc_mem_map_ent { //!< Memory-map entry
 	struct kproc_mem_map_ent *next; //!< Next memory map entnry in linked-list. NULL if this is the last element
 };
 
+typedef struct proc_elf_data {
+	/* Dynamic linker data: */
+	const Elf32_Dyn *dynamic;
+	const char      *dynamic_str;     //!< Dynamic string table
+	size_t           dynamic_str_len; //!< Dynamic string table length
+	const Elf32_Sym *dynamic_sym;     //!< Dynamic symbol table
+} proc_elf_data_t;
+
+struct kthread {
+	char              name[64];   /** Name of thread */
+	uint32_t          tid;        /** Thread ID */
+#define KTHREAD_FLAG_VALID   0x80000000 /** Thread contents is valid */
+#define KTHREAD_FLAG_RANONCE 0x00000001 /** Thread has ran at least once */
+	uint32_t          flags;      /** Thread flags */
+	int               prio;       /** Thread priority */
+
+	volatile uint32_t blocked;    /** Contains flags telling whether or not this thread is blocked, and by what */
+
+	struct kproc     *process;    /** Pointer to owning process */
+
+	kthread_arch_t    arch;       /** Architecture-specific thread data */
+	uint32_t          entrypoint; /** Program start */
+	
+	/* TODO: Might be best to simply deprecate this, similar could be done
+	 * using pipes, or other standard IPC techniques. Perhaps implement more
+	 * standard POSIX message queues. */
+	struct ipc_message *ipc_messages[MAX_PROCESS_MESSAGES]; //!< IPC message pointers
+	int                 blocked_ipc_pids[MAX_BLOCKED_PIDS]; //!< PIDs blocked from sending messages to this process
+};
+
+/* TODO: Convert some static-size arrays in kproc to dynamically allocated memory. */
 struct kproc { //!< Structure of a process as seen by the kernel
-	char name[64]; //!< Name of the process
-	int pid;       //!< Process ID
-	int uid;       //!< User who `owns` the process
-	int gid;       //!< Group who `owns` the process
+	char          name[64]; //!< Name of the process
+	int           pid;      //!< Process ID
+	int           uid;      //!< User who `owns` the process
+	int           gid;      //!< Group who `owns` the process
 
-	int parent;    //!< PID of parent process
+	/* TODO: Currently parent anc childred are completely different, perhaps
+	 * they should both be pointers? */
+	int           parent;   //!< PID of parent process
 
-	uint32_t type; //!< Type of process
+	uint32_t      type;     //!< Type of process
+	
+	kproc_arch_t  arch;     /** Architecture-specific process data */
 
-	int children[MAX_CHILDREN]; //!< Indexes of direct child processes (ex: NOT children's children)
+	struct kproc *children[MAX_CHILDREN]; //!< Pointers to direct child processes (ex: NOT children's children)
 
-	kproc_arch_t arch; //!< Architecture-specific process data
-
-	uint32_t entrypoint; //!< Program start
-
-	struct cbuff messages;           //!< Message buffer structure
-	uint8_t msg_buff[MSG_BUFF_SIZE]; //!< Actual buffer
+	//kproc_arch_t  arch; //!< Architecture-specific process data
+	/* @todo If kthread_t gets larger, allocate threads dynamically instead. */
+	kthread_t     threads[MAX_THREADS];
 
 	struct kfile *cwd; //!< Current working directory
 
 	struct kfile *open_files[MAX_OPEN_FILES]; //!< Open file descriptors
 	uint32_t      file_position[MAX_OPEN_FILES]; //!< Current position in open files
 
-	symbol_t *symbols;   //!< Symbol names used to display a stack trace
-	char     *symStrTab; //!< Strings used for symbol table
+	symbol_t     *symbols;   //!< Symbol names used to display a stack trace
+	char         *symStrTab; //!< Strings used for symbol table
 
-	// New IPC:
-	struct ipc_message *ipc_messages[MAX_PROCESS_MESSAGES]; //!< IPC message pointers
-	int blocked_ipc_pids[MAX_BLOCKED_PIDS]; //!< PIDs blocked from sending messages to this process
+	proc_elf_data_t *elf_data; //!< Data specific for ELF executables
 
-	uint32_t blocked;   //!< Contains flags telling whether or not this process is blocked, and by what
+	int           exitcode;  //!< Exit code
 
-	int exitcode;  //!< Exit code
-
-	int prio;      //!< Task priority
-
-	struct proc_book book; //!< Bookkeeping stuff
+	struct        proc_book book; //!< Bookkeeping stuff
 
 	struct kproc_mem_map_ent *mmap; //!< Memory map
+
+
+	struct kproc *next; /*!< Next process in linked list. */
+	struct kproc *prev; /*!< Previous process in linked list. */
 };
 
-
+/* @todo Deprecate this */
 struct uproc { //!< Structure of a process as seen by a user process
 	char name[64]; //!< Name of the process
 	int pid;       //!< Process ID
@@ -145,11 +180,11 @@ int proc_add_file(struct kproc *proc, struct kfile *file);
  * @brief Add child index to parent
  * 
  * @param parent Pointer to parent process struct
- * @param child_pid Index of child to add
+ * @param child Pointer to child to add
  * 
  * @return 0 on success, else 1
  */
-int proc_add_child(struct kproc *parent, int child_idx);
+int proc_add_child(struct kproc *parent, struct kproc *child);
 
 /**
  * @brief Reschedule processes
@@ -160,10 +195,8 @@ void sched_processes(void);
 
 /**
  * @brief Select next process to execute
- * 
- * @return int Process index
  */
-int sched_next_process(void);
+void sched_next_process(void);
 
 /**
  * @brief Add memory map record to process

@@ -3,19 +3,29 @@
 
 #include <stdint.h>
 
+#include <arch/intr/int.h>
+
 typedef struct {
-	int ring;           //!< Ring to run in (0-3)
+	arch_pusha_regs_t *pusha;
+	arch_iret_regs_t  *iret;
+} kproc_arch_syscall_regs_t;
 
-	uint32_t esp;       //!< Stack pointer
-	uint32_t ebp;       //!< Stack base pointer
-	uint32_t eip;       //!< Instruction pointer
-	uint32_t cr3;       //!< Page directory
+typedef struct {
+	uint32_t esp;               /** Stack pointer */
+	uint32_t ebp;               /** Stack base pointer */
+	uint32_t eip;               /** Instruction pointer */
 
-	uint32_t kernel_stack;      //!< Kernel stack
-	uint32_t kernel_stack_size; //!< Size of kernel stack
+	uint32_t kernel_stack;      /** Kernel stack */
 
-	uint32_t stack_beg; //!< Beginning of stack
-	uint32_t stack_end; //!< Current end of stack
+	uint32_t stack_beg;         /** Beginning of stack */
+	uint32_t stack_end;         /** Current end of stack */
+
+	kproc_arch_syscall_regs_t syscall_regs; //!< Syscall registers
+} kthread_arch_t;
+
+typedef struct {
+	int      ring; /** Ring to run in (0-3) */
+	uint32_t cr3;  /** Page directory */
 } kproc_arch_t;
 
 /* Architecture-specific task creation parameters */
@@ -41,17 +51,19 @@ void do_task_switch(void);
 /**
  * \brief Architecture-specific process stack creation routine
  */
-int arch_proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel);
+int arch_proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel);
 
 /**
  * \brief Architecture-specific process kernel stack creation routine
  */
-int arch_proc_create_kernel_stack(struct kproc *proc);
+int arch_proc_create_kernel_stack(kthread_t *thread);
 
 /**
  * \brief Architecture-specific process creation routine
  */
-int arch_setup_task(struct kproc *proc, void *entrypoint, uint32_t stack_size, int kernel, arch_task_params_t *arch_params);
+int arch_setup_task(kthread_t *thread, void *entrypoint, uint32_t stack_size, arch_task_params_t *arch_params);
+
+int arch_setup_thread(kthread_t *thread, void *entrypoint, uint32_t stack_size, void *data);
 
 /**
  * \brief Architecture-specific multitasking initialization.

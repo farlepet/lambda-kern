@@ -83,4 +83,6 @@ extern volatile boot_options_t boot_options;
  */
 void check_commandline(struct multiboot_header *mboot_head);
 
+void check_multiboot_modules(struct multiboot_header *mboot_head);
+
 #endif

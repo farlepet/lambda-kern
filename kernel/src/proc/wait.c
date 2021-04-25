@@ -10,11 +10,10 @@
  */
 static inline int find_dead_child(struct kproc *parent) {
     for(int idx = 0; idx < MAX_CHILDREN; idx++) {
-        if(parent->children[idx] >= 0) {
-            int chidx = parent->children[idx];
-            if(procs[chidx].type & TYPE_VALID &&  // Is this a valid process entry?
-                procs[chidx].type & TYPE_ZOMBIE) { // Is this process dead?
-                return chidx;
+        if(parent->children[idx]) {
+            if(parent->children[idx]->type & TYPE_VALID &&  // Is this a valid process entry?
+               parent->children[idx]->type & TYPE_ZOMBIE) { // Is this process dead?
+                return idx;
             }
         }
     }
@@ -23,14 +22,14 @@ static inline int find_dead_child(struct kproc *parent) {
 }
 
 int wait(int *stat_loc) {
-    int idx          = proc_by_pid(current_pid);
     int chidx        = 0;
     int cpid         = 0;
     int child_exists = 0;
+    struct kproc *child = NULL;
 
     // Check that the process has a child:
     for(int ch = 0; ch < MAX_CHILDREN; ch++) {
-        if(procs[idx].children[ch]) {
+        if(curr_proc->children[ch]) {
             child_exists = 1;
             break;
         }
@@ -42,40 +41,35 @@ int wait(int *stat_loc) {
     }
 
     // Check if a dead child process already exists:
-    chidx = find_dead_child(&procs[idx]);
+    chidx = find_dead_child(curr_proc);
     if(chidx >= 0) {
         goto CHILD_FOUND;
     }
 
     // Block and wait for scheduler
-    procs[idx].blocked |= BLOCK_WAIT;
+    curr_proc->threads[curr_thread].blocked |= BLOCK_WAIT;
     //interrupt_halt();
     run_sched();
 
     // When process is re-entered here, a child has exited
-    chidx = find_dead_child(&procs[idx]);
+    chidx = find_dead_child(curr_proc);
     if(chidx < 0) {
         // Something went wrong, we should never get here
         return -1;
     }
 CHILD_FOUND:
-    cpid = procs[chidx].pid;
+    child = curr_proc->children[chidx];
 
     (void)stat_loc; // TODO: Modify stat_loc
 
     // TODO: Free up process-used memory.
     // Process slot can now be safely re-used
-    if(procs[chidx].type & TYPE_ZOMBIE) {
-        procs[chidx].type = 0;
+    if(child->type & TYPE_ZOMBIE) {
+        child->type = 0;
     }
 
     // Free up child slot
-    for(int i = 0; i < MAX_CHILDREN; i++) {
-        if(procs[idx].children[i] >= 0 && procs[idx].children[i] == chidx) {
-            procs[idx].children[i] = -1;
-            break;
-        }
-    }
+    curr_proc->children[chidx] = NULL;
 
     return cpid;
 }

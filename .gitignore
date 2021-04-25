@@ -3,10 +3,12 @@
 *.ko
 *.bc
 *.ll
+*.d
 
 # Libraries
 *.lib
 *.a
+*.shared
 
 # Shared objects (inc. Windows DLLs)
 *.dll
