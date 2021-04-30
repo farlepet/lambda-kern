@@ -10,7 +10,7 @@
 #include <fs/fs.h>
 #include <video.h>
 #include <sys/stat.h>
-#include <drv/driver.h>
+#include <mod/module.h>
 
 #if defined(ARCH_X86)
 #  include <arch/mm/paging.h>
@@ -24,7 +24,7 @@ static int kterm_load(int, char **);
 static int kterm_run(int, char **);
 static int kterm_unload(int, char **);
 static int kterm_ls(int, char **);
-static int kterm_drv(int, char **);
+static int kterm_mod(int, char **);
 static int kterm_dbgc(int, char **);
 
 struct kterm_entry {
@@ -39,7 +39,7 @@ struct kterm_entry kterm_ents[] = {
 	{ 0, "run",    &kterm_run    },
 	{ 0, "unload", &kterm_unload },
 	{ 0, "ls",     &kterm_ls     },
-	{ 0, "drv",    &kterm_drv    },
+	{ 0, "mod",    &kterm_mod    },
 	{ 0, "dbgc",   &kterm_dbgc   },
 };
 
@@ -354,50 +354,48 @@ static int kterm_ls(int argc, char **argv) {
 	return 0;
 }
 
-static int kterm_drv(int argc, char **argv) {
+static int kterm_mod(int argc, char **argv) {
 	if(argc < 2) {
 		kprintf("No command specified!");
 		return 1;
 	}
 
 	if(!strcmp(argv[1], "help")) {
-		kprintf("drv help\n"
+		kprintf("mod help\n"
 		        "  help:        Displays this help message\n"
-		        "  info <file>: Display information about the specified driver\n"
-				"  load <file>: Load the specified driver\n");
+		        "  info <file>: Display information about the specified module\n"
+				"  load <file>: Load the specified module\n");
 	} else if(!strcmp(argv[1], "info")) {
 		if(argc < 3) {
-			kprintf("No driver specified!\n");
+			kprintf("No module specified!\n");
 			return 1;
 		}
 
-		struct kfile *drv = fs_find_file(fs_root, argv[2]);
-		if(!drv) {
+		struct kfile *mod = fs_find_file(fs_root, argv[2]);
+		if(!mod) {
 			kprintf("Could not find %s\n", argv[2]);
 			return 1;
 		}
 		fs_open(exec, OFLAGS_OPEN | OFLAGS_READ);
 
-		kprintf("Loading driver info.\n");
-		lambda_drv_head_t *drv_head;
-		uintptr_t          drv_base;
-		Elf32_Ehdr        *drv_elf;
-		if(driver_read(drv, &drv_head, &drv_base, &drv_elf)) {
-			kprintf("Issue while loading driver section.\n");
+		kprintf("Loading module info.\n");
+		lambda_mod_head_t *mod_head;
+		uintptr_t          mod_base;
+		Elf32_Ehdr        *mod_elf;
+		if(module_read(mod, &mod_head, &mod_base, &mod_elf)) {
+			kprintf("Issue while loading module section.\n");
 			return 1;
 		}
 
-		kprintf("Driver info:\n"
+		kprintf("Module info:\n"
 				"  Magic:   %08X\n"
 				"  Version: %hu\n"
-				"  Type:    %04hX\n"
 				"  Kernel:  %hu.%hu.%hu\n",
-				drv_head->head_magic,
-				drv_head->head_version,
-				drv_head->drv_type,
-				drv_head->kernel.major,
-				drv_head->kernel.minor,
-				drv_head->kernel.patch);
+				mod_head->head_magic,
+				mod_head->head_version,
+				mod_head->kernel.major,
+				mod_head->kernel.minor,
+				mod_head->kernel.patch);
 		
 		kprintf("Metadata:\n"
 		        "  Identifier:   %s\n"
@@ -405,27 +403,27 @@ static int kterm_drv(int argc, char **argv) {
 				"  Description:  %s\n"
 				"  License:      %s\n"
 				"  Authors:      ",
-				drv_head->metadata.ident       ? (char *)elf_find_data(drv_elf, (uintptr_t)drv_head->metadata.ident)       : "N/A",
-				drv_head->metadata.name        ? (char *)elf_find_data(drv_elf, (uintptr_t)drv_head->metadata.name)        : "N/A",
-				drv_head->metadata.description ? (char *)elf_find_data(drv_elf, (uintptr_t)drv_head->metadata.description) : "N/A",
-				drv_head->metadata.license     ? (char *)elf_find_data(drv_elf, (uintptr_t)drv_head->metadata.license)     : "N/A");
+				mod_head->metadata.ident       ? (char *)elf_find_data(mod_elf, (uintptr_t)mod_head->metadata.ident)       : "N/A",
+				mod_head->metadata.name        ? (char *)elf_find_data(mod_elf, (uintptr_t)mod_head->metadata.name)        : "N/A",
+				mod_head->metadata.description ? (char *)elf_find_data(mod_elf, (uintptr_t)mod_head->metadata.description) : "N/A",
+				mod_head->metadata.license     ? (char *)elf_find_data(mod_elf, (uintptr_t)mod_head->metadata.license)     : "N/A");
 				
-		if(drv_head->metadata.authors) {
-			char **authors = (char **)elf_find_data(drv_elf, (uintptr_t)drv_head->metadata.authors);
+		if(mod_head->metadata.authors) {
+			char **authors = (char **)elf_find_data(mod_elf, (uintptr_t)mod_head->metadata.authors);
 			size_t i = 0;
 			while(authors[i]) {
-				kprintf("\n    %s", elf_find_data(drv_elf, (uintptr_t)authors[i]));
+				kprintf("\n    %s", elf_find_data(mod_elf, (uintptr_t)authors[i]));
 				i++;
 			}
 		} else {
 			kprintf("N/A");
 		}
 		kprintf("\n  Requirements: ");
-		if(drv_head->metadata.requirements) {
-			char **requirements = (char **)elf_find_data(drv_elf, (uintptr_t)drv_head->metadata.requirements);
+		if(mod_head->metadata.requirements) {
+			char **requirements = (char **)elf_find_data(mod_elf, (uintptr_t)mod_head->metadata.requirements);
 			size_t i = 0;
 			while(requirements[i]) {
-				kprintf("\n    %s", elf_find_data(drv_elf, (uintptr_t)requirements[i]));
+				kprintf("\n    %s", elf_find_data(mod_elf, (uintptr_t)requirements[i]));
 				i++;
 			}
 		} else {
@@ -435,7 +433,7 @@ static int kterm_drv(int argc, char **argv) {
 	} else if (!strcmp(argv[1], "load")) {
 		kprintf("IMPLEMENTATION PENDING\n");
 	} else {
-		kprintf("Unknown drv command!\n");
+		kprintf("Unknown mod command!\n");
 		return 1;
 	}
 
