@@ -10,11 +10,18 @@
 #include <types.h>
 #include <video.h>
 
-static uint32_t pagedir[1024]      __align(0x1000); //!< Main kernel pagedirectory
-static uint32_t init_tbls[4][1024] __align(0x1000); //!< First 4 page tables
-static uint32_t frames[0x10000]    __align(0x1000); //!< Table stating which frames are available, takes up 256KiB
-static uint32_t prealloc_frames[20];                //!< 20 frames that are free, used by alloc_frame
-static uint32_t nframes;                            //!< Number of frames in the table
+#define N_INIT_TABLES     1
+#define PAGE_SZ           4096
+#define PGDIR_ENTRIES     1024
+#define PGTBL_ENTRIES     1024
+#define N_FRAMES          0x8000 /* 4 GiB / (32 * 4 KiB) = 0x8000 */
+#define N_PREALLOC_FRAMES 20
+
+static uint32_t pagedir[PGDIR_ENTRIES]                  __align(0x1000); //!< Main kernel pagedirectory
+static uint32_t init_tbls[N_INIT_TABLES][PGTBL_ENTRIES] __align(0x1000); //!< First n page tables
+static uint32_t frames[N_FRAMES];                                        //!< Table stating which frames are available
+static uint32_t prealloc_frames[N_PREALLOC_FRAMES];                      //!< 20 frames that are free, used by alloc_frame
+static uint32_t nframes;                                                 //!< Number of frames in the table
 
 uint32_t kernel_cr3;        //!< Page directory used by the kernel
 
@@ -28,25 +35,27 @@ static uint32_t *lastframe; //!< The location of the last page frame
  * @param val wether the frame is used or unused
  */
 void set_frame(uint32_t frame, uint32_t val) {
-	//kerror(ERR_BOOTINFO, "  set_frame(%08X, %08X)", frame, val);
-	if(val == 1)
-	{
-		frames[frame / 32] |=  (1 << (frame % 32));
+	switch(val) {
+		case 0: /* Free frame */
+			frames[frame / 32] &= ~(1 << (frame % 32));
+			break;
+		case 1: /* Use frame */
+			frames[frame / 32] |=  (1 << (frame % 32));
+			break;
+		case 0xFFFFFFFF: { /* BLOCK this page from use */
+			frames[frame / 32] |= (1 << (frame % 32));
+			uint32_t addr = (((frame * 0x1000) + (uint32_t)firstframe) & 0xFFFFF000);
+			uint32_t pdindex = addr >> 22;
+			uint32_t ptindex = addr >> 12 & 0x03FF;
+			((uint32_t *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] = 0x00000000; // Invalidate the page
+		} break;
+		default:
+			kpanic("Invalid value to set_frame: %d", val);
 	}
-	else if(val == 0) frames[frame / 32] &= ~(1 << (frame % 32));
-	else if(val == 0xFFFFFFFF) // BLOCK this page from use
-	{
-		frames[frame / 32] |= (1 << (frame % 32));
-		uint32_t addr = (((frame * 0x1000) + (uint32_t)firstframe) & 0xFFFFF000);
-		uint32_t pdindex = addr >> 22;
-		uint32_t ptindex = addr >> 12 & 0x03FF;
-		((uint32_t *)(pagedir[pdindex] & 0xFFFFF000))[ptindex] = 0x00000000; // Invalidate the page
-	}
-	else kerror(ERR_MEDERR, "invalid value to set_frame: %d", val);
 }
 
 void block_page(uint32_t page) {
-	set_frame((page - (uint32_t)firstframe) / 0x1000, 0xFFFFFFFF);
+	set_frame((page - (uint32_t)firstframe) / PAGE_SZ, 0xFFFFFFFF);
 }
 
 /**
@@ -75,9 +84,9 @@ static void *get_free_frame() {
 
 	set_frame(i, 1);
 
-	map_page(firstframe + (i*0x1000), firstframe + (i*0x1000), 3); // Make sure it is mapped
+	map_page(firstframe + (i*PAGE_SZ), firstframe + (i*PAGE_SZ), 3); // Make sure it is mapped
 		
-	return (firstframe + (i*0x1000));
+	return (firstframe + (i*PAGE_SZ));
 }
 
 /**
@@ -203,17 +212,15 @@ void free_frame(void *frame) {
 
 
 void clear_pagedir(uint32_t *dir) {
-	int i = 0;
-	for(i = 0; i < 1024; i++) {
-	//	kerror(ERR_INFO, "      -> PDIRENT %X", i);
+	for(uint32_t i = 0; i < PGDIR_ENTRIES; i++) {
 		dir[i] = 2; // supervisor, rw, not present.
 	}
 }
 
 void fill_pagetable(uint32_t *table, uint32_t addr, uint32_t flags) {
-	uint32_t i;
-	for(i = 0; i < 1024; i++, addr += 0x1000)
+	for(uint32_t i = 0; i < PGTBL_ENTRIES; i++, addr += PAGE_SZ) {
 		table[i] = addr | (flags & 0xFFF);
+	}
 }
 
 void set_pagedir(uint32_t *dir) {
@@ -221,7 +228,7 @@ void set_pagedir(uint32_t *dir) {
 		kpanic("Attempted to set pagedir pointer to NULL!");
 	}
 
-	kerror(ERR_BOOTINFO, "SET_PAGEDIR: %08X", dir);
+	kdebug(DEBUGSRC_MM, "SET_PAGEDIR: %08X", dir);
 	asm volatile("mov %0, %%cr3":: "b"(dir));
 }
 
@@ -269,16 +276,23 @@ static void disable_global_pages() {
 extern struct multiboot_module_tag *initrd;
 
 void paging_init(uint32_t som, uint32_t eom) {
-	firstframe = (uint32_t *)som;
-
+	if(som % PAGE_SZ) {
+		firstframe = (uint32_t *)((som + PAGE_SZ) & 0xFFFFF000);
+	} else {
+		firstframe = (uint32_t *)som;
+	}
 	lastframe  = (uint32_t *)(eom & 0xFFFFF000);
-
-	nframes = (uint32_t)(eom - (uint32_t)firstframe) / 0x1000;
+	nframes    = (uint32_t)(eom - (uint32_t)firstframe) / PAGE_SZ;
 	
+	if(nframes > N_FRAMES) {
+		kpanic("paging_init: Number of required frames exceeds that allocated! %d > %d", nframes, N_FRAMES);
+	}
+
 	kerror(ERR_BOOTINFO, "  -> Clearing page frame table"); 
 	
-	uint32_t i = 0;
-	for(; i < nframes; i += 32, frames[i] = 0);
+	for(size_t i = 0; i < (nframes / 32); i++, frames[i] = 0) {
+		frames[i] = 0;
+	}
 
 	kerror(ERR_BOOTINFO, "  -> Clearing page directory");
 
@@ -286,19 +300,12 @@ void paging_init(uint32_t som, uint32_t eom) {
 
 	kerror(ERR_BOOTINFO, "  -> Filling first 4 page tables");
 
-	/* @todo Base this on the actual used memory, rather than automatically taking up 16 MiB */
-	// Identity-map first 16 MiB for kernel use. (flags: present, writable, global)
-	fill_pagetable((void *)init_tbls[0], 0x00000000, 0x103);
-	fill_pagetable((void *)init_tbls[1], 0x00400000, 0x103);
-	fill_pagetable((void *)init_tbls[2], 0x00800000, 0x103);
-	fill_pagetable((void *)init_tbls[3], 0x00C00000, 0x103);
-
-	kerror(ERR_BOOTINFO, "  -> Setting page directory entries");
-
-	pagedir[0] = (uint32_t)init_tbls[0] | 3;
-	pagedir[1] = (uint32_t)init_tbls[1] | 3;
-	pagedir[2] = (uint32_t)init_tbls[2] | 3;
-	pagedir[3] = (uint32_t)init_tbls[3] | 3;
+	/* @todo Base this on the actual used memory */
+	for(size_t i = 0; i < N_INIT_TABLES; i++) {
+		// Identity-map first N_INIT_TABLES * 4 MiB for kernel use. (flags: present, writable, global)
+		fill_pagetable((void *)init_tbls[i], i * (PAGE_SZ * PGTBL_ENTRIES), 0x103);
+		pagedir[i] = (uint32_t)init_tbls[i] | 3;
+	}
 
 	kerror(ERR_BOOTINFO, "  -> Setting page directory");
 
@@ -314,12 +321,16 @@ void paging_init(uint32_t som, uint32_t eom) {
 
 	kerror(ERR_BOOTINFO, "  -> Initializing `malloc`");
 	kerror(ERR_BOOTINFO, "      -> Allocating page frames");
-	uint32_t alloc_mem = (uint32_t)page_alloc(0x1000000 + 0x2000) & ~0xFFF; // 16 MB should be good for now
+#define ALLOC_MEM_SZ 0x1000000 /* TODO: Make this dynamic */
+	uint32_t alloc_mem = (uint32_t)page_alloc(ALLOC_MEM_SZ + PAGE_SZ); // 16 MB should be good for now
+	if(alloc_mem % PAGE_SZ) {
+		alloc_mem = (alloc_mem + PAGE_SZ) & 0xFFFFF000;
+	}
 
 	kerror(ERR_BOOTINFO, "      -> Initializing allocation system");
-	init_alloc(alloc_mem, 0x1000000);
+	init_alloc(alloc_mem, ALLOC_MEM_SZ);
 
-	kerror(ERR_BOOTINFO, "      -> %08X -> %08X (%08X)", alloc_mem, alloc_mem + 0x1000000, 0x1000000);
+	kerror(ERR_BOOTINFO, "      -> %08X -> %08X (%08X)", alloc_mem, alloc_mem + ALLOC_MEM_SZ, ALLOC_MEM_SZ);
 }
 
 

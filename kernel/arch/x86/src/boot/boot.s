@@ -26,12 +26,13 @@ mboot:
 
 mbootEnd:
 
+.set STACK_SZ, 0x2000
 
 .global start
 .extern kmain
 .type start, @function
 start:
-	mov $(new_stack_t + 0x10000), %esp
+	mov $(new_stack_t + STACK_SZ), %esp
     mov %esp, %ebp
 
 	pushl %eax # Bootloader magic number
@@ -56,4 +57,4 @@ get_eip:
 	ret
 
 
-.lcomm new_stack_t, 0x10000
+.lcomm new_stack_t, STACK_SZ
