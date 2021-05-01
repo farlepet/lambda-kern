@@ -1,4 +1,5 @@
 #include <proc/ktask/kinput.h>
+#include <lambda/export.h>
 #include <proc/ktasks.h>
 #include <err/error.h>
 #include <err/panic.h>
@@ -364,7 +365,8 @@ static int kterm_mod(int argc, char **argv) {
 		kprintf("mod help\n"
 		        "  help:        Displays this help message\n"
 		        "  info <file>: Display information about the specified module\n"
-				"  load <file>: Load the specified module\n");
+				"  load <file>: Load the specified module\n"
+				"  symlist:     List currently exported symbols\n");
 	} else if(!strcmp(argv[1], "info")) {
 		if(argc < 3) {
 			kprintf("No module specified!\n");
@@ -432,6 +434,13 @@ static int kterm_mod(int argc, char **argv) {
 		kprintf("\n");
 	} else if (!strcmp(argv[1], "load")) {
 		kprintf("IMPLEMENTATION PENDING\n");
+	} else if (!strcmp(argv[1], "symlist")) {
+		kprintf("Exported symbols:\n");
+		lambda_symbol_t *sym = &__lambda_symbols_begin;
+		while(sym < &__lambda_symbols_end) {
+			kprintf("  %08X: <%s>\n", sym->addr, sym->name);
+			sym++;
+		}
 	} else {
 		kprintf("Unknown mod command!\n");
 		return 1;

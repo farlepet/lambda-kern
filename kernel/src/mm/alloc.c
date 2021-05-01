@@ -1,3 +1,4 @@
+#include <lambda/export.h>
 #include <string.h>
 #include <mm/mm.h>
 #include <mm/alloc.h>
@@ -238,10 +239,12 @@ void *kamalloc(size_t sz, size_t align) {
 
 	return (void *)ae.addr;
 }
+EXPORT_FUNC(kamalloc);
 
 void *kmalloc(size_t sz) {
 	return kamalloc(sz, 1);
 }
+EXPORT_FUNC(kmalloc);
 
 void *kmamalloc(size_t sz, size_t align) {
 	if(sz % align) {
@@ -249,6 +252,7 @@ void *kmamalloc(size_t sz, size_t align) {
 	}
 	return kamalloc(sz, align);
 }
+EXPORT_FUNC(kmamalloc);
 
 void kfree(void *ptr)
 {
@@ -270,6 +274,7 @@ void kfree(void *ptr)
 
 	unlock(&alloc_lock);
 }
+EXPORT_FUNC(kfree);
 
 
 void *malloc(size_t sz) {

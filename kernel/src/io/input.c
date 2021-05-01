@@ -1,3 +1,4 @@
+#include <lambda/export.h>
 #include <err/panic.h>
 #include <io/input.h>
 #include <mm/alloc.h>
@@ -42,6 +43,7 @@ void add_input_dev(input_dev_t *idev, uint16_t driver, char *name, uint8_t name_
 
 	llist_append(&idevs, &idev->list_item);
 }
+EXPORT_FUNC(add_input_dev);
 
 
 input_dev_t *get_idevice(uint16_t driver, uint16_t device) {

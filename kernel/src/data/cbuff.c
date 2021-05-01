@@ -1,3 +1,4 @@
+#include <lambda/export.h>
 #include <data/cbuff.h>
 
 int put_cbuff(uint8_t data, struct cbuff *buff) {
@@ -13,6 +14,7 @@ int put_cbuff(uint8_t data, struct cbuff *buff) {
 
 	return 0;
 }
+EXPORT_FUNC(put_cbuff);
 
 int get_cbuff(struct cbuff *buff) {
 	if(!buff || !buff->buff) return CBUFF_INVAL; // Invalid buffer
@@ -27,6 +29,7 @@ int get_cbuff(struct cbuff *buff) {
 
 	return d;
 }
+EXPORT_FUNC(get_cbuff);
 
 
 int write_cbuff(uint8_t *data, int size, struct cbuff *buff) {
@@ -44,6 +47,7 @@ int write_cbuff(uint8_t *data, int size, struct cbuff *buff) {
 
 	return 0;
 }
+EXPORT_FUNC(write_cbuff);
 
 int read_cbuff(uint8_t *data, int size, struct cbuff *buff) {
 	//kerror(ERR_INFO, "read_cbuff: count = %d size = %d", buff->count, size);
@@ -61,3 +65,4 @@ int read_cbuff(uint8_t *data, int size, struct cbuff *buff) {
 
 	return 0;
 }
+EXPORT_FUNC(read_cbuff);

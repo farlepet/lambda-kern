@@ -1,4 +1,6 @@
-#include <types.h>
+#include <lambda/export.h>
+
+#include <libgen.h>
 
 char *dirname(char *path) {
     char *p1 = path, *p2 = NULL;
@@ -17,6 +19,7 @@ char *dirname(char *path) {
     }
     return path;
 }
+EXPORT_FUNC(dirname);
 
 char *basename(char *path) {
     char *p1 = path, *p2 = NULL;
@@ -34,3 +37,4 @@ char *basename(char *path) {
         return &p2[1];
     }
 }
+EXPORT_FUNC(basename);

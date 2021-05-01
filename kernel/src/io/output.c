@@ -1,3 +1,4 @@
+#include <lambda/export.h>
 #include <video.h>
 #include <string.h>
 #include <mm/mm.h>
@@ -351,6 +352,7 @@ int sprintf(char *out, const char *format, ...) {
 	__builtin_va_end(varg);
 	return ret;
 }
+EXPORT_FUNC(sprintf);
 
 
 lock_t print_lock;

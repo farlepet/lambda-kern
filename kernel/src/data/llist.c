@@ -1,4 +1,6 @@
-#include <types.h>
+#include <lambda/export.h>
+
+#include <stdint.h>
 #include <string.h>
 
 #include <data/llist.h>
@@ -6,6 +8,7 @@
 void llist_init(llist_t *list) {
     memset(list, 0, sizeof(llist_t));
 }
+EXPORT_FUNC(llist_init);
 
 void llist_append(llist_t *list, llist_item_t *item) {
     if((list == NULL) ||
@@ -28,6 +31,7 @@ void llist_append(llist_t *list, llist_item_t *item) {
 
     unlock(&list->lock);
 }
+EXPORT_FUNC(llist_append);
 
 void llist_remove(llist_t *list, llist_item_t *item) {
     if((list       == NULL) ||
@@ -53,6 +57,7 @@ void llist_remove(llist_t *list, llist_item_t *item) {
 
     unlock(&list->lock);
 }
+EXPORT_FUNC(llist_remove);
 
 int llist_get_position(llist_t *list, llist_item_t *item) {
     if((list == NULL) ||
@@ -72,6 +77,7 @@ int llist_get_position(llist_t *list, llist_item_t *item) {
 
     return -1;
 }
+EXPORT_FUNC(llist_get_position);
 
 void llist_iterator_init(llist_t *list, llist_iterator_t *iter) {
     if((list == NULL) ||
@@ -82,6 +88,7 @@ void llist_iterator_init(llist_t *list, llist_iterator_t *iter) {
     iter->first = list->list;
     iter->curr  = NULL;
 }
+EXPORT_FUNC(llist_iterator_init);
 
 int llist_iterate(llist_iterator_t *iter, void **data) {
     if((iter        == NULL) ||
@@ -104,3 +111,4 @@ int llist_iterate(llist_iterator_t *iter, void **data) {
 
     return 1;
 }
+EXPORT_FUNC(llist_iterate);

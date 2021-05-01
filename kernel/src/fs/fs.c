@@ -278,25 +278,3 @@ void fs_init()
 
 	fs_add_file(fs_root, NULL);
 }
-
-void fs_debug(int nfiles)
-{
-	(void)nfiles;
-
-	struct kfile *f = fs_root->child;
-	//DIR *dir = fs_opendir(fs_root);
-	//struct dirent *d;
-	//d = fs_readdir(dir);
-
-	do {
-		kerror(ERR_BOOTINFO, "FSDBG::%c%c%c%c%c%c%c%c%c%s %d %s",
-			((f->pflags&0400)?'r':'-'), ((f->pflags&0200)?'w':'-'), ((f->pflags&04000)?'s':((f->pflags&0100)?'x':'-')),
-			((f->pflags&040)?'r':'-'), ((f->pflags&020)?'w':'-'), ((f->pflags&02000)?'s':((f->pflags&010)?'x':'-')),
-			((f->pflags&04)?'r':'-'), ((f->pflags&02)?'w':'-'), ((f->pflags&01)?'x':'-'),
-			((f->pflags&01000)?"T ":" "),
-			f->inode, f->name);
-
-		//d = fs_readdir(dir);
-		f = f->next;
-	} while(f != fs_root->child);
-}

@@ -1,3 +1,4 @@
+#include <lambda/export.h>
 #include <data/cbuff.h>
 #include <fs/stream.h>
 #include <mm/alloc.h>
@@ -39,6 +40,7 @@ struct kfile *stream_create(int length) {
 
     return file;
 }
+EXPORT_FUNC(stream_create);
 
 static uint32_t stream_read(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
     if(!f->info) return 0;

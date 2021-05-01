@@ -1,3 +1,4 @@
+#include <lambda/export.h>
 #include <arch/intr/int.h>
 
 #include <proc/mtask.h>
@@ -73,3 +74,4 @@ CHILD_FOUND:
 
     return cpid;
 }
+EXPORT_FUNC(wait);

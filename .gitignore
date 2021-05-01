@@ -34,6 +34,7 @@
 *.bin
 *.ukern
 *.img
+*.log
 
 # GRUB files
 stage2_eltorito

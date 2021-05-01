@@ -1,3 +1,4 @@
+#include <lambda/export.h>
 #include <intr/intr.h>
 #include <time/time.h>
 #include <err/error.h>
@@ -29,6 +30,7 @@ void set_interrupt(interrupt_idx_e n, void *handler) {
 #endif
 	kerror(ERR_INFO, "Interrupt vector 0x%02X set", n);
 }
+EXPORT_FUNC(set_interrupt);
 
 #ifndef ARCH_X86
 /* TODO: Move elsewhere */

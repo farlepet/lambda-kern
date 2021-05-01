@@ -1,3 +1,4 @@
+#include <lambda/export.h>
 #include <proc/mtask.h>
 
 #include <sys/stat.h>
@@ -35,6 +36,7 @@ int kfstat(struct kfile *f, struct stat *buf) {
 
     return 0;
 }
+EXPORT_FUNC(kfstat);
 
 int fstat(int fd, struct stat *buf) {
     if(fd < 0 || fd >= MAX_OPEN_FILES) return -1;

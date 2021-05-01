@@ -1,3 +1,4 @@
+#include <lambda/export.h>
 #include <proc/atomic.h>
 #include <proc/mtask.h>
 
@@ -8,6 +9,7 @@ void lock(lock_t *lock) {
         old = 0;
     }
 }
+EXPORT_FUNC(lock);
 
 int lock_for(lock_t *lock, uint32_t ticks) {
     int old = 0;
@@ -20,3 +22,4 @@ int lock_for(lock_t *lock, uint32_t ticks) {
     }
     return 0;
 }
+EXPORT_FUNC(lock_for);

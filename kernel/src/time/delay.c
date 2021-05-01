@@ -1,3 +1,4 @@
+#include <lambda/export.h>
 #include <arch/intr/int.h>
 
 #include <proc/mtask.h>
@@ -32,4 +33,4 @@ void delay(uint64_t delay) {
 		interrupt_halt(); // Halt until multitasking comes in
 	}
 }
-
+EXPORT_FUNC(delay);

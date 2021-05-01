@@ -37,6 +37,4 @@ struct kfile *fs_find_file(struct kfile *f, const char *path);
 
 void fs_init(void);
 
-void fs_debug(int nfiles);
-
 #endif // FS_H

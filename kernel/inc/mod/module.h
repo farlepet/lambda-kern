@@ -1,5 +1,5 @@
-#ifndef DRV_MODULE_H
-#define DRV_MODULE_H
+#ifndef MOD_MODULE_H
+#define MOD_MODULE_H
 
 #include <lambda/mod/module.h>
 #include <proc/elf.h>
