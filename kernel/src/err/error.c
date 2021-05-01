@@ -1,3 +1,4 @@
+#include <lambda/export.h>
 #include <proc/atomic.h>
 #include <intr/intr.h>
 #include <time/time.h>
@@ -29,6 +30,7 @@ void kerror(error_level_e errlvl, char *msg, ...) {
 		if(interrupts_enabled()) unlock(&kerror_lock);
 	}
 }
+EXPORT_FUNC(kerror);
 
 static char *debug_names[DEBUGSRC_MAX] = {
 	[DEBUGSRC_FS]      = "  FS",
@@ -59,3 +61,4 @@ void kdebug(debug_source_e src, char *msg, ...) {
 		if(interrupts_enabled()) unlock(&kerror_lock);
 	}
 }
+EXPORT_FUNC(kdebug);

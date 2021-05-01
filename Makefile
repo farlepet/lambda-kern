@@ -113,4 +113,4 @@ documentation:
 	@cd ../lambda-os-doc/lambda-os/; git add --all; git commit -a; git push origin gh-pages
 
 cppcheck:
-	@cppcheck --enable=all --suppress=arithOperationsOnVoidPointer -I kernel/inc -I kernel/arch/$(ARCH)/inc kernel/
+	@cppcheck --enable=all --suppress=arithOperationsOnVoidPointer --suppress=unusedFunction -I kernel/inc -I kernel/arch/$(ARCH)/inc kernel/

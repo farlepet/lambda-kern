@@ -29,5 +29,5 @@ link:   $(OBJS)
 
 
 clean:
-	@rm -f $(OBJS)
+	@rm -f $(OBJS) $(DEPS)
 	@rm -f arch.a

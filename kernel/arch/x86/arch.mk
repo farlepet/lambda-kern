@@ -25,18 +25,13 @@ lambda.o: arch.a common.o initrd.o
 	@echo -e "\033[33m  \033[1mLinking sources\033[0m"
 	@$(LD) -melf_i386 -r -o lambda.o common.o arch.a initrd.o
 
-
-lambda.lib: lambda.o symbols.o
+lambda.shared: lambda.o
 	@echo -e "\033[33m  \033[1mLinking kernel\033[0m"
-	@$(LD) $(LDFLAGS) -r -o lambda.lib lambda.o symbols.o
+	@$(CC) -m32 -shared -o lambda.shared lambda.o
 
-lambda.shared: lambda.lib
-	@echo -e "\033[33m  \033[1mLinking kernel\033[0m"
-	@$(CC) -m32 -shared -o lambda.shared lambda.lib
-
-lambda.kern: lambda.lib
+lambda.kern: lambda.o
 	@echo -e "\033[33m  \033[1mProducing kernel executable\033[0m"
-	@$(LD) $(LDFLAGS) -o lambda.kern lambda.lib
+	@$(LD) $(LDFLAGS) -o lambda.kern lambda.o
 
 lambda-os.iso: lambda.kern initrd.cpio CD/boot/grub/stage2_eltorito
 	@strip lambda.kern -o CD/lambda.kern
