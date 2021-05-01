@@ -34,7 +34,6 @@ CFLAGS    += -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/$(ARC
 			 -pipe -g -fno-stack-protector -fdata-sections -ffunction-sections \
 			 -DKERNEL_GIT=\"$(GIT_VERSION)\"
 
-CPIOFILES = $(shell find initrd/)
 
 all: printinfo arch_all
 
@@ -88,19 +87,19 @@ symbols.o: lambda.o
 	@scripts/symbols > symbols.c
 	@$(CC) $(CFLAGS) -c -o symbols.o symbols.c
 
-initrd.cpio: $(CPIOFILES)
-	@echo -e "\033[33m  \033[1mGenerating InitCPIO\033[0m"
-	@cd initrd; find . | cpio -o -v -O../initrd.cpio &> /dev/null
-
-initrd.o: initrd.cpio
+# TODO: Clean this up, lambda-kern probably shouldn't be making reference to
+# files in lambda-os. Maybe copy the file from lambda-os into lambda-kern
+# TODO: Only include this if FEATURE_INITRD_EMBEDDED
+initrd.o: ../build/initrd.cpio
 	@echo -e "\033[33m  \033[1mGenerating InitCPIO Object\033[0m"
+	@cp ../build/initrd.cpio ./initrd.cpio
 	@$(LD) $(LDARCH) -r -b binary initrd.cpio -o initrd.o
 
 
 clean: arch_clean
 	@echo -e "\033[33m  \033[1mCleaning sources\033[0m"
 	@rm -f $(OBJS) $(DEPS)
-	@rm -f initrd.cpio symbols.o symbols.c
+	@rm -f initrd.o initrd.cpio symbols.o symbols.c
 	@rm -r -f doc
 	@cd $(MAINDIR)/kernel/arch/$(ARCH); make clean
 

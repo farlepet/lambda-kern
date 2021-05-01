@@ -12,9 +12,7 @@ ASFLAGS    = -m32
 
 export ASFLAGS
 
-FLOPPY     = lambda-os.img
-
-arch_all: lambda-os.iso
+arch_all: lambda.kern
 
 
 common.o: common_msg $(OBJS)
@@ -33,31 +31,10 @@ lambda.kern: lambda.o
 	@echo -e "\033[33m  \033[1mProducing kernel executable\033[0m"
 	@$(LD) $(LDFLAGS) -o lambda.kern lambda.o
 
-lambda-os.iso: lambda.kern initrd.cpio CD/boot/grub/stage2_eltorito
-	@strip lambda.kern -o CD/lambda.kern
-	@cp initrd.cpio CD/
-	@grub-mkrescue -o lambda-os.iso CD
 
-$(FLOPPY): lambda.kern initrd.cpio
-	rm -f $(FLOPPY)
-	mkdosfs -C $(FLOPPY) 1440
-	mcopy -i $(FLOPPY) syslinux.cfg ::/
-	mcopy -i $(FLOPPY) /usr/lib/syslinux/bios/mboot.c32 ::/
-	mcopy -i $(FLOPPY) /usr/lib/syslinux/bios/libcom32.c32 ::/
-	mcopy -i $(FLOPPY) initrd.cpio ::/
-	strip lambda.kern -o lambda.kern.stripped
-	mcopy -i $(FLOPPY) lambda.kern.stripped ::/lambda.kern
-	rm -f lambda.kern.stripped
-	syslinux -i $(FLOPPY)
-
-emu:
-	@qemu-system-i386 -cdrom lambda-os.iso -serial stdio -machine pc -no-reboot
-
-emu-debug:
-	@qemu-system-i386 -cdrom lambda-os.iso -serial stdio -machine pc -no-reboot -gdb tcp::1234 -S
 
 arch_clean:
-	@rm -f common.o lambda.o arch.a lambda.kern lambda-os.iso
+	@rm -f common.o lambda.o arch.a lambda.kern
 
 
 common_msg:

@@ -1,6 +1,8 @@
-Lambda OS
+Lambda Kernel
 
 *** Description ***
+
+NOTE: For a usable implementation of the kernel, see the lambda-os repository.
 
 Lambda OS is a hobby operating system developed by Peter Farley. Lambda OS
 is designed to be portable to multiple systems, and currently supports
@@ -21,21 +23,13 @@ Platform support:
 
 *** Building ***
 
-To be able to build Lambda OS, you need the following tools:
+To be able to build the Lambda kernel, you need the following tools:
   - `gcc` or `clang` (Use cross-compiler if necessary)
   - `make`
-  - `cpio`
   - `eu-readelf` (elfutils)
-  - For ISO image:
-     - `xorriso`
-     - `grub-mkrescue`
-  - For floppy image:
-     - `mkdosfs`
-     - `mcopy`
-     - `syslinux`
-        - NOTE: This expects syslinux modules to be located in `/usr/lib/syslinux/bios/`
 
-To build Lambda OS:
+
+To build kernel:
   - (If fisrt time) Clone the Lambda OS code repository.
   - (If not first time) Run `git pull`
   - Make: `make`
