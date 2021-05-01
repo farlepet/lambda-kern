@@ -67,7 +67,7 @@ void keyb_handle(uint32_t keycode)
 	iev.origin.s.device = keyb_dev.id.s.device;
 	iev.type = EVENT_KEYPRESS;
 	iev.data = keycode;
-	write_cbuff((uint8_t *)&iev, sizeof(struct input_event), keyb_dev.iev_buff);
+	cbuff_write((uint8_t *)&iev, sizeof(struct input_event), keyb_dev.iev_buff);
 }
 
 /**

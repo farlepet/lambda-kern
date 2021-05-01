@@ -25,14 +25,14 @@ typedef struct cbuff //!< A FIFO circular buffer
 #define STATIC_CBUFF(SZ) { 0, 0, 0, (SZ), (uint8_t[(SZ)]){ 0, }}
 
 
-int put_cbuff(uint8_t data, struct cbuff *buff);
+int cbuff_put(uint8_t data, struct cbuff *buff);
 
-int get_cbuff(struct cbuff *buff);
+int cbuff_get(struct cbuff *buff);
 
 
-int write_cbuff(uint8_t *data, int size, struct cbuff *buff);
+int cbuff_write(uint8_t *data, int size, struct cbuff *buff);
 
-int read_cbuff(uint8_t *data, int size, struct cbuff *buff);
+int cbuff_read(uint8_t *data, int size, struct cbuff *buff);
 
 
 #endif // CBUFF_H

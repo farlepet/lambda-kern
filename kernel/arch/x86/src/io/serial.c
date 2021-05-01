@@ -68,7 +68,7 @@ static void handle_input(char ch)
 	iev.origin.s.device = serial_dev.id.s.device;
 	iev.type = EVENT_CHAR;
 	iev.data = ch;
-	write_cbuff((uint8_t *)&iev, sizeof(struct input_event), serial_dev.iev_buff);
+	cbuff_write((uint8_t *)&iev, sizeof(struct input_event), serial_dev.iev_buff);
 }
 
 // TODO: Add support for all 4 serial ports

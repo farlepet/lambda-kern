@@ -49,7 +49,7 @@ static uint32_t stream_read(struct kfile *f, uint32_t off, uint32_t sz, uint8_t 
     uint32_t count = 0;
     int ret;
 
-    while((count < sz) && !((ret = get_cbuff((struct cbuff *)f->info)) & CBUFF_ERRMSK)) {
+    while((count < sz) && !((ret = cbuff_get((struct cbuff *)f->info)) & CBUFF_ERRMSK)) {
         buff[count] = (uint8_t)ret;
         count++;
     }
@@ -65,7 +65,7 @@ static uint32_t stream_write(struct kfile *f, uint32_t off, uint32_t sz, uint8_t
 
     uint32_t count = 0;
 
-    while((count < sz) && !(put_cbuff(buff[count], (struct cbuff *)f->info) & CBUFF_ERRMSK)) {
+    while((count < sz) && !(cbuff_put(buff[count], (struct cbuff *)f->info) & CBUFF_ERRMSK)) {
         count++;
     }
 
