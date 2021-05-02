@@ -41,4 +41,10 @@ typedef struct {
     lambda_mod_metadata_t  metadata;     /** Module metadata. */
 } __packed lambda_mod_head_t;
 
+#define MODULE_HEADER                                         \
+    static lambda_mod_head_t                                  \
+    __attribute__((__used__,                                  \
+                  __section__((LAMBDA_MODULE_SECTION_NAME)))) \
+    __mod_head
+
 #endif

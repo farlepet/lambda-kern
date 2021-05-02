@@ -178,7 +178,7 @@ static void *_store_arguments(const char **argv, const char **envp, char ***_arg
     return data;
 }
 
-void exec_replace_process_image(void *entryp, const char *name, arch_task_params_t *arch_params, symbol_t *symbols, char *symbol_string_table, const char **argv, const char **envp) {
+void exec_replace_process_image(void *entryp, const char *name, arch_task_params_t *arch_params, symbol_t *symbols, const char **argv, const char **envp) {
     // TODO: Clean this up, separate out portions where possible/sensical
     kdebug(DEBUGSRC_EXEC, "exec_replace_process_image @ %08X", entryp);
 
@@ -227,7 +227,6 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     memcpy(curr_proc->file_position, tmp_proc.file_position, sizeof(curr_proc->file_position));
 
     curr_proc->symbols = symbols;
-    curr_proc->symStrTab = symbol_string_table;
 
 
     curr_proc->list_item = tmp_proc.list_item;

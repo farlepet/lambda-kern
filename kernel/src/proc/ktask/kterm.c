@@ -433,7 +433,22 @@ static int kterm_mod(int argc, char **argv) {
 		}
 		kprintf("\n");
 	} else if (!strcmp(argv[1], "load")) {
-		kprintf("IMPLEMENTATION PENDING\n");
+		if(argc < 3) {
+			kprintf("No module specified!\n");
+			return 1;
+		}
+
+		struct kfile *mod = fs_find_file(fs_root, argv[2]);
+		if(!mod) {
+			kprintf("Could not find %s\n", argv[2]);
+			return 1;
+		}
+		fs_open(exec, OFLAGS_OPEN | OFLAGS_READ);
+		
+		kprintf("Installing module\n");
+		if (module_install(mod)) {
+			return -1;
+		}
 	} else if (!strcmp(argv[1], "symlist")) {
 		kprintf("Exported symbols:\n");
 		lambda_symbol_t *sym = &__lambda_symbols_begin;

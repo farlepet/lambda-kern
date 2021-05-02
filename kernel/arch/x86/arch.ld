@@ -9,12 +9,12 @@ SECTIONS
         .text BLOCK(4K) : ALIGN(4K)
         {
                 *(.mboot)
-                *(.text)
+                *(.text .text.*)
         }
         
         .rodata BLOCK(4K) : ALIGN(4K)
         {
-                *(.rodata)
+                *(.rodata .rodata.*)
 
                 __lambda_symbols_begin = .;
                 *(.__lambda_symbols)
@@ -27,13 +27,13 @@ SECTIONS
         
         .data BLOCK(4K) : ALIGN(4K)
         {
-                *(.data)
+                *(.data .data.*)
         }
         
         .bss BLOCK(4K) : ALIGN(4K)
         {
                 *(COMMON)
-                *(.bss)
+                *(.bss .bss.*)
         }
         
         kern_end = .;

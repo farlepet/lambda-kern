@@ -8,7 +8,10 @@
 #include <video.h>
 
 error_level_e minlvl    = ERR_INFO; //!< Minimal level where messages are shown
-uint32_t      debugmask = (1UL << DEBUGSRC_PROC);
+uint32_t      debugmask = (1UL << DEBUGSRC_PROC) |
+						  (1UL << DEBUGSRC_EXEC) |
+						  (1UL << DEBUGSRC_MM)   |
+						  (1UL << DEBUGSRC_MODULE);
 
 lock_t kerror_lock = 0; //!< Only 1 message can be printed at a time
 
@@ -38,7 +41,7 @@ static char *debug_names[DEBUGSRC_MAX] = {
 	[DEBUGSRC_PROC]    = "PROC",
 	[DEBUGSRC_EXEC]    = "EXEC",
 	[DEBUGSRC_SYSCALL] = " SCL",
-	[DEBUGSRC_DRIVER]  = " DRV",
+	[DEBUGSRC_MODULE]  = " MOD",
 };
 
 void kdebug(debug_source_e src, char *msg, ...) {

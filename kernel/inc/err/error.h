@@ -30,7 +30,7 @@ typedef enum {
 	DEBUGSRC_PROC    = 2, /** Process management */
 	DEBUGSRC_EXEC    = 3, /** Process creation and execution */
 	DEBUGSRC_SYSCALL = 4, /** System calls */
-	DEBUGSRC_DRIVER  = 5, /** Driver loading/unloading and management */
+	DEBUGSRC_MODULE  = 5, /** Module loading/unloading and management */
 
 	DEBUGSRC_MAX
 } debug_source_e;

@@ -25,7 +25,7 @@ lambda.o: arch.a common.o initrd.o
 
 lambda.shared: lambda.o
 	@echo -e "\033[33m  \033[1mLinking kernel\033[0m"
-	@$(CC) -m32 -shared -o lambda.shared lambda.o
+	@$(CC) -m32 -shared -o lambda.shared lambda.o -T kernel/arch/x86/arch.ld
 
 lambda.kern: lambda.o
 	@echo -e "\033[33m  \033[1mProducing kernel executable\033[0m"

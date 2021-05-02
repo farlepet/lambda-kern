@@ -118,7 +118,6 @@ struct kproc { //!< Structure of a process as seen by the kernel
 	uint32_t      file_position[MAX_OPEN_FILES]; //!< Current position in open files
 
 	symbol_t     *symbols;   //!< Symbol names used to display a stack trace
-	char         *symStrTab; //!< Strings used for symbol table
 
 	proc_elf_data_t *elf_data; //!< Data specific for ELF executables
 
