@@ -58,10 +58,10 @@ int elf_check_header(void *data) {
 		return 1;
 	}
 
-	if(head->e_type != ET_EXEC) {
+	/*if(head->e_type != ET_EXEC) {
 		kerror(ERR_SMERR, "Tried to load non-executable ELF with type %d", head->e_type);
 		return 1;
-	}
+	}*/
 
 	if(head->e_machine != HOST_MACHINE) {
 		kerror(ERR_SMERR, "Tried to load ELF not compatible with current architecture: %d", head->e_machine);

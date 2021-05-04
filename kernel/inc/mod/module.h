@@ -10,7 +10,9 @@
  * Loaded module information
  */
 typedef struct {
-    const char *ident; /** Module identifier */
+    char *ident; /** Module identifier */
+
+    lambda_mod_func_t func;
 
     llist_item_t list_item;
 } module_entry_t;

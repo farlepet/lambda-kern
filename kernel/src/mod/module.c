@@ -15,6 +15,8 @@
 
 static llist_t loaded_modules;
 
+static int _module_place(const Elf32_Ehdr *elf, const lambda_mod_head_t *mod_head, uintptr_t baseaddr, module_entry_t *mod_ent, const symbol_t *symbols);
+
 int module_read(struct kfile *file, lambda_mod_head_t **head, uintptr_t *base, Elf32_Ehdr **elf) {
     Elf32_Ehdr        *elf_data;
     Elf32_Shdr        *mod_section;
@@ -95,107 +97,6 @@ int _check_requirements(lambda_mod_head_t *mod_head, Elf32_Ehdr *mod_elf) {
     return 0;
 }
 
-static int _read_phdr(const Elf32_Ehdr *elf, proc_elf_data_t *elf_data) {
-    /* TODO: Merge this with elf_read_phdr */
-	
-	Elf32_Phdr *prog = (Elf32_Phdr *)((uintptr_t)elf + elf->e_phoff);
-
-	elf_data->dynamic = NULL;
-
-	for(size_t i = 0; i < elf->e_phnum; i++) {
-		kdebug(DEBUGSRC_MODULE, "phdr[%2X/%2X] T:%X VADDR: %08X MSZ:%08X FSZ:%08X", i+1, elf->e_phnum, prog[i].p_type, prog[i].p_vaddr, prog[i].p_memsz, prog[i].p_filesz);
-		switch(prog[i].p_type) {
-			case PT_LOAD: {
-				/* TODO: Read entire header first, so we can avoid issues with
-				 * overlapping memory regions. Or create more sophisticated mmap
-				 * system. */
-				/* Allocate physical memory */
-				void *phys;
-				if(prog[i].p_memsz & 0xFFF) {
-					phys = kmamalloc(prog[i].p_memsz + 0x1000, 0x1000); // + 0x1000 so we can align it
-					phys = phys + (prog[i].p_vaddr & 0xFFF);
-				} else {
-					phys = kmamalloc(prog[i].p_memsz, 0x1000);
-				}
-
-				/* Copy data and/or clear memory */
-				if(prog[i].p_filesz) {
-					memcpy(phys, (void *)((uintptr_t)elf + prog[i].p_offset), prog[i].p_filesz);
-				}
-				if(prog[i].p_filesz < prog[i].p_memsz) {
-					memset(phys + prog[i].p_filesz, 0, prog[i].p_memsz - prog[i].p_filesz);
-				}
-
-				/* Create MMAP entry: */
-				/**mmap_next = (struct kproc_mem_map_ent *)kmalloc(sizeof(struct kproc_mem_map_ent));
-				(*mmap_next)->virt_address = prog[i].p_vaddr;
-				(*mmap_next)->phys_address = (uintptr_t)phys;
-				(*mmap_next)->length       = prog[i].p_memsz;
-				(*mmap_next)->next         = NULL;
-				mmap_next = &((*mmap_next)->next);*/
-
-#if defined(ARCH_X86)
-				/* TODO: Create architecture-independant memory mapping mechanism. */
-				uintptr_t start_v = prog[i].p_vaddr & 0xFFFFF000;
-                uintptr_t end_v   = ((prog[i].p_vaddr + prog[i].p_memsz) & 0xFFFFF000) | 0xFFF;
-                uintptr_t start_p = (uintptr_t)phys & 0xFFFFF000;
-                for(uintptr_t pg = 0; (start_v + pg) < end_v; pg += 0x1000) {
-					map_page((void *)(start_p + pg), (void *)(start_v + pg), 0x07);
-				}
-#else
-	(void)arch_params;
-#endif
-			} break;
-			case PT_DYNAMIC:
-				elf_data->dynamic = (Elf32_Dyn *)prog[i].p_vaddr;
-				break;
-		}
-	}
-
-    return 0;
-}
-
-static int _read_relocate(const Elf32_Ehdr *elf) {
-    Elf32_Shdr *elf_relplt = NULL;
-    Elf32_Shdr *elf_symtab = NULL;
-    Elf32_Shdr *elf_strtab = NULL;
-    if(elf_find_section(elf, &elf_relplt, ".rel.plt") ||
-       elf_find_section(elf, &elf_symtab, ".dynsym") ||
-       elf_find_section(elf, &elf_strtab, ".dynstr")) {
-        return -1;
-    }
-
-	Elf32_Sym *syms   = (Elf32_Sym *)((uintptr_t)elf + elf_symtab->sh_offset);
-    char      *strs   = (char *)((uintptr_t)elf + elf_strtab->sh_offset);
-    Elf32_Rel *rel    = (Elf32_Rel *)((uintptr_t)elf + elf_relplt->sh_offset);
-    size_t     n_rels = elf_relplt->sh_size / elf_relplt->sh_entsize;
-    for(size_t i = 0; i < n_rels; i++) {
-        size_t sidx = ELF32_R_SYM(rel[i].r_info);
-        char *ident = &strs[syms[sidx].st_name];
-        kdebug(DEBUGSRC_MODULE, "_read_relocate[%d]: %08X, %08X [%s]",
-               i, rel[i].r_offset, rel[i].r_info, ident);
-
-        uintptr_t symaddr = 0;
-        if(module_symbol_find(ident, &symaddr)) {
-            kdebug(DEBUGSRC_MODULE, "_read_relocate: Could not find symbol %s", ident);
-            return -1;
-        }
-
-        switch(ELF32_R_TYPE(rel[i].r_info)) {
-            case R_386_GLOB_DAT:
-            case R_386_JMP_SLOT:
-                *((uint32_t *)rel[i].r_offset) = symaddr;
-                break;
-            
-            default:
-                kdebug(DEBUGSRC_MODULE, "_read_relocate: Unhandled relocation type: %d", ELF32_R_TYPE(rel[i].r_info));
-                return -1;
-        }
-    }
-
-    return 0;
-}
-
 int module_install(struct kfile *file) {
     lambda_mod_head_t *mod_head;
     uintptr_t          mod_base;
@@ -217,30 +118,24 @@ int module_install(struct kfile *file) {
         kfree(mod_elf);
         return -1;
     }
-
-    kdebug(DEBUGSRC_MODULE, "module_install: Reading program header");
-    proc_elf_data_t elf_data;
-    if (_read_phdr(mod_elf, &elf_data)) {
-        kfree(mod_elf);
-        kfree(symbols);
-        return -1;
-    }
     
-    kdebug(DEBUGSRC_MODULE, "module_install: Handling relocations");
-    if (_read_relocate(mod_elf)) {
-        /* TODO: Clear allocated memory from phdr */
-        kfree(mod_elf);
-        kfree(symbols);
-        return -1;
-    }
-    /* TODO */
-
-    mod_head->function(LAMBDA_MODFUNC_START, NULL);
-    
-    /* TODO: Allocate string size within */
     kdebug(DEBUGSRC_MODULE, "module_install: Generating module entry");
-    module_entry_t *modent = (module_entry_t *)kmalloc(sizeof(module_entry_t));
+    const char *ident = (char *)elf_find_data(mod_elf, (uintptr_t)mod_head->metadata.ident);
+    module_entry_t *modent = (module_entry_t *)kmalloc(sizeof(module_entry_t) + strlen(ident) + 1);
     memset(modent, 0, sizeof(module_entry_t));
+    modent->ident = (char *)((uintptr_t)modent + sizeof(module_entry_t));
+    memcpy(modent->ident, ident, strlen(ident) + 1);
+
+    uintptr_t baseaddr = 0x80000000;
+    kdebug(DEBUGSRC_MODULE, "module_install: Placing and relocation module");
+    if(_module_place(mod_elf, mod_head, baseaddr, modent, symbols)) {
+        kfree(mod_elf);
+        kfree(symbols);
+        kfree(modent);
+    }
+
+    modent->func(LAMBDA_MODFUNC_START, NULL);
+    
 
     kdebug(DEBUGSRC_MODULE, "module_install: Adding module to list");
     llist_append(&loaded_modules, &modent->list_item);
@@ -252,6 +147,205 @@ int module_uninstall(module_entry_t *mod) {
     llist_remove(&loaded_modules, &mod->list_item);
     
     kfree(mod);
+
+    return 0;
+}
+
+
+typedef struct {
+    uintptr_t addr_orig;
+    uintptr_t addr_new;
+    uintptr_t addr_phys;
+    size_t    size;
+} elf_reloc_t;
+
+static uintptr_t _translate_addr(const elf_reloc_t *relocs, uintptr_t addr) {
+    size_t i = 0;
+    while(relocs[i].addr_new != 0xFFFFFFFF) {
+        if((addr >= relocs[i].addr_orig) &&
+           (addr < (relocs[i].addr_orig + relocs[i].size))) {
+            return relocs[i].addr_new + (addr - relocs[i].addr_orig);
+        }
+        i++;
+    }
+
+    /* TODO: Possibly return 0 as error */
+    return addr;
+}
+
+static uintptr_t _translate_addr_phys(const elf_reloc_t *relocs, uintptr_t addr) {
+    size_t i = 0;
+    while(relocs[i].addr_new != 0xFFFFFFFF) {
+        if((addr >= relocs[i].addr_orig) &&
+           (addr < (relocs[i].addr_orig + relocs[i].size))) {
+            return relocs[i].addr_phys + (addr - relocs[i].addr_orig);
+        }
+        i++;
+    }
+
+    return 0;
+}
+
+static int _do_reloc(uintptr_t baseaddr, const elf_reloc_t *relocs, uintptr_t symaddr, const Elf32_Rel *rel) {
+    (void)baseaddr;
+    uintptr_t dataaddr = _translate_addr(relocs, rel->r_offset);
+    
+    kdebug(DEBUGSRC_MODULE, "_do_reloc: Writing to %08X (%08X)", dataaddr, *(uint32_t *)dataaddr);
+
+    switch(ELF32_R_TYPE(rel->r_info)) {
+        case R_386_NONE:
+            break;
+        case R_386_32:
+            *((uint32_t *)dataaddr) += symaddr;
+            break;
+        case R_386_PC32:
+            *((uint32_t *)dataaddr) += (symaddr - dataaddr);
+            break;
+        case R_386_RELATIVE:
+            *((uint32_t *)dataaddr) = _translate_addr(relocs, *((uint32_t *)dataaddr));
+            break;
+        case R_386_GLOB_DAT:
+        case R_386_JMP_SLOT:
+            *((uint32_t *)dataaddr) = symaddr;
+            break;
+        default:
+            kdebug(DEBUGSRC_MODULE, "_module_apply_relocs: Unhandled relocation type: %d", ELF32_R_TYPE(rel->r_info));
+            return -1;
+    }
+    
+    kdebug(DEBUGSRC_MODULE, "_do_reloc: Wrote %08X to %08X", *(uint32_t *)dataaddr, dataaddr);
+
+    return 0;
+}
+
+static int _module_apply_relocs(const Elf32_Ehdr *elf, const elf_reloc_t *relocs, const symbol_t *symbols, uintptr_t baseaddr) {
+    Elf32_Shdr *elf_symtab = NULL;
+    Elf32_Shdr *elf_strtab = NULL;
+    if(elf_find_section(elf, &elf_symtab, ".dynsym") ||
+       elf_find_section(elf, &elf_strtab, ".dynstr")) {
+        return -1;
+    }
+	Elf32_Sym *syms = (Elf32_Sym *)((uintptr_t)elf + elf_symtab->sh_offset);
+    char      *strs = (char *)((uintptr_t)elf + elf_strtab->sh_offset);
+
+    const Elf32_Shdr *sects = (Elf32_Shdr *)((uintptr_t)elf + elf->e_shoff);
+    
+    for(size_t i = 0; i < elf->e_shnum; i++) {
+        if(sects[i].sh_type != SHT_REL) { continue; }
+
+        const Elf32_Rel *rel    = (Elf32_Rel *)((uintptr_t)elf + sects[i].sh_offset);
+        size_t           n_rels = sects[i].sh_size / sects[i].sh_entsize;
+        for(size_t j = 0; j < n_rels; j++) {
+            size_t sidx = ELF32_R_SYM(rel[j].r_info);
+            char *ident = &strs[syms[sidx].st_name];
+            kdebug(DEBUGSRC_MODULE, "_module_apply_relocs: %08X, %08X [%s]",
+                   rel[j].r_offset, rel[j].r_info, ident);
+
+            uintptr_t symaddr = 0;
+            if(!module_symbol_find_kernel(ident, &symaddr)) {
+            } else if(!module_symbol_find_module(ident, &symaddr, symbols)) {
+                symaddr = _translate_addr(relocs, symaddr);
+            } else {
+                kdebug(DEBUGSRC_MODULE, "_module_apply_relocs: Could not find symbol %s", ident);
+                //return -1;
+            }
+
+            if(_do_reloc(baseaddr, relocs, symaddr, &rel[j])) {
+                return -1;
+            }
+        }
+    }
+
+    return 0;
+}
+
+static void *_alloc_map(uintptr_t virt, size_t len) {
+    void *paddr = kmamalloc(len, 0x1000);
+#if defined(ARCH_X86)
+    /* TODO: Create architecture-independant memory mapping mechanism. */
+    uintptr_t start_v =  virt & 0xFFFFF000;
+    uintptr_t start_p = (uintptr_t)paddr & 0xFFFFF000;
+    for(uintptr_t pg = 0; pg < len; pg += 0x1000) {
+        map_page((void *)(start_p + pg), (void *)(start_v + pg), 0x07);
+    }
+#endif
+    return paddr;
+}
+
+static int _module_place(const Elf32_Ehdr *elf, const lambda_mod_head_t *mod_head, uintptr_t baseaddr, module_entry_t *mod_ent, const symbol_t *symbols) {
+    Elf32_Phdr *prog = (Elf32_Phdr *)((uintptr_t)elf + elf->e_phoff);
+	
+    size_t n_loads = 0;
+    for(size_t i = 0; i < elf->e_phnum; i++) {
+        if(prog[i].p_type == PT_LOAD) {
+            n_loads++;
+        }
+    }
+    elf_reloc_t *relocs = (elf_reloc_t *)kmalloc((n_loads+1) * sizeof(elf_reloc_t));
+
+    size_t ridx = 0;
+    /* NOTE: This is assuming that the binary addresses relative to zero */
+    /* Find the most effecient way to allocate and map required memory */
+    uintptr_t startaddr = 0;
+    uintptr_t lastaddr  = 0;
+    for(size_t i = 0; i < elf->e_phnum; i++) {
+        if(prog[i].p_type != PT_LOAD) { continue; }
+        if(prog[i].p_vaddr > ((lastaddr + 0x2000) & 0xFFFFF000)) {
+            /* We found a gap, allocate the previous block */
+            relocs[ridx].addr_phys = (uintptr_t)_alloc_map(baseaddr + startaddr, lastaddr - startaddr);
+            relocs[ridx].addr_orig = startaddr;
+            relocs[ridx].addr_new  = baseaddr + startaddr;
+            relocs[ridx].size      = lastaddr - startaddr;
+            ridx++;
+
+            startaddr = prog[i].p_vaddr;
+        }
+        lastaddr = prog[i].p_vaddr + prog[i].p_memsz;
+    }
+    relocs[ridx].addr_phys = (uintptr_t)_alloc_map(baseaddr + startaddr, lastaddr - startaddr);
+    relocs[ridx].addr_orig = startaddr;
+    relocs[ridx].addr_new  = baseaddr + startaddr;
+    relocs[ridx].size      = lastaddr - startaddr;
+    ridx++;
+    relocs[ridx].addr_orig = 0xFFFFFFFF;
+    relocs[ridx].addr_new  = 0xFFFFFFFF;
+    relocs[ridx].size      = 0;
+
+
+    for(size_t i = 0; i < elf->e_phnum; i++) {
+		kdebug(DEBUGSRC_MODULE, "phdr[%2X/%2X] T:%X VADDR: %08X MSZ:%08X FSZ:%08X", i+1, elf->e_phnum, prog[i].p_type, prog[i].p_vaddr, prog[i].p_memsz, prog[i].p_filesz);
+		switch(prog[i].p_type) {
+			case PT_LOAD: {
+                void *phys = (void *)_translate_addr_phys(relocs, prog[i].p_vaddr);
+
+				/* Copy data and/or clear memory */
+				if(prog[i].p_filesz) {
+					memcpy(phys, (void *)((uintptr_t)elf + prog[i].p_offset), prog[i].p_filesz);
+				}
+				if(prog[i].p_filesz < prog[i].p_memsz) {
+					memset(phys + prog[i].p_filesz, 0, prog[i].p_memsz - prog[i].p_filesz);
+				}
+            } break;
+		}
+	}
+
+    kdebug(DEBUGSRC_MODULE, "---------------------------------");
+    for(size_t i = 0; i < ridx; i++) {
+        kdebug(DEBUGSRC_MODULE, "%08X -> %08X [%08X] (%d, %08X)",
+               relocs[i].addr_orig, relocs[i].addr_new,
+               relocs[i].addr_phys, relocs[i].size, relocs[i].size);
+    }
+    kdebug(DEBUGSRC_MODULE, "---------------------------------");
+
+
+    if(_module_apply_relocs(elf, relocs, symbols, baseaddr)) {
+        kfree(relocs);
+        return -1;
+    }
+    
+    mod_ent->func = (lambda_mod_func_t)_translate_addr(relocs, (uintptr_t)mod_head->function);
+
+    kfree(relocs);
 
     return 0;
 }
