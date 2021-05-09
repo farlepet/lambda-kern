@@ -112,12 +112,8 @@ int add_user_task_arch(void *process, char *name, uint32_t stack_size, int pri, 
 	return add_task(process, name, stack_size, pri, 0, arch_params);
 }
 
-int proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel) {
-	if(arch_proc_create_stack(thread, stack_size, virt_stack_begin, is_kernel)) {
-		return 1;
-	}
-
-	return 0;
+uintptr_t proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel) {
+	return arch_proc_create_stack(thread, stack_size, virt_stack_begin, is_kernel);
 }
 
 int proc_create_kernel_stack(kthread_t *thread) {

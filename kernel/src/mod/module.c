@@ -1,6 +1,8 @@
+#include <lambda/export.h>
 #include <mod/symbols.h>
 #include <mod/module.h>
 #include <err/error.h>
+#include <proc/thread.h>
 #include <proc/proc.h>
 #include <proc/elf.h>
 #include <sys/stat.h>
@@ -134,7 +136,7 @@ int module_install(struct kfile *file) {
         kfree(modent);
     }
 
-    modent->func(LAMBDA_MODFUNC_START, NULL);
+    modent->func(LAMBDA_MODFUNC_START, modent);
     
 
     kdebug(DEBUGSRC_MODULE, "module_install: Adding module to list");
@@ -313,7 +315,6 @@ static int _module_place(const Elf32_Ehdr *elf, const lambda_mod_head_t *mod_hea
 
 
     for(size_t i = 0; i < elf->e_phnum; i++) {
-		kdebug(DEBUGSRC_MODULE, "phdr[%2X/%2X] T:%X VADDR: %08X MSZ:%08X FSZ:%08X", i+1, elf->e_phnum, prog[i].p_type, prog[i].p_vaddr, prog[i].p_memsz, prog[i].p_filesz);
 		switch(prog[i].p_type) {
 			case PT_LOAD: {
                 void *phys = (void *)_translate_addr_phys(relocs, prog[i].p_vaddr);
@@ -329,15 +330,6 @@ static int _module_place(const Elf32_Ehdr *elf, const lambda_mod_head_t *mod_hea
 		}
 	}
 
-    kdebug(DEBUGSRC_MODULE, "---------------------------------");
-    for(size_t i = 0; i < ridx; i++) {
-        kdebug(DEBUGSRC_MODULE, "%08X -> %08X [%08X] (%d, %08X)",
-               relocs[i].addr_orig, relocs[i].addr_new,
-               relocs[i].addr_phys, relocs[i].size, relocs[i].size);
-    }
-    kdebug(DEBUGSRC_MODULE, "---------------------------------");
-
-
     if(_module_apply_relocs(elf, relocs, symbols, baseaddr)) {
         kfree(relocs);
         return -1;
@@ -349,3 +341,42 @@ static int _module_place(const Elf32_Ehdr *elf, const lambda_mod_head_t *mod_hea
 
     return 0;
 }
+
+
+
+
+int module_start_thread(module_entry_t *mod, void (*entry)(void *), void *data, const char *name) {
+    if((mod == NULL) ||
+       (entry == NULL)) {
+        return -1;
+    }
+    
+    static char _name[256];
+    if(name == NULL) {
+        strncpy(_name, mod->ident, 255);
+        _name[255] = '\0';
+        name = _name;
+    }
+
+    size_t tidx = 0;
+    for(; tidx < MOD_THREAD_MAX; tidx++) {
+        if(mod->threads[tidx] == 0) {
+            break;
+        }
+    }
+    if(tidx == MOD_THREAD_MAX) {
+        kdebug(DEBUGSRC_MODULE, "module_start_thread: Ran out of thread slots!");
+        return -1;
+    }
+
+    /* TODO: Allow configuration of stack size and priority? */
+    int tid = kthread_create(entry, data, name, PROC_KERN_STACK_SIZE, PRIO_DRIVER);
+    if(tid < 0) {
+        return -1;
+    }
+
+    mod->threads[tidx] = tid;
+
+    return tid;
+}
+EXPORT_FUNC(module_start_thread);

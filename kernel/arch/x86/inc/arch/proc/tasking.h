@@ -51,7 +51,7 @@ void do_task_switch(void);
 /**
  * \brief Architecture-specific process stack creation routine
  */
-int arch_proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel);
+uintptr_t arch_proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel);
 
 /**
  * \brief Architecture-specific process kernel stack creation routine

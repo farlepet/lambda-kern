@@ -129,7 +129,7 @@ int fork(void);
  * @param is_kernel Whether or not process is a kernel process
  * @return int 0 on success
  */
-int proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel);
+uintptr_t proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel);
 
 /**
  * @brief Create kernel stack for process

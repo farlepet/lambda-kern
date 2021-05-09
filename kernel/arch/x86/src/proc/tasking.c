@@ -22,7 +22,7 @@ void arch_multitasking_init(void) {
 	set_interrupt(INT_SCHED, sched_run);
 }
 
-int arch_proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel) {
+uintptr_t arch_proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel) {
 /*#ifdef STACK_PROTECTOR
 	stack_begin = (uintptr_t)kmalloc(stack_size + 0x2000);
 #else // STACK_PROTECTOR
@@ -52,7 +52,7 @@ int arch_proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_
 	block_page(thread->stack_beg);
 #endif // STACK_PROTECTOR
 
-	return 0;
+	return stack_begin;
 }
 
 int arch_proc_create_kernel_stack(kthread_t *thread) {
@@ -79,13 +79,19 @@ void proc_jump_to_ring(void) {
 	}
 }
 
+__noreturn
+static void _thread_entrypoint(void (*entrypoint)(void *), void *data) {
+	entrypoint(data);
+	exit(1);
+}
+
 int arch_setup_thread(kthread_t *thread, void *entrypoint, uint32_t stack_size, void *data) {
 	/* @todo */
 	(void)data;
 
 	int kernel = (thread->process->type & TYPE_KERNEL);
 	
-	thread->arch.eip   = (uint32_t)entrypoint;
+	thread->arch.eip   = (uint32_t)_thread_entrypoint;
 
 	uint32_t /*stack_begin, */virt_stack_begin;
 	if(!kernel) virt_stack_begin = 0xFF000000;
@@ -93,16 +99,19 @@ int arch_setup_thread(kthread_t *thread, void *entrypoint, uint32_t stack_size, 
 	/* @todo Find better scheme to separate thread stacks. */
 	int tpos = llist_get_position(&thread->process->threads, &thread->list_item);
 	virt_stack_begin -= tpos * 0x10000;
-	proc_create_stack(thread, stack_size, virt_stack_begin, kernel);
+	uintptr_t stack = proc_create_stack(thread, stack_size, virt_stack_begin, kernel);
 	proc_create_kernel_stack(thread);
 
-
-	thread->arch.esp = thread->arch.ebp = virt_stack_begin + stack_size;
+	/* Setup call stack for _thread_entrypoint */
+	*(uint32_t *)(stack + stack_size - 4)  = (uint32_t)data;
+	*(uint32_t *)(stack + stack_size - 8)  = (uint32_t)entrypoint;
+	*(uint32_t *)(stack + stack_size - 12) = (uint32_t)NULL;
+	thread->arch.esp = (thread->arch.ebp = virt_stack_begin + stack_size) - 12;
 
 	if(kernel == 0) {
 		thread->arch.eip = (uint32_t)proc_jump_to_ring;
 	}
-    
+
 	kdebug(DEBUGSRC_PROC, "arch_setup_thread EIP: %08X CR3: %08X ESP: %08X", thread->arch.eip, thread->process->arch.cr3, thread->arch.esp);
 
     return 0;
