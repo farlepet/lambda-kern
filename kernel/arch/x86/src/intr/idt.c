@@ -1,3 +1,4 @@
+#include <lambda/export.h>
 #include <arch/io/ioport.h>
 #include <arch/intr/idt.h>
 
@@ -96,6 +97,7 @@ int disable_irq(uint8_t irq)
 	else         outb(0xA1, inb(0xA1) | (uint8_t)(0x100 >> irq));
 	return 0;
 }
+EXPORT_FUNC(disable_irq);
 
 /**
  * Enable an IRQ line
@@ -110,3 +112,4 @@ int enable_irq(uint8_t irq)
 	else         outb(0xA1, inb(0xA1) & ~(0x100 >> irq));
 	return 0;
 }
+EXPORT_FUNC(enable_irq);

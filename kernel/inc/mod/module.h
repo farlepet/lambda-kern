@@ -18,6 +18,8 @@ typedef struct {
 #define MOD_THREAD_MAX 4
     int   threads[MOD_THREAD_MAX];
 
+    const symbol_t *symbols;
+
     llist_item_t list_item;
 } module_entry_t;
 

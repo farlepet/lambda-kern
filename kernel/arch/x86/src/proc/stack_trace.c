@@ -50,8 +50,10 @@ static int stack_trace_print_func(uint32_t eip, symbol_t *symbols) {
             kprintf("  -- End of kernel stack --\n");
             return -1;
         }
-    } else {
+    } else if(symbols == sym_functions) {
         kprintf("  [%08x] %s\n", eip, page_present(eip) ? "" : "[np]");
+    } else {
+        return stack_trace_print_func(eip, sym_functions);
     }
     return 0;
 }

@@ -5,6 +5,7 @@
 
 #include <types.h>
 
+/* TODO: Add platform-agnosting interrupt_enable/_disable functions */
 
 /**
  * \brief Attaches an interrupt handler to an interrupt.

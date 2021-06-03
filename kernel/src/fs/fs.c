@@ -1,3 +1,4 @@
+#include <lambda/export.h>
 #include <err/error.h>
 #include <mm/alloc.h>
 #include <string.h>
@@ -43,6 +44,7 @@ int fs_add_file(struct kfile *file, struct kfile *parent) {
 
 	return file->inode;
 }
+EXPORT_FUNC(fs_add_file);
 
 uint32_t fs_read(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
 	/* If applicable, follow link to target file */
@@ -56,6 +58,7 @@ uint32_t fs_read(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
 
 	return 0;
 }
+EXPORT_FUNC(fs_read);
 
 uint32_t fs_write(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
 	/* If applicable, follow link to target file */
@@ -69,6 +72,7 @@ uint32_t fs_write(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
 
 	return 0;
 }
+EXPORT_FUNC(fs_write);
 
 void fs_open(struct kfile *f, uint32_t flags) {
 	if(f == NULL) return;
@@ -102,6 +106,7 @@ void fs_close(struct kfile *f) {
 		unlock(&f->file_lock);
 	}
 }
+EXPORT_FUNC(fs_close);
 
 struct dirent *fs_readdir(DIR *d) {
 	if(d && d->dir) {
@@ -125,6 +130,7 @@ struct dirent *fs_readdir(DIR *d) {
 	}
 	return NULL;
 }
+EXPORT_FUNC(fs_readdir);
 
 struct kfile *fs_finddir(struct kfile *f, const char *name) {
 	if(f && f->child) {
@@ -139,6 +145,7 @@ struct kfile *fs_finddir(struct kfile *f, const char *name) {
 	}
 	return NULL;
 }
+EXPORT_FUNC(fs_finddir);
 
 struct kfile *fs_dirfile(DIR *d) {
 	if(d == NULL) return NULL;
@@ -179,6 +186,7 @@ int fs_create(struct kfile *f, char *name, uint32_t perms)
 
 	return -1;
 }
+EXPORT_FUNC(fs_create);
 
 int fs_ioctl(struct kfile *f, int req, void *args)
 {
@@ -188,6 +196,7 @@ int fs_ioctl(struct kfile *f, int req, void *args)
 
 	return -1;
 }
+EXPORT_FUNC(fs_ioctl);
 
 
 struct kfile *fs_find_file(struct kfile *f, const char *path) {

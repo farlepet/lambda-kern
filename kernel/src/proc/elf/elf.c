@@ -71,6 +71,13 @@ int elf_check_header(void *data) {
 	return 0;
 }
 
+/* Criteria for exported symbols. */
+#define _SYM_CRITERIA(sym) ((sym.st_shndx != 0) &&                         \
+                            ((ELF32_ST_BIND(sym.st_info) == STB_GLOBAL) || \
+							 (ELF32_ST_BIND(sym.st_info) == STB_WEAK))  && \
+                            ((ELF32_ST_TYPE(sym.st_info) == STT_OBJECT) || \
+                             (ELF32_ST_TYPE(sym.st_info) == STT_FUNC)))
+
 int elf_load_symbols(const Elf32_Ehdr *elf, symbol_t **symbols) {
 	Elf32_Shdr *elf_strtab = NULL;
 	Elf32_Shdr *elf_symtab = NULL;
@@ -79,10 +86,18 @@ int elf_load_symbols(const Elf32_Ehdr *elf, symbol_t **symbols) {
 		return -1;
 	}
 
-	Elf32_Sym *syms   = (Elf32_Sym *)((uintptr_t)elf + elf_symtab->sh_offset);
-	size_t     n_syms = elf_symtab->sh_size / elf_symtab->sh_entsize;
+	Elf32_Sym *syms      = (Elf32_Sym *)((uintptr_t)elf + elf_symtab->sh_offset);
+	size_t     n_syms    = elf_symtab->sh_size / elf_symtab->sh_entsize;
+	
+	/* We only want to keep track of symbols within this ELF */
+	size_t     used_syms = 0;
+	for(size_t i = 0; i < n_syms; i++) {
+		if(_SYM_CRITERIA(syms[i])) {
+			used_syms++;
+		}
+	}
 
-	*symbols = (symbol_t *)kmalloc((n_syms + 1) * sizeof(symbol_t) + elf_strtab->sh_size);
+	*symbols = (symbol_t *)kmalloc((used_syms + 1) * sizeof(symbol_t) + elf_strtab->sh_size);
 	if(*symbols == NULL) {
 		return -1;
 	}
@@ -90,15 +105,19 @@ int elf_load_symbols(const Elf32_Ehdr *elf, symbol_t **symbols) {
 	char *sym_strtab = (char *)((uintptr_t)*symbols + (n_syms + 1) * sizeof(symbol_t));
 	memcpy(sym_strtab, (void *)((uintptr_t)elf + elf_strtab->sh_offset), elf_strtab->sh_size);
 
+	size_t idx = 0;
 	for(size_t i = 0; i < n_syms; i++) {
-		(*symbols)[i].name = &sym_strtab[syms[i].st_name];
-		(*symbols)[i].addr = syms[i].st_value;
-		(*symbols)[i].size = syms[i].st_size;
+		if(_SYM_CRITERIA(syms[i])) {
+			(*symbols)[idx].name = &sym_strtab[syms[i].st_name];
+			(*symbols)[idx].addr = syms[i].st_value;
+			(*symbols)[idx].size = syms[i].st_size;
+			idx++;
+		}
 	}
 
-	(*symbols)[n_syms].name = NULL;
-	(*symbols)[n_syms].addr = 0xFFFFFFFF;
-	(*symbols)[n_syms].size = 0x00000000;
+	(*symbols)[used_syms].name = NULL;
+	(*symbols)[used_syms].addr = 0xFFFFFFFF;
+	(*symbols)[used_syms].size = 0x00000000;
 
 	return 0;
 }

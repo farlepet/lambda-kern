@@ -43,6 +43,8 @@
 #define PERM_RW  06
 #define PERM_RWE 07
 
+typedef struct kfile kfile_t;
+
 struct kfile //!< Kernel representation of a file
 {
 	char name[FILE_NAME_MAX]; //!< Filename

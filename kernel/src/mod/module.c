@@ -17,7 +17,10 @@
 
 static llist_t loaded_modules;
 
-static int _module_place(const Elf32_Ehdr *elf, const lambda_mod_head_t *mod_head, uintptr_t baseaddr, module_entry_t *mod_ent, const symbol_t *symbols);
+/* TODO: Better method for choosing where to place module */
+uintptr_t _current_base = 0x80000000;
+
+static int _module_place(const Elf32_Ehdr *elf, const lambda_mod_head_t *mod_head, uintptr_t baseaddr, module_entry_t *mod_ent, symbol_t *symbols);
 
 int module_read(struct kfile *file, lambda_mod_head_t **head, uintptr_t *base, Elf32_Ehdr **elf) {
     Elf32_Ehdr        *elf_data;
@@ -128,18 +131,21 @@ int module_install(struct kfile *file) {
     modent->ident = (char *)((uintptr_t)modent + sizeof(module_entry_t));
     memcpy(modent->ident, ident, strlen(ident) + 1);
 
-    uintptr_t baseaddr = 0x80000000;
     kdebug(DEBUGSRC_MODULE, "module_install: Placing and relocation module");
-    if(_module_place(mod_elf, mod_head, baseaddr, modent, symbols)) {
+    if(_module_place(mod_elf, mod_head, _current_base, modent, symbols)) {
         kfree(mod_elf);
         kfree(symbols);
         kfree(modent);
+
+        return -1;
     }
+    _current_base += 0x10000; /* TODO: Actually determine module space */
 
     modent->func(LAMBDA_MODFUNC_START, modent);
     
 
     kdebug(DEBUGSRC_MODULE, "module_install: Adding module to list");
+    modent->list_item.data = (void *)modent;
     llist_append(&loaded_modules, &modent->list_item);
 
     return 0;
@@ -192,8 +198,6 @@ static int _do_reloc(uintptr_t baseaddr, const elf_reloc_t *relocs, uintptr_t sy
     (void)baseaddr;
     uintptr_t dataaddr = _translate_addr(relocs, rel->r_offset);
     
-    kdebug(DEBUGSRC_MODULE, "_do_reloc: Writing to %08X (%08X)", dataaddr, *(uint32_t *)dataaddr);
-
     switch(ELF32_R_TYPE(rel->r_info)) {
         case R_386_NONE:
             break;
@@ -215,10 +219,13 @@ static int _do_reloc(uintptr_t baseaddr, const elf_reloc_t *relocs, uintptr_t sy
             return -1;
     }
     
-    kdebug(DEBUGSRC_MODULE, "_do_reloc: Wrote %08X to %08X", *(uint32_t *)dataaddr, dataaddr);
+    kdebug(DEBUGSRC_MODULE, "_do_reloc: Wrote %08X to %08X [%d]", *(uint32_t *)dataaddr, dataaddr, ELF32_R_TYPE(rel->r_info));
 
     return 0;
 }
+
+#define _RELOC_NEED_SYM(R) ((ELF32_R_TYPE(R.r_info) != R_386_NONE) && \
+                            (ELF32_R_TYPE(R.r_info) != R_386_RELATIVE))
 
 static int _module_apply_relocs(const Elf32_Ehdr *elf, const elf_reloc_t *relocs, const symbol_t *symbols, uintptr_t baseaddr) {
     Elf32_Shdr *elf_symtab = NULL;
@@ -238,18 +245,37 @@ static int _module_apply_relocs(const Elf32_Ehdr *elf, const elf_reloc_t *relocs
         const Elf32_Rel *rel    = (Elf32_Rel *)((uintptr_t)elf + sects[i].sh_offset);
         size_t           n_rels = sects[i].sh_size / sects[i].sh_entsize;
         for(size_t j = 0; j < n_rels; j++) {
-            size_t sidx = ELF32_R_SYM(rel[j].r_info);
-            char *ident = &strs[syms[sidx].st_name];
-            kdebug(DEBUGSRC_MODULE, "_module_apply_relocs: %08X, %08X [%s]",
-                   rel[j].r_offset, rel[j].r_info, ident);
-
             uintptr_t symaddr = 0;
-            if(!module_symbol_find_kernel(ident, &symaddr)) {
-            } else if(!module_symbol_find_module(ident, &symaddr, symbols)) {
-                symaddr = _translate_addr(relocs, symaddr);
+            if(_RELOC_NEED_SYM(rel[j])) {
+                size_t sidx = ELF32_R_SYM(rel[j].r_info);
+                char *ident = &strs[syms[sidx].st_name];
+                kdebug(DEBUGSRC_MODULE, "_module_apply_relocs: %08X, %08X [%s]",
+                       rel[j].r_offset, rel[j].r_info, ident);
+                
+                if(!module_symbol_find_kernel(ident, &symaddr)) {
+                } else if(!module_symbol_find_module(ident, &symaddr, symbols)) {
+                    symaddr = _translate_addr(relocs, symaddr);
+                } else {
+                    /* Check other loaded modules */
+                    llist_iterator_t iter;
+                    module_entry_t  *ent;
+                    int              found = 0;
+                    llist_iterator_init(&loaded_modules, &iter);
+                    while(!found &&
+                        llist_iterate(&iter, (void **)&ent)) {
+                        if(ent->symbols &&
+                        !module_symbol_find_module(ident, &symaddr, ent->symbols)) {
+                            found = 1;
+                        }
+                    }
+                    if (!found) {
+                        kdebug(DEBUGSRC_MODULE, "_module_apply_relocs: Could not find symbol %s", ident);
+                        return -1;
+                    }
+                }
             } else {
-                kdebug(DEBUGSRC_MODULE, "_module_apply_relocs: Could not find symbol %s", ident);
-                //return -1;
+                kdebug(DEBUGSRC_MODULE, "_module_apply_relocs: %08X, %08X",
+                       rel[j].r_offset, rel[j].r_info);
             }
 
             if(_do_reloc(baseaddr, relocs, symaddr, &rel[j])) {
@@ -274,7 +300,7 @@ static void *_alloc_map(uintptr_t virt, size_t len) {
     return paddr;
 }
 
-static int _module_place(const Elf32_Ehdr *elf, const lambda_mod_head_t *mod_head, uintptr_t baseaddr, module_entry_t *mod_ent, const symbol_t *symbols) {
+static int _module_place(const Elf32_Ehdr *elf, const lambda_mod_head_t *mod_head, uintptr_t baseaddr, module_entry_t *mod_ent, symbol_t *symbols) {
     Elf32_Phdr *prog = (Elf32_Phdr *)((uintptr_t)elf + elf->e_phoff);
 	
     size_t n_loads = 0;
@@ -334,8 +360,15 @@ static int _module_place(const Elf32_Ehdr *elf, const lambda_mod_head_t *mod_hea
         kfree(relocs);
         return -1;
     }
+
+    kdebug(DEBUGSRC_MODULE, "Translating module symbol table");
+    for(size_t i = 0; symbols[i].addr != 0xFFFFFFFF; i++) {
+        symbols[i].addr = _translate_addr(relocs, symbols[i].addr);
+        kdebug(DEBUGSRC_MODULE, "  %d: [%s] => %08X", i, symbols[i].name, symbols[i].addr);
+    }
     
-    mod_ent->func = (lambda_mod_func_t)_translate_addr(relocs, (uintptr_t)mod_head->function);
+    mod_ent->func    = (lambda_mod_func_t)_translate_addr(relocs, (uintptr_t)mod_head->function);
+    mod_ent->symbols = symbols;
 
     kfree(relocs);
 
