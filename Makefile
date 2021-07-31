@@ -1,7 +1,15 @@
-MAINDIR    = $(CURDIR)
-SRC        = $(MAINDIR)/kernel/src
+MAINDIR    = .
+KERNEL     = $(MAINDIR)/kernel
+BUILDDIR   = $(MAINDIR)/build
 
-VERBOSE    = 0
+VERBOSE     = 0
+EMBEDINITRD = 1
+
+ifeq ($(VERBOSE), 1)
+Q =
+else
+Q = @
+endif
 
 # Default architecture
 ARCH       = x86
@@ -13,32 +21,34 @@ LD            = $(CROSS_COMPILE)ld
 AR            = $(CROSS_COMPILE)ar
 STRIP         = $(CROSS_COMPILE)strip
 
-export CC
-export AS
-export LD
-export AR
-export STRIP
-export CROSS_COMPILE
-export CFLAGS
-export LDFLAGS
-export VERBOSE
-
-SRCS       = $(wildcard $(SRC)/*.c) $(wildcard $(SRC)/*/*.c) $(wildcard $(SRC)/*/*/*.c)
-OBJS       = $(patsubst %.c,%.o,$(SRCS))
-DEPS       = $(patsubst %.c,%.d,$(SRCS))
 
 GIT_VERSION := "$(shell git describe --abbrev=8 --dirty=\* --always --tags)"
 
 CFLAGS    += -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/$(ARCH)/inc/ \
 			 -nostdlib -nostdinc -ffreestanding -Wall -Wextra -Werror -O2 \
 			 -pipe -g -fno-stack-protector -fdata-sections -ffunction-sections \
+			 -include "lambda/platforms.h" \
 			 -DKERNEL_GIT=\"$(GIT_VERSION)\"
 
+KERNSRC    = $(KERNEL)/src
+ARCHSRC    = $(MAINDIR)/kernel/arch/$(ARCH)/src
+ARCHINC    = $(MAINDIR)/kernel/arch/$(ARCH)/inc
 
-all: printinfo arch_all
+SRCS       = $(wildcard $(KERNSRC)/*.c) $(wildcard $(KERNSRC)/*/*.c) $(wildcard $(KERNSRC)/*/*/*.c)
+SRCS      += $(wildcard $(ARCHSRC)/*.c) $(wildcard $(ARCHSRC)/*/*.c) $(wildcard $(ARCHSRC)/*/*/*.c)
+SRCS      += $(wildcard $(ARCHSRC)/*.s) $(wildcard $(ARCHSRC)/*/*.s) $(wildcard $(ARCHSRC)/*/*/*.s)
+
+OBJS       = $(filter %.o,$(patsubst $(KERNEL)/%.c,$(BUILDDIR)/%.o,$(SRCS)) \
+                          $(patsubst $(KERNEL)/%.s,$(BUILDDIR)/%.o,$(SRCS)))
+DEPS       = $(filter %.d,$(patsubst $(KERNEL)/%.c,$(BUILDDIR)/%.d,$(SRCS)))
+
+.PHONY: all clean documentation cppcheck
+
+all: $(BUILDDIR)/lambda.kern
 
 # Architecture-specific makefile options
 include kernel/arch/$(ARCH)/arch.mk
+
 
 ifeq ($(CC), clang)
 # TODO: Take the time to go through all these -Wno- commands to fix easy-to-fix errors
@@ -57,51 +67,29 @@ CFLAGS += -Weverything -Wno-incompatible-library-redeclaration -Wno-reserved-id-
 		  -Wno-implicit-int-conversion \
 		  -Wno-atomic-implicit-seq-cst \
 		  -Wno-bad-function-cast \
-		  -Wno-cast-align
+		  -Wno-cast-align \
+		  -Wno-c++-compat
 else
 # Temporary(?) fix for syscall function casting in GCC
 CFLAGS += -Wno-cast-function-type
 endif
 
 
-printinfo:
-	@echo -e "\033[32mBuilding kernel\033[0m"
-
-
--include $(DEPS)
-
-%.o: %.c
-ifeq ($(VERBOSE), 0)
-	@echo -e "\033[32m    \033[1mCC\033[21m    \033[34m$<\033[0m"
-	@$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
-else
-	$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
-endif
-
-arch.a: arch_msg
-	@cd $(MAINDIR)/kernel/arch/$(ARCH); $(MAKE) CC=$(CC) AS=$(AS)
-	@cp $(MAINDIR)/kernel/arch/$(ARCH)/arch.a ./arch.a
-
-symbols.o: lambda.o
+$(BUILDDIR)/symbols.o: $(BUILDDIR)/lambda.o
 	@echo -e "\033[33m  \033[1mCreating symbol table\033[0m"
-	@scripts/symbols > symbols.c
-	@$(CC) $(CFLAGS) -c -o symbols.o symbols.c
+	$(Q) scripts/symbols > $(BUILDDIR)/symbols.c
+	$(Q) $(CC) $(CFLAGS) -c -o $(BUILDDIR)/symbols.o $(BUILDDIR)/symbols.c
 
-# TODO: Clean this up, lambda-kern probably shouldn't be making reference to
-# files in lambda-os. Maybe copy the file from lambda-os into lambda-kern
 # TODO: Only include this if FEATURE_INITRD_EMBEDDED
-initrd.o: ../build/initrd.cpio
-	@echo -e "\033[33m  \033[1mGenerating InitCPIO Object\033[0m"
-	@cp ../build/initrd.cpio ./initrd.cpio
-	@$(LD) $(LDARCH) -r -b binary initrd.cpio -o initrd.o
+$(BUILDDIR)/initrd.o: initrd.cpio
+	@echo -e "\033[33m  \033[1mGenerating embedded InitRD object\033[0m"
+	$(Q) $(LD) $(LDARCH) -r -b binary $< -o $@
 
 
-clean: arch_clean
+clean:
 	@echo -e "\033[33m  \033[1mCleaning sources\033[0m"
-	@rm -f $(OBJS) $(DEPS)
-	@rm -f initrd.o initrd.cpio symbols.o symbols.c
-	@rm -r -f doc
-	@cd $(MAINDIR)/kernel/arch/$(ARCH); make clean
+	$(Q) rm -rf $(BUILDDIR)
+	$(Q) rm -rf doc
 
 documentation:
 	@echo -e "\033[32mGenerating documentation\033[0m"
@@ -112,4 +100,18 @@ documentation:
 	@cd ../lambda-os-doc/lambda-os/; git add --all; git commit -a; git push origin gh-pages
 
 cppcheck:
-	@cppcheck --enable=all --suppress=arithOperationsOnVoidPointer --suppress=unusedFunction -I kernel/inc -I kernel/arch/$(ARCH)/inc kernel/
+	$(Q) cppcheck --enable=all --suppress=arithOperationsOnVoidPointer --suppress=unusedFunction -I kernel/inc -I kernel/arch/$(ARCH)/inc kernel/
+
+
+
+$(BUILDDIR)/%.o: $(KERNEL)/%.c
+	@echo -e "\033[32m    \033[1mCC\033[21m    \033[34m$<\033[0m"
+	$(Q) mkdir -p $(dir $@)
+	$(Q) $(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
+
+$(BUILDDIR)/%.o: $(KERNEL)/%.s
+	@echo -e "\033[32m    \033[1mAS\033[21m    \033[34m$<\033[0m"
+	$(Q) mkdir -p $(dir $@)
+	$(Q) $(AS) $(ASFLAGS) -c -o $@ $<
+
+-include $(DEPS)
