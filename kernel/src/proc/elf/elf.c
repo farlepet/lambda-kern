@@ -102,7 +102,7 @@ int elf_load_symbols(const Elf32_Ehdr *elf, symbol_t **symbols) {
 		return -1;
 	}
 	
-	char *sym_strtab = (char *)((uintptr_t)*symbols + (n_syms + 1) * sizeof(symbol_t));
+	char *sym_strtab = (char *)((uintptr_t)*symbols + (used_syms + 1) * sizeof(symbol_t));
 	memcpy(sym_strtab, (void *)((uintptr_t)elf + elf_strtab->sh_offset), elf_strtab->sh_size);
 
 	size_t idx = 0;
