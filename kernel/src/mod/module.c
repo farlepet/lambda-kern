@@ -296,6 +296,9 @@ static void *_alloc_map(uintptr_t virt, size_t len) {
     for(uintptr_t pg = 0; pg < len; pg += 0x1000) {
         map_page((void *)(start_p + pg), (void *)(start_v + pg), 0x07);
     }
+#else
+    /* TODO */
+    (void)virt;
 #endif
     return paddr;
 }

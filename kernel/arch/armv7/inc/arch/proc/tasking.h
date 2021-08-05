@@ -33,6 +33,10 @@ typedef struct {
 
 	uint32_t stack_beg;         //!< Beginning of stack
 	uint32_t stack_end;         //!< Current end of stack
+} kthread_arch_t;
+
+typedef struct {
+    
 } kproc_arch_t;
 
 /* Architecture-specific task creation parameters */
@@ -54,17 +58,19 @@ static inline void run_sched(void) {
 /**
  * \brief Architecture-specific process stack creation routine
  */
-int arch_proc_create_stack(struct kproc *proc, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel);
+uintptr_t arch_proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel);
 
 /**
  * \brief Architecture-specific process kernel stack creation routine
  */
-int arch_proc_create_kernel_stack(struct kproc *proc);
+int arch_proc_create_kernel_stack(kthread_t *thread);
 
 /**
  * \brief Architecture-specific process creation routine
  */
-int arch_setup_task(struct kproc *proc, void *entrypoint, uint32_t stack_size, int kernel, arch_task_params_t *arch_params);
+int arch_setup_task(kthread_t *thread, void *entrypoint, uint32_t stack_size, arch_task_params_t *arch_params);
+
+int arch_setup_thread(kthread_t *thread, void *entrypoint, uint32_t stack_size, void *data);
 
 /**
  * \brief Architecture-specific multitasking initialization.

@@ -162,6 +162,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 	thread->list_item.data = thread;
 	llist_append(&proc->threads, &thread->list_item);
 
+	memcpy(thread->name, name, strlen(name));
 	thread->process = proc;
 	thread->tid     = proc->pid;
 

@@ -4,7 +4,11 @@
 
 #include <proc/ktasks.h>
 #include <err/error.h>
-#include <proc/ipc.h>
+
+input_dev_t serial_dev;
+
+#define SERIAL_BUFF_CNT 16
+static cbuff_t _serial_buff = STATIC_CBUFF(sizeof(struct input_event) * SERIAL_BUFF_CNT);
 
 static void chardev_putc(void *data, int c);
 static int  chardev_getc(void *data);
@@ -25,14 +29,14 @@ int uart_pl011_create_chardev(uart_pl011_handle_t *hand, hal_io_char_dev_t *char
 }
 
 static int calc_divisor(uint32_t clkfreq, uint32_t baud, uint16_t *divint, uint8_t *divfrac) {
-    if(clkfreq > (16 * baud)) {
+    if(clkfreq < (16 * baud)) {
         return -1;
     }
 
-    float div = (float)clkfreq / ((float)baud * 16.0);
+    float div = (float)clkfreq / ((float)baud * 16.0F);
 
     *divint  = (uint16_t)div;
-    *divfrac = (uint8_t)((div - (float)(uint16_t)div) * 64.0);
+    *divfrac = (uint8_t)((div - (float)(uint16_t)div) * 64.0F);
 
     return 0;
 }
@@ -64,25 +68,21 @@ int uart_pl011_init(uart_pl011_handle_t *hand, void *base, uint32_t baud) {
                       (1UL << UART_PL011_CR_TXE__POS)    |
                       (1UL << UART_PL011_CR_RXE__POS);
 
-    hand->idev = add_input_dev(IDRIVER_SERIAL, "ttyS", 1, 0);
-	if(!hand->idev) {
-		kerror(ERR_MEDERR, "Could not set up serial device");
-	}
-
+	add_input_dev(&serial_dev, IDRIVER_SERIAL, "ser", 1, 0);
+	serial_dev.iev_buff = &_serial_buff;
+ 
     return 0;
 }
 
 static void handle_input(uart_pl011_handle_t *hand, char ch)
 {
-	if(ktask_pids[KINPUT_TASK_SLOT])
-	{
-		struct input_event iev;
-		iev.origin.s.driver = IDRIVER_SERIAL;
-		iev.origin.s.device = hand->idev->id.s.device;
-		iev.type = EVENT_CHAR;
-		iev.data = ch;
-		send_message(ktask_pids[KINPUT_TASK_SLOT], &iev, sizeof(struct input_event));
-	}
+    hand->base->DR = (uint8_t)'1';
+    struct input_event iev;
+    iev.origin.s.driver = IDRIVER_SERIAL;
+    iev.origin.s.device = hand->idev->id.s.device;
+    iev.type = EVENT_CHAR;
+    iev.data = ch;
+    cbuff_write((uint8_t *)&iev, sizeof(struct input_event), serial_dev.iev_buff);
 }
 
 static void intr_recv_handler(uint32_t int_n, void *data) {

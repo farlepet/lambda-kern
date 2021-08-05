@@ -13,6 +13,14 @@ SECTIONS
         
         .rodata : {
                 *(.rodata)
+                
+                __lambda_symbols_begin = .;
+                *(.__lambda_symbols)
+                __lambda_symbols_end = .;
+
+                __lambda_strings_begin = .;
+                *(.__lambda_strings)
+                __lambda_strings_end = .;
         }
         
         .data : {

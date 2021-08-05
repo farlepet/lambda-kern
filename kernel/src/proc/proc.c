@@ -87,8 +87,8 @@ __hot void sched_next_process()
 	/* @todo The present implementation is somewhat ineffecient. */
 	do {
 
-	    /*if(next->threads[thread].flags & KTHREAD_FLAG_VALID) {
-            kdebug(DEBUGSRC_PROC, "TID: %d | BLK: %08X | PROC: %s", next->threads[thread].tid, next->threads[thread].blocked, next->name);
+	    /*if(thread->flags & KTHREAD_FLAG_VALID) {
+            kdebug(DEBUGSRC_PROC, " TID: %d | BLK: %08X | PROC: %s", thread->tid, thread->blocked, thread->name);
 		}*/
 
 		if(!llist_iterate(&t_iter, (void **)&thread)) {

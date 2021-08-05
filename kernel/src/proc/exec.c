@@ -316,5 +316,6 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     (void)arch_params;
     (void)argv;
     (void)envp;
+    (void)_arg_alloc;
 #endif
 }

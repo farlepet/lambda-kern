@@ -62,6 +62,7 @@ static void intr_fiq_handler(uint8_t __unused intn, uintptr_t __unused lr) {
 }
 
 __hot
+__noreturn
 static void intr_stub_handler(uint8_t intn, uintptr_t lr) {
     static const char *int_name[INT_MAX] = {
         [INT_RESET]         = "INT_RESET",

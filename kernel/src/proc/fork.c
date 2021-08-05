@@ -187,7 +187,7 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
     kdebug(DEBUGSRC_PROC, " -- eip: %08X esp: %08X ebp: %08X cr3: %08X", cthread->arch.eip, cthread->arch.esp, cthread->arch.ebp, child->arch.cr3);
 #else
     /* TODO */
-    proc_copy_data(child, parent);
+    proc_copy_data(cthread, pthread);
 #endif
 
     // Copy open file descriptors:
