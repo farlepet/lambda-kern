@@ -104,6 +104,7 @@ static void spawn_init() {
 		kpanic("Could not open init executable! (%s)\n", boot_options.init_executable);
 	}
 
+	kerror(ERR_BOOTINFO, "Opening executable");
 	struct stat exec_stat;
 	fs_open(exec, OFLAGS_OPEN | OFLAGS_READ);
 	kfstat(exec, &exec_stat);
@@ -122,6 +123,7 @@ static void spawn_init() {
 	}
 
 	/* Setup standard streams for child */
+	kerror(ERR_BOOTINFO, "Creating STDIO streams");
 
 	struct kfile *stdin = stream_create(INIT_STREAM_LEN);
 	if(!stdin) {
@@ -142,6 +144,7 @@ static void spawn_init() {
 	fs_open(stdout, OFLAGS_READ | OFLAGS_WRITE);
 	fs_open(stderr, OFLAGS_READ | OFLAGS_WRITE);
 
+	kerror(ERR_BOOTINFO, "Loading ELF");
 	int pid = load_elf(exec_data, exec_stat.st_size);
 	if(!pid) {
 		kpanic("Failed to parse init executable or spawn task!");

@@ -172,6 +172,7 @@ void *kamalloc(size_t sz, size_t align) {
 	}
 
 	kdebug(DEBUGSRC_MM, "Allocating %d bytes of memory with alignment %d", sz, align);
+	kdebug(DEBUGSRC_MM, "  Used: %u, Free: %u", alloc_get_used(), alloc_get_free());
 
 	// We don't want two processes using the same memory block!
 	lock(&alloc_lock);
@@ -298,6 +299,39 @@ void free(void *ptr) {
 		mm_proc_mmap_remove_phys(proc, (uintptr_t)ptr);
 	}
 	kfree(ptr);
+}
+
+
+size_t alloc_get_used() {
+	size_t used = 0;
+
+	for(size_t blk = 0; blk < ALLOC_BLOCKS; blk++) {
+		for(size_t ent = 0; ent < ALLOC_BLOCK; ent++) {
+			if(allocs[blk] &&
+			   allocs[blk][ent].valid &&
+			   allocs[blk][ent].used) {
+			    used += allocs[blk][ent].size;
+			}
+		}
+	}
+
+	return used;
+}
+
+size_t alloc_get_free() {
+	size_t free = 0;
+
+	for(size_t blk = 0; blk < ALLOC_BLOCKS; blk++) {
+		for(size_t ent = 0; ent < ALLOC_BLOCK; ent++) {
+			if(allocs[blk] &&
+			   allocs[blk][ent].valid &&
+			   !allocs[blk][ent].used) {
+			    free += allocs[blk][ent].size;
+			}
+		}
+	}
+
+	return free;
 }
 
 

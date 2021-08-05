@@ -53,35 +53,28 @@ void ansi_escape(void);
  */
 void vga_put(char c)
 {
-	if(is_esc)
-	{
-		if(is_esc == 3)
-		{
-			if(c == '[') is_esc = 1;
-			else
-			{
+	if(is_esc != 0) {
+		if(is_esc == 3) {
+			if(c == '[') {
+				is_esc = 1;
+				return;
+			} else {
 				is_esc = 0;
-				goto __print;
 			}
-			return;
+		} else {
+			buff[buff_loc++] = c;
+			if(is_esc == 2) {
+				//if(c == ';') is_esc = 1;
+			} else if(is_ansi(c)) {
+				ansi_escape();
+				return;
+			} else {
+				return;
+			}
 		}
-		buff[buff_loc++] = c;
-		if(is_esc == 2)
-		{
-			//if(c == ';') is_esc = 1;
-			goto __print;
-		}
-		else if(is_ansi(c))
-		{
-			ansi_escape();
-			return;
-		}
-		else
-			return;
 	}
-__print:
-	switch(c)
-	{
+	
+	switch(c) {
 		case 0x00:	return;
 
 		case '\t':	xpos = (xpos + 8) & ~(8);
@@ -125,9 +118,12 @@ void vga_print(char *str)
  * @param base base to use when printing the number
  * @see vga_print
  */
-void vga_printnum(uint32_t n, uint32_t base)
-{
-	char nums[16] = "0123456789ABCDEF";
+void vga_printnum(uint32_t n, uint32_t base) {
+	if(base == 0) {
+		return;
+	}
+
+	const char nums[16] = "0123456789ABCDEF";
 	char ans[16] = { '0' };
 	int i = 0;
 	while(n)
@@ -226,9 +222,9 @@ static void m_escape()
 		case 26:	// Reserved
 					break;
 
-		case 27:	n = forc;
+		case 27:	n    = forc;
 					forc = bkgc;
-					bkgc = forc;
+					bkgc = n;
 					break;
 
 		case 28:	// Dis Hide
