@@ -37,9 +37,3 @@ To build kernel:
      - For clang: `make CC=clang AS=clang`
      - For ARMv7: `make CROSS_COMPILE=<gcc prefix> ARCH=armv7`
      - To speed up compilation, add `-j<threads>` argument to the `make` command
-
-
-*** More Documentation ***
-
-Documentation on various parts of Lambda OS can be found in the `docs`
-directory.
