@@ -1,6 +1,6 @@
 # Architecture-specific Makefile options for armv7
 
-CFLAGS    += -DARCH_ARMV7 -march=armv7-a -marm
+CFLAGS    += -march=armv7-a -marm
 LDARCH     = -marmelf
 LDFLAGS    = -marm -T kernel/arch/$(ARCH)/qemu-vexpress-a9.ld
 

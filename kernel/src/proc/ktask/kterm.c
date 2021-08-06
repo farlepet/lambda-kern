@@ -13,10 +13,6 @@
 #include <sys/stat.h>
 #include <mod/module.h>
 
-#if defined(ARCH_X86)
-#  include <arch/mm/paging.h>
-#endif
-
 #define prompt  "%skterm\e[0m> ", \
 				(retval ? "\e[31m" : "\e[32m")
 
@@ -477,7 +473,7 @@ static int kterm_dbgc(int argc, char **argv) {
 				"  pagefault: Force page fault by attempting to write to 0x00000004 and 0xFFFFFFFC\n");
 	} else if (!strcmp(argv[1], "divzero")) {
 		kprintf("divzero\n");
-#if defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 		asm volatile("mov $0, %%ecx\n"
 		             "divl %%ecx\n"
 					 ::: "%eax", "%ecx");

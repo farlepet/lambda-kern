@@ -6,7 +6,7 @@
 #include <string.h>
 #include <video.h>
 
-#if defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 #  include <arch/mm/paging.h>
 #  include <arch/proc/user.h>
 #endif
@@ -52,7 +52,7 @@ static void elf_read_phdr(const Elf32_Ehdr *elf, struct kproc_mem_map_ent **mmap
 				(*mmap_next)->next         = NULL;
 				mmap_next = &((*mmap_next)->next);
 
-#if defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 				/* TODO: Create architecture-independant memory mapping mechanism. */
 				for(uintptr_t pg = 0; pg < prog[i].p_memsz; pg += 0x1000) {
 					pgdir_map_page(arch_params->pgdir, (phys + pg), (void *)(prog[i].p_vaddr + pg), 0x07);
@@ -71,7 +71,7 @@ static void elf_read_phdr(const Elf32_Ehdr *elf, struct kproc_mem_map_ent **mmap
 static uintptr_t elf_exec_common(void *data, uint32_t length, arch_task_params_t *arch_params, symbol_t **symbols, struct kproc_mem_map_ent **mmap_entries, proc_elf_data_t *elf_data) {
 	/* TODO: Use this for error-checking */
 	(void)length;
-#if defined(ARCH_ARMV7)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARMV7)
 	(void)arch_params;
 #endif
 	
@@ -124,7 +124,7 @@ int load_elf(void *file, uint32_t length) {
 	}
 
 	arch_task_params_t arch_params;
-#if defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 	arch_params.pgdir = clone_kpagedir();
 #endif
 	
@@ -158,7 +158,7 @@ int exec_elf(void *data, uint32_t length, const char **argv, const char **envp) 
 	}
 
 	arch_task_params_t arch_params;
-#if defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 	arch_params.pgdir = clone_kpagedir();
 #endif
 

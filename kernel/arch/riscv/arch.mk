@@ -1,6 +1,6 @@
 # Architecture-specific Makefile options for riscv
 
-CFLAGS    += -DARCH_RISCV
+CFLAGS    += 
 LDFLAGS    = -T kernel/arch/$(ARCH)/kendryte-k210.ld
 
 # TODO: Make this command-line selectable:

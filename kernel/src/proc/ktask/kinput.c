@@ -6,10 +6,6 @@
 
 #include <string.h>
 
-#if defined(ARCH_X86)
-#  include <arch/io/serial.h>
-#endif
-
 struct kfile *kinput_dest = NULL;
 
 static char keytab_x86_a[2][256] =

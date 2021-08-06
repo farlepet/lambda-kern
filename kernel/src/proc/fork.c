@@ -4,7 +4,7 @@
 #include <mm/alloc.h>
 #include <string.h>
 
-#if  defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 #  include <arch/proc/user.h>
 #  include <arch/mm/paging.h>
 #  include <arch/proc/stack.h>
@@ -26,7 +26,7 @@ extern lock_t creat_task;
 static int proc_copy_data(kthread_t *dest, const kthread_t *src) {
     kdebug(DEBUGSRC_PROC, "proc_copy_data");
 
-#if defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
     struct kproc_mem_map_ent const *pent = src->process->mmap;
     struct kproc_mem_map_ent *cent;
 
@@ -135,7 +135,7 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
 
     cthread->prio = pthread->prio;
 
-#if defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
     child->arch.ring    = parent->arch.ring;
     cthread->entrypoint = pthread->entrypoint;
     child->arch.cr3     = (uint32_t)clone_pagedir_full((void *)parent->arch.cr3);
@@ -227,7 +227,7 @@ int fork(void) {
     fork_clone_process(child, curr_proc);
     
 
-#if defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
     kdebug(DEBUGSRC_PROC, " -- Child Stack: %08X %08X", cthread->arch.esp, cthread->arch.ebp);
 #endif
 

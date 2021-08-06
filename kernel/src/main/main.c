@@ -36,7 +36,7 @@ __noreturn static void iloop() {
  * @param magic magic number telling us this is a multiboot-compliant bootloader
  */
 __noreturn int kmain(struct multiboot_header *mboot_head, uint32_t magic) {
-#if defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 	if(magic != 0x2BADB002)
 		kpanic("Invalid magic number given by the bootloader: 0x%08X", magic);
 	
@@ -53,7 +53,7 @@ __noreturn int kmain(struct multiboot_header *mboot_head, uint32_t magic) {
 	kerror(ERR_BOOTINFO, "------------------------------");
 	
 	fs_init();
-#if defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 	check_multiboot_modules(mboot_head);
 #endif
 

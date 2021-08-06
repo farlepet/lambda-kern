@@ -1,5 +1,5 @@
 // TODO: Abstraction:
-#if defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 #include <arch/intr/idt.h>
 #include <arch/proc/stack_trace.h>
 #endif
@@ -95,9 +95,9 @@ int service_syscall(uint32_t scn, syscallarg_t *args) {
 extern void syscall_int();
 void init_syscalls()
 {
-#if defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 	set_idt(INT_SYSCALL, 0x08, IDT_ATTR(1, 3, 0, int32), &syscall_int);
-#elif defined (ARCH_ARMV7)
+#elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARMV7)
 	set_interrupt(INT_SYSCALL, &syscall_int);
 #endif
 }
@@ -106,9 +106,9 @@ extern void call_syscall_int(uint32_t, syscallarg_t *);
 void call_syscall(uint32_t scn, uint32_t *args)
 {
 	kdebug(DEBUGSRC_SYSCALL, "call_syscall: %d, %08X", scn, args);
-#ifdef ARCH_X86
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 	call_syscall_int(scn, args);
-#else
+#elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARMV7)
 	(void)scn;
 	(void)args;
 	asm volatile("swi #1");

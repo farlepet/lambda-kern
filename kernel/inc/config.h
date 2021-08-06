@@ -1,6 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <lambda/platforms.h>
+
 /* Include the kernel debugger task */
 #define DEBUGGER 0
 

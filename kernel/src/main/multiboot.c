@@ -5,20 +5,20 @@
 #include <string.h>
 #include <video.h>
 
-#if defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 #  include <arch/io/serial.h>
 #  include <arch/mm/paging.h>
 #endif
 
 volatile boot_options_t boot_options = {
 	.init_ramdisk_name = "",
-#if defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 	.init_executable   = "/bin/linit",
 #else
 	/* TODO: FS not fully implemented on other platforms. */
 	.init_executable   = "",
 #endif
-#if defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 	.output_serial     = 0,
 #endif
 };
@@ -76,7 +76,7 @@ void check_commandline(struct multiboot_header *mboot_head) {
 			/* Launch the kterm shell rather than spawning the init executable */
 			boot_options.init_executable[0] = '\0';
 		}
-#if defined(ARCH_X86) // Names of serial ports will likely be different on different systems
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86) // Names of serial ports will likely be different on different systems
 		else if(!strcmp(tmp, "-s"))     boot_options.output_serial = SERIAL_COM1;
 		else if(!strcmp(tmp, "-sCOM1")) boot_options.output_serial = SERIAL_COM1;
 		else if(!strcmp(tmp, "-sCOM2")) boot_options.output_serial = SERIAL_COM2;
@@ -105,7 +105,7 @@ void check_multiboot_modules(struct multiboot_header *mboot_head) {
 	uint32_t modcnt = mboot_head->mod_count;
 
 	for(uint32_t i = 0; i < modcnt; i++) {
-#if defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 		uintptr_t mod_start = (uintptr_t)mod->mod_start;
 		uintptr_t mod_end   = (uintptr_t)mod->mod_end;
 

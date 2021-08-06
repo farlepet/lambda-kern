@@ -9,7 +9,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#if defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 #  include <arch/intr/int.h>
 #  include <arch/proc/user.h>
 #  include <arch/mm/paging.h>
@@ -24,7 +24,7 @@ int execve(const char *filename, const char **argv, const char **envp) {
         kerror(ERR_BOOTINFO, "  -> ENVP invalid address?");
     }
 
-#if defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
     kdebug(DEBUGSRC_EXEC, "execve pgdir: %08X", get_pagedir());
 #endif
 
@@ -63,7 +63,7 @@ int execve(const char *filename, const char **argv, const char **envp) {
  * Copy and relocate arguments (argv, envp) to the next process image, and
  * push these values to the stack.
  */
-#if defined(ARCH_ARMV7)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARMV7)
 __unused
 #endif
 static void exec_copy_arguments(kthread_t *thread, const char **argv, const char **envp, char ***n_argv, char ***n_envp) {
@@ -95,7 +95,7 @@ static void exec_copy_arguments(kthread_t *thread, const char **argv, const char
     char **new_argv  = (char **)new_buffer;
     char **new_envp  = NULL;
 
-#if defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
     for(ptr_t p = (ptr_t)new_buffer; p < ((ptr_t)new_buffer + data_sz); p += 0x1000) {
         pgdir_map_page((uint32_t *)thread->process->arch.cr3, (void *)p, (void *)p, 0x07);
     }
@@ -193,7 +193,7 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
 
     kthread_t *old_thread = (kthread_t *)tmp_proc.threads.list->data;
 
-#if defined(ARCH_X86) // Ensure we do not get interrupted
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
     disable_interrupts();
 #endif
 
@@ -232,7 +232,7 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     curr_proc->list_item = tmp_proc.list_item;
     curr_proc->list_item.data = curr_proc;
 
-#if defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
     // Copy architecture-specific bits:
     curr_proc->arch.ring = tmp_proc.arch.ring;
     thread->arch.eip  = (uint32_t)entryp;

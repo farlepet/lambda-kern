@@ -69,7 +69,7 @@ typedef struct {
 #define INITEXEC_PATH_MAX_LEN 128
 	char init_executable[INITEXEC_PATH_MAX_LEN];   /** Path to init executable. If NULL, kterm is launched */
 
-#if defined(ARCH_X86)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 	int  output_serial;     /** Serial device to output to */
 #endif
 } boot_options_t;

@@ -74,9 +74,7 @@ int uart_pl011_init(uart_pl011_handle_t *hand, void *base, uint32_t baud) {
     return 0;
 }
 
-static void handle_input(uart_pl011_handle_t *hand, char ch)
-{
-    hand->base->DR = (uint8_t)'1';
+static void handle_input(uart_pl011_handle_t *hand, char ch) {
     struct input_event iev;
     iev.origin.s.driver = IDRIVER_SERIAL;
     iev.origin.s.device = hand->idev->id.s.device;
