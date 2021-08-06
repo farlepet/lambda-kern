@@ -367,7 +367,7 @@ lock_t print_lock;
  * @see print
  */
 int kprintf(const char *format, ...) {
-	if(interrupts_enabled()) lock_for(&print_lock, 16);
+	if(interrupts_enabled()) lock_for(&print_lock, 100);
 	__builtin_va_list varg;
 	__builtin_va_start(varg, format);
 	char temp[1024];
@@ -390,7 +390,7 @@ int kprintf(const char *format, ...) {
  * @see print
  */
 int kprintv(char *format, __builtin_va_list varg) {
-	if(interrupts_enabled()) lock_for(&print_lock, 16);
+	if(interrupts_enabled()) lock_for(&print_lock, 100);
 	char temp[1024];
 	int i = 0;
 	while(i < 1024) temp[i++] = ' ';

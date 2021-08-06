@@ -47,9 +47,9 @@ void lock(lock_t *lock);
  * @brief Aquire atomic lock, with timeout
  * 
  * @param lock Lock to attempt to aquire
- * @param ticks How many ticks for which to attempt to aquire lock
+ * @param ticks How long to attempt to aquire lock, in milliseconds
  * @return int 0 if successful, else 1
  */
-int lock_for(lock_t *lock, uint32_t ticks);
+int lock_for(lock_t *lock, uint32_t ms);
 
 #endif
