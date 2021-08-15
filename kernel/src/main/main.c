@@ -119,28 +119,39 @@ static void spawn_init() {
 	}
 
 	/* Setup standard streams for child */
+	/* TODO: These streams should eventually be replaced by pointing to a driver
+	 * TTY or similar, rather than being directly controlled by the kernel. */
 	kerror(ERR_BOOTINFO, "Creating STDIO streams");
 
 	kfile_t *stdin = stream_create(INIT_STREAM_LEN);
 	if(!stdin) {
-		kpanic("kterm: Could not create STDIN!");
+		kpanic("init: Could not create STDIN!");
 	}
 
 	kfile_t *stdout = stream_create(INIT_STREAM_LEN);
 	if(!stdout) {
-		kpanic("kterm: Could not create STDOUT!");
+		kpanic("init: Could not create STDOUT!");
 	}
 
 	kfile_t *stderr = stream_create(INIT_STREAM_LEN);
 	if(!stderr) {
-		kpanic("kterm: Could not create STDERR!");
+		kpanic("init: Could not create STDERR!");
 	}
 
-	/* TODO: Process should have separare handle than the kernel */
-	kfile_hand_t *stdin_hand  = fs_handle_create_open(stdin,  OFLAGS_READ | OFLAGS_WRITE);
-	kfile_hand_t *stdout_hand = fs_handle_create_open(stdout, OFLAGS_READ | OFLAGS_WRITE);
-	kfile_hand_t *stderr_hand = fs_handle_create_open(stderr, OFLAGS_READ | OFLAGS_WRITE);
-	/* TODO: Check for NULL */
+	kfile_hand_t *stdin_kern  = fs_handle_create_open(stdin,  OFLAGS_WRITE);
+	kfile_hand_t *stdout_kern = fs_handle_create_open(stdout, OFLAGS_READ);
+	kfile_hand_t *stderr_kern = fs_handle_create_open(stderr, OFLAGS_READ);
+	kfile_hand_t *stdin_user  = fs_handle_create_open(stdin,  OFLAGS_READ);
+	kfile_hand_t *stdout_user = fs_handle_create_open(stdout, OFLAGS_WRITE);
+	kfile_hand_t *stderr_user = fs_handle_create_open(stderr, OFLAGS_WRITE);
+	if(!stdin_kern  ||
+	   !stdout_kern ||
+	   !stderr_kern ||
+	   !stdin_user  ||
+	   !stdout_user ||
+	   !stderr_user) {
+		kpanic("Could not create stream habdle(s) for init!");
+	   }
 
 	kerror(ERR_BOOTINFO, "Loading ELF");
 	int pid = load_elf(exec_data, exec_size);
@@ -153,28 +164,25 @@ static void spawn_init() {
 		kpanic("Could not find spawned init process!");
 	}
 
-	proc->open_files[0] = stdin_hand;
-	proc->open_files[1] = stdout_hand;
-	proc->open_files[2] = stderr_hand;
+	proc->open_files[0] = stdin_user;
+	proc->open_files[1] = stdout_user;
+	proc->open_files[2] = stderr_user;
 
 	/* Route input to init process */
-	kinput_dest = stdin_hand;
+	kinput_dest = stdin_kern;
 
 	char buffer[INIT_STREAM_LEN];
 
+	ssize_t sz;
 	while(!(proc->type & TYPE_ZOMBIE)) {
-		if(stdout->length > 0) {
-			int sz = fs_read(stdout_hand, 0, stdout->length, (uint8_t *)&buffer);
-			for(int i = 0; i < sz; i++) {
-				kput(buffer[i]);
-			}
+		sz = fs_read(stdout_kern, 0, INIT_STREAM_LEN, (uint8_t *)&buffer);
+		for(ssize_t i = 0; i < sz; i++) {
+			kput(buffer[i]);
 		}
 
-		if(stderr->length > 0) {
-			int sz = fs_read(stderr_hand, 0, stderr->length, (uint8_t *)&buffer);
-			for(int i = 0; i < sz; i++) {
-				kput(buffer[i]);
-			}
+		sz = fs_read(stderr_kern, 0, INIT_STREAM_LEN, (uint8_t *)&buffer);
+		for(ssize_t i = 0; i < sz; i++) {
+			kput(buffer[i]);
 		}
 
 		delay(1);

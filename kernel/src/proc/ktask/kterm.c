@@ -51,6 +51,7 @@ uint32_t hash(char *str) {
 #define KTERM_STREAM_LEN 64
 
 static kfile_hand_t *kterm_stdin = NULL;
+static kfile_t *_stdin = NULL;
 
 __noreturn void kterm_task() {
 	uint32_t i = 0;
@@ -59,16 +60,16 @@ __noreturn void kterm_task() {
 
 	int retval = 0;
 	
-	kfile_t *stdin = stream_create(KTERM_STREAM_LEN);
-	if(!stdin) {
+	_stdin = stream_create(KTERM_STREAM_LEN);
+	if(!_stdin) {
 		kpanic("kterm: Could not create main input stream!");
 	}
 
-	kterm_stdin = fs_handle_create_open(stdin, OFLAGS_READ);
+	kterm_stdin = fs_handle_create_open(_stdin, OFLAGS_READ);
 	if(!kterm_stdin) {
 		kpanic("kterm: Could not create main input stream - kterm side!");
 	}
-	kinput_dest = fs_handle_create_open(stdin, OFLAGS_WRITE);
+	kinput_dest = fs_handle_create_open(_stdin, OFLAGS_WRITE);
 	if(!kinput_dest) {
 		kpanic("kterm: Could not create main input stream - kinput side!");
 	}
@@ -248,48 +249,41 @@ static int kterm_run(int argc, char **argv) {
 	}
 	
 	/* TODO: Process should have separare handle than the kernel */
-	kfile_hand_t *stdin_hand  = fs_handle_create_open(stdin,  OFLAGS_READ | OFLAGS_WRITE);
-	kfile_hand_t *stdout_hand = fs_handle_create_open(stdout, OFLAGS_READ | OFLAGS_WRITE);
-	kfile_hand_t *stderr_hand = fs_handle_create_open(stderr, OFLAGS_READ | OFLAGS_WRITE);
+	kfile_hand_t *stdout_kterm = fs_handle_create_open(stdout, OFLAGS_READ);
+	kfile_hand_t *stderr_kterm = fs_handle_create_open(stderr, OFLAGS_READ);
+	kfile_hand_t *stdin_user   = fs_handle_create_open(_stdin, OFLAGS_READ);
+	kfile_hand_t *stdout_user  = fs_handle_create_open(stdout, OFLAGS_WRITE);
+	kfile_hand_t *stderr_user  = fs_handle_create_open(stderr, OFLAGS_WRITE);
 	/* TODO: Check for NULL */
+
+	child->open_files[0] = stdin_user;
+	child->open_files[1] = stdout_user;
+	child->open_files[2] = stderr_user;
 
 	char buffer[EXEC_STREAM_LEN];
 
+	ssize_t sz;
 	while(!(child->type & TYPE_ZOMBIE)) {
-		char t;
-		while(fs_read(kterm_stdin, 0, 1, (uint8_t *)&t)) {
-			fs_write(stdin_hand, 0, 1, (uint8_t *)&t);
+		sz = fs_read(stdout_kterm, 0, EXEC_STREAM_LEN, (uint8_t *)&buffer);
+		for(ssize_t i = 0; i < sz; i++) {
+			kput(buffer[i]);
 		}
 
-		/* TODO: Check if sz < 0 */
-		if(stdout->length > 0) {
-			ssize_t sz = fs_read(stdout_hand, 0, stdout->length, (uint8_t *)&buffer);
-			for(ssize_t i = 0; i < sz; i++) {
-				kput(buffer[i]);
-			}
-		}
-
-		if(stderr->length > 0) {
-			ssize_t sz = fs_read(stderr_hand, 0, stderr->length, (uint8_t *)&buffer);
-			for(ssize_t i = 0; i < sz; i++) {
-				kput(buffer[i]);
-			}
+		sz = fs_read(stderr_kterm, 0, EXEC_STREAM_LEN, (uint8_t *)&buffer);
+		for(ssize_t i = 0; i < sz; i++) {
+			kput(buffer[i]);
 		}
 	}
 
 	// Flush remaining output:
-	if(stdout->length > 0) {
-		ssize_t sz = fs_read(stdout_hand, 0, stdout->length, (uint8_t *)&buffer);
-		for(ssize_t i = 0; i < sz; i++) {
-			kput(buffer[i]);
-		}
+	sz = fs_read(stdout_kterm, 0, EXEC_STREAM_LEN, (uint8_t *)&buffer);
+	for(ssize_t i = 0; i < sz; i++) {
+		kput(buffer[i]);
 	}
 
-	if(stderr->length > 0) {
-		ssize_t sz = fs_read(stderr_hand, 0, stderr->length, (uint8_t *)&buffer);
-		for(ssize_t i = 0; i < sz; i++) {
-			kput(buffer[i]);
-		}
+	sz = fs_read(stderr_kterm, 0, EXEC_STREAM_LEN, (uint8_t *)&buffer);
+	for(ssize_t i = 0; i < sz; i++) {
+		kput(buffer[i]);
 	}
 
 

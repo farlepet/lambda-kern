@@ -2,6 +2,7 @@
 #include <proc/exec.h>
 #include <err/error.h>
 #include <fs/procfs.h>
+#include <fs/fs.h>
 #include <proc/elf.h>
 #include <mm/alloc.h>
 #include <mm/mm.h>
@@ -31,29 +32,25 @@ int execve(const char *filename, const char **argv, const char **envp) {
     for(int i = 0; argv[i]; i++) {
         kdebug(DEBUGSRC_EXEC, "execve argv[%d]: %08X '%s'", i, argv[i], argv[i]);
     }
+	
+    void  *exec_data;
+    size_t exec_size;
 
-    int _exec = proc_fs_open(filename, OFLAGS_READ); //NOTE: The flag here may be wrong
-    if(_exec < 0) {
-        kerror(ERR_SMERR, "execve: Could not open %s for reading!", filename);
-        return -1;
-    }
-
-    struct stat exec_stat;
-    fstat(_exec, &exec_stat);
-
-    void *execdata = kmalloc(exec_stat.st_size);
-    proc_fs_read(_exec, 0, exec_stat.st_size, execdata);
+    if(fs_read_file_by_path(filename, NULL, &exec_data, &exec_size, 0)) {
+		kerror(ERR_SMERR, "execve: Could not open %s!\n", argv[1]);
+		return -1;
+	}
 
     // TODO: Add executable type handlers in the future, so that they can be
     // registered on-the-fly
     // Check for the filetype:
-    if(*(uint32_t *)execdata == ELF_IDENT) { // ELF
+    if(*(uint32_t *)exec_data == ELF_IDENT) { // ELF
         kdebug(DEBUGSRC_EXEC, "execve: Determined filetype as ELF");
-        return exec_elf(execdata, exec_stat.st_size, argv, envp);
-    } else if(*(uint16_t *)execdata == 0x3335) { // SHEBANG, NOTE: Byte order might be wrong!
+        return exec_elf(exec_data, exec_size, argv, envp);
+    } else if(*(uint16_t *)exec_data == 0x3335) { // SHEBANG, NOTE: Byte order might be wrong!
         kerror(ERR_MEDERR, "execve: No support for shebang yet!");
     } else { // UNKNOWN
-        kerror(ERR_MEDERR, "execve: Unknown executable file type: %08X", *(uint32_t *)execdata);
+        kerror(ERR_MEDERR, "execve: Unknown executable file type: %08X", *(uint32_t *)exec_data);
     }
 
     return -1;
@@ -227,7 +224,6 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     memcpy(curr_proc->file_position, tmp_proc.file_position, sizeof(curr_proc->file_position));
 
     curr_proc->symbols = symbols;
-
 
     curr_proc->list_item = tmp_proc.list_item;
     curr_proc->list_item.data = curr_proc;
