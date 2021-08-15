@@ -28,6 +28,7 @@ kfile_t *fs_dirfile(DIR *d);
 kfile_hand_t *fs_handle_create(void);
 kfile_hand_t *fs_handle_create_open(kfile_t *f, uint32_t flags);
 int fs_handle_destroy(kfile_hand_t *hand);
+int fs_read_file_by_path(const char *path, kfile_t *cwd, void **buff, size_t *sz, size_t max_sz);
 
 /**
  * \brief Find a file relative to the given directory

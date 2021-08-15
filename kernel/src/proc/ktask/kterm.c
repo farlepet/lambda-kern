@@ -164,9 +164,8 @@ static int kterm_help(int argc, char **argv) {
 #define EXEC_STREAM_LEN 256
 
 char exec_filename[128] = { 0, };
-kfile_hand_t *exec      = NULL;
-struct stat   exec_stat;
-uint8_t	     *exec_data = NULL;
+void	     *exec_data = NULL;
+size_t	      exec_size = 0;
 int           exec_type = 0;
 
 static int kterm_load(int argc, char **argv) {
@@ -177,31 +176,23 @@ static int kterm_load(int argc, char **argv) {
 
 	memcpy(exec_filename, argv[1], strlen(argv[1]));
 
-	/* TODO: Simplify in-kernel file reading, similar to linux's kernel_read_file_from_* */
-	kfile_t *exec_file = fs_find_file(fs_root, argv[1]);
-	if(!exec_file) {
+
+	if(fs_read_file_by_path(exec_filename, NULL, &exec_data, &exec_size, 0)) {
 		memset(exec_filename, 0, 128);
 		kprintf("Could not open %s!\n", argv[1]);
 		return 1;
 	}
-	exec = fs_handle_create_open(exec_file,  OFLAGS_READ);
-
-	kfstat(exec, &exec_stat);
-
-	exec_data = kmalloc(exec_stat.st_size);
-	fs_read(exec, 0, exec_stat.st_size, exec_data);
 
 	if(*(uint32_t *)exec_data == ELF_IDENT) {
 		exec_type = EXEC_ELF;
 		kprintf("Executable is an ELF executable.\n");
 	} else {
 		kprintf("Raw binary executables are no longer supported.\n");
-		fs_close(exec);
 		kfree(exec_data);
 		return 1;
 	}
 
-	kprintf("%s loaded\n", exec_file->name);
+	kprintf("%s loaded\n", exec_filename);
 
 	return 0;
 }
@@ -218,7 +209,7 @@ static int kterm_run(int argc, char **argv) {
 	}
 
 	if(exec_type == EXEC_ELF) {
-		pid = load_elf(exec_data, exec_stat.st_size);
+		pid = load_elf(exec_data, exec_size);
 
 		if(pid < 0) {
 			kerror(ERR_MEDERR, "Could not load executable");

@@ -1,8 +1,10 @@
 #include <lambda/export.h>
 #include <err/error.h>
 #include <mm/alloc.h>
-#include <string.h>
 #include <fs/fs.h>
+
+#include <string.h>
+#include <sys/stat.h>
 
 static kfile_t *kfiles;
 
@@ -307,6 +309,64 @@ kfile_hand_t *fs_handle_create_open(kfile_t *f, uint32_t flags) {
 	return hand;
 }
 
+static int __read_file(kfile_hand_t *file, void **buff, size_t *sz, size_t max_sz) {
+	/* NOTE: Not performing checks on input, as that should have been done by the caller */
+	if(max_sz == 0) {
+		max_sz = SIZE_MAX;
+	}
+	
+	struct stat _stat;
+	if(kfstat(file, &_stat)) {
+		return -1;
+	}
+
+	if(_stat.st_size < max_sz) {
+		max_sz = _stat.st_size;
+	}
+
+	*buff = kmalloc(max_sz);
+	if(*buff == NULL) {
+		return -1;
+	}
+
+	ssize_t read = fs_read(file, 0, max_sz, *buff);
+	if(read < 0) {
+		kfree(*buff);
+		return -1;
+	}
+
+	/* TODO: Should we error on the case where read != max_sz? */
+	*sz = (size_t)read;
+
+	return 0;
+}
+
+int fs_read_file_by_path(const char *path, kfile_t *cwd, void **buff, size_t *sz, size_t max_sz) {
+	if((path   == NULL) ||
+	   (buff   == NULL) ||
+	   (sz     == NULL)) {
+		return -1;
+	}
+	
+	if(cwd == NULL) {
+		cwd = fs_root;
+	}
+	kfile_t *f = fs_find_file(cwd, path);
+	if(f == NULL) {
+		return -1;
+	}
+
+	kfile_hand_t *hand = fs_handle_create_open(f, OFLAGS_READ);
+	if(hand == NULL) {
+		return -1;
+	}
+
+	int ret = __read_file(hand, buff, sz, max_sz);
+
+	fs_handle_destroy(hand);
+
+	return ret;
+}
 
 
 void fs_init()

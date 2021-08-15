@@ -105,22 +105,15 @@ static void spawn_init() {
 	}
 
 	kerror(ERR_BOOTINFO, "Opening executable");
-	struct stat exec_stat;
 
-	kfile_hand_t *exec_hand  = (kfile_hand_t *)kmalloc(sizeof(kfile_hand_t *));
-	exec_hand->open_flags = OFLAGS_READ;
-	fs_open(exec, exec_hand);
-	kfstat(exec_hand, &exec_stat);
+	void  *exec_data;
+	size_t exec_size;
 
-	void *exec_data = kmalloc(exec_stat.st_size);
-	if(!exec_data) {
-		kpanic("Could not allocate memory for init executable!\n");
+	/* TODO: Execution should all be handled by another function, or even plain execve */
+	if(fs_read_file_by_path((const char *)boot_options.init_executable, NULL, &exec_data, &exec_size, 0)) {
+		kpanic("Could not open %s for init!\n", boot_options.init_executable);
 	}
-
-	if((size_t)fs_read(exec_hand, 0, exec_stat.st_size, exec_data) != exec_stat.st_size) {
-		kpanic("Could not read full init file into RAM!\n");
-	}
-
+	
 	if(*(uint32_t *)exec_data != ELF_IDENT) {
 		kpanic("Unsupported init executable file type!");
 	}
@@ -150,7 +143,7 @@ static void spawn_init() {
 	/* TODO: Check for NULL */
 
 	kerror(ERR_BOOTINFO, "Loading ELF");
-	int pid = load_elf(exec_data, exec_stat.st_size);
+	int pid = load_elf(exec_data, exec_size);
 	if(!pid) {
 		kpanic("Failed to parse init executable or spawn task!");
 	}
