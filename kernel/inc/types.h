@@ -52,11 +52,21 @@ typedef unsigned long long int max_ptr_t; //!< Maximum pointer size that can be 
 #define __cold           __attribute__((__cold__))                //!< This data isn't used much
 #define __hot            __attribute__((__hot__))                 //!< This data is used often
 
+/**
+ * Used to wrap safety checks that are not strictly necessary for functionality.
+ * Allows the disabling of these checks for potential performance, at the cost
+ * of kernel safety/stability. Not to be used in a system that is not completely
+ * locked down. */
+#ifdef CONFIG_DISABLE_SAFETY_CHECKS
+#  define SAFETY_CHECK(X) (1)
+#else
+#  define SAFETY_CHECK(X) (X)
+#endif
 
 
 // Check if the compiler has certain built-ins
 #ifndef __has_builtin
-  #define __has_builtin(x) 0
+#  define __has_builtin(x) 0
 #endif
 
 #define ARRAY_SZ(arry) (sizeof(arry) / sizeof(arry[0])) 

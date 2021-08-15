@@ -22,7 +22,7 @@ uintptr_t _current_base = 0x80000000;
 
 static int _module_place(const Elf32_Ehdr *elf, const lambda_mod_head_t *mod_head, uintptr_t baseaddr, module_entry_t *mod_ent, symbol_t *symbols);
 
-int module_read(struct kfile *file, lambda_mod_head_t **head, uintptr_t *base, Elf32_Ehdr **elf) {
+int module_read(kfile_hand_t *file, lambda_mod_head_t **head, uintptr_t *base, Elf32_Ehdr **elf) {
     Elf32_Ehdr        *elf_data;
     Elf32_Shdr        *mod_section;
     lambda_mod_head_t *mod_head;
@@ -39,7 +39,7 @@ int module_read(struct kfile *file, lambda_mod_head_t **head, uintptr_t *base, E
     if(!elf_data) {
         return 1;
     }
-    if(fs_read(file, 0, file_stat.st_size, (void *)elf_data) != file_stat.st_size) {
+    if((size_t)fs_read(file, 0, file_stat.st_size, (void *)elf_data) != file_stat.st_size) {
         kfree(elf_data);
         return 1;
     }
@@ -102,7 +102,7 @@ int _check_requirements(lambda_mod_head_t *mod_head, Elf32_Ehdr *mod_elf) {
     return 0;
 }
 
-int module_install(struct kfile *file) {
+int module_install(kfile_hand_t *file) {
     lambda_mod_head_t *mod_head;
     uintptr_t          mod_base;
     Elf32_Ehdr        *mod_elf;

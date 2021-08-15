@@ -106,15 +106,18 @@ static void spawn_init() {
 
 	kerror(ERR_BOOTINFO, "Opening executable");
 	struct stat exec_stat;
-	fs_open(exec, OFLAGS_OPEN | OFLAGS_READ);
-	kfstat(exec, &exec_stat);
+
+	kfile_hand_t *exec_hand  = (kfile_hand_t *)kmalloc(sizeof(kfile_hand_t *));
+	exec_hand->open_flags = OFLAGS_READ;
+	fs_open(exec, exec_hand);
+	kfstat(exec_hand, &exec_stat);
 
 	void *exec_data = kmalloc(exec_stat.st_size);
 	if(!exec_data) {
 		kpanic("Could not allocate memory for init executable!\n");
 	}
 
-	if(fs_read(exec, 0, exec_stat.st_size, exec_data) != exec_stat.st_size) {
+	if((size_t)fs_read(exec_hand, 0, exec_stat.st_size, exec_data) != exec_stat.st_size) {
 		kpanic("Could not read full init file into RAM!\n");
 	}
 
@@ -125,24 +128,26 @@ static void spawn_init() {
 	/* Setup standard streams for child */
 	kerror(ERR_BOOTINFO, "Creating STDIO streams");
 
-	struct kfile *stdin = stream_create(INIT_STREAM_LEN);
+	kfile_t *stdin = stream_create(INIT_STREAM_LEN);
 	if(!stdin) {
 		kpanic("kterm: Could not create STDIN!");
 	}
 
-	struct kfile *stdout = stream_create(INIT_STREAM_LEN);
+	kfile_t *stdout = stream_create(INIT_STREAM_LEN);
 	if(!stdout) {
 		kpanic("kterm: Could not create STDOUT!");
 	}
 
-	struct kfile *stderr = stream_create(INIT_STREAM_LEN);
+	kfile_t *stderr = stream_create(INIT_STREAM_LEN);
 	if(!stderr) {
 		kpanic("kterm: Could not create STDERR!");
 	}
 
-	fs_open(stdin,  OFLAGS_READ | OFLAGS_WRITE);
-	fs_open(stdout, OFLAGS_READ | OFLAGS_WRITE);
-	fs_open(stderr, OFLAGS_READ | OFLAGS_WRITE);
+	/* TODO: Process should have separare handle than the kernel */
+	kfile_hand_t *stdin_hand  = fs_handle_create_open(stdin,  OFLAGS_READ | OFLAGS_WRITE);
+	kfile_hand_t *stdout_hand = fs_handle_create_open(stdout, OFLAGS_READ | OFLAGS_WRITE);
+	kfile_hand_t *stderr_hand = fs_handle_create_open(stderr, OFLAGS_READ | OFLAGS_WRITE);
+	/* TODO: Check for NULL */
 
 	kerror(ERR_BOOTINFO, "Loading ELF");
 	int pid = load_elf(exec_data, exec_stat.st_size);
@@ -155,25 +160,25 @@ static void spawn_init() {
 		kpanic("Could not find spawned init process!");
 	}
 
-	proc->open_files[0] = stdin;
-	proc->open_files[1] = stdout;
-	proc->open_files[2] = stderr;
+	proc->open_files[0] = stdin_hand;
+	proc->open_files[1] = stdout_hand;
+	proc->open_files[2] = stderr_hand;
 
 	/* Route input to init process */
-	kinput_dest = stdin;
+	kinput_dest = stdin_hand;
 
 	char buffer[INIT_STREAM_LEN];
 
 	while(!(proc->type & TYPE_ZOMBIE)) {
 		if(stdout->length > 0) {
-			int sz = fs_read(stdout, 0, stdout->length, (uint8_t *)&buffer);
+			int sz = fs_read(stdout_hand, 0, stdout->length, (uint8_t *)&buffer);
 			for(int i = 0; i < sz; i++) {
 				kput(buffer[i]);
 			}
 		}
 
 		if(stderr->length > 0) {
-			int sz = fs_read(stderr, 0, stderr->length, (uint8_t *)&buffer);
+			int sz = fs_read(stderr_hand, 0, stderr->length, (uint8_t *)&buffer);
 			for(int i = 0; i < sz; i++) {
 				kput(buffer[i]);
 			}

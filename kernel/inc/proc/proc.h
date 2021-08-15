@@ -107,14 +107,11 @@ struct kproc { //!< Structure of a process as seen by the kernel
 
 	struct kproc *children[MAX_CHILDREN]; //!< Pointers to direct child processes (ex: NOT children's children)
 
-	//kproc_arch_t  arch; //!< Architecture-specific process data
-	/* @todo If kthread_t gets larger, allocate threads dynamically instead. */
-	//kthread_t     threads[MAX_THREADS];
 	llist_t       threads;
 
-	struct kfile *cwd; //!< Current working directory
+	kfile_t      *cwd; //!< Current working directory
 
-	struct kfile *open_files[MAX_OPEN_FILES]; //!< Open file descriptors
+	kfile_hand_t *open_files[MAX_OPEN_FILES]; //!< Open file descriptors
 	uint32_t      file_position[MAX_OPEN_FILES]; //!< Current position in open files
 
 	symbol_t     *symbols;   //!< Symbol names used to display a stack trace
@@ -135,11 +132,11 @@ struct kproc { //!< Structure of a process as seen by the kernel
  * \brief Adds file to process
  * 
  * @param proc Process to add file to
- * @param file File to add
+ * @param hand File handle to add
  * 
  * @return New file descriptor if applicable, -1 otherwise
  */
-int proc_add_file(struct kproc *proc, struct kfile *file);
+int proc_add_file(struct kproc *proc, kfile_hand_t *hand);
 
 /**
  * @brief Add child index to parent

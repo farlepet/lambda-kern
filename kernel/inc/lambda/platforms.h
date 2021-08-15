@@ -1,7 +1,6 @@
 #ifndef LAMBDA_PLATFORMS_H
 #define LAMBDA_PLATFORMS_H
 
-/* TODO: Use __LAMBDA_PLATFORM_ARCH__ rather than ARCH_* everywhere */
 #define PLATFORM_ARCH_X86    (1)
 #define PLATFORM_ARCH_X86_64 (2)
 #define PLATFORM_ARCH_RISCV  (3)

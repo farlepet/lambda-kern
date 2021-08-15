@@ -4,16 +4,30 @@
 #include <mm/alloc.h>
 #include <string.h>
 
-static uint32_t stream_read (struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff);
-static uint32_t stream_write(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff);
-static void     stream_open (struct kfile *f, uint32_t flags);
-static void     stream_close(struct kfile *f);
+static ssize_t _read (kfile_hand_t *, size_t off, size_t sz, void *);
+static ssize_t _write(kfile_hand_t *, size_t off, size_t sz, const void *);
+static int     _open (kfile_t *, kfile_hand_t *);
+static int     _close(kfile_hand_t *);
 
+static const file_ops_t _file_ops = {
+	.open    = &_open,
+	.mkdir   = NULL,
+	.create  = NULL,
+	.finddir = NULL
+};
 
-struct kfile *stream_create(int length) {
+static const file_hand_ops_t _file_hand_ops = {
+	.close   = &_close,
+	.read    = &_read,
+	.write   = &_write,
+    .ioctl   = NULL,
+	.readdir = NULL
+};
+
+kfile_t *stream_create(int length) {
     if(length < 1) return NULL;
 
-    struct kfile *file = (struct kfile *)kmalloc(sizeof(struct kfile));
+    kfile_t *file = (kfile_t *)kmalloc(sizeof(kfile_t));
     memset(file, 0, sizeof(struct kfile));
 
     struct cbuff *buff = (struct cbuff *)kmalloc(sizeof(struct cbuff) + length);
@@ -30,11 +44,7 @@ struct kfile *stream_create(int length) {
     file->flags = FS_STREAM; // TODO: Should this be a pipe?
     // TODO: Creation time
 
-    file->read  = stream_read;
-    file->write = stream_write;
-    file->open  = stream_open;
-    file->close = stream_close;
-    // TODO: Possibly implement IOCTL?
+    file->ops = &_file_ops;
 
     fs_add_file(file, NULL);
 
@@ -42,15 +52,16 @@ struct kfile *stream_create(int length) {
 }
 EXPORT_FUNC(stream_create);
 
-static uint32_t stream_read(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
-    if(!f->info) return 0;
+static ssize_t _read(kfile_hand_t *hand, size_t off, size_t sz, void *buff) {
+    if(!hand->file || !hand->file->info) return 0;
     (void)off; // Offset goes unused, this is basically a queue
 
+    kfile_t *f = hand->file;
     uint32_t count = 0;
     int ret;
 
     while((count < sz) && !((ret = cbuff_get((struct cbuff *)f->info)) & CBUFF_ERRMSK)) {
-        buff[count] = (uint8_t)ret;
+        ((uint8_t *)buff)[count] = (uint8_t)ret;
         count++;
     }
 
@@ -59,13 +70,14 @@ static uint32_t stream_read(struct kfile *f, uint32_t off, uint32_t sz, uint8_t 
     return count;
 }
 
-static uint32_t stream_write(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
-    if(!f->info) return 0;
+static ssize_t _write(kfile_hand_t *hand, size_t off, size_t sz, const void *buff) {
+    if(!hand->file || !hand->file->info) return 0;
     (void)off; // Offset goes unused, this is basically a queue
 
+    kfile_t *f = hand->file;
     uint32_t count = 0;
 
-    while((count < sz) && !(cbuff_put(buff[count], (struct cbuff *)f->info) & CBUFF_ERRMSK)) {
+    while((count < sz) && !(cbuff_put(((uint8_t *)buff)[count], (struct cbuff *)f->info) & CBUFF_ERRMSK)) {
         count++;
     }
 
@@ -74,18 +86,26 @@ static uint32_t stream_write(struct kfile *f, uint32_t off, uint32_t sz, uint8_t
     return count;
 }
 
-static void stream_open(struct kfile *f, uint32_t flags)
+static int _open(kfile_t *f, kfile_hand_t *hand)
 {
+    /* TODO: Check open flags */
 	lock(&f->file_lock);
-	if(f->open) return; // TODO: Notify the process that the file could not be opened
-	f->open_flags = flags | OFLAGS_OPEN;
+    hand->ops  = &_file_hand_ops;
+    hand->file = f;
+	hand->open_flags |= OFLAGS_OPEN;
 	unlock(&f->file_lock);
+
+    return 0;
 }
 
-static void stream_close(struct kfile *f)
+static int _close(kfile_hand_t *hand)
 {
-	lock(&f->file_lock);
-	f->open = 0;
-    kfree(f->info);
-	unlock(&f->file_lock);
+    /* TODO: Check if any other file handles reference the file */
+
+	lock(&hand->lock);
+	hand->open_flags = 0;
+    /*kfree(hand->file->info);*/
+	unlock(&hand->lock);
+
+    return 0;
 }

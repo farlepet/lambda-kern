@@ -50,7 +50,7 @@ uint32_t hash(char *str) {
 
 #define KTERM_STREAM_LEN 64
 
-static struct kfile *kterm_stdin = NULL;
+static kfile_hand_t *kterm_stdin = NULL;
 
 __noreturn void kterm_task() {
 	uint32_t i = 0;
@@ -59,11 +59,20 @@ __noreturn void kterm_task() {
 
 	int retval = 0;
 	
-	kterm_stdin = stream_create(KTERM_STREAM_LEN);
-	if(!kterm_stdin) {
+	kfile_t *stdin = stream_create(KTERM_STREAM_LEN);
+	if(!stdin) {
 		kpanic("kterm: Could not create main input stream!");
 	}
-	kinput_dest = kterm_stdin;
+
+	kterm_stdin = fs_handle_create_open(stdin, OFLAGS_READ);
+	if(!kterm_stdin) {
+		kpanic("kterm: Could not create main input stream - kterm side!");
+	}
+	kinput_dest = fs_handle_create_open(stdin, OFLAGS_WRITE);
+	if(!kinput_dest) {
+		kpanic("kterm: Could not create main input stream - kinput side!");
+	}
+	
 	
 	kprintf("\n+----------------------------+\n"
 	        "| Kernel debug shell \"kterm\" |\n"
@@ -155,7 +164,7 @@ static int kterm_help(int argc, char **argv) {
 #define EXEC_STREAM_LEN 256
 
 char exec_filename[128] = { 0, };
-struct kfile *exec      = NULL;
+kfile_hand_t *exec      = NULL;
 struct stat   exec_stat;
 uint8_t	     *exec_data = NULL;
 int           exec_type = 0;
@@ -168,13 +177,14 @@ static int kterm_load(int argc, char **argv) {
 
 	memcpy(exec_filename, argv[1], strlen(argv[1]));
 
-	exec = fs_find_file(fs_root, argv[1]);
-	if(!exec) {
+	/* TODO: Simplify in-kernel file reading, similar to linux's kernel_read_file_from_* */
+	kfile_t *exec_file = fs_find_file(fs_root, argv[1]);
+	if(!exec_file) {
 		memset(exec_filename, 0, 128);
 		kprintf("Could not open %s!\n", argv[1]);
 		return 1;
 	}
-	fs_open(exec, OFLAGS_OPEN | OFLAGS_READ);
+	exec = fs_handle_create_open(exec_file,  OFLAGS_READ);
 
 	kfstat(exec, &exec_stat);
 
@@ -191,7 +201,7 @@ static int kterm_load(int argc, char **argv) {
 		return 1;
 	}
 
-	kprintf("%s loaded\n", exec->name);
+	kprintf("%s loaded\n", exec_file->name);
 
 	return 0;
 }
@@ -245,33 +255,32 @@ static int kterm_run(int argc, char **argv) {
 		kerror(ERR_MEDERR, "kterm: Could not create STDERR!");
 		return 1;
 	}
-
-	fs_open(stdin,  OFLAGS_READ | OFLAGS_WRITE);
-	fs_open(stdout, OFLAGS_READ | OFLAGS_WRITE);
-	fs_open(stderr, OFLAGS_READ | OFLAGS_WRITE);
-
-	child->open_files[0] = stdin;
-	child->open_files[1] = stdout;
-	child->open_files[2] = stderr;
+	
+	/* TODO: Process should have separare handle than the kernel */
+	kfile_hand_t *stdin_hand  = fs_handle_create_open(stdin,  OFLAGS_READ | OFLAGS_WRITE);
+	kfile_hand_t *stdout_hand = fs_handle_create_open(stdout, OFLAGS_READ | OFLAGS_WRITE);
+	kfile_hand_t *stderr_hand = fs_handle_create_open(stderr, OFLAGS_READ | OFLAGS_WRITE);
+	/* TODO: Check for NULL */
 
 	char buffer[EXEC_STREAM_LEN];
 
 	while(!(child->type & TYPE_ZOMBIE)) {
 		char t;
 		while(fs_read(kterm_stdin, 0, 1, (uint8_t *)&t)) {
-			fs_write(stdin, 0, 1, (uint8_t *)&t);
+			fs_write(stdin_hand, 0, 1, (uint8_t *)&t);
 		}
 
+		/* TODO: Check if sz < 0 */
 		if(stdout->length > 0) {
-			int sz = fs_read(stdout, 0, stdout->length, (uint8_t *)&buffer);
-			for(int i = 0; i < sz; i++) {
+			ssize_t sz = fs_read(stdout_hand, 0, stdout->length, (uint8_t *)&buffer);
+			for(ssize_t i = 0; i < sz; i++) {
 				kput(buffer[i]);
 			}
 		}
 
 		if(stderr->length > 0) {
-			int sz = fs_read(stderr, 0, stderr->length, (uint8_t *)&buffer);
-			for(int i = 0; i < sz; i++) {
+			ssize_t sz = fs_read(stderr_hand, 0, stderr->length, (uint8_t *)&buffer);
+			for(ssize_t i = 0; i < sz; i++) {
 				kput(buffer[i]);
 			}
 		}
@@ -279,15 +288,15 @@ static int kterm_run(int argc, char **argv) {
 
 	// Flush remaining output:
 	if(stdout->length > 0) {
-		int sz = fs_read(stdout, 0, stdout->length, (uint8_t *)&buffer);
-		for(int i = 0; i < sz; i++) {
+		ssize_t sz = fs_read(stdout_hand, 0, stdout->length, (uint8_t *)&buffer);
+		for(ssize_t i = 0; i < sz; i++) {
 			kput(buffer[i]);
 		}
 	}
 
 	if(stderr->length > 0) {
-		int sz = fs_read(stderr, 0, stderr->length, (uint8_t *)&buffer);
-		for(int i = 0; i < sz; i++) {
+		ssize_t sz = fs_read(stderr_hand, 0, stderr->length, (uint8_t *)&buffer);
+		for(ssize_t i = 0; i < sz; i++) {
 			kput(buffer[i]);
 		}
 	}
@@ -369,12 +378,12 @@ static int kterm_mod(int argc, char **argv) {
 			return 1;
 		}
 
-		struct kfile *mod = fs_find_file(fs_root, argv[2]);
-		if(!mod) {
+		kfile_t *mod_file = fs_find_file(fs_root, argv[2]);
+		if(!mod_file) {
 			kprintf("Could not find %s\n", argv[2]);
 			return 1;
 		}
-		fs_open(exec, OFLAGS_OPEN | OFLAGS_READ);
+		kfile_hand_t *mod  = fs_handle_create_open(mod_file,  OFLAGS_READ);
 
 		kprintf("Loading module info.\n");
 		lambda_mod_head_t *mod_head;
@@ -434,12 +443,12 @@ static int kterm_mod(int argc, char **argv) {
 			return 1;
 		}
 
-		struct kfile *mod = fs_find_file(fs_root, argv[2]);
-		if(!mod) {
+		kfile_t *mod_file = fs_find_file(fs_root, argv[2]);
+		if(!mod_file) {
 			kprintf("Could not find %s\n", argv[2]);
 			return 1;
 		}
-		fs_open(exec, OFLAGS_OPEN | OFLAGS_READ);
+		kfile_hand_t *mod  = fs_handle_create_open(mod_file,  OFLAGS_READ);
 		
 		kprintf("Installing module\n");
 		if (module_install(mod)) {

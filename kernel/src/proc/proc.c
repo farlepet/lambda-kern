@@ -6,7 +6,7 @@
 #include <string.h>
 
 
-int proc_add_file(struct kproc *proc, struct kfile *file) {
+int proc_add_file(kproc_t *proc, kfile_hand_t *file) {
 	for(int i = 0; i < MAX_OPEN_FILES; i++) {
 		if(proc->open_files[i] == NULL) {
 			proc->open_files[i] = file;
@@ -17,7 +17,7 @@ int proc_add_file(struct kproc *proc, struct kfile *file) {
 	return -1;
 }
 
-int proc_add_mmap_ent(struct kproc *proc, uintptr_t virt_address, uintptr_t phys_address, size_t length) {
+int proc_add_mmap_ent(kproc_t *proc, uintptr_t virt_address, uintptr_t phys_address, size_t length) {
 	struct kproc_mem_map_ent *ent = (struct kproc_mem_map_ent *)kmalloc(sizeof(struct kproc_mem_map_ent));
 
 	ent->virt_address = virt_address;
@@ -36,7 +36,7 @@ int proc_add_mmap_ent(struct kproc *proc, uintptr_t virt_address, uintptr_t phys
 	return 0;
 }
 
-int proc_add_mmap_ents(struct kproc *proc, struct kproc_mem_map_ent *entries) {
+int proc_add_mmap_ents(kproc_t *proc, struct kproc_mem_map_ent *entries) {
 	if(proc->mmap == NULL) {
 		proc->mmap = entries;
 	} else {
@@ -48,7 +48,7 @@ int proc_add_mmap_ents(struct kproc *proc, struct kproc_mem_map_ent *entries) {
 	return 0;
 }
 
-int proc_add_child(struct kproc *parent, struct kproc *child) {
+int proc_add_child(kproc_t *parent, kproc_t *child) {
 	for(int i = 0; i < MAX_CHILDREN; i++) {
 		if(!parent->children[i]) {
 			parent->children[i] = child;

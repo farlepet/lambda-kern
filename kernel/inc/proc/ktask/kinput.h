@@ -2,8 +2,9 @@
 #define KTASK_KINPUT_H
 
 #include <types.h>
+#include <fs/kfile.h>
 
-extern struct kfile *kinput_dest;
+extern kfile_hand_t *kinput_dest;
 
 __noreturn void kinput_task(void);
 

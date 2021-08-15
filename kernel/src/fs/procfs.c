@@ -2,6 +2,8 @@
 #include <fs/procfs.h>
 #include <proc/mtask.h>
 #include <fs/dirinfo.h>
+#include <mm/alloc.h>
+
 #include <string.h>
 
 uint32_t proc_fs_read(int desc, uint32_t off, uint32_t sz, uint8_t *buff) {
@@ -19,12 +21,14 @@ uint32_t proc_fs_read_blk(int desc, uint32_t off, uint32_t sz, uint8_t *buff) {
     if(desc > MAX_OPEN_FILES) return 0;
     if(!curr_proc)            return 0;
 
-    if(curr_proc->open_files[desc]) {
-        if((curr_proc->open_files[desc]->flags & FS_STREAM) &&
-          !(curr_proc->open_files[desc]->open_flags & OFLAGS_NONBLOCK)) {
+    kfile_hand_t *file = curr_proc->open_files[desc];
+
+    if(file) {
+        if(file->file && (file->file->flags & FS_STREAM) &&
+          !(file->open_flags & OFLAGS_NONBLOCK)) {
             uint32_t count = 0;
             while(count < sz) {
-                uint32_t ret = fs_read(curr_proc->open_files[desc], off, sz - count, buff + count);
+                uint32_t ret = fs_read(file, off, sz - count, buff + count);
                 if(ret > 0x80000000) {
                     return count;
                 }
@@ -34,7 +38,7 @@ uint32_t proc_fs_read_blk(int desc, uint32_t off, uint32_t sz, uint8_t *buff) {
             return count;
         } else {
             off = curr_proc->file_position[desc];
-            uint32_t n = fs_read(curr_proc->open_files[desc], off, sz, buff);
+            uint32_t n = fs_read(file, off, sz, buff);
             curr_proc->file_position[desc] += n;
             return n;
         }
@@ -80,9 +84,18 @@ int proc_fs_open(const char *name, uint32_t flags) {
             if(_open_check_flags(file, flags)) {
                 return -1;
             }
-            fs_open(file, flags);
+
+            kfile_hand_t *hand = (kfile_hand_t *)kmalloc(sizeof(kfile_hand_t));
+
+            hand->open_flags = flags;
+
+            fs_open(file, hand);
             // TODO: Handle errors!
-            return proc_add_file(curr_proc, file);
+            int ret = proc_add_file(curr_proc, hand);
+            if (ret) {
+                kfree(hand);
+                return ret;
+            }
         } else {
             return -1;
         }
@@ -109,7 +122,7 @@ int proc_fs_mkdir(int desc, char *name, uint32_t perms) {
     if(!curr_proc)            return -1;
     
     if(curr_proc->open_files[desc]) {
-        return fs_mkdir(curr_proc->open_files[desc], name, perms);
+        return fs_mkdir(curr_proc->open_files[desc]->file, name, perms);
     }
 
     return -1;
@@ -120,7 +133,7 @@ int proc_fs_create(int desc, char *name, uint32_t perms) {
     if(!curr_proc)            return -1;
     
     if(curr_proc->open_files[desc]) {
-        return fs_create(curr_proc->open_files[desc], name, perms);
+        return fs_create(curr_proc->open_files[desc]->file, name, perms);
     }
 
     return -1;
@@ -142,7 +155,7 @@ int proc_fs_getdirinfo(int desc, struct dirinfo *dinfo) {
     if(!curr_proc)            return -1;
     if(dinfo == NULL)         return -1;
 
-    struct kfile *file = curr_proc->open_files[desc];
+    kfile_t *file = curr_proc->open_files[desc]->file;
 
     if(file) {
         dinfo->ino        = file->inode;
@@ -172,7 +185,7 @@ int proc_fs_readdir(int desc, uint32_t idx, struct user_dirent *buff, uint32_t b
     if(buff == NULL)          return -1;
     if(buff_size == 0)        return -1;
 
-    struct kfile *file = curr_proc->open_files[desc];
+    kfile_t *file = curr_proc->open_files[desc]->file;
     if(file == NULL) return -1;
 
     /* @todo Bounds checking */

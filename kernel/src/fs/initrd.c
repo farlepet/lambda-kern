@@ -7,41 +7,54 @@
 
 #include <libgen.h>
 
+static int     _open(kfile_t *, kfile_hand_t *);
+static ssize_t _read(kfile_hand_t *, size_t, size_t, void *);
+
+static const file_ops_t _file_ops = {
+	.open    = &_open,
+	.mkdir   = NULL,
+	.create  = NULL,
+	.finddir = NULL
+};
+
+static const file_hand_ops_t _file_hand_ops = {
+	.close   = NULL,
+	.read    = &_read,
+	.write   = NULL,
+	.ioctl   = NULL,
+	.readdir = NULL
+};
+
 static struct header_old_cpio *cpio = NULL;
 
 static size_t initrd_n_files = 0;
 
 #define CPIO2LE(x) ((x << 16) | (x >> 16)) //!< Convert 32-bit CPIO values to little-endian
 
-static uint32_t initrd_read(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
-	if(!f->info)         return 0; // We must know where the CPIO data is
+static ssize_t _read(kfile_hand_t *hand, size_t off, size_t sz, void *buff) {
+	if(!hand->file ||
+	   !hand->file->info) return 0; // We must know where the CPIO data is
+
+	kfile_t *f = hand->file;
+
 	if(off >= f->length) return 0; // We cannot read past the end of the file
 
 	uint8_t *data = f->info;
 
-	uint32_t i   = 0;
-	uint32_t end = (sz + off) > f->length ? (f->length - off) : sz;
-	for(; i < end; i++) {
-		buff[i] = data[off + i];
+	uint32_t len = ((sz + off) > f->length) ? (f->length - off) : sz;
+	memcpy(buff, &data[off], len);
+
+	return len;
+}
+
+static int _open(kfile_t *f, kfile_hand_t *hand) {
+	if(hand->open_flags & OFLAGS_WRITE) {
+		return -1;
 	}
-
-	return i;
-}
-
-static uint32_t initrd_write(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
-	(void)f;
-	(void)off;
-	(void)sz;
-	(void)buff;
-	/* Writing to initrd is unsupported. */
-	return 0;
-}
-
-static void initrd_open(struct kfile *f, uint32_t flags) {
+	/* TODO: Further check open flags/permissions */
+	
 	lock(&f->file_lock);
 
-	/* TODO: Maybe find a way to handle symlinks more globally, rather than
-	 * specifically within the fs handler. */
 	if(f->flags & FS_SYMLINK) {
 		/* We need to find the file this symlinks to */
 		/* TODO: Ensure we do not exceed 127 characters */
@@ -51,19 +64,25 @@ static void initrd_open(struct kfile *f, uint32_t flags) {
 
 		f->link = fs_find_file(f->parent, symlink);
 		if(f->link) {
-			fs_open(f->link, flags);
+			fs_open(f->link, hand);
 		} else {
-			return;
+			/* TODO: Find link */
+			unlock(&f->file_lock);
+			return -1;
 		}
 	}
-	
-	/* TODO: Prevent opening for writing */
-	f->open_flags = flags | OFLAGS_OPEN;
+
+	hand->file = f;
+	hand->ops  = &_file_hand_ops;
+
+	hand->open_flags |= OFLAGS_OPEN;
 
 	unlock(&f->file_lock);
+
+	return 0;
 }
 
-/*static void initrd_close(struct kfile *f) {
+/*static void _close(kfile_t *f) {
 	lock(&f->file_lock);
 	f->open = 0;
 	unlock(&f->file_lock);
@@ -71,7 +90,7 @@ static void initrd_open(struct kfile *f, uint32_t flags) {
 
 
 
-void initrd_mount(struct kfile *mntpoint, uintptr_t initrd, size_t __unused len) {
+void initrd_mount(kfile_t *mntpoint, uintptr_t initrd, size_t __unused len) {
 	cpio = (struct header_old_cpio *)initrd;
 
 	if(cpio->c_magic != 070707) {
@@ -99,18 +118,18 @@ void initrd_mount(struct kfile *mntpoint, uintptr_t initrd, size_t __unused len)
 
 		uintptr_t data = ((uint32_t)cfile + sizeof(struct header_old_cpio) + cfile->c_namesize + (cfile->c_namesize & 1));
 
-		struct kfile *file = (struct kfile *)kmalloc(sizeof(struct kfile));
+		kfile_t *file = (kfile_t *)kmalloc(sizeof(kfile_t));
 		if(!file) {
 			kpanic("Could not allocate enough memory for initrd file structures!");
 		}
-		memset(file, 0, sizeof(struct kfile));
+		memset(file, 0, sizeof(kfile_t));
 
 		char *name = basename(filename);
 		memcpy(file->name, name, strlen(name));
 
 		char *path = dirname(filename);
 
-		struct kfile *dir = mntpoint;
+		kfile_t *dir = mntpoint;
 		if(path[0] != '.') {
 			while(1) {
 				for(uint32_t i = 0; i < strlen(path); i++) {
@@ -144,7 +163,6 @@ void initrd_mount(struct kfile *mntpoint, uintptr_t initrd, size_t __unused len)
 		file->uid        = cfile->c_uid;
 		file->gid        = cfile->c_gid;
 		file->link       = 0; /* NOTE: This is handled upon first open, if applicable. */
-		file->open_flags = 0;
 		file->pflags     = cfile->c_mode & 07777;
 		switch(cfile->c_mode & 0170000) {
 			case CPIO_MODE_SOCKET:
@@ -182,9 +200,7 @@ void initrd_mount(struct kfile *mntpoint, uintptr_t initrd, size_t __unused len)
 		file->mtime      = cfile->c_mtime;
 		file->ctime      = cfile->c_mtime;
 		
-		file->read      = &initrd_read;
-		file->write     = &initrd_write;
-		file->open      = &initrd_open;
+		file->ops       = &_file_ops;
 
 		file->info      = (void *)data;
 

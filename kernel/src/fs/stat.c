@@ -3,9 +3,8 @@
 
 #include <sys/stat.h>
 
-int kfstat(struct kfile *f, struct stat *buf) {
-    if(!f)   return -1;
-    if(!buf) return -1;
+int kfstat(kfile_hand_t *hand, struct stat *buf) {
+    if(!hand || !hand->file || !buf) return -1;
 
     /* These options currently unsupported */
     buf->st_dev     = 0;
@@ -18,21 +17,23 @@ int kfstat(struct kfile *f, struct stat *buf) {
     buf->st_blksize = 0;
     buf->st_blkcnt  = 0;
 
+    const kfile_t *f = hand->file;
+
     buf->st_uid = f->uid;
     buf->st_gid = f->gid;
     buf->st_ino = f->inode;
 
+    /* TOOD: kfile_t probably should not handle symlinks */
     /* Get length of target file: */
-    struct kfile *tmp = f;
-    while(tmp->flags & FS_SYMLINK) {
-        if(!tmp->link) {
+    while(f->flags & FS_SYMLINK) {
+        if(!f->link) {
             /* TODO: Open file to read symlink? */
         } else {
-            tmp = tmp->link;
+            f = f->link;
         }
     }
     
-    buf->st_size = tmp->length;
+    buf->st_size = f->length;
 
     return 0;
 }

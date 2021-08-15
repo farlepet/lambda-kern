@@ -6,7 +6,7 @@
 
 #include <string.h>
 
-struct kfile *kinput_dest = NULL;
+kfile_hand_t *kinput_dest = NULL;
 
 static char keytab_x86_a[2][256] =
 {

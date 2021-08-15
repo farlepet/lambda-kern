@@ -21,7 +21,7 @@ struct stat {
     blkcnt_t  st_blkcnt;
 };
 
-int kfstat(struct kfile *f, struct stat *buf);
+int kfstat(kfile_hand_t *f, struct stat *buf);
 
 int fstat(int fd, struct stat *buf);
 

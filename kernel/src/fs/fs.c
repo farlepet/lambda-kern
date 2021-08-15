@@ -4,13 +4,13 @@
 #include <string.h>
 #include <fs/fs.h>
 
-static struct kfile *kfiles;
+static kfile_t *kfiles;
 
-struct kfile *fs_root;
+kfile_t *fs_root;
 
 static uint32_t c_inode = 1;
 
-int fs_add_file(struct kfile *file, struct kfile *parent) {
+int fs_add_file(kfile_t *file, kfile_t *parent) {
 	//kerror(ERR_BOOTINFO, "  -> fs_add_file: %s, %d", file->name, file->length);
 	file->inode     = c_inode++;
 	file->file_lock = 0;
@@ -32,7 +32,7 @@ int fs_add_file(struct kfile *file, struct kfile *parent) {
 			file->next = file;
 			file->prev = file;
 		} else {
-			struct kfile *last  = parent->child->prev;
+			kfile_t *last  = parent->child->prev;
 			parent->child->prev = file;
 			last->next          = file;
 			file->prev          = last;
@@ -46,65 +46,72 @@ int fs_add_file(struct kfile *file, struct kfile *parent) {
 }
 EXPORT_FUNC(fs_add_file);
 
-uint32_t fs_read(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
-	/* If applicable, follow link to target file */
-	while(f && f->link) {
-		f = f->link;
+ssize_t fs_read(kfile_hand_t *hand, uint32_t off, uint32_t sz, void *buff) {
+	if(!SAFETY_CHECK(hand) ||
+	   !SAFETY_CHECK(hand->ops)) {
+		return 0;
 	}
 	
-	if(f && f->read) {
-		return f->read(f, off, sz, buff);
+	if(hand->ops->read) {
+		return hand->ops->read(hand, off, sz, buff);
 	}
 
 	return 0;
 }
 EXPORT_FUNC(fs_read);
 
-uint32_t fs_write(struct kfile *f, uint32_t off, uint32_t sz, uint8_t *buff) {
-	/* If applicable, follow link to target file */
-	while(f && f->link) {
-		f = f->link;
+ssize_t fs_write(kfile_hand_t *hand, uint32_t off, uint32_t sz, const void *buff) {
+	if(!SAFETY_CHECK(hand) ||
+	   !SAFETY_CHECK(hand->ops)) {
+		return 0;
 	}
 
-	if(f && f->write) {
-		return f->write(f, off, sz, buff);
+	if(hand->ops->write) {
+		return hand->ops->write(hand, off, sz, buff);
 	}
 
 	return 0;
 }
 EXPORT_FUNC(fs_write);
 
-void fs_open(struct kfile *f, uint32_t flags) {
-	if(f == NULL) return;
-
-	if(f->open) {
-		f->open(f, flags);
+int fs_open(kfile_t *f, kfile_hand_t *hand) {
+	if((f == NULL) ||
+	   (hand == NULL)) {
+	   return -1;
 	}
-	
-	else {
+
+	if(hand->open_flags & OFLAGS_OPEN) {
+		/* File is already open, or flags incorrectly set */
+		return -1;
+	}
+
+	if(f->ops->open) {
+		return f->ops->open(f, hand);
+	} else {
+		/* TODO: Check requested flags */
+		/* TODO: Keep track of active references in kfile_t */
 		lock(&f->file_lock);
-		if(f->open) return; // TODO: Notify the process that the file could not be opened
-		f->open_flags = flags | OFLAGS_OPEN;
+		hand->open_flags |= OFLAGS_OPEN;
 		unlock(&f->file_lock);
 	}
+
+	return 0;
 }
+EXPORT_FUNC(fs_open);
 
-void fs_close(struct kfile *f) {
-	if (f == NULL) return;
+int fs_close(kfile_hand_t *hand) {
+	if(hand == NULL) return -1;
 	
-	if(f->close) {
-		f->close(f);
+	if(SAFETY_CHECK(hand->ops) &&
+	   hand->ops->close) {
+		hand->ops->close(hand);
 	}
 
-	if(f->link) {
-		fs_close(f->link);
-	}
+	lock(&hand->lock);
+	hand->open_flags = 0;
+	unlock(&hand->lock);
 
-	else {
-		lock(&f->file_lock);
-		f->open = 0;
-		unlock(&f->file_lock);
-	}
+	return 0;
 }
 EXPORT_FUNC(fs_close);
 
@@ -132,9 +139,9 @@ struct dirent *fs_readdir(DIR *d) {
 }
 EXPORT_FUNC(fs_readdir);
 
-struct kfile *fs_finddir(struct kfile *f, const char *name) {
+kfile_t *fs_finddir(kfile_t *f, const char *name) {
 	if(f && f->child) {
-		struct kfile *file = f->child;
+		kfile_t *file = f->child;
 
 		do {
 			if(!strcmp((char *)file->name, name)) {
@@ -147,14 +154,14 @@ struct kfile *fs_finddir(struct kfile *f, const char *name) {
 }
 EXPORT_FUNC(fs_finddir);
 
-struct kfile *fs_dirfile(DIR *d) {
-	if(d == NULL) return NULL;
+kfile_t *fs_dirfile(DIR *d) {
+	if(!SAFETY_CHECK(d)) return NULL;
 
 	return d->prev;
 }
 
-DIR *fs_opendir(struct kfile *f) {
-	if(f == NULL) return NULL;
+DIR *fs_opendir(kfile_t *f) {
+	if(!SAFETY_CHECK(f)) return NULL;
 
 	DIR *stream = (DIR *)kmalloc(sizeof(DIR));
 
@@ -165,33 +172,39 @@ DIR *fs_opendir(struct kfile *f) {
 	return stream;
 }
 
-int fs_mkdir(struct kfile *f, char *name, uint32_t perms)
+int fs_mkdir(kfile_t *f, const char *name, uint32_t perms)
 {
 	// TODO: Check name
 
-	if(f && f->mkdir) {
-		return f->mkdir(f, name, perms);
+	if(SAFETY_CHECK(f)      &&
+	   SAFETY_CHECK(f->ops) &&
+	   f->ops->mkdir) {
+		return f->ops->mkdir(f, name, perms);
 	}
 
 	return -1;
 }
 
-int fs_create(struct kfile *f, char *name, uint32_t perms)
+int fs_create(kfile_t *f, const char *name, uint32_t perms)
 {
 	// TODO: Check name
 
-	if(f && f->create){
-		return f->create(f, name, perms);
+	if(SAFETY_CHECK(f)      &&
+	   SAFETY_CHECK(f->ops) &&
+	   f->ops->create){
+		return f->ops->create(f, name, perms);
 	}
 
 	return -1;
 }
 EXPORT_FUNC(fs_create);
 
-int fs_ioctl(struct kfile *f, int req, void *args)
+int fs_ioctl(kfile_hand_t *hand, int req, void *args)
 {
-	if(f && f->ioctl) {
-		return f->ioctl(f, req, args);
+	if(SAFETY_CHECK(hand)      &&
+	   SAFETY_CHECK(hand->ops) &&
+	   hand->ops->ioctl) {
+		return hand->ops->ioctl(hand, req, args);
 	}
 
 	return -1;
@@ -199,7 +212,7 @@ int fs_ioctl(struct kfile *f, int req, void *args)
 EXPORT_FUNC(fs_ioctl);
 
 
-struct kfile *fs_find_file(struct kfile *f, const char *path) {
+kfile_t *fs_find_file(kfile_t *f, const char *path) {
 	if(f == NULL)    return NULL;
 	if(path == NULL) return NULL;
 	if(*path == 0)   return NULL; // No path given
@@ -258,16 +271,53 @@ struct kfile *fs_find_file(struct kfile *f, const char *path) {
 }
 
 
+kfile_hand_t *fs_handle_create(void) {
+	kfile_hand_t *ret = (kfile_hand_t *)kmalloc(sizeof(kfile_hand_t));
+	if(!ret) {
+		return NULL;
+	}
+	memset(ret, 0, sizeof(kfile_hand_t));
+	return ret;
+}
+
+int fs_handle_destroy(kfile_hand_t *hand) {
+	if(!hand) {
+		return -1;
+	}
+	kfree(hand);
+	return 0;
+}
+
+kfile_hand_t *fs_handle_create_open(kfile_t *f, uint32_t flags) {
+	if(!f) {
+		return NULL;
+	}
+	
+	kfile_hand_t *hand = fs_handle_create();
+	if(!hand) {
+		return NULL;
+	}
+	
+	hand->open_flags = flags;
+	if(fs_open(f, hand)) {
+		fs_handle_destroy(hand);
+		return NULL;
+	}
+
+	return hand;
+}
+
+
 
 void fs_init()
 {
-	fs_root = (struct kfile *)kmalloc(sizeof(struct kfile));
+	fs_root = (kfile_t *)kmalloc(sizeof(kfile_t));
 	if(!fs_root) {
     	kerror(ERR_LGERR, "fs_init(): Failed to allocade memory for root!");
 		return;
 	}
 
-	memset(fs_root, 0, sizeof(struct kfile));
+	memset(fs_root, 0, sizeof(kfile_t));
 
 	time_t time = 0; // TODO: Find actual time
 
@@ -278,7 +328,6 @@ void fs_init()
 	fs_root->uid        = 0;
 	fs_root->gid        = 0;
 	fs_root->link       = NULL;
-	fs_root->open_flags = 0;
 	fs_root->pflags     = PERMISSIONS(PERM_RWE, PERM_RE, PERM_RE); // rwxr-xr-x
 	fs_root->flags      = FS_DIR;
 	fs_root->atime      = time;
