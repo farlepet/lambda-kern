@@ -21,7 +21,7 @@ static void elf_read_phdr(const Elf32_Ehdr *elf, struct kproc_mem_map_ent **mmap
 	elf_data->dynamic = NULL;
 
 	for(size_t i = 0; i < elf->e_phnum; i++) {
-		kdebug(DEBUGSRC_EXEC, "phdr[%2X/%2X] T:%X VADDR: %08X MSZ:%08X FSZ:%08X", i+1, elf->e_phnum, prog[i].p_type, prog[i].p_vaddr, prog[i].p_memsz, prog[i].p_filesz);
+		/*kdebug(DEBUGSRC_EXEC, "phdr[%2X/%2X] T:%X VADDR: %08X MSZ:%08X FSZ:%08X", i+1, elf->e_phnum, prog[i].p_type, prog[i].p_vaddr, prog[i].p_memsz, prog[i].p_filesz);*/
 		switch(prog[i].p_type) {
 			case PT_LOAD: {
 				/* TODO: Read entire header first, so we can avoid issues with

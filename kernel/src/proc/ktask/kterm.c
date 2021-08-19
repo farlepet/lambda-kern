@@ -248,7 +248,6 @@ static int kterm_run(int argc, char **argv) {
 		return 1;
 	}
 	
-	/* TODO: Process should have separare handle than the kernel */
 	kfile_hand_t *stdout_kterm = fs_handle_create_open(stdout, OFLAGS_READ);
 	kfile_hand_t *stderr_kterm = fs_handle_create_open(stderr, OFLAGS_READ);
 	kfile_hand_t *stdin_user   = fs_handle_create_open(_stdin, OFLAGS_READ);

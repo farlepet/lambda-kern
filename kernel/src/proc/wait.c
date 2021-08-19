@@ -12,8 +12,7 @@
 static inline int find_dead_child(struct kproc *parent) {
     for(int idx = 0; idx < MAX_CHILDREN; idx++) {
         if(parent->children[idx]) {
-            if(parent->children[idx]->type & TYPE_VALID &&  // Is this a valid process entry?
-               parent->children[idx]->type & TYPE_ZOMBIE) { // Is this process dead?
+            if(parent->children[idx]->type & TYPE_ZOMBIE) { // Is this process dead?
                 return idx;
             }
         }

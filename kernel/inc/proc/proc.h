@@ -22,7 +22,6 @@ typedef struct kproc   kproc_t;
 #define TYPE_ZOMBIE   0x00000002 //!< Has this task been killed?
 #define TYPE_REAP     0x00000004 //!< Should this task be reaped?
 #define TYPE_KERNEL   0x40000000 //!< Does this process run in kernel land?
-#define TYPE_VALID    0x80000000 //!< Is this a valid process? Can it be overwritten?
 
 #define BLOCK_DELAY       0x00000001 //!< Process is blocked waiting for a delay
 #define BLOCK_MESSAGE     0x00000002 //!< Process is blocked waiting for a message
@@ -75,8 +74,8 @@ typedef struct proc_elf_data {
 struct kthread {
 	char              name[64];   /** Name of thread */
 	uint32_t          tid;        /** Thread ID */
-#define KTHREAD_FLAG_VALID   0x80000000 /** Thread contents is valid */
-#define KTHREAD_FLAG_RANONCE 0x00000001 /** Thread has ran at least once */
+#define KTHREAD_FLAG_RUNNABLE 0x80000000 /** Thread contents is valid */
+#define KTHREAD_FLAG_RANONCE  0x00000001 /** Thread has ran at least once */
 	uint32_t          flags;      /** Thread flags */
 	int               prio;       /** Thread priority */
 

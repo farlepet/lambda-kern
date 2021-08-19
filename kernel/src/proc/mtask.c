@@ -174,7 +174,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 		proc->parent = curr_proc->pid;
 	}
 
-	proc->type = TYPE_RUNNABLE | TYPE_VALID;
+	proc->type = TYPE_RUNNABLE;
 
 	if(kernel) proc->type |= TYPE_KERNEL;
 
@@ -191,7 +191,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 	kdebug(DEBUGSRC_PROC, "PID: %d EIP: %08X CR3: %08X ESP: %08X", proc->pid, thread->arch.eip, proc->arch.cr3, thread->arch.esp);
 #endif
 
-	thread->flags |= KTHREAD_FLAG_VALID | KTHREAD_FLAG_RANONCE;
+	thread->flags |= KTHREAD_FLAG_RUNNABLE | KTHREAD_FLAG_RANONCE;
 	
 	mtask_insert_proc(proc);
 

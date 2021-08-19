@@ -86,10 +86,7 @@ __hot void sched_next_process()
 
 	/* @todo The present implementation is somewhat ineffecient. */
 	do {
-
-	    /*if(thread->flags & KTHREAD_FLAG_VALID) {
-            kdebug(DEBUGSRC_PROC, " TID: %d | BLK: %08X | PROC: %s", thread->tid, thread->blocked, thread->name);
-		}*/
+		/*kdebug(DEBUGSRC_PROC, " TID: %d | BLK: %08X | PROC: %s", thread->tid, thread->blocked, thread->name);*/
 
 		if(!llist_iterate(&t_iter, (void **)&thread)) {
 			if((proc->list_item.next       == NULL) ||
@@ -110,8 +107,8 @@ __hot void sched_next_process()
 				kpanic("Process contains no threads!");
 			}
 		}
-	} while(!(proc->type & TYPE_RUNNABLE)         ||
-	        !(thread->flags & KTHREAD_FLAG_VALID) ||
+	} while(!(proc->type    & TYPE_RUNNABLE)         ||
+	        !(thread->flags & KTHREAD_FLAG_RUNNABLE) ||
 			thread->blocked);
 
 	curr_proc   = proc;

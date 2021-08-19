@@ -37,7 +37,7 @@ int kthread_create(void *entrypoint, void *data, const char *name, size_t stack_
     
     arch_setup_thread(thread, entrypoint, stack_size, data);
 
-    thread->flags      = KTHREAD_FLAG_VALID | KTHREAD_FLAG_RANONCE;
+    thread->flags      = KTHREAD_FLAG_RUNNABLE | KTHREAD_FLAG_RANONCE;
     
     return thread->tid;
 }

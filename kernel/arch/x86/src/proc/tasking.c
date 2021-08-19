@@ -151,8 +151,12 @@ __hot void do_task_switch(void) {
 	}
 	else curr_thread->flags |= KTHREAD_FLAG_RANONCE;
 
+    /*kdebug(DEBUGSRC_PROC, "-TID: %d | PC: %08X | SP: %08X | BLK: %08X | TYPE: %08X | FLAG: %08X | NAME: %s", curr_thread->tid, curr_thread->arch.eip, curr_thread->arch.esp, curr_thread->blocked, curr_proc->type, curr_thread->flags, curr_thread->name);*/
+	
 	// Switch to next process here...
 	sched_next_process();
+    
+    /*kdebug(DEBUGSRC_PROC, "+TID: %d | PC: %08X | SP: %08X | BLK: %08X | TYPE: %08X | FLAG: %08X | NAME: %s", curr_thread->tid, curr_thread->arch.eip, curr_thread->arch.esp, curr_thread->blocked, curr_proc->type, curr_thread->flags, curr_thread->name);*/
 
 	if (!curr_thread->arch.kernel_stack) {	
 		kpanic("do_task_switch: No kernel stack set for thread!");

@@ -218,6 +218,7 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     thread->process    = curr_proc;
     thread->entrypoint = (uint32_t)entryp;
     thread->prio       = old_thread->prio;
+    thread->tid        = old_thread->tid;
 
     curr_proc->cwd = tmp_proc.cwd;
     memcpy(curr_proc->open_files, tmp_proc.open_files, sizeof(curr_proc->open_files));
@@ -305,6 +306,8 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     STACK_PUSH(thread->arch.esp, argc);    
 
     kdebug(DEBUGSRC_EXEC, "exec_replace_process_image(): Jumping into process");
+
+    thread->flags |= KTHREAD_FLAG_RUNNABLE;
 
     enter_ring_newstack(curr_proc->arch.ring, entryp, (void *)thread->arch.esp);
 #else

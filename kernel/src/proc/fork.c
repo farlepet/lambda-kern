@@ -129,7 +129,6 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
     child->uid  = parent->uid;
     child->gid  = parent->gid;
 
-    child->type = TYPE_VALID;
     if(kernel) child->type |= TYPE_KERNEL;
     cthread->flags |= KTHREAD_FLAG_RANONCE;
 
@@ -166,7 +165,8 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
     
     memcpy(iret_stack,  pthread->arch.syscall_regs.iret,  sizeof(arch_iret_regs_t));
     memcpy(pusha_stack, pthread->arch.syscall_regs.pusha, sizeof(arch_pusha_regs_t));
-    
+
+#  if 0
     kdebug(DEBUGSRC_PROC, "IRET_STACK (%08X):", iret_stack);
     for(size_t i = 0; i < 5; i++) {
         kdebug(DEBUGSRC_PROC, "    %08X", ((uint32_t *)iret_stack)[i]);
@@ -175,6 +175,7 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
     for(size_t i = 0; i < 8; i++) {
         kdebug(DEBUGSRC_PROC, "    %08X", ((uint32_t *)pusha_stack)[i]);
     }
+#  endif
 
 
     uint32_t *syscall_args_virt = (uint32_t *)pusha_stack->ebx;
@@ -235,7 +236,7 @@ int fork(void) {
     proc_add_child(curr_proc, child);
 
     child->type |= TYPE_RUNNABLE;
-    cthread->flags |= KTHREAD_FLAG_VALID;
+    cthread->flags |= KTHREAD_FLAG_RUNNABLE;
 
     mtask_insert_proc(child);
 
