@@ -6,8 +6,8 @@
 #ifndef ARCH_X86_INIT_H
 #define ARCH_X86_INIT_H
 
-#include <multiboot.h>
+#include <arch/boot/multiboot.h>
 
-void arch_init(struct multiboot_header *mboot_head);
+void arch_init(mboot_t *mboot_head);
 
 #endif

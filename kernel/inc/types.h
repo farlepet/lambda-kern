@@ -49,6 +49,7 @@ typedef unsigned long long int max_ptr_t; //!< Maximum pointer size that can be 
 #define __alias(N)       __attribute__((__weak__, __alias__(#N))) //!< Create an alias to another object
 #define __section(S)     __attribute__((__section__(#S)))         //!< Sets the section of the data
 #define __unused         __attribute__((__unused__))              //!< This is unused data
+#define __used           __attribute__((__used__))                //!< Mark data/function as used
 #define __cold           __attribute__((__cold__))                //!< This data isn't used much
 #define __hot            __attribute__((__hot__))                 //!< This data is used often
 

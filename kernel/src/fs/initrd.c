@@ -1,4 +1,3 @@
-#include <multiboot.h>
 #include <fs/initrd.h>
 #include <err/error.h>
 #include <err/panic.h>

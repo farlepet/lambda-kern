@@ -2,6 +2,7 @@
 
 #include <proc/ktasks.h>
 #include <proc/thread.h>
+#include <main/main.h>
 #include <err/error.h>
 #include <err/panic.h>
 #include <time/time.h>

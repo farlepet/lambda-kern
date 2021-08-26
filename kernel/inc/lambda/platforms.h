@@ -2,7 +2,6 @@
 #define LAMBDA_PLATFORMS_H
 
 #define PLATFORM_ARCH_X86    (1)
-#define PLATFORM_ARCH_X86_64 (2)
 #define PLATFORM_ARCH_RISCV  (3)
 #define PLATFORM_ARCH_ARMV7  (4)
 

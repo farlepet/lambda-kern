@@ -9,8 +9,10 @@
 /* Color-code the output the kernel produces */
 #define KERNEL_COLORCODE 1
 
-
 /* Embed initrd into kernel */
 #define FEATURE_INITRD_EMBEDDED 1
+
+/* Enable Multiboot 1/2 */
+#define FEATURE_MULTIBOOT 2
 
 #endif

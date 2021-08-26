@@ -2,7 +2,6 @@
 #include <arch/mm/paging.h>
 #include <arch/mm/mem.h>
 
-#include <multiboot.h>
 #include <err/error.h>
 #include <err/panic.h>
 #include <mm/alloc.h>
@@ -272,8 +271,6 @@ static void disable_global_pages() {
 	cr4 &= ~(1UL << 7);
 	asm volatile("mov %0, %%cr4":: "b"(cr4));
 }
-
-extern struct multiboot_module_tag *initrd;
 
 void paging_init(uint32_t som, uint32_t eom) {
 	if(som % PAGE_SZ) {

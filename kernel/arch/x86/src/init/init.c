@@ -22,12 +22,12 @@
 
 
 static void interrupts_init(void);
-static void mm_init(struct multiboot_header *mboot_head);
+static void mm_init(const mboot_t *);
 
 /* TODO: Move this elsewhere, or dynamically allocate */
 hal_io_char_dev_t serial1;
 
-void arch_init(struct multiboot_header *mboot_head) {
+void arch_init(mboot_t *mboot_head) {
     vga_clear();
     disable_interrupts();
 	
@@ -70,52 +70,31 @@ static void interrupts_init(void) {
 
 }
 
-static ptr_t mods_begin = 0xFFFFFFFF;
-static ptr_t mods_end   = 0x00000000;
-
-static void _mm_locate_modules(struct multiboot_header *mboot_head) {
-	struct mboot_module *mod = (struct mboot_module *)mboot_head->mod_addr;
-	uint32_t modcnt = mboot_head->mod_count;
-
-	uint32_t i = 0;
-	while(i < modcnt) {
-		ptr_t mod_start = mod->mod_start;
-		ptr_t mod_end   = mod->mod_end;
-
-		kerror(ERR_BOOTINFO, "_mm_locate_modules: multiboot module: %08X->%08X", mod_start, mod_end);
-
-		if(mod_start < mods_begin) mods_begin = mod_start;
-		if(mod_end   > mods_end)   mods_end   = mod_end;
-		i++;
-		mod++;
-	}
-
-	if(mods_end == 0x00000000) {
-		/* Modules take up 0 memory. */
-		mods_end = 0xFFFFFFFF;
-	} else {
-		kerror(ERR_BOOTINFO, "_mm_locate_modules: Address space used by mulitboot modules: %08X->%08X", mods_begin, mods_end);
-	}
-
-	if(mods_end == 0) mods_end = FRAMES_START;
-}
+static uintptr_t mods_begin = UINTPTR_MAX;
+static uintptr_t mods_end   = 0;
 
 /**
  * \brief Initializes memory management.
  * Initializes memory management for the target archetecture.
- * @param mboot_tag the multiboot header location
+ * @param head the multiboot header location
  */
-static void mm_init(struct multiboot_header *mboot_head) {
+static void mm_init(const mboot_t *head) {
 	kerror(ERR_BOOTINFO, "Initializing memory management");
 
-	if(!mboot_head)
+	if(!head)
 		kpanic("Multiboot header pointer is NULL!");
-	if(!(mboot_head->flags & MBOOT_MEMINFO))
-		kpanic("Multiboot header entries mem_* are not available!");
 
-	_mm_locate_modules(mboot_head);
+	multiboot_locate_modules(head, &mods_begin, &mods_end);
+	size_t upper_mem = multiboot_get_upper_memory(head);
+	if(upper_mem == 0) {
+		kpanic("Could not get amount of upper mem from multiboot!");
+	}
+	if(mods_end > 0x100000) {
+		upper_mem -= (mods_end - 0x100000);
+	}
+
 	kerror(ERR_BOOTINFO, "  -> Paging");
-	paging_init(mods_end, mboot_head->mem_upper * 1024); // memory in mem_tag is in KiB
+	paging_init(mods_end, upper_mem);
 
 	kerror(ERR_BOOTINFO, "Memory management enabled");
 }

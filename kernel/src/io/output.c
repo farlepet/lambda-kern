@@ -2,7 +2,6 @@
 #include <video.h>
 #include <string.h>
 #include <mm/mm.h>
-#include <multiboot.h>
 #include <proc/atomic.h>
 
 #if 0

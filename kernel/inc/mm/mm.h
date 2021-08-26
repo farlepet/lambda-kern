@@ -3,7 +3,6 @@
 
 #include <types.h>
 #include <stdint.h>
-#include <multiboot.h>
 #include <proc/proc.h>
 
 /**

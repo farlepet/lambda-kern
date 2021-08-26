@@ -6,7 +6,7 @@
 #include <proc/exec.h>
 #include <proc/elf.h>
 #include <mm/alloc.h>
-#include <multiboot.h>
+#include <main/main.h>
 #include <err/panic.h>
 #include <err/error.h>
 #include <time/time.h>
@@ -18,11 +18,22 @@
 
 #include <sys/stat.h>
 #include <string.h>
-// Architecture-specific initialization:
-#include <arch/init/init.h>
+
+volatile boot_options_t boot_options = {
+	.init_ramdisk_name = "",
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
+	.init_executable   = "/bin/linit",
+#else
+	/* TODO: FS not fully implemented on other platforms. */
+	.init_executable   = "",
+#endif
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
+	.output_serial     = 0,
+#endif
+};
+
 
 __noreturn void kernel_task(void);
-__noreturn int kmain(struct multiboot_header *, uint32_t);
 
 __noreturn static void iloop() {
 	kerror(ERR_BOOTINFO, "iloop()");
@@ -35,27 +46,10 @@ __noreturn static void iloop() {
  * @param mboot_head pointer to multiboot structure
  * @param magic magic number telling us this is a multiboot-compliant bootloader
  */
-__noreturn int kmain(struct multiboot_header *mboot_head, uint32_t magic) {
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	if(magic != 0x2BADB002)
-		kpanic("Invalid magic number given by the bootloader: 0x%08X", magic);
-	
-	check_commandline(mboot_head);
-#else
-	(void)magic;
-#endif
-
-	// Architecture-specific initialization:
-	arch_init(mboot_head);
-
+__noreturn void kmain(void) {
 	kerror(ERR_BOOTINFO, "------------------------------");
 	kerror(ERR_BOOTINFO, "Kernel version: "LAMBDA_VERSION_STR_FULL);
 	kerror(ERR_BOOTINFO, "------------------------------");
-	
-	fs_init();
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	check_multiboot_modules(mboot_head);
-#endif
 
 #if (FEATURE_INITRD_EMBEDDED)
 	kerror(ERR_BOOTINFO, "Embedded initrd: %08X-%08X", &_binary_initrd_cpio_start, &_binary_initrd_cpio_end);
@@ -67,8 +61,6 @@ __noreturn int kmain(struct multiboot_header *mboot_head, uint32_t magic) {
 	init_syscalls();
 
 	enable_interrupts();
-
-	//asm volatile("swi #1");
 
 	init_multitasking(&kernel_task, "kern");
 
