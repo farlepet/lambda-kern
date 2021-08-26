@@ -159,8 +159,8 @@ static int get_dec(const char *str, ptr_t *out) {
 static int print(char *out, const char *format, __builtin_va_list varg) {
 	uint8_t is_in_spec = 0;
 	int8_t  size = 0;      // Size of the integer
-	uint8_t width = 0;     // Width of the number at minimum
-	uint8_t precision = 0; // Precision
+	uint32_t width = 0;     // Width of the number at minimum
+	uint32_t precision = 0; // Precision
 	uint8_t showsign = 0;  // Show the sign on positive numbers
 	uint8_t signspace = 0; // Place a space before positive numbers
 	uint8_t leftalign = 0; // Align to the left
@@ -284,18 +284,19 @@ static int print(char *out, const char *format, __builtin_va_list varg) {
 					  ZERO_ALL_VID();
 					  break;
 					 
-			case 's': if(size > 0) {
+			case 's': if(!precision) precision = UINT_MAX;
+					  if(size > 0) {
 						  temp = (ptr_t)va_arg(varg, int16_t *);
 						  if(temp == 0) { temp = (ptr_t)L"(null)"; }
 						  else if(!mm_check_addr((void *)temp)) { temp = (ptr_t)L"(badaddr)"; }
 						  nchars += wcslen((int16_t *)temp);
-						  while(*(int16_t *)temp) *out++ = (char)*(int16_t *)temp++;
+						  while(*(int16_t *)temp && precision--) *out++ = (char)*(int16_t *)temp++;
 					  } else {
 						  temp = (ptr_t)va_arg(varg, char *);
 						  if(temp == 0) { temp = (ptr_t)"(null)"; }
 						  else if(!mm_check_addr((void *)temp)) { temp = (ptr_t)"(badaddr)"; }
 						  nchars += strlen((char *)temp);
-						  while(*(char *)temp) *out++ = *(char *)temp++;
+						  while(*(char *)temp && precision--) *out++ = *(char *)temp++;
 					  }
 					  ZERO_ALL_VID();
 					  break;
