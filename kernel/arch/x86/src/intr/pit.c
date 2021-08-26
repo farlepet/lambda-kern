@@ -74,7 +74,7 @@ void pit_init(uint32_t freq)
 	outb(0x43, 0x34);
 	outb(0x40, (uint8_t)reload);
 	outb(0x40, (uint8_t)(reload >> 8));
-	set_interrupt(INT_TIMER, &pit_int);
+	set_interrupt(INTR_TIMER, &pit_int);
 	enable_irq(0);
 }
 

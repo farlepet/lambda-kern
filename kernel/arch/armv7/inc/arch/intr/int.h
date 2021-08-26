@@ -15,15 +15,15 @@
 #define disable_fiqs() asm volatile("cpsid f")
 
 typedef enum {
-    INT_RESET         = 0,
-    INT_UNDEFINED     = 1,
-    INT_SYSCALL       = 2,
-    INT_PREFETCHABORT = 3,
-    INT_DATAABORT     = 4,
-    INT_HYPTRAP       = 5,
-    INT_IRQ           = 6,
-    INT_FIQ           = 7,
-    INT_MAX           = 8
+    INTR_RESET         = 0,
+    INTR_UNDEFINED     = 1,
+    INTR_SYSCALL       = 2,
+    INTR_PREFETCHABORT = 3,
+    INTR_DATAABORT     = 4,
+    INTR_HYPTRAP       = 5,
+    INTR_IRQ           = 6,
+    INTR_FIQ           = 7,
+    INTR_MAX           = 8
 } interrupt_idx_e;
 
 

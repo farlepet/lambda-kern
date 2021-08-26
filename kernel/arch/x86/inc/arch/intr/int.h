@@ -12,23 +12,23 @@
 #define __INTERRUPT(int_n) asm volatile("int $" #int_n)
 
 typedef enum {
-    INT_TIMER        = 32,
-    INT_KEYBOARD     = 33,
-    INT_SERIALA      = 35,
-    INT_SERIALB      = 36,
-    INT_PARALLELB    = 37,
-    INT_FLOPPY       = 38,
-    INT_PARALLELA    = 39,
-    INT_RTC          = 40,
-    INT_IRQ9         = 41,
-    INT_IRQ10        = 42,
-    INT_IRQ11        = 43,
-    INT_PS2          = 44,
-    INT_COPROCESSOR  = 45,
-    INT_ATAPRIMARY   = 46,
-    INT_ATASECONDARY = 47,
-    INT_SCHED        = 64,
-    INT_SYSCALL      = 255
+    INTR_TIMER        = 32,
+    INTR_KEYBOARD     = 33,
+    INTR_SERIALA      = 35,
+    INTR_SERIALB      = 36,
+    INTR_PARALLELB    = 37,
+    INTR_FLOPPY       = 38,
+    INTR_PARALLELA    = 39,
+    INTR_RTC          = 40,
+    INTR_IRQ9         = 41,
+    INTR_IRQ10        = 42,
+    INTR_IRQ11        = 43,
+    INTR_PS2          = 44,
+    INTR_COPROCESSOR  = 45,
+    INTR_ATAPRIMARY   = 46,
+    INTR_ATASECONDARY = 47,
+    INTR_SCHED        = 64,
+    INTR_SYSCALL      = 255
 } interrupt_idx_e;
 
 /**

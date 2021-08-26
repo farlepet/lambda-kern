@@ -17,7 +17,7 @@ hal_io_char_dev_t   uart;
 armv7_gic_handle_t gic;
 hal_intctlr_dev_t  intctlr;
 
-void arch_init(struct multiboot_header __unused *mboot_head) {
+void arch_init(void) {
     disable_interrupts();
     disable_fiqs();
 

@@ -96,9 +96,9 @@ extern void syscall_int();
 void init_syscalls()
 {
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	set_idt(INT_SYSCALL, 0x08, IDT_ATTR(1, 3, 0, int32), &syscall_int);
+	set_idt(INTR_SYSCALL, 0x08, IDT_ATTR(1, 3, 0, int32), &syscall_int);
 #elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARMV7)
-	set_interrupt(INT_SYSCALL, &syscall_int);
+	set_interrupt(INTR_SYSCALL, &syscall_int);
 #endif
 }
 

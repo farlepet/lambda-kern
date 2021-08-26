@@ -19,7 +19,7 @@ __int_table:
     b __int_wrap_irq
     b __int_wrap_fiq
 
-.extern kmain
+.extern kentry
 .extern new_stack_end
 .extern irq_stack_end
 .extern fiq_stack_end
@@ -39,7 +39,7 @@ reset:
 
     /*ldr r0, =new_stack_end
     mov sp, r0*/
-    bl kmain
+    bl kentry
 
 endloop:
     wfi

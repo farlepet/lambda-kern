@@ -52,8 +52,8 @@ void serial_init(uint16_t port)
 	outb(port + 4, 0x0B);
 	outb(port + 1, 0x01);
 
-	set_interrupt(INT_SERIALA, &serial_interrupt);
-	set_interrupt(INT_SERIALB, &serial_interrupt);
+	set_interrupt(INTR_SERIALA, &serial_interrupt);
+	set_interrupt(INTR_SERIALB, &serial_interrupt);
 	enable_irq(4);
 	enable_irq(3);
 

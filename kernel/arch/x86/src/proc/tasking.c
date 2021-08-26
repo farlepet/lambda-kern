@@ -19,7 +19,7 @@ extern void sched_run(void);
 extern void *get_eip();      //!< Get the EIP value of the instruction after the call to this function
 
 void arch_multitasking_init(void) {
-	set_interrupt(INT_SCHED, sched_run);
+	set_interrupt(INTR_SCHED, sched_run);
 }
 
 uintptr_t arch_proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel) {
