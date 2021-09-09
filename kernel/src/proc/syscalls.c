@@ -16,6 +16,12 @@
 #include <proc/exec.h>
 #include <fs/procfs.h>
 
+#if 0
+#  define syscall_debug(...) kdebug(__VA_ARGS__)
+#else
+#  define syscall_debug(...)
+#endif
+
 typedef struct {
 	func0_t  func;   /** Pointer to function */
 	int      nargs;  /** Number of arguments */
@@ -46,8 +52,10 @@ syscall_desc_t syscalls[] = {
 };
 
 int service_syscall(uint32_t scn, syscallarg_t *args) {
-	kdebug(DEBUGSRC_SYSCALL, "Syscall %d called with args at %08X", scn, args);
-	if(scn >= ARRAY_SZ(syscalls)) {
+	syscall_debug(DEBUGSRC_SYSCALL, "Syscall %d called with args at %08X", scn, args);
+	if((scn >= ARRAY_SZ(syscalls)) ||
+	   !syscalls[scn].func) {
+		kproc_t *curr_proc = mtask_get_current_task();
 		kerror(ERR_MEDERR, "Process %d (%s) has tried to call an invalid syscall: %u Args: %08X", curr_proc->pid, curr_proc->name, scn, args);
 		return -1;
 	}
@@ -63,22 +71,22 @@ int service_syscall(uint32_t scn, syscallarg_t *args) {
 			break;
 
 		case 1:
-			kdebug(DEBUGSRC_SYSCALL, "  -> ARGS: { %08X }", args[0]);
+			syscall_debug(DEBUGSRC_SYSCALL, "  -> ARGS: { %08X }", args[0]);
 			args[0] = (syscallarg_t)((func1_t)func(args[0]));
 			break;
 
 		case 2:
-			kdebug(DEBUGSRC_SYSCALL, "  -> ARGS: { %08X %08X }", args[0], args[1]);
+			syscall_debug(DEBUGSRC_SYSCALL, "  -> ARGS: { %08X %08X }", args[0], args[1]);
 			args[0] = (syscallarg_t)((func2_t)func(args[0], args[1]));
 			break;
 
 		case 3:
-			kdebug(DEBUGSRC_SYSCALL, "  -> ARGS: { %08X %08X %08X }", args[0], args[1], args[2]);
+			syscall_debug(DEBUGSRC_SYSCALL, "  -> ARGS: { %08X %08X %08X }", args[0], args[1], args[2]);
 			args[0] = (syscallarg_t)((func3_t)func(args[0], args[1], args[2]));
 			break;
 		
 		case 4:
-			kdebug(DEBUGSRC_SYSCALL, "  -> ARGS: { %08X %08X %08X %08X }", args[0], args[1], args[2], args[3]);
+			syscall_debug(DEBUGSRC_SYSCALL, "  -> ARGS: { %08X %08X %08X %08X }", args[0], args[1], args[2], args[3]);
 			args[0] = (syscallarg_t)((func4_t)func(args[0], args[1], args[2], args[3]));
 			break;
 
@@ -86,7 +94,7 @@ int service_syscall(uint32_t scn, syscallarg_t *args) {
 			kpanic("Syscall error (%d): %d arguments not handled! Kernel programming error!", scn, syscalls[scn].nargs);
 	}
 
-	kdebug(DEBUGSRC_SYSCALL, "  -> Retval [0] = %d", args[0]);
+	syscall_debug(DEBUGSRC_SYSCALL, "  -> Retval [0] = %d", args[0]);
 	
 	return 0;
 }

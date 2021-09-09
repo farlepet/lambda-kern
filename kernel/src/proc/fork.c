@@ -44,7 +44,7 @@ static int proc_copy_data(kthread_t *dest, const kthread_t *src) {
 
     while(pent != NULL) {
         if(pent->next != NULL) {
-            cent->next = cent + sizeof(struct kproc_mem_map_ent);
+            cent->next = cent + 1;
         }
 
         // Copy values that will be maintained:
@@ -120,7 +120,7 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
 	memset(child->children, 0xFF, sizeof(child->children));
 
     kthread_t *cthread = (kthread_t *)child->threads.list->data;
-    kthread_t *pthread = curr_thread;
+    kthread_t *pthread = sched_get_curr_thread(0);
 
     cthread->process = child;
     child->pid   = get_next_pid();
@@ -203,9 +203,11 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
 
 
 int fork(void) {
-    if(!curr_proc) {
+    kthread_t *thread = sched_get_curr_thread(0);
+    if(!thread) {
         kpanic("mtask:fork: Attempted to fork before multitasking enabled!!!");
     }
+    kproc_t *proc = thread->process;
 
     lock(&creat_task);
 	
@@ -225,20 +227,21 @@ int fork(void) {
     llist_init(&child->threads);
 	llist_append(&child->threads, &cthread->list_item);
 
-    fork_clone_process(child, curr_proc);
+    fork_clone_process(child, proc);
     
 
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
     kdebug(DEBUGSRC_PROC, " -- Child Stack: %08X %08X", cthread->arch.esp, cthread->arch.ebp);
 #endif
 
-    child->parent = curr_proc->pid;
-    proc_add_child(curr_proc, child);
+    child->parent = proc->pid;
+    proc_add_child(proc, child);
 
     child->type |= TYPE_RUNNABLE;
     cthread->flags |= KTHREAD_FLAG_RUNNABLE;
 
     mtask_insert_proc(child);
+    sched_enqueue_thread(cthread);
 
     unlock(&creat_task);
 

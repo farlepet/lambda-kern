@@ -63,12 +63,12 @@ CFLAGS += -Weverything -Wno-incompatible-library-redeclaration -Wno-reserved-id-
 		  -Wno-comma \
 		  -Wno-cast-qual \
 		  -Wno-pedantic \
-		  -Wno-shadow \
 		  -Wno-implicit-int-conversion \
 		  -Wno-atomic-implicit-seq-cst \
 		  -Wno-bad-function-cast \
 		  -Wno-cast-align \
-		  -Wno-c++-compat
+		  -Wno-c++-compat \
+		  -Wno-packed
 else
 # Temporary(?) fix for syscall function casting in GCC
 CFLAGS += -Wno-cast-function-type

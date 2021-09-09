@@ -22,10 +22,13 @@ static inline int find_dead_child(struct kproc *parent) {
 }
 
 int wait(int *stat_loc) {
-    int chidx        = 0;
-    int cpid         = 0;
-    int child_exists = 0;
-    struct kproc *child = NULL;
+    int      chidx        = 0;
+    int      cpid         = 0;
+    int      child_exists = 0;
+    kproc_t *child        = NULL;
+
+    kthread_t *curr_thread = sched_get_curr_thread(0);
+    kproc_t   *curr_proc   = curr_thread->process;
 
     // Check that the process has a child:
     for(int ch = 0; ch < MAX_CHILDREN; ch++) {

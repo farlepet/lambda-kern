@@ -49,6 +49,13 @@ static void clk_count() {
 }
 #endif
 
+__hot
+static void _task_switch_handler() {
+	/* TODO: Make this more effecient */
+	sched_processes();
+	do_task_switch();
+}
+
 /* TODO: Move HAL elsewhere */
 static hal_timer_dev_t timer;
 /**
@@ -60,7 +67,7 @@ void timer_init(uint32_t quantum) {
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 	pit_init(quantum);
 	pit_create_timerdev(&timer);
-	hal_timer_dev_attach(&timer, 0, do_task_switch);
+	hal_timer_dev_attach(&timer, 0, _task_switch_handler);
 #elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARMV7)
 	static timer_sp804_handle_t sp804;
 	extern hal_intctlr_dev_t intctlr; /* GIC */
@@ -70,7 +77,7 @@ void timer_init(uint32_t quantum) {
 	timer_sp804_create_timerdev(&sp804, &timer);
 	/* Task switch timer: */
 	hal_timer_dev_setfreq(&timer, 0, quantum);
-	hal_timer_dev_attach(&timer, 0, do_task_switch);
+	hal_timer_dev_attach(&timer, 0, _task_switch_handler);
 	/* Kernel time timer: */
 	hal_timer_dev_setfreq(&timer, 1, 100);
 	hal_timer_dev_attach(&timer, 1, clk_count);

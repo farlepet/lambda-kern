@@ -72,6 +72,9 @@ int arch_proc_create_kernel_stack(kthread_t *thread) {
 }
 
 void proc_jump_to_ring(void) {
+	kthread_t *curr_thread = sched_get_curr_thread(0);
+    kproc_t   *curr_proc   = curr_thread->process;
+	
 	if(curr_proc && curr_thread) {
 		if(curr_thread->entrypoint) {
 			enter_ring(curr_proc->arch.ring, (void *)curr_thread->entrypoint);
@@ -131,8 +134,11 @@ int arch_setup_task(kthread_t *thread, void *entrypoint, uint32_t stack_size, ar
 
 
 __hot void do_task_switch(void) {
-	if(!curr_proc || !curr_thread) return;
-	if(creat_task) return; // We don't want to interrupt process creation
+	kthread_t *thread = sched_get_curr_thread(0);
+	if(!thread) {
+		return;
+	}
+	kproc_t   *proc   = thread->process;
 
 	uint32_t esp, ebp, eip, cr3;
 	asm volatile ("mov %%esp, %0" : "=r" (esp));
@@ -144,29 +150,30 @@ __hot void do_task_switch(void) {
 		return;
 	}
 
-	if(curr_thread->flags & KTHREAD_FLAG_RANONCE) {
-		curr_thread->arch.esp = esp;
-		curr_thread->arch.ebp = ebp;
-		curr_thread->arch.eip = eip;
+	if(thread->flags & KTHREAD_FLAG_RANONCE) {
+		thread->arch.esp = esp;
+		thread->arch.ebp = ebp;
+		thread->arch.eip = eip;
 	}
-	else curr_thread->flags |= KTHREAD_FLAG_RANONCE;
+	else thread->flags |= KTHREAD_FLAG_RANONCE;
 
-    /*kdebug(DEBUGSRC_PROC, "-TID: %d | PC: %08X | SP: %08X | BLK: %08X | TYPE: %08X | FLAG: %08X | NAME: %s", curr_thread->tid, curr_thread->arch.eip, curr_thread->arch.esp, curr_thread->blocked, curr_proc->type, curr_thread->flags, curr_thread->name);*/
+    /*kdebug(DEBUGSRC_PROC, "-TID: %d | PC: %08X | SP: %08X | BLK: %08X | TYPE: %08X | FLAG: %08X | NAME: %s", thread->tid, thread->arch.eip, thread->arch.esp, thread->blocked, proc->type, thread->flags, thread->name);*/
 	
 	// Switch to next process here...
-	sched_next_process();
+	thread = sched_next_process(0);
+	proc   = thread->process;
     
-    /*kdebug(DEBUGSRC_PROC, "+TID: %d | PC: %08X | SP: %08X | BLK: %08X | TYPE: %08X | FLAG: %08X | NAME: %s", curr_thread->tid, curr_thread->arch.eip, curr_thread->arch.esp, curr_thread->blocked, curr_proc->type, curr_thread->flags, curr_thread->name);*/
+    /*kdebug(DEBUGSRC_PROC, "+TID: %d | PC: %08X | SP: %08X | BLK: %08X | TYPE: %08X | FLAG: %08X | NAME: %s", thread->tid, thread->arch.eip, thread->arch.esp, thread->blocked, proc->type, thread->flags, thread->name);*/
 
-	if (!curr_thread->arch.kernel_stack) {	
+	if (!thread->arch.kernel_stack) {	
 		kpanic("do_task_switch: No kernel stack set for thread!");
 	}
-	tss_set_kern_stack(curr_thread->arch.kernel_stack);
+	tss_set_kern_stack(thread->arch.kernel_stack);
 
-	esp = curr_thread->arch.esp;
-	ebp = curr_thread->arch.ebp;
-	eip = curr_thread->arch.eip;
-	cr3 = curr_proc->arch.cr3;
+	esp = thread->arch.esp;
+	ebp = thread->arch.ebp;
+	eip = thread->arch.eip;
+	cr3 = proc->arch.cr3;
 
 	asm volatile("mov %0, %%ebx\n"
 				 "mov %1, %%esp\n"

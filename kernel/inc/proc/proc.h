@@ -75,7 +75,8 @@ struct kthread {
 	char              name[64];   /** Name of thread */
 	uint32_t          tid;        /** Thread ID */
 #define KTHREAD_FLAG_RUNNABLE 0x80000000 /** Thread contents is valid */
-#define KTHREAD_FLAG_RANONCE  0x00000001 /** Thread has ran at least once */
+#define KTHREAD_FLAG_RUNNING  0x00000001 /** Thread is currently running */
+#define KTHREAD_FLAG_RANONCE  0x00000002 /** Thread has ran at least once */
 	uint32_t          flags;      /** Thread flags */
 	int               prio;       /** Thread priority */
 
@@ -87,6 +88,7 @@ struct kthread {
 	uint32_t          entrypoint; /** Program start */
 	
 	llist_item_t      list_item;
+	llist_item_t      sched_item;
 };
 
 /* TODO: Convert some static-size arrays in kproc to dynamically allocated memory. */
@@ -138,7 +140,7 @@ struct kproc { //!< Structure of a process as seen by the kernel
 int proc_add_file(struct kproc *proc, kfile_hand_t *hand);
 
 /**
- * @brief Add child index to parent
+ * \brief Add child index to parent
  * 
  * @param parent Pointer to parent process struct
  * @param child Pointer to child to add
@@ -148,19 +150,43 @@ int proc_add_file(struct kproc *proc, kfile_hand_t *hand);
 int proc_add_child(struct kproc *parent, struct kproc *child);
 
 /**
- * @brief Reschedule processes
+ * \brief Initialize scheduler
  * 
- * NOTE: This function currently does nothing!
+ * @param n_cpus Number of available CPUs
+ * @return 0 on success, else non-zero
+ */
+int sched_init(unsigned n_cpus);
+
+/**
+ * \brief Reschedule processes
+ *
+ * Assigns processes currently awaiting scheduling to a CPU
  */
 void sched_processes(void);
 
 /**
  * @brief Select next process to execute
  */
-void sched_next_process(void);
+kthread_t *sched_next_process(unsigned cpu);
 
 /**
- * @brief Add memory map record to process
+ * \brief Add thread to scheduling queue
+ * 
+ * @param thread Thread to add to queue
+ * @return 0 on success, else failure
+ */
+int sched_enqueue_thread(kthread_t *thread);
+
+/**
+ * \brief Get currently active thread on the requested CPU
+ * 
+ * @param cpu CPU to get actuve thread of
+ * @return NULL on error, else pointer to active thread on CPU
+ */
+kthread_t *sched_get_curr_thread(unsigned cpu);
+
+/**
+ * \brief Add memory map record to process
  * 
  * @param proc Process to add record to
  * @param virt_address Virtual address memory is mapped to
@@ -171,7 +197,7 @@ void sched_next_process(void);
 int proc_add_mmap_ent(struct kproc *proc, uintptr_t virt_address, uintptr_t phys_address, size_t length);
 
 /**
- * @brief Add multiple memory map records to a process
+ * \brief Add multiple memory map records to a process
  * 
  * @param entries Linked-list of memory map entries to add.
  * @return int 0 on success

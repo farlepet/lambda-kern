@@ -8,10 +8,12 @@
 
 uint32_t proc_fs_read(int desc, uint32_t off, uint32_t sz, uint8_t *buff) {
     if(desc > MAX_OPEN_FILES) return 0;
-    if(!curr_proc)            return 0;
+
+    kthread_t *thread = sched_get_curr_thread(0);
+    if(!thread) return 0;
     
-    if(curr_proc->open_files[desc]) {
-        return fs_read(curr_proc->open_files[desc], off, sz, buff);
+    if(thread->process->open_files[desc]) {
+        return fs_read(thread->process->open_files[desc], off, sz, buff);
     }
 
     return 0;
@@ -19,9 +21,11 @@ uint32_t proc_fs_read(int desc, uint32_t off, uint32_t sz, uint8_t *buff) {
 
 uint32_t proc_fs_read_blk(int desc, uint32_t off, uint32_t sz, uint8_t *buff) {
     if(desc > MAX_OPEN_FILES) return 0;
-    if(!curr_proc)            return 0;
+    
+    kthread_t *thread = sched_get_curr_thread(0);
+    if(!thread) return 0;
 
-    kfile_hand_t *file = curr_proc->open_files[desc];
+    kfile_hand_t *file = thread->process->open_files[desc];
 
     if(file) {
         if(file->file && (file->file->flags & FS_STREAM) &&
@@ -37,9 +41,9 @@ uint32_t proc_fs_read_blk(int desc, uint32_t off, uint32_t sz, uint8_t *buff) {
             }
             return count;
         } else {
-            off = curr_proc->file_position[desc];
+            off = thread->process->file_position[desc];
             uint32_t n = fs_read(file, off, sz, buff);
-            curr_proc->file_position[desc] += n;
+            thread->process->file_position[desc] += n;
             return n;
         }
     }
@@ -49,10 +53,12 @@ uint32_t proc_fs_read_blk(int desc, uint32_t off, uint32_t sz, uint8_t *buff) {
 
 uint32_t proc_fs_write(int desc, uint32_t off, uint32_t sz, uint8_t *buff) {
     if(desc > MAX_OPEN_FILES) return 0;
-    if(!curr_proc)            return 0;
+    
+    kthread_t *thread = sched_get_curr_thread(0);
+    if(!thread) return -1;
 
-    if(curr_proc->open_files[desc]) {
-        return fs_write(curr_proc->open_files[desc], off, sz, buff);
+    if(thread->process->open_files[desc]) {
+        return fs_write(thread->process->open_files[desc], off, sz, buff);
     }
 
     return 0;
@@ -69,14 +75,15 @@ int _open_check_flags(struct kfile *file, uint32_t flags) {
 }
 
 int proc_fs_open(const char *name, uint32_t flags) {
-    if(!curr_proc)            return 0;
+    kthread_t *thread = sched_get_curr_thread(0);
+    if(!thread) return -1;
 
-    if(curr_proc->cwd) {
+    if(thread->process->cwd) {
         char tmp[256];
         // TODO: Check for name length!
         memcpy(tmp, name, strlen(name)+1);
         //struct kfile *file = fs_finddir(proc->cwd, name);
-        struct kfile *file = fs_find_file(curr_proc->cwd, tmp);
+        struct kfile *file = fs_find_file(thread->process->cwd, tmp);
         if(file) {
             // TODO: Check if file is open!!!
             // TODO: Handle errors!
@@ -91,7 +98,7 @@ int proc_fs_open(const char *name, uint32_t flags) {
 
             fs_open(file, hand);
             // TODO: Handle errors!
-            int ret = proc_add_file(curr_proc, hand);
+            int ret = proc_add_file(thread->process, hand);
             if (ret) {
                 kfree(hand);
                 return ret;
@@ -106,11 +113,13 @@ int proc_fs_open(const char *name, uint32_t flags) {
 
 int proc_fs_close(int desc) {
     if(desc > MAX_OPEN_FILES) return -1;
-    if(!curr_proc)            return -1;
+    
+    kthread_t *thread = sched_get_curr_thread(0);
+    if(!thread) return -1;
 
-    if(curr_proc->open_files[desc]) {
-        fs_close(curr_proc->open_files[desc]);
-        curr_proc->open_files[desc] = NULL;
+    if(thread->process->open_files[desc]) {
+        fs_close(thread->process->open_files[desc]);
+        thread->process->open_files[desc] = NULL;
         return 0; // TODO: Error checking!
     }
 
@@ -119,10 +128,12 @@ int proc_fs_close(int desc) {
 
 int proc_fs_mkdir(int desc, char *name, uint32_t perms) {
     if(desc > MAX_OPEN_FILES) return -1;
-    if(!curr_proc)            return -1;
     
-    if(curr_proc->open_files[desc]) {
-        return fs_mkdir(curr_proc->open_files[desc]->file, name, perms);
+    kthread_t *thread = sched_get_curr_thread(0);
+    if(!thread) return -1;
+    
+    if(thread->process->open_files[desc]) {
+        return fs_mkdir(thread->process->open_files[desc]->file, name, perms);
     }
 
     return -1;
@@ -130,10 +141,12 @@ int proc_fs_mkdir(int desc, char *name, uint32_t perms) {
 
 int proc_fs_create(int desc, char *name, uint32_t perms) {
     if(desc > MAX_OPEN_FILES) return -1;
-    if(!curr_proc)            return -1;
     
-    if(curr_proc->open_files[desc]) {
-        return fs_create(curr_proc->open_files[desc]->file, name, perms);
+    kthread_t *thread = sched_get_curr_thread(0);
+    if(!thread) return -1;
+    
+    if(thread->process->open_files[desc]) {
+        return fs_create(thread->process->open_files[desc]->file, name, perms);
     }
 
     return -1;
@@ -141,10 +154,12 @@ int proc_fs_create(int desc, char *name, uint32_t perms) {
 
 int proc_fs_ioctl(int desc, int req, void *args) {
     if(desc > MAX_OPEN_FILES) return -1;
-    if(!curr_proc)            return -1;
     
-    if(curr_proc->open_files[desc]) {
-        return fs_ioctl(curr_proc->open_files[desc], req, args);
+    kthread_t *thread = sched_get_curr_thread(0);
+    if(!thread) return -1;
+    
+    if(thread->process->open_files[desc]) {
+        return fs_ioctl(thread->process->open_files[desc], req, args);
     }
 
     return -1;
@@ -152,10 +167,12 @@ int proc_fs_ioctl(int desc, int req, void *args) {
 
 int proc_fs_getdirinfo(int desc, struct dirinfo *dinfo) {
     if(desc > MAX_OPEN_FILES) return -1;
-    if(!curr_proc)            return -1;
     if(dinfo == NULL)         return -1;
+    
+    kthread_t *thread = sched_get_curr_thread(0);
+    if(!thread) return -1;
 
-    kfile_t *file = curr_proc->open_files[desc]->file;
+    kfile_t *file = thread->process->open_files[desc]->file;
 
     if(file) {
         dinfo->ino        = file->inode;
@@ -181,11 +198,13 @@ int proc_fs_getdirinfo(int desc, struct dirinfo *dinfo) {
 
 int proc_fs_readdir(int desc, uint32_t idx, struct user_dirent *buff, uint32_t buff_size) {
     if(desc > MAX_OPEN_FILES) return -1;
-    if(!curr_proc)            return -1;
     if(buff == NULL)          return -1;
     if(buff_size == 0)        return -1;
+    
+    kthread_t *thread = sched_get_curr_thread(0);
+    if(!thread) return -1;
 
-    kfile_t *file = curr_proc->open_files[desc]->file;
+    kfile_t *file = thread->process->open_files[desc]->file;
     if(file == NULL) return -1;
 
     /* @todo Bounds checking */

@@ -41,7 +41,9 @@ EXPORT_FUNC(kfstat);
 
 int fstat(int fd, struct stat *buf) {
     if(fd < 0 || fd >= MAX_OPEN_FILES) return -1;
-    if(!curr_proc)                     return -1;
+    
+    kthread_t *thread = sched_get_curr_thread(0);
+    if(!thread) return -1;
 
-    return kfstat(curr_proc->open_files[fd], buf);
+    return kfstat(thread->process->open_files[fd], buf);
 }

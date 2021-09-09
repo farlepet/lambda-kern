@@ -51,12 +51,28 @@ void llist_init(llist_t *list);
 void llist_append(llist_t *list, llist_item_t *item);
 
 /**
+ * \brief Append the given item to the list, without locking the list
+ * 
+ * @param list List to add item to
+ * @param item Item to add to list
+ */
+void llist_append_unlocked(llist_t *list, llist_item_t *item);
+
+/**
  * \brief Remove the given item from the list
  * 
  * @param list List to remove item from
  * @param item Item to remove from list
  */
 void llist_remove(llist_t *list, llist_item_t *item);
+
+/**
+ * \brief Remove the given item from the list, without locking the list
+ * 
+ * @param list List to remove item from
+ * @param item Item to remove from list
+ */
+void llist_remove_unlocked(llist_t *list, llist_item_t *item);
 
 /**
  * \brief Get position of specified item in the list
@@ -85,5 +101,21 @@ void llist_iterator_init(llist_t *list, llist_iterator_t *iter);
  * @return 0 on invalid data or end of list, else 1
  */
 int llist_iterate(llist_iterator_t *iter, void **data);
+
+/**
+ * \brief Remove an item off the end of the list and return it
+ * 
+ * @param list List to pop item off of
+ * @return Pointer to list item, NULL on error
+ */
+llist_item_t *llist_pop_unlocked(llist_t *list);
+
+/**
+ * \brief Count number of items in a list
+ * 
+ * @param list List to count items of
+ * @return -1 on error, else number of items in the list
+ */
+int llist_count(const llist_t *list);
 
 #endif

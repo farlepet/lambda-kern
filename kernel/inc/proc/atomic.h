@@ -28,7 +28,7 @@ typedef int lock_t;
 #endif
 
 /**
- * @brief Release an atomic lock
+ * \brief Release an atomic lock
  * 
  * @param lock Lock to release
  */
@@ -37,19 +37,33 @@ static inline void unlock(lock_t *lock) {
 }
 
 /**
- * @brief Aquire an atomic lock
+ * \brief Aquire an atomic lock
  * 
  * @param lock Lock to aquire
  */
 void lock(lock_t *lock);
 
 /**
- * @brief Aquire atomic lock, with timeout
+ * \brief Aquire atomic lock, with timeout
  * 
  * @param lock Lock to attempt to aquire
  * @param ticks How long to attempt to aquire lock, in milliseconds
  * @return int 0 if successful, else 1
  */
 int lock_for(lock_t *lock, uint32_t ms);
+
+/**
+ * \brief Attempt to acquire lock without blocking
+ * 
+ * @param lock Lock to acquire
+ * @return 0 on success, 1 on failure
+ */
+static inline int lock_try(lock_t *lock) {
+	int old = 0;
+	if(a_cmp_chx_weak(lock, &old, 1, __ATOMIC_ACQUIRE, __ATOMIC_RELAXED)) {
+		return 0;
+	}
+	return 1;
+}
 
 #endif

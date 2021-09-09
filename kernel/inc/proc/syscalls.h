@@ -25,7 +25,9 @@ enum syscalls {
 
     SYSCALL_TASK_SWITCH = 24,
     
-    SYSCALL_FS_READDIR = 25
+    SYSCALL_FS_READDIR = 25,
+
+    SYSCALL_MAX = 26
 };
 
 

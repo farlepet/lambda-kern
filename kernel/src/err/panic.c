@@ -1,32 +1,37 @@
-#include <proc/mtask.h>
+#include <proc/proc.h>
 #include <intr/intr.h>
 #include <err/panic.h>
 #include <types.h>
 #include <video.h>
 
-/**
- * \brief Halts OS after printing error information.
- * Disabled interrupts, prints the provided error message, then halts the computer.
- * @param msg format string
- * @param ... arguments to go along with format string
- */
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
+#  include <arch/proc/stack_trace.h>
+#endif
+
 void __noreturn kpanic(char *msg, ...)
 {
-	disable_interrupts();
-	
-	__builtin_va_list varg;
-	__builtin_va_start(varg, msg);
-	
-	kprintf("Kernel panic:\n    ");
-	kprintv(msg, varg);
-	
-	__builtin_va_end(varg);
-	
-	if(curr_proc) {
-		kprintf("    Process %d [%s]\n", curr_proc->pid, curr_proc->name);
-	}
+    disable_interrupts();
+    
+    __builtin_va_list varg;
+    __builtin_va_start(varg, msg);
+    
+    kprintf("Kernel panic:\n    ");
+    kprintv(msg, varg);
+    
+    __builtin_va_end(varg);
+    
+    /* TODO: Multiprocessor support */
+    kthread_t *thread = sched_get_curr_thread(0);
+    if(thread) {
+        kproc_t *proc = thread->process;
+        kprintf("\n    Thread  %d [%s]\n", thread->tid, thread->name);
+        kprintf("    Process %d [%s]\n", proc->pid,   proc->name);
+    }
 
-	// Print regs here
-	
-	for(;;) interrupt_halt();
+    // Print regs here
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
+    stack_trace(16, __builtin_frame_address(0), (uint32_t)&stack_trace_here, NULL);
+#endif
+    
+    for(;;) interrupt_halt();
 }

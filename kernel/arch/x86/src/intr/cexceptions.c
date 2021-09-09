@@ -68,6 +68,9 @@ static void dump_iregs(struct iret_regs *iregs);
  * @param cr3 value of cr3 register (location of fault)
  */
 int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *iregs) {
+    kthread_t *curr_thread = sched_get_curr_thread(0);
+    kproc_t   *curr_proc   = curr_thread->process;
+	
 	uint32_t *cr3 = get_pagedir();
 
 	uint32_t cr2;
@@ -142,6 +145,9 @@ int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_reg
 static char *gpf_table_names[] = { "GDT", "IDT", "LDT", "IDT" };
 
 int handle_gpf(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *iregs) {
+    kthread_t *curr_thread = sched_get_curr_thread(0);
+    kproc_t   *curr_proc   = curr_thread->process;
+	
 	kerror(ERR_MEDERR, "<===============================[GPF]==============================>");
 	kerror(ERR_MEDERR, "General Protection Fault at 0x%08X, code seg selector %02X", iregs->eip, iregs->cs);
 	kerror(ERR_MEDERR, "  -> Error code: 0x%08X", errcode);
@@ -169,6 +175,9 @@ int handle_gpf(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *ireg
 
 
 void handle_exception(uint8_t exception, struct pusha_regs regs, uint32_t errcode, struct iret_regs iregs) {
+    kthread_t *curr_thread = sched_get_curr_thread(0);
+    kproc_t   *curr_proc   = curr_thread->process;
+	
 	if(exception < (sizeof(exception_handlers) / sizeof(exception_handlers[0]))) {
 		const struct exception_handler *hand = &exception_handlers[exception];
 		kerror(ERR_MEDERR, "EXCEPTION OCCURED: %s", hand->name);

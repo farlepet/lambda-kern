@@ -185,10 +185,10 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     void *_arg_alloc = _store_arguments(argv, envp, &_argv, &_envp);
 
     // Copy data to temporary struct for easy copying of requred portions
-    // Probably innefecient, and could be done better
+    // Probably innefecient, and could be done better 
+    kthread_t *old_thread   = sched_get_curr_thread(0);
+    kproc_t *curr_proc = old_thread->process;
     memcpy(&tmp_proc, curr_proc, sizeof(struct kproc));
-
-    kthread_t *old_thread = (kthread_t *)tmp_proc.threads.list->data;
 
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
     disable_interrupts();
@@ -209,11 +209,12 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     memcpy(curr_proc->children, tmp_proc.children, sizeof(curr_proc->children));
 
     /* @todo: Free old thread. */
+    /* @todo: Dequeue old threads */
 	llist_init(&curr_proc->threads);
 	kthread_t *thread = (kthread_t *)kmalloc(sizeof(kthread_t));
 	thread->list_item.data = thread;
 	llist_append(&curr_proc->threads, &thread->list_item);
-    curr_thread = thread;
+    sched_enqueue_thread(thread);
  
     thread->process    = curr_proc;
     thread->entrypoint = (uint32_t)entryp;

@@ -61,7 +61,9 @@ __noreturn void kmain(void) {
 	init_syscalls();
 
 	enable_interrupts();
-
+	
+	/* TODO: SMP suport */
+	sched_init(1);
 	init_multitasking(&kernel_task, "kern");
 
 	iloop();

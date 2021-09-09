@@ -43,7 +43,7 @@ int strcmp(const char *str1, const char *str2) {
 EXPORT_FUNC(strcmp);
 
 int strncmp(const char *str1, const char *str2, size_t num) {
-	while(*str1 && (*str1 == *str2) && num--) {
+	while(*str1 && (*str1 == *str2) && --num) {
 		str1++;
 		str2++;
 	}

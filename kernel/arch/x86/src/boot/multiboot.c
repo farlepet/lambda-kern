@@ -6,11 +6,8 @@
 #include <video.h>
 
 #include <arch/boot/multiboot.h>
-
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-#  include <arch/io/serial.h>
-#  include <arch/mm/paging.h>
-#endif
+#include <arch/io/serial.h>
+#include <arch/mm/paging.h>
 
 
 int _handle_cmdline(const char *cmdline) {
@@ -69,13 +66,11 @@ int _handle_cmdline(const char *cmdline) {
 }
 
 int _handle_module(uintptr_t start, uintptr_t end, const char *name) {
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
     uint32_t b = ((start - (uint32_t)firstframe) / 0x1000);
     for(; b < ((end - (uint32_t)firstframe) / 0x1000) + 1; b++) {
         set_frame(b, 1); // Make sure that the module is not overwritten
         map_page((b * 0x1000) + firstframe, (b * 0x1000) + firstframe, 3);
     }
-#endif
 
 #if (!FEATURE_INITRD_EMBEDDED)
     if(!strcmp(name, (const char *)boot_options.init_ramdisk_name)) {
@@ -161,7 +156,7 @@ size_t multiboot_get_upper_memory(const mboot_t *head) {
     return head->mem_upper * 1024;
 }
 #elif (FEATURE_MULTIBOOT == 2)
-const mboot_tag_t *_find_tag(const mboot_t *head, uint32_t type, uint32_t idx) {
+const mboot_tag_t *multiboot_find_tag(const mboot_t *head, uint32_t type, uint32_t idx) {
     const mboot_tag_t *tag = (const mboot_tag_t *)&head->tags;
     uintptr_t end = ((uintptr_t)head->tags + head->size);
     uint32_t _idx = 0;
@@ -187,7 +182,7 @@ const mboot_tag_t *_find_tag(const mboot_t *head, uint32_t type, uint32_t idx) {
 
 void multiboot_check_commandline(const mboot_t *head) {
     const mboot_tag_cmdline_t *cmdline =
-        (const mboot_tag_cmdline_t *)_find_tag(head, MBOOT_TAGTYPE_CMDLINE, 0);
+        (const mboot_tag_cmdline_t *)multiboot_find_tag(head, MBOOT_TAGTYPE_CMDLINE, 0);
     if(!cmdline) {
         kerror(ERR_BOOTINFO, "No commandline provided");
         return;
@@ -199,11 +194,11 @@ void multiboot_check_commandline(const mboot_t *head) {
 void multiboot_check_modules(const mboot_t *head) {
     uint32_t idx = 0;
     const mboot_tag_module_t *mod =
-        (const mboot_tag_module_t *)_find_tag(head, MBOOT_TAGTYPE_MODULE, idx++);
+        (const mboot_tag_module_t *)multiboot_find_tag(head, MBOOT_TAGTYPE_MODULE, idx++);
     while(mod) {
         kerror(ERR_BOOTINFO, "  -> MOD[%d]: %s", idx, mod->name);
         _handle_module(mod->mod_start, mod->mod_end, mod->name);
-        mod = (const mboot_tag_module_t *)_find_tag(head, MBOOT_TAGTYPE_MODULE, idx++);
+        mod = (const mboot_tag_module_t *)multiboot_find_tag(head, MBOOT_TAGTYPE_MODULE, idx++);
     }
 }
 
@@ -213,7 +208,7 @@ void multiboot_locate_modules(const mboot_t *head, uintptr_t *start, uintptr_t *
 
     uint32_t idx = 0;
     const mboot_tag_module_t *mod =
-        (const mboot_tag_module_t *)_find_tag(head, MBOOT_TAGTYPE_MODULE, idx++);
+        (const mboot_tag_module_t *)multiboot_find_tag(head, MBOOT_TAGTYPE_MODULE, idx++);
     while(mod) {
         if(mod->mod_start < _start) {
             _start = mod->mod_start;
@@ -221,7 +216,7 @@ void multiboot_locate_modules(const mboot_t *head, uintptr_t *start, uintptr_t *
         if(mod->mod_end > _end) {
             _end = mod->mod_end;
         }
-        mod = (const mboot_tag_module_t *)_find_tag(head, MBOOT_TAGTYPE_MODULE, idx++);
+        mod = (const mboot_tag_module_t *)multiboot_find_tag(head, MBOOT_TAGTYPE_MODULE, idx++);
     }
 
     *start = _start;
@@ -230,7 +225,7 @@ void multiboot_locate_modules(const mboot_t *head, uintptr_t *start, uintptr_t *
 
 size_t multiboot_get_upper_memory(const mboot_t *head) {
     const mboot_tag_basicmem_t *mem =
-        (const mboot_tag_basicmem_t *)_find_tag(head, MBOOT_TAGTYPE_BASIC_MEMINFO, 0);
+        (const mboot_tag_basicmem_t *)multiboot_find_tag(head, MBOOT_TAGTYPE_BASIC_MEMINFO, 0);
     if(!mem) {
         return 0;
     }

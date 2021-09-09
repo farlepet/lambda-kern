@@ -18,9 +18,6 @@
 
 static llist_t procs;
 
-kproc_t   *curr_proc    = NULL;
-kthread_t *curr_thread  = NULL;
-
 static int next_pid = 1;
 
 lock_t creat_task = 0; //!< Lock used when creating tasks
@@ -69,10 +66,11 @@ kthread_t *thread_by_tid(int tid) {
 }
 
 int get_pid() {
-	if(!curr_proc) {
+	kthread_t *thread = sched_get_curr_thread(0);
+	if(!thread) {
 		return -1;
 	} else {
-		return curr_proc->pid;
+		return thread->process->pid;
 	}
 }
 
@@ -129,6 +127,13 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 	// TODO: Remove reference to ring
 
 	lock(&creat_task);
+
+	kproc_t *curr_proc;
+	if(!sched_get_curr_thread(0)) {
+		curr_proc = NULL;
+	} else {
+		curr_proc = mtask_get_current_task();
+	}
 	
 	if(!stack_size) stack_size = STACK_SIZE;
 
@@ -144,7 +149,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 		return -1;
 	}
 
-	if(procs.list && proc_add_child(curr_proc, proc)) {
+	if(curr_proc && proc_add_child(curr_proc, proc)) {
 		kerror(ERR_SMERR, "mtask:add_task: Process %d has run out of children slots", curr_proc->pid);
 		unlock(&creat_task);
 		kfree(proc);
@@ -194,6 +199,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 	thread->flags |= KTHREAD_FLAG_RUNNABLE | KTHREAD_FLAG_RANONCE;
 	
 	mtask_insert_proc(proc);
+	sched_enqueue_thread(thread);
 
 	unlock(&creat_task);
 
@@ -210,7 +216,8 @@ int mtask_insert_proc(struct kproc *proc) {
 
 
 struct kproc *mtask_get_current_task(void) {
-	return curr_proc;
+	kthread_t *thread = sched_get_curr_thread(0);
+	return thread->process;
 }
 
 
@@ -229,8 +236,8 @@ void init_multitasking(void *process, char *name) {
 
 	arch_multitasking_init();
 
-	curr_proc   = thread->process;
-	curr_thread = thread;
+	/*curr_proc   = thread->process;
+	curr_thread = thread;*/
 
 	kerror(ERR_BOOTINFO, "Multitasking enabled");
 }
@@ -238,6 +245,8 @@ void init_multitasking(void *process, char *name) {
 
 
 __noreturn void exit(int code) {
+	kproc_t *curr_proc = mtask_get_current_task();
+	
 	kdebug(DEBUGSRC_PROC, "exit(%d) called by process %d.", code, curr_proc->pid);
 
 	// If parent processis waiting for child to exit, allow it to continue execution:

@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include <err/panic.h>
 
 #include <data/llist.h>
 
@@ -10,13 +11,11 @@ void llist_init(llist_t *list) {
 }
 EXPORT_FUNC(llist_init);
 
-void llist_append(llist_t *list, llist_item_t *item) {
+void llist_append_unlocked(llist_t *list, llist_item_t *item) {
     if((list == NULL) ||
        (item == NULL)) {
         return;
     }
-
-    lock(&list->lock);
 
     if(list->list) {
         list->list->prev->next = item;
@@ -28,19 +27,28 @@ void llist_append(llist_t *list, llist_item_t *item) {
         item->next = item;
         item->prev = item;
     }
+}
+
+void llist_append(llist_t *list, llist_item_t *item) {
+    if((list == NULL) ||
+       (item == NULL)) {
+        return;
+    }
+
+    lock(&list->lock);
+
+    llist_append_unlocked(list, item);
 
     unlock(&list->lock);
 }
 EXPORT_FUNC(llist_append);
 
-void llist_remove(llist_t *list, llist_item_t *item) {
+void llist_remove_unlocked(llist_t *list, llist_item_t *item) {
     if((list       == NULL) ||
        (item       == NULL) ||
        (list->list == NULL)) {
         return;
     }
-
-    lock(&list->lock);
 
     if((list->list == item) &&
        (item->next == item->prev)) {
@@ -54,6 +62,18 @@ void llist_remove(llist_t *list, llist_item_t *item) {
     /* Remove item's references to the list */
     item->next = NULL;
     item->prev = NULL;
+}
+
+void llist_remove(llist_t *list, llist_item_t *item) {
+    if((list       == NULL) ||
+       (item       == NULL) ||
+       (list->list == NULL)) {
+        return;
+    }
+
+    lock(&list->lock);
+
+    llist_remove_unlocked(list, item);
 
     unlock(&list->lock);
 }
@@ -107,8 +127,51 @@ int llist_iterate(llist_iterator_t *iter, void **data) {
         }
     }
 
+    if(iter->curr == NULL) {
+        kpanic("llist_iterate: iter->curr = NULL");
+    }
+
     *data = iter->curr->data;
 
     return 1;
 }
 EXPORT_FUNC(llist_iterate);
+
+llist_item_t *llist_pop_unlocked(llist_t *list) {
+    if((list       == NULL) ||
+       (list->list == NULL)) {
+        return NULL;
+    }
+
+    llist_item_t *item = list->list->prev;
+
+    if(list->list == item) {
+        list->list = NULL;
+    } else {
+        list->list->prev = item->prev;
+        item->prev->next = list->list;
+    }
+
+    return item;
+}
+
+int llist_count(const llist_t *list) {
+    if(list == NULL) {
+        return -1;
+    }
+    if(list->list == NULL) {
+        return 0;
+    }
+
+    int count = 0;
+    const llist_item_t *item  = list->list;
+    const llist_item_t *first = item;
+
+    do {
+        item = item->next;
+        count++;
+    } while(item != first);
+
+    return count;
+}
+EXPORT_FUNC(llist_count);

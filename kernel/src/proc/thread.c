@@ -11,6 +11,13 @@ int kthread_create(void *entrypoint, void *data, const char *name, size_t stack_
     if(thread == NULL) {
         kpanic("kthread_create: Ran out of memory attempting to allocate thread!");
     }
+ 
+    kthread_t *curr_thread = sched_get_curr_thread(0);
+    if(curr_thread == NULL) {
+        kpanic("kthread_create: Ran out of memory attempting to allocate thread!");
+    }
+    kproc_t *curr_proc = curr_thread->process;
+ 
     memset(thread, 0, sizeof(kthread_t));
 	thread->list_item.data = thread;
 	llist_append(&curr_proc->threads, &thread->list_item);
@@ -38,6 +45,8 @@ int kthread_create(void *entrypoint, void *data, const char *name, size_t stack_
     arch_setup_thread(thread, entrypoint, stack_size, data);
 
     thread->flags      = KTHREAD_FLAG_RUNNABLE | KTHREAD_FLAG_RANONCE;
+	
+    sched_enqueue_thread(thread);
     
     return thread->tid;
 }

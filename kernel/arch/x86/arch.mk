@@ -1,6 +1,6 @@
 # Architecture-specific Makefile options for X86
 
-CFLAGS    += -m32 -O2 -march=i586
+CFLAGS    += -m32 -march=i586
 LDARCH     = -melf_i386
 LDFLAGS    = $(LDARCH) -T kernel/arch/x86/arch.ld
 
