@@ -1,4 +1,4 @@
-#include <proc/proc.h>
+#include <proc/mtask.h>
 #include <intr/intr.h>
 #include <err/panic.h>
 #include <types.h>
@@ -21,7 +21,7 @@ void __noreturn kpanic(char *msg, ...)
     __builtin_va_end(varg);
     
     /* TODO: Multiprocessor support */
-    kthread_t *thread = sched_get_curr_thread(0);
+    kthread_t *thread = mtask_get_curr_thread();
     if(thread) {
         kproc_t *proc = thread->process;
         kprintf("\n    Thread  %d [%s]\n", thread->tid, thread->name);

@@ -55,7 +55,7 @@ int service_syscall(uint32_t scn, syscallarg_t *args) {
 	syscall_debug(DEBUGSRC_SYSCALL, "Syscall %d called with args at %08X", scn, args);
 	if((scn >= ARRAY_SZ(syscalls)) ||
 	   !syscalls[scn].func) {
-		kproc_t *curr_proc = mtask_get_current_task();
+		kproc_t *curr_proc = mtask_get_curr_process();
 		kerror(ERR_MEDERR, "Process %d (%s) has tried to call an invalid syscall: %u Args: %08X", curr_proc->pid, curr_proc->name, scn, args);
 		return -1;
 	}

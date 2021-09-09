@@ -68,7 +68,7 @@ static void dump_iregs(struct iret_regs *iregs);
  * @param cr3 value of cr3 register (location of fault)
  */
 int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *iregs) {
-    kthread_t *curr_thread = sched_get_curr_thread(0);
+    kthread_t *curr_thread = mtask_get_curr_thread();
     kproc_t   *curr_proc   = curr_thread->process;
 	
 	uint32_t *cr3 = get_pagedir();
@@ -145,7 +145,7 @@ int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_reg
 static char *gpf_table_names[] = { "GDT", "IDT", "LDT", "IDT" };
 
 int handle_gpf(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *iregs) {
-    kthread_t *curr_thread = sched_get_curr_thread(0);
+    kthread_t *curr_thread = mtask_get_curr_thread();
     kproc_t   *curr_proc   = curr_thread->process;
 	
 	kerror(ERR_MEDERR, "<===============================[GPF]==============================>");
@@ -175,7 +175,7 @@ int handle_gpf(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *ireg
 
 
 void handle_exception(uint8_t exception, struct pusha_regs regs, uint32_t errcode, struct iret_regs iregs) {
-    kthread_t *curr_thread = sched_get_curr_thread(0);
+    kthread_t *curr_thread = mtask_get_curr_thread();
     kproc_t   *curr_proc   = curr_thread->process;
 	
 	if(exception < (sizeof(exception_handlers) / sizeof(exception_handlers[0]))) {

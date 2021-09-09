@@ -186,7 +186,7 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
 
     // Copy data to temporary struct for easy copying of requred portions
     // Probably innefecient, and could be done better 
-    kthread_t *old_thread   = sched_get_curr_thread(0);
+    kthread_t *old_thread   = mtask_get_curr_thread();
     kproc_t *curr_proc = old_thread->process;
     memcpy(&tmp_proc, curr_proc, sizeof(struct kproc));
 

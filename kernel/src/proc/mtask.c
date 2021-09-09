@@ -66,7 +66,7 @@ kthread_t *thread_by_tid(int tid) {
 }
 
 int get_pid() {
-	kthread_t *thread = sched_get_curr_thread(0);
+	kthread_t *thread = mtask_get_curr_thread();
 	if(!thread) {
 		return -1;
 	} else {
@@ -76,38 +76,6 @@ int get_pid() {
 
 int get_next_pid() {
 	return next_pid++;
-}
-
-int add_kernel_task(void *process, char *name, uint32_t stack_size, int pri) {
-	arch_task_params_t arch_params;
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	arch_params.ring  = 0;
-	arch_params.pgdir = clone_kpagedir();
-#endif
-	return add_task(process, name, stack_size, pri, 1, &arch_params);
-}
-
-int add_kernel_task_arch(void *process, char *name, uint32_t stack_size, int pri, arch_task_params_t *arch_params) {
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	arch_params->ring = 0;
-#endif
-	return add_task(process, name, stack_size, pri, 1, arch_params);
-}
-
-int add_user_task(void *process, char *name, uint32_t stack_size, int pri) {
-	arch_task_params_t arch_params;
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	arch_params.ring = 3;
-	arch_params.pgdir = clone_kpagedir();
-#endif
-	return add_task(process, name, stack_size, pri, 0, &arch_params);
-}
-
-int add_user_task_arch(void *process, char *name, uint32_t stack_size, int pri, arch_task_params_t *arch_params) {
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	arch_params->ring = 3;
-#endif
-	return add_task(process, name, stack_size, pri, 0, arch_params);
 }
 
 uintptr_t proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel) {
@@ -128,12 +96,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 
 	lock(&creat_task);
 
-	kproc_t *curr_proc;
-	if(!sched_get_curr_thread(0)) {
-		curr_proc = NULL;
-	} else {
-		curr_proc = mtask_get_current_task();
-	}
+	kproc_t *curr_proc = mtask_get_curr_process();
 	
 	if(!stack_size) stack_size = STACK_SIZE;
 
@@ -215,8 +178,19 @@ int mtask_insert_proc(struct kproc *proc) {
 }
 
 
-struct kproc *mtask_get_current_task(void) {
+__hot
+kthread_t *mtask_get_curr_thread(void) {
+	/* TODO: Determine current CPU */
+	return sched_get_curr_thread(0);
+}
+
+__hot
+kproc_t *mtask_get_curr_process(void) {
+	/* TODO: Determine current CPU */
 	kthread_t *thread = sched_get_curr_thread(0);
+	if(thread == NULL) {
+		return NULL;
+	}
 	return thread->process;
 }
 
@@ -236,23 +210,20 @@ void init_multitasking(void *process, char *name) {
 
 	arch_multitasking_init();
 
-	/*curr_proc   = thread->process;
-	curr_thread = thread;*/
-
 	kerror(ERR_BOOTINFO, "Multitasking enabled");
 }
 
 
 
 __noreturn void exit(int code) {
-	kproc_t *curr_proc = mtask_get_current_task();
+	kproc_t *curr_proc = mtask_get_curr_process();
 	
 	kdebug(DEBUGSRC_PROC, "exit(%d) called by process %d.", code, curr_proc->pid);
 
 	// If parent processis waiting for child to exit, allow it to continue execution:
 	if(curr_proc->parent) {
 		struct kproc *parent = proc_by_pid(curr_proc->parent);
-		/* @todo Unblock the thread waiting on exit */
+		/* @todo Unblock the exact thread waiting on exit */
 		((kthread_t *)parent->threads.list->data)->blocked &= (uint32_t)~(BLOCK_WAIT);
 	}
 

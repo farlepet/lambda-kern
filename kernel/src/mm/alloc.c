@@ -283,7 +283,7 @@ void *malloc(size_t sz) {
 	if(!ret) {
 		return NULL;
 	}
-	struct kproc *proc = mtask_get_current_task();
+	kproc_t *proc = mtask_get_curr_process();
 	if(proc) {
 		/* NOTE: Assuming one-to-one mapping. */
 		mm_proc_mmap_add(proc, (uintptr_t)ret, (uintptr_t)ret, sz);
@@ -293,7 +293,7 @@ void *malloc(size_t sz) {
 }
 
 void free(void *ptr) {
-	struct kproc *proc = mtask_get_current_task();
+	kproc_t *proc = mtask_get_curr_process();
 	if(proc) {
 		/* NOTE: Assuming allocation table is using physical addresses. */
 		mm_proc_mmap_remove_phys(proc, (uintptr_t)ptr);

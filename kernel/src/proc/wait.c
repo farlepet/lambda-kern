@@ -27,7 +27,7 @@ int wait(int *stat_loc) {
     int      child_exists = 0;
     kproc_t *child        = NULL;
 
-    kthread_t *curr_thread = sched_get_curr_thread(0);
+    kthread_t *curr_thread = mtask_get_curr_thread();
     kproc_t   *curr_proc   = curr_thread->process;
 
     // Check that the process has a child:

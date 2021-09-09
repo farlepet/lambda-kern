@@ -120,7 +120,7 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
 	memset(child->children, 0xFF, sizeof(child->children));
 
     kthread_t *cthread = (kthread_t *)child->threads.list->data;
-    kthread_t *pthread = sched_get_curr_thread(0);
+    kthread_t *pthread = mtask_get_curr_thread();
 
     cthread->process = child;
     child->pid   = get_next_pid();
@@ -203,7 +203,7 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
 
 
 int fork(void) {
-    kthread_t *thread = sched_get_curr_thread(0);
+    kthread_t *thread = mtask_get_curr_thread();
     if(!thread) {
         kpanic("mtask:fork: Attempted to fork before multitasking enabled!!!");
     }

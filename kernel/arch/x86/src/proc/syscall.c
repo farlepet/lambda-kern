@@ -8,7 +8,7 @@
 void handle_syscall(struct pusha_regs regs, struct iret_regs iregs) {
 	(void)iregs;
     
-	kthread_t *curr_thread = sched_get_curr_thread(0);
+	kthread_t *curr_thread = mtask_get_curr_thread();
     kproc_t   *curr_proc   = curr_thread->process;
 	
 	curr_thread->arch.esp = (uint32_t)&regs;

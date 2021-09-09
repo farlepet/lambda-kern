@@ -26,7 +26,7 @@ static void time_over(int tid) {
  * @param delay number of ticks to wait for
  */
 void delay(uint64_t delay) {
-    kthread_t *curr_thread = sched_get_curr_thread(0);
+    kthread_t *curr_thread = mtask_get_curr_thread();
 
 	add_time_block(&time_over, delay, curr_thread->tid);
 	curr_thread->blocked |= BLOCK_DELAY;

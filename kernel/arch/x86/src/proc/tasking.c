@@ -72,6 +72,7 @@ int arch_proc_create_kernel_stack(kthread_t *thread) {
 }
 
 void proc_jump_to_ring(void) {
+	/* TODO: Select proper CPU */
 	kthread_t *curr_thread = sched_get_curr_thread(0);
     kproc_t   *curr_proc   = curr_thread->process;
 	
@@ -134,6 +135,7 @@ int arch_setup_task(kthread_t *thread, void *entrypoint, uint32_t stack_size, ar
 
 
 __hot void do_task_switch(void) {
+	/* TODO: Select proper CPU */
 	kthread_t *thread = sched_get_curr_thread(0);
 	if(!thread) {
 		return;

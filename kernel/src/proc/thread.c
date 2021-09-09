@@ -12,7 +12,7 @@ int kthread_create(void *entrypoint, void *data, const char *name, size_t stack_
         kpanic("kthread_create: Ran out of memory attempting to allocate thread!");
     }
  
-    kthread_t *curr_thread = sched_get_curr_thread(0);
+    kthread_t *curr_thread = mtask_get_curr_thread();
     if(curr_thread == NULL) {
         kpanic("kthread_create: Ran out of memory attempting to allocate thread!");
     }
