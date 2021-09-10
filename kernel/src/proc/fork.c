@@ -10,8 +10,6 @@
 #  include <arch/proc/stack.h>
 #endif
 
-extern lock_t creat_task;
-
 
 /**
  * @brief Copies process-allocated data (including program data) from source

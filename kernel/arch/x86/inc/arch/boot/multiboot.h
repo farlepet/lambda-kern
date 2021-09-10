@@ -171,4 +171,8 @@ void multiboot_locate_modules(const mboot_t *head, uintptr_t *start, uintptr_t *
 
 size_t multiboot_get_upper_memory(const mboot_t *head);
 
+#if (FEATURE_MULTIBOOT == 2)
+const mboot_tag_t *multiboot_find_tag(const mboot_t *head, uint32_t type, uint32_t idx);
+#endif
+
 #endif

@@ -30,7 +30,7 @@ struct kterm_entry {
 	int (*function)(int, char **);
 };
 
-struct kterm_entry kterm_ents[] = {
+static struct kterm_entry kterm_ents[] = {
 	{ 0, "help",   &kterm_help   },
 	{ 0, "load",   &kterm_load   },
 	{ 0, "run",    &kterm_run    },
@@ -40,7 +40,7 @@ struct kterm_entry kterm_ents[] = {
 	{ 0, "dbgc",   &kterm_dbgc   },
 };
 
-uint32_t hash(char *str) {
+static uint32_t _hash(char *str) {
 	uint32_t hash = 5381;
 	while (*str)
 		hash = ((hash << 5) + hash) + (uint8_t)*str++;
@@ -56,7 +56,7 @@ static kfile_t *_stdin = NULL;
 __noreturn void kterm_task() {
 	uint32_t i = 0;
 	for(; i < (sizeof(kterm_ents)/sizeof(kterm_ents[0])); i++)
-		kterm_ents[i].hash = hash(kterm_ents[i].string);
+		kterm_ents[i].hash = _hash(kterm_ents[i].string);
 
 	int retval = 0;
 	
@@ -125,7 +125,7 @@ __noreturn void kterm_task() {
 
 
 		//kprintf("%s\n", input);
-		uint32_t h = hash(argv[0]);
+		uint32_t h = _hash(argv[0]);
 		int fnd = 0;
 		for(i = 0; i < (sizeof(kterm_ents)/sizeof(kterm_ents[0])); i++) {
 			if(kterm_ents[i].hash == h)
@@ -164,10 +164,10 @@ static int kterm_help(int argc, char **argv) {
 
 #define EXEC_STREAM_LEN 256
 
-char exec_filename[128] = { 0, };
-void	     *exec_data = NULL;
-size_t	      exec_size = 0;
-int           exec_type = 0;
+static char   exec_filename[128] = { 0, };
+static void	 *exec_data = NULL;
+static size_t exec_size = 0;
+static int    exec_type = 0;
 
 static int kterm_load(int argc, char **argv) {
 	if(argc < 2) {

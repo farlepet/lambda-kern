@@ -5,6 +5,8 @@
 #include <proc/mtask.h>
 #include <types.h>
 
+void handle_syscall(struct pusha_regs regs, struct iret_regs iregs);
+
 void handle_syscall(struct pusha_regs regs, struct iret_regs iregs) {
 	(void)iregs;
     

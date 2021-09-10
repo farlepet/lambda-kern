@@ -63,8 +63,8 @@ void *kmamalloc(size_t sz, size_t align);
  */
 void kfree(void *ptr);
 
-size_t alloc_get_used();
-size_t alloc_get_free();
+size_t alloc_get_used(void);
+size_t alloc_get_free(void);
 
 
 /**

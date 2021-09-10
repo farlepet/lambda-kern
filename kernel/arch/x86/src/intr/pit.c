@@ -8,7 +8,7 @@
 #include <intr/intr.h>
 #include <time/time.h>
 
-extern void pit_int(); //!< The PIT interrupt handler
+extern void pit_int(void); //!< The PIT interrupt handler
 void pit_handler(void); //!< Assembly PIT interrupt handler
 
 static void (*pit_callback)(void) = NULL;
@@ -31,7 +31,7 @@ void pit_create_timerdev(hal_timer_dev_t *dev) {
  * The main part of the PIT interrupt handler, called from pit_int().
  * @see pit_int
  */
-void pit_handler()
+void pit_handler(void)
 {
 	/* TODO: Determine from timer settings. */
 	kerneltime += 10;

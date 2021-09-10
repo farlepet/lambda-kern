@@ -10,10 +10,10 @@
 #include <video.h>
 
 
-extern void keyb_int(); //!< Assembly interrupt handler
+extern void keyb_int(void); //!< Assembly interrupt handler
 void keyb_handle(uint32_t);
 
-input_dev_t keyb_dev; //!< Device struct for the keyboard input handler
+static input_dev_t keyb_dev; //!< Device struct for the keyboard input handler
 
 #define KEYB_BUFF_CNT 16
 static cbuff_t _keyb_buff = STATIC_CBUFF(sizeof(struct input_event) * KEYB_BUFF_CNT);

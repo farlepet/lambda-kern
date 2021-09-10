@@ -7,6 +7,8 @@
 
 #define LAMBDA_MODULE_SECTION_NAME ".lambda_module_data"
 
+/* @todo It might be useful to add a driver-specific logging function */
+
 /**
  * Kernel module metadata.
  */

@@ -64,7 +64,7 @@ uint32_t proc_fs_write(int desc, uint32_t off, uint32_t sz, uint8_t *buff) {
     return 0;
 }
 
-int _open_check_flags(struct kfile *file, uint32_t flags) {
+static int _open_check_flags(struct kfile *file, uint32_t flags) {
     if(flags & OFLAGS_DIRECTORY) {
         if(!(file->flags & FS_DIR)) {
             return -1;

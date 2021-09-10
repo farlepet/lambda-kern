@@ -1,4 +1,5 @@
 #include <proc/atomic.h>
+#include <proc/thread.h>
 #include <proc/mtask.h>
 #include <err/error.h>
 #include <err/panic.h>

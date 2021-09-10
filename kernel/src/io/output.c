@@ -355,7 +355,7 @@ int sprintf(char *out, const char *format, ...) {
 EXPORT_FUNC(sprintf);
 
 
-lock_t print_lock;
+static lock_t print_lock;
 
 /**
  * Uses `print` to convert the format string and any number of arguments to

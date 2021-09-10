@@ -31,11 +31,11 @@ enum syscalls {
 };
 
 
-void init_syscalls();
+void init_syscalls(void);
 
 void call_syscall(uint32_t scn, syscallarg_t *arg);
 int service_syscall(uint32_t scn, syscallarg_t *args);
 
-extern void return_from_syscall();
+extern void return_from_syscall(void);
 
 #endif

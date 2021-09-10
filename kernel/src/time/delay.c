@@ -5,8 +5,6 @@
 #include <time/time.h>
 #include <err/error.h>
 
-uint8_t timeup[500]; //!< Table of values corresponding to pid's telling if the timer is done yet
-
 /**
  * \brief Tells `delay` it can return.
  * Called when the time specified by `delay` has run out. Sets the value in `timeup`

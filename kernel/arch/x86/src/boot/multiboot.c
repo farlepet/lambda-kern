@@ -10,7 +10,7 @@
 #include <arch/mm/paging.h>
 
 
-int _handle_cmdline(const char *cmdline) {
+static int _handle_cmdline(const char *cmdline) {
     const char *cmd = cmdline;
     const char *end = cmd + strlen(cmd) + 1;
     char tmp[1000];
@@ -65,7 +65,7 @@ int _handle_cmdline(const char *cmdline) {
     return 0;
 }
 
-int _handle_module(uintptr_t start, uintptr_t end, const char *name) {
+static int _handle_module(uintptr_t start, uintptr_t end, const char *name) {
     uint32_t b = ((start - (uint32_t)firstframe) / 0x1000);
     for(; b < ((end - (uint32_t)firstframe) / 0x1000) + 1; b++) {
         set_frame(b, 1); // Make sure that the module is not overwritten

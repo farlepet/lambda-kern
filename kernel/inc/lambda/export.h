@@ -21,7 +21,7 @@ extern char __lambda_strings_end;
     static const char                      \
     __attribute__((__used__, __section__(LAMBDA_STRINGS_SECTION_NAME))) \
     __lstr_func_##func[] = #func;          \
-    const lambda_symbol_t                  \
+    static const lambda_symbol_t           \
     __attribute__((__used__, __section__(LAMBDA_SYMBOLS_SECTION_NAME))) \
     __lsym_func_##func = {                 \
         .addr = (uintptr_t)&func,          \

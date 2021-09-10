@@ -70,14 +70,14 @@ __noreturn void kmain(void) {
 }
 
 __noreturn
-static void spawn_init();
+static void spawn_init(void);
 
 #define INIT_STREAM_LEN 512
 /**
  * The main kernel task, spawns a few other tasks, then busy-waits.
  */
 __noreturn
-void kernel_task()
+void kernel_task(void)
 {
 	kerror(ERR_BOOTINFO, "Main kernel task started");
 
@@ -91,7 +91,7 @@ void kernel_task()
 }
 
 __noreturn
-static void spawn_init() {
+static void spawn_init(void) {
 	kerror(ERR_BOOTINFO, "Loading init executable (%s)", boot_options.init_executable);
 	struct kfile *exec = fs_find_file(fs_root, (const char *)boot_options.init_executable);
 	if(!exec) {

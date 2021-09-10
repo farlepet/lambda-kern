@@ -15,4 +15,6 @@
 /* Enable Multiboot 1/2 */
 #define FEATURE_MULTIBOOT 2
 
+/*#define CONFIG_DISABLE_SAFETY_CHECKS 1*/
+
 #endif

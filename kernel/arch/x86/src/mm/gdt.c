@@ -4,9 +4,9 @@
 
 static uint8_t system_stack[0x2000];
 
-tss_t TSS = { 0, };
+static tss_t TSS = { 0, };
 
-uint64_t GDT[10] =          //!< The Global Descriptor Table
+static uint64_t GDT[10] =          //!< The Global Descriptor Table
 {
 	GDT_NULL,       // 00
 
@@ -26,14 +26,14 @@ uint64_t GDT[10] =          //!< The Global Descriptor Table
 };
 
 extern void load_gdt(uint64_t *, uint32_t); //!< Sets the GDT pointer with `lidt`
-extern void seg_reload();         //!< Reloads the segment registers
-extern void load_tss();           //!< Sets the TSS descriptor
+extern void seg_reload(void);               //!< Reloads the segment registers
+extern void load_tss(void);                 //!< Sets the TSS descriptor
 
 /**
  * \brief Initialize the GDT
  * Initializes the GDT then the TSS.
  */
-void gdt_init() {
+void gdt_init(void) {
 	TSS.ss0 = 0x10;
 	TSS.ss1 = 0x21;
 	TSS.ss2 = 0x32;

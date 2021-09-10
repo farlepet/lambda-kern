@@ -79,9 +79,9 @@ typedef unsigned long long int max_ptr_t; //!< Maximum pointer size that can be 
 
 typedef enum BOOL { FALSE, TRUE } bool;
 
-void __builtin_ia32_pause(); //!< Energy-saving alternative to `nop`
+void __builtin_ia32_pause(void); //!< Energy-saving alternative to `nop`
 
-typedef syscallarg_t (*func0_t)();
+typedef syscallarg_t (*func0_t)(void);
 typedef syscallarg_t (*func1_t)(syscallarg_t);
 typedef syscallarg_t (*func2_t)(syscallarg_t, syscallarg_t);
 typedef syscallarg_t (*func3_t)(syscallarg_t, syscallarg_t, syscallarg_t);

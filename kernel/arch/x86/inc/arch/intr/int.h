@@ -36,7 +36,7 @@ typedef enum {
  * 
  * @return int 1 if enabled, else 0.
  */
-int interrupts_enabled();
+int interrupts_enabled(void);
 
 
 typedef struct pusha_regs {

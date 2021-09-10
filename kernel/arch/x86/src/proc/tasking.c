@@ -16,7 +16,7 @@
 extern lock_t creat_task; // From proc/mtask.c
 
 extern void sched_run(void);
-extern void *get_eip();      //!< Get the EIP value of the instruction after the call to this function
+extern void *get_eip(void);  //!< Get the EIP value of the instruction after the call to this function
 
 void arch_multitasking_init(void) {
 	set_interrupt(INTR_SCHED, sched_run);
@@ -71,7 +71,7 @@ int arch_proc_create_kernel_stack(kthread_t *thread) {
     return 0;
 }
 
-void proc_jump_to_ring(void) {
+static void _proc_jump_to_ring(void) {
 	/* TODO: Select proper CPU */
 	kthread_t *curr_thread = sched_get_curr_thread(0);
     kproc_t   *curr_proc   = curr_thread->process;
@@ -113,7 +113,7 @@ int arch_setup_thread(kthread_t *thread, void *entrypoint, uint32_t stack_size, 
 	thread->arch.esp = (thread->arch.ebp = virt_stack_begin + stack_size) - 12;
 
 	if(kernel == 0) {
-		thread->arch.eip = (uint32_t)proc_jump_to_ring;
+		thread->arch.eip = (uint32_t)_proc_jump_to_ring;
 	}
 
 	kdebug(DEBUGSRC_PROC, "arch_setup_thread EIP: %08X CR3: %08X ESP: %08X", thread->arch.eip, thread->process->arch.cr3, thread->arch.esp);

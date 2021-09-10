@@ -6,9 +6,9 @@
 #include <err/error.h>
 
 extern void load_idt(uint64_t *, uint32_t); //!< Use `lidt` to set the IDT pointer.
-extern void dummy_int(); //!< Dummy interrupt se all IRQ's can function, even if not setup.
+extern void dummy_int(void); //!< Dummy interrupt se all IRQ's can function, even if not setup.
 
-uint64_t IDT[256]; //!< Interrupt Descriptor Table. Table of all interrupt handlers and settings.
+static uint64_t IDT[256]; //!< Interrupt Descriptor Table. Table of all interrupt handlers and settings.
 
 /**
  * Remaps the PIC so when an IRQ fires, it adds `offx` to the IRQ number.
@@ -38,7 +38,7 @@ static void remap_pic(uint8_t off1, uint8_t off2)
  * @see load_idt
  * @see remap_pic
  */
-static void reload_idt()
+static void _reload_idt(void)
 {
 	kerror(ERR_BOOTINFO, "      -> Loading IDT");
 	load_idt(IDT, sizeof(IDT)-1);
@@ -52,7 +52,7 @@ static void reload_idt()
  *
  * @see reload_idt
  */
-void idt_init()
+void idt_init(void)
 {
 	kerror(ERR_BOOTINFO, "      -> Setting dummy interrupt vectors");
 	int i = 0;
@@ -65,7 +65,7 @@ void idt_init()
 	for(i = 0; i < 16; i++)
 		disable_irq(i);
 
-	reload_idt();
+	_reload_idt();
 }
 
 /**

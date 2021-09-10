@@ -22,6 +22,8 @@ struct exception_handler {
 
 int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *iregs);
 int handle_gpf(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *iregs);
+void handle_exception(uint8_t exception, struct pusha_regs regs, uint32_t errcode, struct iret_regs iregs);
+void stub_error(void);
 
 static const struct exception_handler exception_handlers[32] = {
 	{ .name = "Divide by Zero",                .handler = NULL,              .has_errcode = 0, .kill = 1 },

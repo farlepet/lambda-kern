@@ -12,8 +12,9 @@
 #include <types.h>
 
 extern void serial_interrupt(void);
+void serial_int_handle(void);
 
-input_dev_t serial_dev;
+static input_dev_t serial_dev;
 
 #define SERIAL_BUFF_CNT 16
 static cbuff_t _serial_buff = STATIC_CBUFF(sizeof(struct input_event) * SERIAL_BUFF_CNT);

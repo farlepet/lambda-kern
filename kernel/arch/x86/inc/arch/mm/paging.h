@@ -158,7 +158,7 @@ void set_pagedir(uint32_t *dir);
  * 
  * @return uint32_t* Current page directory
  */
-uint32_t *get_pagedir();
+uint32_t *get_pagedir(void);
 
 /**
  * \brief Checks if the page corresponding to the virtual address exists
@@ -228,7 +228,7 @@ void page_free(void *ptr);
  * 
  * @return uint32_t* Clone of page directory
  */
-uint32_t *clone_kpagedir();
+uint32_t *clone_kpagedir(void);
 
 /**
  * @brief Shallow clone given page directory

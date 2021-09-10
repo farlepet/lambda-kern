@@ -7,17 +7,17 @@
 #include <types.h>
 #include <video.h>
 
-error_level_e minlvl    = ERR_INFO; //!< Minimal level where messages are shown
-uint32_t      debugmask = (1UL << DEBUGSRC_PROC) |
-						  (1UL << DEBUGSRC_EXEC) |
-						  (1UL << DEBUGSRC_MM)   |
-						  (1UL << DEBUGSRC_MODULE);
+static error_level_e minlvl    = ERR_INFO; //!< Minimal level where messages are shown
+static uint32_t      debugmask = (1UL << DEBUGSRC_PROC) |
+		            		     (1UL << DEBUGSRC_EXEC) |
+		    				   //(1UL << DEBUGSRC_MM)   |
+						         (1UL << DEBUGSRC_MODULE);
 
-lock_t kerror_lock = 0; //!< Only 1 message can be printed at a time
+static lock_t kerror_lock = 0; //!< Only 1 message can be printed at a time
 
 void kerror(error_level_e errlvl, char *msg, ...) {
 	if(errlvl >= minlvl) {
-		if(interrupts_enabled()) lock_for(&kerror_lock, 8); // We don't want something like a kernel message from a lost task stopping us
+		if(interrupts_enabled()) lock_for(&kerror_lock, 100); // We don't want something like a kernel message from a lost task stopping us
 
 		if(KERNEL_COLORCODE)
 			kprintf("\e[31m[\e[32m%X%08X\e[31m]\e[0m ", (uint32_t)(kerneltime >> 32), (uint32_t)kerneltime);
@@ -48,7 +48,7 @@ void kdebug(debug_source_e src, char *msg, ...) {
 	if(src >= DEBUGSRC_MAX) { return; }
 
 	if(debugmask & (1UL << src)) {
-		if(interrupts_enabled()) lock_for(&kerror_lock, 8); // We don't want something like a kernel message from a lost task stopping us
+		if(interrupts_enabled()) lock_for(&kerror_lock, 100); // We don't want something like a kernel message from a lost task stopping us
 
 		if(KERNEL_COLORCODE)
 			kprintf("\e[31m[\e[32m%X%08X\e[31m] [\e[33m%s\e[31m]\e[0m ", (uint32_t)(kerneltime >> 32), (uint32_t)kerneltime, debug_names[src]);

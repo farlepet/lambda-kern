@@ -2,6 +2,7 @@
 #include <arch/intr/int.h>
 
 #include <proc/mtask.h>
+#include <proc/exec.h>
 
 /**
  * Find the first dead child process of the given parent.

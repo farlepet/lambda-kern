@@ -10,25 +10,20 @@
 #  include <arch/mm/paging.h>
 #endif
 
+extern lock_t creat_task; //!< Lock used when creating tasks
+
 #define STACK_SIZE 0x8000 //!< Size of user stack or if kernel task has a unspecified stack size
 
 //#define STACK_PROTECTOR //!< Whether or not to enable stack protectors (currently broken?)
 
-int get_pid(); //!< Get the PID of the currently running task
+int get_pid(void); //!< Get the PID of the currently running task
 
 /**
  * \brief Get the next free PID number
  * 
  * @return int Next PID, -1 if failure
  */
-int get_next_pid();
-
-/**
- * \brief Get the next free slot in process array.
- * 
- * @return int index in process array. < 0 on failure.
- */
-int get_next_open_proc();
+int get_next_pid(void);
 
 /**
  * \brief Initialize multitasking

@@ -28,7 +28,9 @@ typedef struct {
 	uint64_t ncalls; /** Number of times this syscall was called */
 } syscall_desc_t;
 
-syscall_desc_t syscalls[] = {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-function-type"
+static syscall_desc_t syscalls[] = {
 	[SYSCALL_EXIT]      = { (func0_t)exit,         1, 0 },
 	
 	[SYSCALL_FS_READ]     = { (func0_t)proc_fs_read,     4, 0 },
@@ -50,6 +52,7 @@ syscall_desc_t syscalls[] = {
 	
 	[SYSCALL_FS_READDIR] = { (func0_t)proc_fs_readdir, 4, 0 }
 };
+#pragma GCC diagnostic pop
 
 int service_syscall(uint32_t scn, syscallarg_t *args) {
 	syscall_debug(DEBUGSRC_SYSCALL, "Syscall %d called with args at %08X", scn, args);
@@ -65,6 +68,8 @@ int service_syscall(uint32_t scn, syscallarg_t *args) {
 	func0_t func = syscalls[scn].func;
 
 	// This could be made better, but it is more complicated if another architecture is supported
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-function-type"
 	switch(syscalls[scn].nargs) {
 		case 0:
 			args[0] = func();
@@ -72,27 +77,28 @@ int service_syscall(uint32_t scn, syscallarg_t *args) {
 
 		case 1:
 			syscall_debug(DEBUGSRC_SYSCALL, "  -> ARGS: { %08X }", args[0]);
-			args[0] = (syscallarg_t)((func1_t)func(args[0]));
+			args[0] = (syscallarg_t)((func1_t)func)(args[0]);
 			break;
 
 		case 2:
 			syscall_debug(DEBUGSRC_SYSCALL, "  -> ARGS: { %08X %08X }", args[0], args[1]);
-			args[0] = (syscallarg_t)((func2_t)func(args[0], args[1]));
+			args[0] = (syscallarg_t)((func2_t)func)(args[0], args[1]);
 			break;
 
 		case 3:
 			syscall_debug(DEBUGSRC_SYSCALL, "  -> ARGS: { %08X %08X %08X }", args[0], args[1], args[2]);
-			args[0] = (syscallarg_t)((func3_t)func(args[0], args[1], args[2]));
+			args[0] = (syscallarg_t)((func3_t)func)(args[0], args[1], args[2]);
 			break;
 		
 		case 4:
 			syscall_debug(DEBUGSRC_SYSCALL, "  -> ARGS: { %08X %08X %08X %08X }", args[0], args[1], args[2], args[3]);
-			args[0] = (syscallarg_t)((func4_t)func(args[0], args[1], args[2], args[3]));
+			args[0] = (syscallarg_t)((func4_t)func)(args[0], args[1], args[2], args[3]);
 			break;
 
 		default:
 			kpanic("Syscall error (%d): %d arguments not handled! Kernel programming error!", scn, syscalls[scn].nargs);
 	}
+#pragma GCC diagnostic pop
 
 	syscall_debug(DEBUGSRC_SYSCALL, "  -> Retval [0] = %d", args[0]);
 	
@@ -100,8 +106,8 @@ int service_syscall(uint32_t scn, syscallarg_t *args) {
 }
 
 
-extern void syscall_int();
-void init_syscalls()
+extern void syscall_int(void);
+void init_syscalls(void)
 {
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 	set_idt(INTR_SYSCALL, 0x08, IDT_ATTR(1, 3, 0, int32), &syscall_int);

@@ -25,7 +25,7 @@ static void interrupts_init(void);
 static void mm_init(const mboot_t *);
 
 /* TODO: Move this elsewhere, or dynamically allocate */
-hal_io_char_dev_t serial1;
+static hal_io_char_dev_t serial1;
 
 void arch_init(mboot_t *mboot_head) {
     vga_clear();
@@ -48,7 +48,7 @@ void arch_init(mboot_t *mboot_head) {
 }
 
 
-extern void exceptions_init(); //!< Initializes basic exception handlers. Found in intr/exceptions.asm
+extern void exceptions_init(void); //!< Initializes basic exception handlers. Found in intr/exceptions.asm
 
 /**
  * \brief Initializes interrupts.
