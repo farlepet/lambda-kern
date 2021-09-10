@@ -64,7 +64,7 @@ jobs:
     #    uses a compiled language
 
     - run: |
-       make ARCH=x86
+       make ARCH=x86 EMBEDINITRD=0
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1

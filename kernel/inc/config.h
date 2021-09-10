@@ -10,7 +10,7 @@
 #define KERNEL_COLORCODE 1
 
 /* Embed initrd into kernel */
-#define FEATURE_INITRD_EMBEDDED 1
+#define FEATURE_INITRD_EMBEDDED 0
 
 /* Enable Multiboot 1/2 */
 #define FEATURE_MULTIBOOT 2
