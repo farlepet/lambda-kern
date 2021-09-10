@@ -5,7 +5,7 @@
 #include <proc/ktasks.h>
 #include <err/error.h>
 
-input_dev_t serial_dev;
+static input_dev_t serial_dev;
 
 #define SERIAL_BUFF_CNT 16
 static cbuff_t _serial_buff = STATIC_CBUFF(sizeof(struct input_event) * SERIAL_BUFF_CNT);

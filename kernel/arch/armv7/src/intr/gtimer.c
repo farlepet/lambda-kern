@@ -2,7 +2,7 @@
 
 #include <arch/intr/gtimer.h>
 
-void (*gtimer_callback)(void) = NULL;
+static void (*gtimer_callback)(void) = NULL;
 
 static int timerdev_setfreq(void *data, uint8_t idx, uint32_t freq);
 static int timerdev_attach(void *data, uint8_t idx, void (*callback)(void));

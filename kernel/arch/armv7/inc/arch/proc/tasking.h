@@ -36,12 +36,12 @@ typedef struct {
 } kthread_arch_t;
 
 typedef struct {
-    
+    int _dummy;
 } kproc_arch_t;
 
 /* Architecture-specific task creation parameters */
 typedef struct {
-
+    int _dummy;
 } arch_task_params_t;
 
 #include <proc/proc.h>

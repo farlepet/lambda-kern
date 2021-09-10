@@ -2,6 +2,8 @@
 
 #include <proc/syscalls.h>
 
+void syscall_int(uint32_t);
+
 __hot
 __attribute__((interrupt ("SWI")))
 void syscall_int(uint32_t r0) {

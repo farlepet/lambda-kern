@@ -11,6 +11,8 @@ static uint32_t *vec_table = (uint32_t *)&__int_table;
 
 static void (*__intr_handlers[INTR_MAX])(uint8_t, uintptr_t);
 
+void intr_handler(uint32_t, uintptr_t);
+
 static armv7_gic_handle_t *__gic = NULL;
 
 void intr_set_handler(interrupt_idx_e idx, void (*handler)(uint8_t, uintptr_t)) {
