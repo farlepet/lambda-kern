@@ -63,11 +63,8 @@ jobs:
     #    and modify them (or add more) to build your code if your project
     #    uses a compiled language
 
-    # For code analysis, we just want to build, we don't want to generate the initrd or
-    # anything else
     - run: |
-       make ARCH=x86 arch.a
-       make ARCH=x86 common.o
+       make ARCH=x86
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1

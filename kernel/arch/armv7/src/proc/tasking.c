@@ -64,10 +64,9 @@ void arch_multitasking_init(void) {
 }
 
 __hot void do_task_switch(void) {
-	if(!curr_proc || !curr_thread) return;
-	if(creat_task) return; /* We don't want to interrupt process creation */
+	kthread_t *thread = sched_get_curr_thread(0);
 
-    if(curr_thread->flags & KTHREAD_FLAG_RANONCE) {
+    if(thread->flags & KTHREAD_FLAG_RANONCE) {
         /* Save registers */
         /* push {lr}
          * push {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12}
@@ -76,21 +75,21 @@ __hot void do_task_switch(void) {
         /* TODO: Cleanup */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
-        curr_thread->arch.regs.pc   = irq_stack_end[-1];
-        curr_thread->arch.regs.r0   = irq_stack_end[-2];
-        curr_thread->arch.regs.r1   = irq_stack_end[-3];
-        curr_thread->arch.regs.r2   = irq_stack_end[-4];
-        curr_thread->arch.regs.r3   = irq_stack_end[-5];
-        curr_thread->arch.regs.r4   = irq_stack_end[-6];
-        curr_thread->arch.regs.r5   = irq_stack_end[-7];
-        curr_thread->arch.regs.r6   = irq_stack_end[-8];
-        curr_thread->arch.regs.r7   = irq_stack_end[-9];
-        curr_thread->arch.regs.r8   = irq_stack_end[-10];
-        curr_thread->arch.regs.r9   = irq_stack_end[-11];
-        curr_thread->arch.regs.r10  = irq_stack_end[-12];
-        curr_thread->arch.regs.r11  = irq_stack_end[-13];
-        curr_thread->arch.regs.r12  = irq_stack_end[-14];
-        curr_thread->arch.regs.cpsr = irq_stack_end[-15];
+        thread->arch.regs.pc   = irq_stack_end[-1];
+        thread->arch.regs.r0   = irq_stack_end[-2];
+        thread->arch.regs.r1   = irq_stack_end[-3];
+        thread->arch.regs.r2   = irq_stack_end[-4];
+        thread->arch.regs.r3   = irq_stack_end[-5];
+        thread->arch.regs.r4   = irq_stack_end[-6];
+        thread->arch.regs.r5   = irq_stack_end[-7];
+        thread->arch.regs.r6   = irq_stack_end[-8];
+        thread->arch.regs.r7   = irq_stack_end[-9];
+        thread->arch.regs.r8   = irq_stack_end[-10];
+        thread->arch.regs.r9   = irq_stack_end[-11];
+        thread->arch.regs.r10  = irq_stack_end[-12];
+        thread->arch.regs.r11  = irq_stack_end[-13];
+        thread->arch.regs.r12  = irq_stack_end[-14];
+        thread->arch.regs.cpsr = irq_stack_end[-15];
 #pragma GCC diagnostic pop
 
         /* TODO: Support multiple modes apart from supervisor */
@@ -104,37 +103,37 @@ __hot void do_task_switch(void) {
 
                      "bic r0, r0, #0x0d \n"
                      "msr cpsr, r0 \n"
-                     : "=r" (curr_thread->arch.regs.sp), "=r" (curr_thread->arch.regs.lr));
+                     : "=r" (thread->arch.regs.sp), "=r" (thread->arch.regs.lr));
     } else {
-        curr_thread->flags |= KTHREAD_FLAG_RANONCE;
+        thread->flags |= KTHREAD_FLAG_RANONCE;
     }
     
-    //kdebug(DEBUGSRC_PROC, "-TID: %d | PC: %08X | LR: %08X | SP: %08X | CPSR: %08X | NAME: %s", curr_thread->tid, curr_thread->arch.regs.pc, curr_thread->arch.regs.lr, curr_thread->arch.regs.sp, curr_thread->arch.regs.cpsr, curr_thread->name);
+    //kdebug(DEBUGSRC_PROC, "-TID: %d | PC: %08X | LR: %08X | SP: %08X | CPSR: %08X | NAME: %s", thread->tid, thread->arch.regs.pc, thread->arch.regs.lr, thread->arch.regs.sp, thread->arch.regs.cpsr, thread->name);
 
     /* Get next threadess to run. */
-    sched_next_process();
+	thread = sched_next_process(0);
 
     /* Load registers: */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
-    irq_stack_end[-1]  = curr_thread->arch.regs.pc;
-    irq_stack_end[-2]  = curr_thread->arch.regs.r0;
-    irq_stack_end[-3]  = curr_thread->arch.regs.r1;
-    irq_stack_end[-4]  = curr_thread->arch.regs.r2;
-    irq_stack_end[-5]  = curr_thread->arch.regs.r3;
-    irq_stack_end[-6]  = curr_thread->arch.regs.r4;
-    irq_stack_end[-7]  = curr_thread->arch.regs.r5;
-    irq_stack_end[-8]  = curr_thread->arch.regs.r6;
-    irq_stack_end[-9]  = curr_thread->arch.regs.r7;
-    irq_stack_end[-10] = curr_thread->arch.regs.r8;
-    irq_stack_end[-11] = curr_thread->arch.regs.r9;
-    irq_stack_end[-12] = curr_thread->arch.regs.r10;
-    irq_stack_end[-13] = curr_thread->arch.regs.r11;
-    irq_stack_end[-14] = curr_thread->arch.regs.r12;
-    irq_stack_end[-15] = curr_thread->arch.regs.cpsr;
+    irq_stack_end[-1]  = thread->arch.regs.pc;
+    irq_stack_end[-2]  = thread->arch.regs.r0;
+    irq_stack_end[-3]  = thread->arch.regs.r1;
+    irq_stack_end[-4]  = thread->arch.regs.r2;
+    irq_stack_end[-5]  = thread->arch.regs.r3;
+    irq_stack_end[-6]  = thread->arch.regs.r4;
+    irq_stack_end[-7]  = thread->arch.regs.r5;
+    irq_stack_end[-8]  = thread->arch.regs.r6;
+    irq_stack_end[-9]  = thread->arch.regs.r7;
+    irq_stack_end[-10] = thread->arch.regs.r8;
+    irq_stack_end[-11] = thread->arch.regs.r9;
+    irq_stack_end[-12] = thread->arch.regs.r10;
+    irq_stack_end[-13] = thread->arch.regs.r11;
+    irq_stack_end[-14] = thread->arch.regs.r12;
+    irq_stack_end[-15] = thread->arch.regs.cpsr;
 #pragma GCC diagnostic pop
 	
-    //kdebug(DEBUGSRC_PROC, "+TID: %d | PC: %08X | LR: %08X | SP: %08X | CPSR: %08X | NAME: %s", curr_thread->tid, curr_thread->arch.regs.pc, curr_thread->arch.regs.lr, curr_thread->arch.regs.sp, curr_thread->arch.regs.cpsr, curr_thread->name);
+    //kdebug(DEBUGSRC_PROC, "+TID: %d | PC: %08X | LR: %08X | SP: %08X | CPSR: %08X | NAME: %s", thread->tid, thread->arch.regs.pc, thread->arch.regs.lr, thread->arch.regs.sp, thread->arch.regs.cpsr, thread->name);
 
     /* Restore SP and LR: */
     asm volatile("mrs r0, cpsr \n"
@@ -146,5 +145,5 @@ __hot void do_task_switch(void) {
 
                  "bic r0, r0, #0x0d \n"
                  "msr cpsr, r0 \n"
-                 : : "r" (curr_thread->arch.regs.sp), "r" (curr_thread->arch.regs.lr));
+                 : : "r" (thread->arch.regs.sp), "r" (thread->arch.regs.lr));
 }
