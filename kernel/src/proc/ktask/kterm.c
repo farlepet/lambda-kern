@@ -17,9 +17,7 @@
 				(retval ? "\e[31m" : "\e[32m")
 
 static int kterm_help(int, char **);
-static int kterm_load(int, char **);
-static int kterm_run(int, char **);
-static int kterm_unload(int, char **);
+static int kterm_exec(int, char **);
 static int kterm_ls(int, char **);
 static int kterm_mod(int, char **);
 static int kterm_dbgc(int, char **);
@@ -32,9 +30,7 @@ struct kterm_entry {
 
 static struct kterm_entry kterm_ents[] = {
 	{ 0, "help",   &kterm_help   },
-	{ 0, "load",   &kterm_load   },
-	{ 0, "run",    &kterm_run    },
-	{ 0, "unload", &kterm_unload },
+	{ 0, "exec",   &kterm_exec   },
 	{ 0, "ls",     &kterm_ls     },
 	{ 0, "mod",    &kterm_mod    },
 	{ 0, "dbgc",   &kterm_dbgc   },
@@ -146,9 +142,7 @@ static int kterm_help(int argc, char **argv) {
 	(void)argv;
 	kprintf("Kterm help:\n");
 	kprintf("    help:   display this page\n");
-	kprintf("    load:   load an executable\n");
-	kprintf("    run:    run a loaded executable\n");
-	kprintf("    unload: unload a loaded executable\n");
+	kprintf("    exec:   load and run an executable\n");
 	kprintf("    ls:     list files in current directory\n");
 	kprintf("    dbgc:   run a debug command\n");
 
@@ -156,60 +150,30 @@ static int kterm_help(int argc, char **argv) {
 }
 
 
-/*
- * Executable file functions:
- */
-
-#define EXEC_ELF 1
 
 #define EXEC_STREAM_LEN 256
 
-static char   exec_filename[128] = { 0, };
-static void	 *exec_data = NULL;
-static size_t exec_size = 0;
-static int    exec_type = 0;
-
-static int kterm_load(int argc, char **argv) {
+static int kterm_exec(int argc, char **argv) {
 	if(argc < 2) {
 		kprintf("No executable specified\n");
 		return 1;
 	}
 
-	memcpy(exec_filename, argv[1], strlen(argv[1]));
-
-
-	if(fs_read_file_by_path(exec_filename, NULL, &exec_data, &exec_size, 0)) {
-		memset(exec_filename, 0, 128);
+	void  *exec_data = NULL;
+	size_t exec_size = 0;
+	int    pid       = 0;
+	
+	if(fs_read_file_by_path(argv[1], NULL, &exec_data, &exec_size, 0)) {
+		memset(argv[1], 0, 128);
 		kprintf("Could not open %s!\n", argv[1]);
 		return 1;
 	}
+	
+	kprintf("%s loaded\n", argv[1]);
 
 	if(*(uint32_t *)exec_data == ELF_IDENT) {
-		exec_type = EXEC_ELF;
 		kprintf("Executable is an ELF executable.\n");
-	} else {
-		kprintf("Raw binary executables are no longer supported.\n");
-		kfree(exec_data);
-		return 1;
-	}
-
-	kprintf("%s loaded\n", exec_filename);
-
-	return 0;
-}
-
-static int kterm_run(int argc, char **argv) {
-	(void)argc;
-	(void)argv;
-
-	int pid = 0;
-
-	if(!strlen(exec_filename)) {
-		kprintf("No loaded executable to run\n");
-		return 1;
-	}
-
-	if(exec_type == EXEC_ELF) {
+		
 		pid = load_elf(exec_data, exec_size);
 
 		if(pid < 0) {
@@ -217,7 +181,8 @@ static int kterm_run(int argc, char **argv) {
 			return 1;
 		}
 	} else {
-		kprintf("No executable loaded, or of unsupported type.");
+		kprintf("Unsupported executable type.\n");
+		kfree(exec_data);
 		return 1;
 	}
 
@@ -289,21 +254,6 @@ static int kterm_run(int argc, char **argv) {
 	return 0;
 }
 
-static int kterm_unload(int argc, char **argv) {
-	(void)argc;
-	(void)argv;
-
-	if(!strlen(exec_filename)) {
-		kprintf("No loaded executable to unload");
-		return 1;
-	}
-
-	// TODO: Free allocated data
-
-	memset(exec_filename, 0, 128);
-
-	return 0;
-}
 
 static int kterm_ls(int argc, char **argv) {
 	(void)argc;
