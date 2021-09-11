@@ -130,12 +130,6 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 
 	kthread_t *thread = thread_create((uintptr_t)process, NULL, name, stack_size, pri);
 
-	memcpy(thread->name, name, strlen(name));
-	thread->process    = proc;
-	thread->prio       = pri;
-	thread->entrypoint = (uintptr_t)process;
-	thread->stack_size = stack_size;
-
 	proc_add_thread(proc, thread);
 
 	arch_setup_thread(thread);
