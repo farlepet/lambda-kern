@@ -9,4 +9,9 @@
  * @param ... arguments to go along with format string
  */
 __noreturn
-void kpanic(char *msg, ...);
+void _kpanic(char *msg, ...);
+
+#define __kpanic_stringify1(X) #X
+#define __kpanic_stringify2(X) __kpanic_stringify1(X)
+
+#define kpanic(...) _kpanic(__FILE__ ":" __kpanic_stringify2(__LINE__) ": " __VA_ARGS__)

@@ -12,7 +12,7 @@
 
 extern lock_t creat_task; //!< Lock used when creating tasks
 
-#define STACK_SIZE 0x8000 //!< Size of user stack or if kernel task has a unspecified stack size
+#define DEFAULT_STACK_SIZE 0x8000 //!< Size of user stack or if kernel task has a unspecified stack size
 
 //#define STACK_PROTECTOR //!< Whether or not to enable stack protectors (currently broken?)
 
@@ -87,13 +87,11 @@ int fork(void);
 /**
  * \brief Create stack for process
  * 
- * @param proc Process to create stack for
- * @param stack_size Size of stack to create
- * @param virt_stack_begin Virtual address at which to place stack
- * @param is_kernel Whether or not process is a kernel process
- * @return int 0 on success
+ * @param thread Thread to create stack for
+ * 
+ * @return 0 on success, else non-zero
  */
-uintptr_t proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel);
+int proc_create_stack(kthread_t *thread);
 
 /**
  * \brief Create kernel stack for process

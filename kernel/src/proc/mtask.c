@@ -3,6 +3,7 @@
 
 #include <proc/atomic.h>
 #include <proc/mtask.h>
+#include <proc/thread.h>
 #include <proc/proc.h>
 #include <err/error.h>
 #include <intr/intr.h>
@@ -11,10 +12,6 @@
 #include <string.h>
 #include <mm/mm.h>
 #include <fs/fs.h>
-
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-#  include <arch/mm/paging.h>
-#endif
 
 static llist_t procs;
 
@@ -78,16 +75,12 @@ int get_next_pid() {
 	return next_pid++;
 }
 
-uintptr_t proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel) {
-	return arch_proc_create_stack(thread, stack_size, virt_stack_begin, is_kernel);
+int proc_create_stack(kthread_t *thread) {
+	return arch_proc_create_stack(thread);
 }
 
 int proc_create_kernel_stack(kthread_t *thread) {
-	if(arch_proc_create_kernel_stack(thread)) {
-		return 1;
-	}
-
-	return 0;
+	return arch_proc_create_kernel_stack(thread);
 }
 
 
@@ -98,17 +91,15 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 
 	kproc_t *curr_proc = mtask_get_curr_process();
 	
-	if(!stack_size) stack_size = STACK_SIZE;
-
 	//kerror(ERR_BOOTINFO, "mtask:add_task(%08X, %s, %dK, %d, %08X, %d, %d)", process, name, (stack_size ? (stack_size / 1024) : (STACK_SIZE / 1024)), pri, pagedir, kernel, ring);
 
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	if(arch_params->ring > 3) { kerror(ERR_MEDERR, "mtask:add_task: Ring is out of range (0-3): %d", arch_params->ring); return 0; }
-#endif
+	/*
+	 * Create process
+	 */
 
-	struct kproc *proc = (struct kproc *)kmalloc(sizeof(struct kproc));
+	kproc_t *proc = proc_create(name, kernel, arch_params);
 	if(!proc) {
-		kerror(ERR_LGERR, "mtask:add_task: Not enough memory to allocate new task.");
+		kerror(ERR_LGERR, "mtask:add_task: Could not create process.");
 		return -1;
 	}
 
@@ -118,42 +109,36 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 		kfree(proc);
 		return 0;
 	}
-
-	memset(proc, 0, sizeof(struct kproc));
-
-	memcpy(proc->name, name, strlen(name));
-
-	proc->pid = get_next_pid();
-
-	llist_init(&proc->threads);
-	kthread_t *thread = (kthread_t *)kmalloc(sizeof(kthread_t));
-	thread->list_item.data = thread;
-	llist_append(&proc->threads, &thread->list_item);
-
-	memcpy(thread->name, name, strlen(name));
-	thread->process = proc;
-	thread->tid     = proc->pid;
-
+	
 	// TODO:
 	proc->uid  = 0;
 	proc->gid  = 0;
-
-	if(curr_proc) {
-		proc->parent = curr_proc->pid;
-	}
-
 	proc->type = TYPE_RUNNABLE;
 
 	if(kernel) proc->type |= TYPE_KERNEL;
 
-	thread->prio = pri;
-	thread->entrypoint = (ptr_t)process;
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
+	proc->arch.cr3  = (uint32_t)arch_params->pgdir;
+	proc->arch.ring = arch_params->ring;
+#endif
+	
+	arch_setup_process(proc);
 
-	arch_setup_task(thread, process, stack_size, arch_params);
+	/*
+	 * Create thread
+	 */
 
-	proc->cwd = fs_root;
+	kthread_t *thread = thread_create((uintptr_t)process, NULL, name, stack_size, pri);
 
-	memset(proc->children, 0, sizeof(proc->children));
+	memcpy(thread->name, name, strlen(name));
+	thread->process    = proc;
+	thread->prio       = pri;
+	thread->entrypoint = (uintptr_t)process;
+	thread->stack_size = stack_size;
+
+	proc_add_thread(proc, thread);
+
+	arch_setup_thread(thread);
 
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 	kdebug(DEBUGSRC_PROC, "PID: %d EIP: %08X CR3: %08X ESP: %08X", proc->pid, thread->arch.eip, proc->arch.cr3, thread->arch.esp);

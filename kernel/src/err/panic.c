@@ -8,7 +8,7 @@
 #  include <arch/proc/stack_trace.h>
 #endif
 
-void __noreturn kpanic(char *msg, ...)
+void __noreturn _kpanic(char *msg, ...)
 {
     disable_interrupts();
     
@@ -17,6 +17,7 @@ void __noreturn kpanic(char *msg, ...)
     
     kprintf("Kernel panic:\n    ");
     kprintv(msg, varg);
+    kput('\n');
     
     __builtin_va_end(varg);
     
@@ -24,7 +25,7 @@ void __noreturn kpanic(char *msg, ...)
     kthread_t *thread = mtask_get_curr_thread();
     if(thread) {
         kproc_t *proc = thread->process;
-        kprintf("\n    Thread  %d [%s]\n", thread->tid, thread->name);
+        kprintf("    Thread  %d [%s]\n", thread->tid, thread->name);
         kprintf("    Process %d [%s]\n", proc->pid,   proc->name);
     }
 

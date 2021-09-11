@@ -1,13 +1,17 @@
 #include <proc/proc.h>
+#include <proc/thread.h>
 #include <data/llist.h>
 #include <mm/alloc.h>
 #include <err/error.h>
 #include <err/panic.h>
+#include <video.h>
 
 static llist_t     _thread_queue;
 static llist_t    *_cpu_threads = NULL;
 static kthread_t **_curr_thread = NULL;
 static unsigned    _n_cpus      = 0;
+
+static inline void _cpu_add_thread(unsigned, kthread_t *);
 
 /* TODO: Keep track of usage on each CPU, and schedule accordingly */
 
@@ -27,6 +31,35 @@ int sched_init(unsigned n_cpus) {
     _n_cpus = n_cpus;
 
     return 0;
+}
+
+__noreturn
+void _idle_thread(void) {
+    for(;;) {
+        busy_wait();
+    }
+}
+
+void sched_idle_init(void) {
+    for(unsigned cpu = 0; cpu < _n_cpus; cpu++) {
+        char name[9];
+        /* TODO: Implement snprintf for safety */
+        sprintf(name, "idle_%03d", cpu);
+
+        kproc_t *proc = proc_create(name, 1, NULL);
+        if(proc == NULL) {
+            kpanic("sched_idle_init: Could not create idle process for CPU %u!", cpu);
+        }
+        
+        kthread_t *thread = thread_create((uintptr_t)_idle_thread, NULL, name, 128, PRIO_IDLE);
+        if(thread == NULL) {
+            kpanic("sched_idle_init: Could not create idle thread for CPU %u!", cpu);
+        }
+
+        proc_add_thread(proc, thread);
+
+        _cpu_add_thread(cpu, thread);
+    }
 }
 
 int sched_enqueue_thread(kthread_t *thread) {

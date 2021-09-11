@@ -22,37 +22,55 @@ void arch_multitasking_init(void) {
 	set_interrupt(INTR_SCHED, sched_run);
 }
 
-uintptr_t arch_proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel) {
+int arch_proc_create_stack(kthread_t *thread) {
 /*#ifdef STACK_PROTECTOR
 	stack_begin = (uintptr_t)kmalloc(stack_size + 0x2000);
 #else // STACK_PROTECTOR
 	stack_begin = (uintptr_t)kmalloc(stack_size);
 #endif // !STACK_PROTECTOR*/
 
+	if(!SAFETY_CHECK(thread->process)) {
+		kpanic("arch_proc_create_stack: Thread has no associated process!");
+	}
+
+	int kernel = thread->process->type & TYPE_KERNEL;
+	
+	uint32_t virt_stack_begin = (kernel ? 0xFF000000 : 0x7F000000);
+	
+	/* @todo Find better scheme to separate thread stacks. */
+	int tpos = llist_get_position(&thread->process->threads, &thread->list_item);
+	virt_stack_begin -= tpos * 0x10000;
+
 	// TODO: Use better method, so as not to waste 4K of memory for every process.
-    uintptr_t stack_begin = (uintptr_t)kmamalloc(stack_size, 4096);
+    uintptr_t stack_begin = (uintptr_t)kmamalloc(thread->stack_size, 4096);
 
 	kdebug(DEBUGSRC_PROC, "proc_create_stack [size: %d] [end: %08X, beg: %08X]",
-		stack_size, stack_begin, stack_begin + stack_size
+		thread->stack_size, stack_begin, stack_begin + thread->stack_size
 	);
 
 
     // Map stack memory
-	for(size_t i = 0; i < stack_size; i+= 0x1000) {
-		if(is_kernel) pgdir_map_page((uint32_t *)thread->process->arch.cr3, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
-		else          pgdir_map_page((uint32_t *)thread->process->arch.cr3, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
+	for(size_t i = 0; i < thread->stack_size; i+= 0x1000) {
+		if(kernel) pgdir_map_page((uint32_t *)thread->process->arch.cr3, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
+		else       pgdir_map_page((uint32_t *)thread->process->arch.cr3, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
 	}
 
 	thread->arch.stack_end = virt_stack_begin;
-	thread->arch.stack_beg = virt_stack_begin + stack_size;
+	thread->arch.stack_beg = virt_stack_begin + thread->stack_size;
 
 #ifdef STACK_PROTECTOR
 // TODO: Fix stack guarding:
 	block_page(thread->stack_end - 0x1000);
 	block_page(thread->stack_beg);
 #endif // STACK_PROTECTOR
+	
+	/* Setup call stack for _thread_entrypoint */
+	*(uint32_t *)(stack_begin + thread->stack_size - 4)  = (uint32_t)thread->thread_data;
+	*(uint32_t *)(stack_begin + thread->stack_size - 8)  = (uint32_t)thread->entrypoint;
+	*(uint32_t *)(stack_begin + thread->stack_size - 12) = (uint32_t)NULL;
+	thread->arch.esp = (thread->arch.ebp = virt_stack_begin + thread->stack_size) - 12;
 
-	return stack_begin;
+	return 0;
 }
 
 int arch_proc_create_kernel_stack(kthread_t *thread) {
@@ -89,28 +107,13 @@ static void _thread_entrypoint(void (*entrypoint)(void *), void *data) {
 	exit(1);
 }
 
-int arch_setup_thread(kthread_t *thread, void *entrypoint, uint32_t stack_size, void *data) {
-	/* @todo */
-	(void)data;
-
+int arch_setup_thread(kthread_t *thread) {
 	int kernel = (thread->process->type & TYPE_KERNEL);
 	
 	thread->arch.eip   = (uint32_t)_thread_entrypoint;
 
-	uint32_t /*stack_begin, */virt_stack_begin;
-	if(!kernel) virt_stack_begin = 0xFF000000;
-	else        virt_stack_begin = 0x7F000000;
-	/* @todo Find better scheme to separate thread stacks. */
-	int tpos = llist_get_position(&thread->process->threads, &thread->list_item);
-	virt_stack_begin -= tpos * 0x10000;
-	uintptr_t stack = proc_create_stack(thread, stack_size, virt_stack_begin, kernel);
+	proc_create_stack(thread);
 	proc_create_kernel_stack(thread);
-
-	/* Setup call stack for _thread_entrypoint */
-	*(uint32_t *)(stack + stack_size - 4)  = (uint32_t)data;
-	*(uint32_t *)(stack + stack_size - 8)  = (uint32_t)entrypoint;
-	*(uint32_t *)(stack + stack_size - 12) = (uint32_t)NULL;
-	thread->arch.esp = (thread->arch.ebp = virt_stack_begin + stack_size) - 12;
 
 	if(kernel == 0) {
 		thread->arch.eip = (uint32_t)_proc_jump_to_ring;
@@ -121,11 +124,8 @@ int arch_setup_thread(kthread_t *thread, void *entrypoint, uint32_t stack_size, 
     return 0;
 }
 
-int arch_setup_task(kthread_t *thread, void *entrypoint, uint32_t stack_size, arch_task_params_t *arch_params) {
-	thread->process->arch.ring  = arch_params->ring;
-	thread->process->arch.cr3   = (uint32_t)arch_params->pgdir;
-
-	arch_setup_thread(thread, entrypoint, stack_size, NULL);
+int arch_setup_process(kproc_t *proc) {
+	(void)proc;
 
     return 0;
 }

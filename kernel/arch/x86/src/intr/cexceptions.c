@@ -106,8 +106,8 @@ int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_reg
 		kerror(ERR_MEDERR, "      -> Thread %d [%s]", curr_thread->tid, curr_thread->name);
 		kerror(ERR_MEDERR, "      -> Entrypoint: %08X", curr_thread->entrypoint);
 
-		if(((cr2 < curr_thread->arch.stack_beg) && (cr2 > curr_thread->arch.stack_end - STACK_SIZE)) || // Remember, the x86 stack is upside-down
-		   ((cr2 < curr_thread->arch.stack_beg + STACK_SIZE) && (cr2 > curr_thread->arch.stack_end)))
+		if(((cr2 < curr_thread->arch.stack_beg) && (cr2 > curr_thread->arch.stack_end - curr_thread->stack_size)) ||
+		   ((cr2 < curr_thread->arch.stack_beg + curr_thread->stack_size) && (cr2 > curr_thread->arch.stack_end)))
 		{
 			kerror(ERR_MEDERR, "       -> Caused a stack overflow and is being dealt with");
 		}

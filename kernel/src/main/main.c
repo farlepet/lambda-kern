@@ -40,6 +40,14 @@ __noreturn static void iloop() {
 	for(;;) busy_wait();
 }
 
+#ifdef __clang__
+#  define COMPILER "clang"
+#  define COMPILER_VERSION COMPILER" "__clang_version__
+#else
+#  define COMPILER "GCC"
+#  define COMPILER_VERSION COMPILER" "__VERSION__
+#endif
+
 /**
  * Main kernel functions, initializes all devices, and sets up environment.
  * 
@@ -47,9 +55,11 @@ __noreturn static void iloop() {
  * @param magic magic number telling us this is a multiboot-compliant bootloader
  */
 __noreturn void kmain(void) {
-	kerror(ERR_BOOTINFO, "------------------------------");
+	kerror(ERR_BOOTINFO, "---------------------------------------");
 	kerror(ERR_BOOTINFO, "Kernel version: "LAMBDA_VERSION_STR_FULL);
-	kerror(ERR_BOOTINFO, "------------------------------");
+	kerror(ERR_BOOTINFO, "Compiled by:    "COMPILER_VERSION);
+	kerror(ERR_BOOTINFO, "Built on:       "__DATE__" at "__TIME__);
+	kerror(ERR_BOOTINFO, "---------------------------------------");
 
 #if (FEATURE_INITRD_EMBEDDED)
 	kerror(ERR_BOOTINFO, "Embedded initrd: %08X-%08X", &_binary_initrd_cpio_start, &_binary_initrd_cpio_end);

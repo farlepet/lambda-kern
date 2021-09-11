@@ -137,14 +137,8 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
     cthread->entrypoint = pthread->entrypoint;
     child->arch.cr3     = (uint32_t)clone_pagedir_full((void *)parent->arch.cr3);
 
-    uint32_t stack_size = pthread->arch.stack_beg - pthread->arch.stack_end;
-    uint32_t virt_stack_begin;
-
-    if(!kernel) virt_stack_begin = 0xFF000000;
-    else        virt_stack_begin = 0x7F000000;
-
-
-    proc_create_stack(cthread, stack_size, virt_stack_begin, kernel);
+    cthread->stack_size = pthread->arch.stack_beg - pthread->arch.stack_end;
+    proc_create_stack(cthread);
     proc_create_kernel_stack(cthread);
 
     cthread->arch.ebp = pthread->arch.ebp;

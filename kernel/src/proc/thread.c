@@ -7,44 +7,43 @@
 
 #include <string.h>
 
-int kthread_create(void *entrypoint, void *data, const char *name, size_t stack_size, int prio) {
-	kthread_t *thread = (kthread_t *)kmalloc(sizeof(kthread_t));
+kthread_t *thread_create(uintptr_t entrypoint, void * data, const char *name, size_t stack_size, int prio) {
+    kthread_t *thread = (kthread_t *)kmalloc(sizeof(kthread_t));
     if(thread == NULL) {
-        kpanic("kthread_create: Ran out of memory attempting to allocate thread!");
+        return NULL;
     }
- 
-    kthread_t *curr_thread = mtask_get_curr_thread();
-    if(curr_thread == NULL) {
-        kpanic("kthread_create: Ran out of memory attempting to allocate thread!");
-    }
-    kproc_t *curr_proc = curr_thread->process;
- 
-    memset(thread, 0, sizeof(kthread_t));
-	thread->list_item.data = thread;
-	llist_append(&curr_proc->threads, &thread->list_item);
-
-
-    if(name) {
-        strncpy(thread->name, name, sizeof(thread->name) - 1);
-        thread->name[sizeof(thread->name) - 1] = '\0';
-    } else {
-        strcpy(thread->name, curr_proc->name);
-    }
-
-    if(&thread->list_item != curr_proc->threads.list) {
-        thread->tid    = get_next_pid();
-    } else {
-        /* @todo What if the first thread exited while other(s) continued? */
-        thread->tid    = curr_proc->pid;
-    }
-    thread->entrypoint = (ptr_t)entrypoint;
-    thread->process    = curr_proc;
-    thread->prio       = prio;
 	
+    if(!stack_size) stack_size = DEFAULT_STACK_SIZE;
+    
+    memset(thread, 0, sizeof(kthread_t));
+
+    strncpy(thread->name, name, KPROC_NAME_MAX);
+    
+    thread->entrypoint  = entrypoint;
+    thread->prio        = prio;
+    thread->stack_size  = stack_size;
+    thread->thread_data = data;
+    
+    return thread;
+}
+
+int thread_spawn(uintptr_t entrypoint, void *data, const char *name, size_t stack_size, int prio) {
+    kproc_t *curr_proc = mtask_get_curr_process();
+    if(curr_proc == NULL) {
+        return -1;
+    }
+ 
+	kthread_t *thread = thread_create(entrypoint, data, name, stack_size, prio);
+    if(thread == NULL) {
+        return -1;
+    }
+ 
+    proc_add_thread(curr_proc, thread);
+    
+    arch_setup_thread(thread);
+
     kdebug(DEBUGSRC_PROC, "kthread_create [%s] @ %08X | TID: %d", name, entrypoint, thread->tid);
     
-    arch_setup_thread(thread, entrypoint, stack_size, data);
-
     thread->flags      = KTHREAD_FLAG_RUNNABLE | KTHREAD_FLAG_RANONCE;
 	
     sched_enqueue_thread(thread);

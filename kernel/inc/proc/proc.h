@@ -71,8 +71,10 @@ typedef struct proc_elf_data {
 	const Elf32_Sym *dynamic_sym;     //!< Dynamic symbol table
 } proc_elf_data_t;
 
+#define KPROC_NAME_MAX 63
+
 struct kthread {
-	char              name[64];   /** Name of thread */
+	char              name[KPROC_NAME_MAX+1];   /** Name of thread */
 	uint32_t          tid;        /** Thread ID */
 #define KTHREAD_FLAG_RUNNABLE 0x80000000 /** Thread contents is valid */
 #define KTHREAD_FLAG_RUNNING  0x00000001 /** Thread is currently running */
@@ -84,8 +86,10 @@ struct kthread {
 
 	struct kproc     *process;    /** Pointer to owning process */
 
-	kthread_arch_t    arch;       /** Architecture-specific thread data */
-	uint32_t          entrypoint; /** Program start */
+	kthread_arch_t    arch;        /** Architecture-specific thread data */
+	uintptr_t         entrypoint;  /** Program start */
+	size_t            stack_size;  /** Size of stack */
+	void             *thread_data; /** Data to be provided to thread as an argument */
 	
 	llist_item_t      list_item;
 	llist_item_t      sched_item;
@@ -93,7 +97,7 @@ struct kthread {
 
 /* TODO: Convert some static-size arrays in kproc to dynamically allocated memory. */
 struct kproc { //!< Structure of a process as seen by the kernel
-	char          name[64]; //!< Name of the process
+	char          name[KPROC_NAME_MAX+1]; //!< Name of the process
 	int           pid;      //!< Process ID
 	int           uid;      //!< User who `owns` the process
 	int           gid;      //!< Group who `owns` the process
@@ -150,12 +154,28 @@ int proc_add_file(struct kproc *proc, kfile_hand_t *hand);
 int proc_add_child(struct kproc *parent, struct kproc *child);
 
 /**
+ * \brief Allocate and initialize a process structure 
+ * 
+ * @param name Name of the process
+ * @param kernel Whether this is a kernel process
+ * @param arch_params Architecture-specific parameters
+ * 
+ * @return Null on error, else pointer to newly created process
+ */
+kproc_t *proc_create(char *name, int kernel, arch_task_params_t *arch_params);
+
+/**
  * \brief Initialize scheduler
  * 
  * @param n_cpus Number of available CPUs
  * @return 0 on success, else non-zero
  */
 int sched_init(unsigned n_cpus);
+
+/**
+ * \brief Create idle thread for each CPU
+ */
+void sched_idle_init(void);
 
 /**
  * \brief Reschedule processes
@@ -203,5 +223,15 @@ int proc_add_mmap_ent(struct kproc *proc, uintptr_t virt_address, uintptr_t phys
  * @return int 0 on success
  */
 int proc_add_mmap_ents(struct kproc *proc, struct kproc_mem_map_ent *entries);
+
+/**
+ * \brief Add thread to a process
+ * 
+ * @param proc Process to add thread to
+ * @param thread New thread to add
+ * 
+ * @return 0 on success, else non-zero
+ */
+int proc_add_thread(kproc_t *proc, kthread_t *thread);
 
 #endif
