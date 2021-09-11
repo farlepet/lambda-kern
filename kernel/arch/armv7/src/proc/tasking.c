@@ -10,22 +10,17 @@ extern lock_t creat_task; // From proc/mtask.c
 extern uint32_t irq_stack_end[];
 
 
-uintptr_t arch_proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel) {
-    (void)stack_size;
-    (void)virt_stack_begin;
-    (void)is_kernel;
-
+int arch_proc_create_stack(kthread_t *thread) {
     /* Might need to increase alignment when incorporating MMU */
-    uint32_t stack = (uint32_t)kamalloc(stack_size, 16);
+    uint32_t stack = (uint32_t)kamalloc(thread->stack_size, 16);
     if(!stack) {
         return -1;
     }
 
     /* TODO: MMU */
     thread->arch.stack_beg = stack;
-    thread->arch.stack_end = stack + stack_size;
+    thread->arch.stack_end = stack + thread->stack_size;
 
-    /* TODO */
     return 0;
 }
 
@@ -34,15 +29,10 @@ int arch_proc_create_kernel_stack(kthread_t __unused *thread) {
     return 0;
 }
 
-int arch_setup_thread(kthread_t *thread, void *entrypoint, uint32_t stack_size, void *data) {
-    (void)data;
-    
-    thread->arch.regs.pc = (uint32_t)entrypoint;
-    thread->entrypoint   = (uint32_t)entrypoint;
+int arch_setup_thread(kthread_t *thread) {
+    thread->arch.regs.pc = (uint32_t)thread->entrypoint;
 
-	int kernel = (thread->process->type & TYPE_KERNEL);
- 
-    proc_create_stack(thread, stack_size, 0, kernel);
+    proc_create_stack(thread);
 
     /* TODO: Support multiple modes apart from supervisor */
     thread->arch.regs.cpsr = 0x60000113;
@@ -51,11 +41,7 @@ int arch_setup_thread(kthread_t *thread, void *entrypoint, uint32_t stack_size, 
     return 0;
 }
 
-int arch_setup_task(kthread_t *thread, void *entrypoint, uint32_t stack_size, arch_task_params_t *arch_params) {
-    (void)arch_params;
-    
-    arch_setup_thread(thread, entrypoint, stack_size, NULL);
-
+int arch_setup_process(kproc_t __unused *thread) {
     return 0;
 }
 

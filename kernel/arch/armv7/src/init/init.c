@@ -15,7 +15,7 @@ static uart_pl011_handle_t pl011;
 static hal_io_char_dev_t   uart;
 
 static armv7_gic_handle_t gic;
-static hal_intctlr_dev_t  intctlr;
+hal_intctlr_dev_t         intctlr;
 
 void arch_init(void) {
     disable_interrupts();

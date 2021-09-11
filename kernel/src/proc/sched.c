@@ -34,7 +34,7 @@ int sched_init(unsigned n_cpus) {
 }
 
 __noreturn
-void _idle_thread(void) {
+static void _idle_thread(void) {
     for(;;) {
         busy_wait();
     }

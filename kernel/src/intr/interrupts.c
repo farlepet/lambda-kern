@@ -12,6 +12,7 @@
 #  include <arch/intr/timer/timer_sp804.h>
 #endif
 
+#include <arch/init/init.h>
 #include <arch/intr/int.h>
 #include <arch/proc/tasking.h>
 
@@ -58,6 +59,10 @@ static void _task_switch_handler() {
 
 /* TODO: Move HAL elsewhere */
 static hal_timer_dev_t timer;
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARMV7)
+/* TODO: Store these handles elsewhere */
+static timer_sp804_handle_t sp804;
+#endif
 /**
  * \brief Initializes the system timer.
  * Initializes the timer used by the target architecture.
@@ -69,9 +74,6 @@ void timer_init(uint32_t quantum) {
 	pit_create_timerdev(&timer);
 	hal_timer_dev_attach(&timer, 0, _task_switch_handler);
 #elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARMV7)
-	static timer_sp804_handle_t sp804;
-	extern hal_intctlr_dev_t intctlr; /* GIC */
-
     timer_sp804_init(&sp804, VEXPRESS_A9_PERIPH_TIMER01_BASE);
 	timer_sp804_int_attach(&sp804, &intctlr, VEXPRESSA9_INT_TIM01);
 	timer_sp804_create_timerdev(&sp804, &timer);

@@ -58,7 +58,7 @@ static inline void run_sched(void) {
 /**
  * \brief Architecture-specific process stack creation routine
  */
-uintptr_t arch_proc_create_stack(kthread_t *thread, size_t stack_size, uintptr_t virt_stack_begin, int is_kernel);
+int arch_proc_create_stack(kthread_t *thread);
 
 /**
  * \brief Architecture-specific process kernel stack creation routine
@@ -68,9 +68,9 @@ int arch_proc_create_kernel_stack(kthread_t *thread);
 /**
  * \brief Architecture-specific process creation routine
  */
-int arch_setup_task(kthread_t *thread, void *entrypoint, uint32_t stack_size, arch_task_params_t *arch_params);
+int arch_setup_process(kproc_t *proc);
 
-int arch_setup_thread(kthread_t *thread, void *entrypoint, uint32_t stack_size, void *data);
+int arch_setup_thread(kthread_t *thread);
 
 /**
  * \brief Architecture-specific multitasking initialization.

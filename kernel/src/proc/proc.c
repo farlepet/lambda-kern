@@ -91,6 +91,8 @@ kproc_t *proc_create(char *name, int kernel, arch_task_params_t *arch_params) {
 	if(arch_params) {
 		process->arch.ring = arch_params->ring;
 	}
+#else
+	(void)arch_params;
 #endif
 
 	return process;

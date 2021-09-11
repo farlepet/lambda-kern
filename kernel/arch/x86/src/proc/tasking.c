@@ -110,13 +110,13 @@ static void _thread_entrypoint(void (*entrypoint)(void *), void *data) {
 int arch_setup_thread(kthread_t *thread) {
 	int kernel = (thread->process->type & TYPE_KERNEL);
 	
-	thread->arch.eip   = (uint32_t)_thread_entrypoint;
-
 	proc_create_stack(thread);
 	proc_create_kernel_stack(thread);
 
 	if(kernel == 0) {
 		thread->arch.eip = (uint32_t)_proc_jump_to_ring;
+	} else {
+		thread->arch.eip = (uint32_t)_thread_entrypoint;
 	}
 
 	kdebug(DEBUGSRC_PROC, "arch_setup_thread EIP: %08X CR3: %08X ESP: %08X", thread->arch.eip, thread->process->arch.cr3, thread->arch.esp);
@@ -124,9 +124,7 @@ int arch_setup_thread(kthread_t *thread) {
     return 0;
 }
 
-int arch_setup_process(kproc_t *proc) {
-	(void)proc;
-
+int arch_setup_process(kproc_t __unused *proc) {
     return 0;
 }
 

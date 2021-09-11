@@ -64,7 +64,8 @@ CFLAGS += -Weverything                \
 		  -Wno-bad-function-cast       \
 		  -Wno-cast-align              \
 		  -Wno-packed                  \
-		  -Wno-unknown-warning-option
+		  -Wno-unknown-warning-option  \
+		  -Wno-date-time
 endif
 
 
