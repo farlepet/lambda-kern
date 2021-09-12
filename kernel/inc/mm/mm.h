@@ -12,7 +12,7 @@
  * 
  * @return 1 if readable, 2 if writable, else 0
  */
-int mm_check_addr(void *addr);
+int mm_check_addr(const void *addr);
 
 /**
  * @brief Translate process-given address to physical address

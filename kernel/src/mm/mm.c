@@ -9,7 +9,7 @@
 #  include <arch/mm/paging.h>
 #endif
 
-int mm_check_addr(void *addr) {
+int mm_check_addr(const void *addr) {
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 	uint32_t page = get_page_entry(addr);
 

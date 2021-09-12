@@ -1,6 +1,8 @@
 #include <fs/fs.h>
 #include <fs/procfs.h>
 #include <proc/mtask.h>
+#include <err/panic.h>
+#include <err/error.h>
 #include <fs/dirinfo.h>
 #include <mm/alloc.h>
 
@@ -78,6 +80,10 @@ int proc_fs_open(const char *name, uint32_t flags) {
     kthread_t *thread = mtask_get_curr_thread();
     if(!thread) return -1;
 
+    if(thread->process->cwd == NULL) {
+        return -1;
+    }
+
     if(thread->process->cwd) {
         char tmp[256];
         // TODO: Check for name length!
@@ -93,18 +99,26 @@ int proc_fs_open(const char *name, uint32_t flags) {
             }
 
             kfile_hand_t *hand = (kfile_hand_t *)kmalloc(sizeof(kfile_hand_t));
+            memset(hand, 0, sizeof(kfile_hand_t));
 
             hand->open_flags = flags;
 
-            fs_open(file, hand);
+            if(fs_open(file, hand)) {
+                kdebug(DEBUGSRC_FS, "proc_fs_open: fs_open of %s failed!", name);
+                kfree(hand);
+                return -1;
+            }
+
             // TODO: Handle errors!
             int ret = proc_add_file(thread->process, hand);
-            if (ret) {
-                kfree(hand);
+            if (ret > 0) {
+                if(!SAFETY_CHECK(hand->open_flags & OFLAGS_OPEN)) {
+                    kpanic("Open succeeded, but open flag is not set!");
+                }
                 return ret;
             }
-        } else {
-            return -1;
+    
+            kfree(hand);
         }
     }
     
@@ -119,6 +133,7 @@ int proc_fs_close(int desc) {
 
     if(thread->process->open_files[desc]) {
         fs_close(thread->process->open_files[desc]);
+        kfree(thread->process->open_files[desc]);
         thread->process->open_files[desc] = NULL;
         return 0; // TODO: Error checking!
     }

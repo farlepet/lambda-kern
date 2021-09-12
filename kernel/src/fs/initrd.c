@@ -48,6 +48,7 @@ static ssize_t _read(kfile_hand_t *hand, size_t off, size_t sz, void *buff) {
 
 static int _open(kfile_t *f, kfile_hand_t *hand) {
 	if(hand->open_flags & OFLAGS_WRITE) {
+        kdebug(DEBUGSRC_FS, "initrd: _open: Attempted to open file for writing!");
 		return -1;
 	}
 	/* TODO: Further check open flags/permissions */
@@ -60,13 +61,14 @@ static int _open(kfile_t *f, kfile_hand_t *hand) {
 		char symlink[128];
 		memcpy(symlink, f->info, f->length);
 		symlink[f->length] = '\0';
-
+		unlock(&f->file_lock);
+	
 		f->link = fs_find_file(f->parent, symlink);
+		
 		if(f->link) {
-			fs_open(f->link, hand);
+			return fs_open(f->link, hand);
 		} else {
-			/* TODO: Find link */
-			unlock(&f->file_lock);
+            kdebug(DEBUGSRC_FS, "initrd: _open: Could not open following symlink!");
 			return -1;
 		}
 	}
