@@ -10,8 +10,8 @@
 
 /* NOTE: Some of these flags don't matter after the file is opened, it might be
  * useful to either map or simply mask off these flags. */
-#define OFLAGS_WRITE     0x00000001
-#define OFLAGS_READ      0x00000002
+#define OFLAGS_READ      0x00000001
+#define OFLAGS_WRITE     0x00000002
 #define OFLAGS_APPEND    0x00000004
 #define OFLAGS_CREATE    0x00000008
 #define OFLAGS_DSYNC     0x00000010
