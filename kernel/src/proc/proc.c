@@ -12,6 +12,7 @@ int proc_add_file(kproc_t *proc, kfile_hand_t *file) {
 	for(int i = 0; i < MAX_OPEN_FILES; i++) {
 		if(proc->open_files[i] == NULL) {
 			proc->open_files[i] = file;
+			proc->file_position[i] = 0;
 			return i;
 		}
 	}
