@@ -41,35 +41,49 @@ static void _idle_thread(void) {
 }
 
 void sched_idle_init(void) {
+    kdebug(DEBUGSRC_PROC, "sched_idle_init(): Setting up idle threads for %d CPUs", _n_cpus);
+    
+    kproc_t *proc = proc_create("idle", 1, NULL);
+    if(proc == NULL) {
+        kpanic("sched_idle_init: Could not create idle process!");
+    }
+    
     for(unsigned cpu = 0; cpu < _n_cpus; cpu++) {
+        kdebug(DEBUGSRC_PROC, "  sched_idle_init(): CPU %d", cpu);
         char name[9];
         /* TODO: Implement snprintf for safety */
         sprintf(name, "idle_%03d", cpu);
-
-        kproc_t *proc = proc_create(name, 1, NULL);
-        if(proc == NULL) {
-            kpanic("sched_idle_init: Could not create idle process for CPU %u!", cpu);
-        }
         
-        kthread_t *thread = thread_create((uintptr_t)_idle_thread, NULL, name, 128, PRIO_IDLE);
+        kthread_t *thread = thread_create((uintptr_t)_idle_thread, NULL, name, 0x1000, PRIO_IDLE);
         if(thread == NULL) {
             kpanic("sched_idle_init: Could not create idle thread for CPU %u!", cpu);
         }
+        thread->sched_item.data = thread;
+
+        arch_setup_process(proc);
+        proc->type |= TYPE_RUNNABLE;
 
         proc_add_thread(proc, thread);
+        
+        arch_setup_thread(thread);
+        thread->flags |= KTHREAD_FLAG_RUNNABLE;
 
         _cpu_add_thread(cpu, thread);
     }
 }
 
 int sched_enqueue_thread(kthread_t *thread) {
+    if(thread == NULL) {
+        kpanic("sched_enqueue_thread(): thread is NULL!");
+    }
+    thread->sched_item.data = thread;
+    
     kdebug(DEBUGSRC_PROC, "sched_enqueue(): TID: %d | NAME: %s", thread->tid, thread->name);
     
     if(lock_for(&_thread_queue.lock, 2000)) {
         return -1;
     }
-    
-    thread->sched_item.data = thread;
+ 
     llist_append_unlocked(&_thread_queue, &thread->sched_item);
 
     unlock(&_thread_queue.lock);
@@ -92,8 +106,11 @@ static inline void _cpu_add_thread(unsigned cpu, kthread_t *thread) {
 }
 
 static inline void _schedule_thread(kthread_t *thread) {
-    unsigned cpu   = 0;
+    if(thread == NULL) {
+        kpanic("_schedule_thread(): thread is NULL!");
+    }
     
+    unsigned cpu   = 0;
     size_t   count = _cpu_thread_count(0);
 
     for(unsigned i = 1; i < _n_cpus; i++) {
@@ -153,9 +170,8 @@ kthread_t *sched_next_process(unsigned cpu) {
     };
 
     do {
-
         if(!llist_iterate(&iter, (void **)&thread)) {
-            kpanic("Could not schedule new task -- All tasks are blocked!");
+            kpanic("sched_next_process(): Could not schedule new task -- All tasks are blocked!");
         }
         /*kdebug(DEBUGSRC_PROC, " TID: %d | BLK: %08X | PROC: %s", thread->tid, thread->blocked, thread->name);*/
 
@@ -163,8 +179,11 @@ kthread_t *sched_next_process(unsigned cpu) {
             iter.first = iter.curr;
         }
 
+        if(!thread) {
+            kpanic("sched_next_process(): Thread is NULL!");
+        }
         if(!thread->process) {
-            kpanic("Thread has no associated process!");
+            kpanic("sched_next_process(): Thread has no associated process!");
         }
     } while(!(thread->process->type & TYPE_RUNNABLE)         ||
             !(thread->flags         & KTHREAD_FLAG_RUNNABLE) ||

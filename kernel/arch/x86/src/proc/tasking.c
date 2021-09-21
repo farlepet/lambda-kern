@@ -35,7 +35,7 @@ int arch_proc_create_stack(kthread_t *thread) {
 
 	int kernel = thread->process->type & TYPE_KERNEL;
 	
-	uint32_t virt_stack_begin = (kernel ? 0xFF000000 : 0x7F000000);
+	uint32_t virt_stack_begin = 0x7F000000;
 	
 	/* @todo Find better scheme to separate thread stacks. */
 	int tpos = llist_get_position(&thread->process->threads, &thread->list_item);
@@ -44,7 +44,7 @@ int arch_proc_create_stack(kthread_t *thread) {
 	// TODO: Use better method, so as not to waste 4K of memory for every process.
     uintptr_t stack_begin = (uintptr_t)kmamalloc(thread->stack_size, 4096);
 
-	kdebug(DEBUGSRC_PROC, "proc_create_stack [size: %d] [end: %08X, beg: %08X]",
+	kdebug(DEBUGSRC_PROC, "arch_proc_create_stack [size: %d] [end: %08X, beg: %08X]",
 		thread->stack_size, stack_begin, stack_begin + thread->stack_size
 	);
 
@@ -64,11 +64,7 @@ int arch_proc_create_stack(kthread_t *thread) {
 	block_page(thread->stack_beg);
 #endif // STACK_PROTECTOR
 	
-	/* Setup call stack for _thread_entrypoint */
-	*(uint32_t *)(stack_begin + thread->stack_size - 4)  = (uint32_t)thread->thread_data;
-	*(uint32_t *)(stack_begin + thread->stack_size - 8)  = (uint32_t)thread->entrypoint;
-	*(uint32_t *)(stack_begin + thread->stack_size - 12) = (uint32_t)NULL;
-	thread->arch.esp = (thread->arch.ebp = virt_stack_begin + thread->stack_size) - 12;
+	thread->arch.ebp = thread->arch.stack_beg;
 
 	return 0;
 }
@@ -89,35 +85,43 @@ int arch_proc_create_kernel_stack(kthread_t *thread) {
     return 0;
 }
 
-static void _proc_jump_to_ring(void) {
-	/* TODO: Select proper CPU */
+static void _thread_entrypoint(void) {
 	kthread_t *curr_thread = sched_get_curr_thread(0);
-    kproc_t   *curr_proc   = curr_thread->process;
-	
-	if(curr_proc && curr_thread) {
-		if(curr_thread->entrypoint) {
-			enter_ring(curr_proc->arch.ring, (void *)curr_thread->entrypoint);
-		}
+	if(curr_thread == NULL) {
+		kpanic("_proc_entrypoint: Thread is NULL!");
 	}
-}
 
-__noreturn
-static void _thread_entrypoint(void (*entrypoint)(void *), void *data) {
-	entrypoint(data);
+    kproc_t *curr_proc = curr_thread->process;
+	if(curr_proc == NULL) {
+		kpanic("_proc_entrypoint: Process is NULL!");
+	}
+	if(curr_thread->entrypoint == 0) {
+		kpanic("_proc_entrypoint: Entrypoint is NULL!");
+	}
+
+	if(curr_proc->type & TYPE_KERNEL) {	
+		STACK_PUSH(curr_thread->arch.stack_entry, curr_thread->thread_data);
+	} else {
+		/* Empty args and env for CRT0 w/ user applications */
+		STACK_PUSH(curr_thread->arch.stack_entry, NULL);                            /* ENVP */
+		STACK_PUSH(curr_thread->arch.stack_entry, NULL);                            /* ARGV */
+		STACK_PUSH(curr_thread->arch.stack_entry, curr_thread->arch.stack_beg - 4); /* ENVP ptr */
+		STACK_PUSH(curr_thread->arch.stack_entry, curr_thread->arch.stack_beg - 8); /* ARGV ptr */
+		STACK_PUSH(curr_thread->arch.stack_entry, 0);                               /* ARGC */
+	}
+
+	enter_ring_newstack(curr_proc->arch.ring, (void *)curr_thread->entrypoint, (void *)curr_thread->arch.stack_entry);
+	
 	exit(1);
 }
 
 int arch_setup_thread(kthread_t *thread) {
-	int kernel = (thread->process->type & TYPE_KERNEL);
-	
 	proc_create_stack(thread);
 	proc_create_kernel_stack(thread);
-
-	if(kernel == 0) {
-		thread->arch.eip = (uint32_t)_proc_jump_to_ring;
-	} else {
-		thread->arch.eip = (uint32_t)_thread_entrypoint;
-	}
+	
+	thread->arch.eip         = (uint32_t)_thread_entrypoint;
+	thread->arch.esp         = thread->arch.kernel_stack;
+	thread->arch.stack_entry = thread->arch.stack_beg;
 
 	kdebug(DEBUGSRC_PROC, "arch_setup_thread EIP: %08X CR3: %08X ESP: %08X", thread->arch.eip, thread->process->arch.cr3, thread->arch.esp);
 
@@ -127,9 +131,6 @@ int arch_setup_thread(kthread_t *thread) {
 int arch_setup_process(kproc_t __unused *proc) {
     return 0;
 }
-
-
-
 
 
 __hot void do_task_switch(void) {
@@ -146,7 +147,6 @@ __hot void do_task_switch(void) {
 	eip = (uint32_t)get_eip();
 
 	if(eip == 0xFFFFFFFF) {
-		sched_processes();
 		return;
 	}
 
@@ -155,16 +155,16 @@ __hot void do_task_switch(void) {
 		thread->arch.ebp = ebp;
 		thread->arch.eip = eip;
 	}
-	else thread->flags |= KTHREAD_FLAG_RANONCE;
 
-    /*kdebug(DEBUGSRC_PROC, "-TID: %d | PC: %08X | SP: %08X | BLK: %08X | TYPE: %08X | FLAG: %08X | NAME: %s", thread->tid, thread->arch.eip, thread->arch.esp, thread->blocked, proc->type, thread->flags, thread->name);*/
+    //kdebug(DEBUGSRC_PROC, "-TID: %d | PC: %08X | SP: %08X | CR3: %08X | NAME: %s", thread->tid, thread->arch.eip, thread->arch.esp, thread->process->arch.cr3, thread->name);
 	
 	// Switch to next process here...
 	thread = sched_next_process(0);
 	proc   = thread->process;
     
-    /*kdebug(DEBUGSRC_PROC, "+TID: %d | PC: %08X | SP: %08X | BLK: %08X | TYPE: %08X | FLAG: %08X | NAME: %s", thread->tid, thread->arch.eip, thread->arch.esp, thread->blocked, proc->type, thread->flags, thread->name);*/
+    //kdebug(DEBUGSRC_PROC, "+TID: %d | PC: %08X | SP: %08X | CR3: %08X | NAME: %s", thread->tid, thread->arch.eip, thread->arch.esp, thread->process->arch.cr3, thread->name);
 
+	thread->flags |= KTHREAD_FLAG_RANONCE;
 	if (!thread->arch.kernel_stack) {	
 		kpanic("do_task_switch: No kernel stack set for thread!");
 	}

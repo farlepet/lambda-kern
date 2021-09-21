@@ -12,12 +12,6 @@
 int ktask_pids[KTASK_SLOTS] = { 0 }; //!< PID's of these tasks
 
 void init_ktasks() {
-	// Small stack size here was effecting interrupts?
-	kerror(ERR_BOOTINFO, "Starting kernel idle thread");
-	if((ktask_pids[IDLE_TASK_SLOT] = thread_spawn((uintptr_t)idle_task, NULL, "_idle_", 0x1000, PRIO_IDLE)) < 0) {
-		kpanic("init_ktask: Could not spawn kernel idle task");
-	}
-
 	if(!strlen((const char *)boot_options.init_executable)) {
 		kerror(ERR_BOOTINFO, "Starting kernel terminal thread");
 		if((ktask_pids[KTERM_TASK_SLOT] = thread_spawn((uintptr_t)kterm_task, NULL, "kterm", 0x1000, PRIO_DRIVER)) < 0) {

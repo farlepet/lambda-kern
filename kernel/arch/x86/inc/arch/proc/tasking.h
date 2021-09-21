@@ -19,6 +19,7 @@ typedef struct {
 
 	uintptr_t stack_beg;        /** Beginning of stack */
 	uintptr_t stack_end;        /** Current end of stack */
+	uintptr_t stack_entry;      /** What to set ESP to on initial thread entry */
 
 	kproc_arch_syscall_regs_t syscall_regs; //!< Syscall registers
 } kthread_arch_t;

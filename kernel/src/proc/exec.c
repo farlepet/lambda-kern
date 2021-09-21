@@ -212,14 +212,13 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     /* @todo: Dequeue old threads */
 	llist_init(&curr_proc->threads);
 	kthread_t *thread = (kthread_t *)kmalloc(sizeof(kthread_t));
-	thread->list_item.data = thread;
-	llist_append(&curr_proc->threads, &thread->list_item);
-    sched_enqueue_thread(thread);
- 
+    
     thread->process    = curr_proc;
     thread->entrypoint = (uint32_t)entryp;
     thread->prio       = old_thread->prio;
     thread->tid        = old_thread->tid;
+    proc_add_thread(curr_proc, thread);
+    sched_enqueue_thread(thread);
 
     curr_proc->cwd = tmp_proc.cwd;
     memcpy(curr_proc->open_files, tmp_proc.open_files, sizeof(curr_proc->open_files));

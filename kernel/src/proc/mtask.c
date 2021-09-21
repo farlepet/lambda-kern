@@ -178,6 +178,7 @@ void init_multitasking(void *process, char *name) {
 	kerror(ERR_BOOTINFO, "Initializing multitasking");
 
 	llist_init(&procs);
+	sched_idle_init();
 
 	int tid = add_kernel_task(process, name, 0x2000, PRIO_KERNEL);
 	kthread_t *thread = thread_by_tid(tid);
@@ -185,7 +186,7 @@ void init_multitasking(void *process, char *name) {
 		kpanic("Could not find initial kernel thread!");
 	}
 
-	thread->flags &= (uint32_t)~(KTHREAD_FLAG_RANONCE); // Don't save registers right away for the first task
+	//thread->flags &= (uint32_t)~(KTHREAD_FLAG_RANONCE); // Don't save registers right away for the first task
 
 	arch_multitasking_init();
 

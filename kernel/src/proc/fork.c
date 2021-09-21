@@ -209,24 +209,23 @@ int fork(void) {
     // Doing a memcpy might be more efficient removing some instructions, but it
     // may also introduce bugs/security flaws if certain info isn't cleared properly.
     memset(child, 0, sizeof(struct kproc));
+    child->parent = proc->pid;
     
     kthread_t *cthread = (kthread_t *)kmalloc(sizeof(kthread_t));
     if(cthread == NULL) {
         kpanic("kthread_create: Ran out of memory attempting to allocate thread!");
     }
     memset(cthread, 0, sizeof(kthread_t));
-	cthread->list_item.data = cthread;
+	
     llist_init(&child->threads);
-	llist_append(&child->threads, &cthread->list_item);
+    proc_add_thread(child, cthread);
 
     fork_clone_process(child, proc);
-    
 
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
     kdebug(DEBUGSRC_PROC, " -- Child Stack: %08X %08X", cthread->arch.esp, cthread->arch.ebp);
 #endif
 
-    child->parent = proc->pid;
     proc_add_child(proc, child);
 
     child->type |= TYPE_RUNNABLE;
