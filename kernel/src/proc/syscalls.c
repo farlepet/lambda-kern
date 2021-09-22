@@ -16,8 +16,8 @@
 #include <proc/exec.h>
 #include <fs/procfs.h>
 
-#if 0
-#  define syscall_debug(...) kdebug(__VA_ARGS__)
+#if 1
+#  define syscall_debug(...) kdebug(DEBUGSRC_SYSCALL, __VA_ARGS__)
 #else
 #  define syscall_debug(...)
 #endif
@@ -54,12 +54,15 @@ static syscall_desc_t syscalls[] = {
 };
 #pragma GCC diagnostic pop
 
+static const char *_syscall_stringify(uint32_t);
+
 int service_syscall(uint32_t scn, syscallarg_t *args) {
-	syscall_debug(DEBUGSRC_SYSCALL, "Syscall %d called with args at %08X", scn, args);
+	kthread_t *curr_thread = mtask_get_curr_thread();
+	
+	syscall_debug(ERR_TRACE, "Syscall %d [%s] called by %d with args at %08X", scn, _syscall_stringify(scn), curr_thread->tid, args);
 	if((scn >= ARRAY_SZ(syscalls)) ||
 	   !syscalls[scn].func) {
-		kproc_t *curr_proc = mtask_get_curr_process();
-		kerror(ERR_MEDERR, "Process %d (%s) has tried to call an invalid syscall: %u Args: %08X", curr_proc->pid, curr_proc->name, scn, args);
+		kdebug(DEBUGSRC_SYSCALL, ERR_INFO, "Thread %d (%s) has tried to call an invalid syscall: %u Args: %08X", curr_thread->tid, curr_thread->name, scn, args);
 		return -1;
 	}
 
@@ -76,22 +79,22 @@ int service_syscall(uint32_t scn, syscallarg_t *args) {
 			break;
 
 		case 1:
-			syscall_debug(DEBUGSRC_SYSCALL, "  -> ARGS: { %08X }", args[0]);
+			syscall_debug(ERR_TRACE, "  -> ARGS: { %08X }", args[0]);
 			args[0] = (syscallarg_t)((func1_t)func)(args[0]);
 			break;
 
 		case 2:
-			syscall_debug(DEBUGSRC_SYSCALL, "  -> ARGS: { %08X %08X }", args[0], args[1]);
+			syscall_debug(ERR_TRACE, "  -> ARGS: { %08X %08X }", args[0], args[1]);
 			args[0] = (syscallarg_t)((func2_t)func)(args[0], args[1]);
 			break;
 
 		case 3:
-			syscall_debug(DEBUGSRC_SYSCALL, "  -> ARGS: { %08X %08X %08X }", args[0], args[1], args[2]);
+			syscall_debug(ERR_TRACE, "  -> ARGS: { %08X %08X %08X }", args[0], args[1], args[2]);
 			args[0] = (syscallarg_t)((func3_t)func)(args[0], args[1], args[2]);
 			break;
 		
 		case 4:
-			syscall_debug(DEBUGSRC_SYSCALL, "  -> ARGS: { %08X %08X %08X %08X }", args[0], args[1], args[2], args[3]);
+			syscall_debug(ERR_TRACE, "  -> ARGS: { %08X %08X %08X %08X }", args[0], args[1], args[2], args[3]);
 			args[0] = (syscallarg_t)((func4_t)func)(args[0], args[1], args[2], args[3]);
 			break;
 
@@ -100,7 +103,7 @@ int service_syscall(uint32_t scn, syscallarg_t *args) {
 	}
 #pragma GCC diagnostic pop
 
-	syscall_debug(DEBUGSRC_SYSCALL, "  -> Retval [0] = %d", args[0]);
+	syscall_debug(ERR_TRACE, "  -> Retval [0] = %d", args[0]);
 	
 	return 0;
 }
@@ -119,7 +122,7 @@ void init_syscalls(void)
 extern void call_syscall_int(uint32_t, syscallarg_t *);
 void call_syscall(uint32_t scn, uint32_t *args)
 {
-	kdebug(DEBUGSRC_SYSCALL, "call_syscall: %d, %08X", scn, args);
+	kdebug(DEBUGSRC_SYSCALL, ERR_TRACE, "call_syscall: %d, %08X", scn, args);
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 	call_syscall_int(scn, args);
 #elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARMV7)
@@ -127,4 +130,22 @@ void call_syscall(uint32_t scn, uint32_t *args)
 	(void)args;
 	asm volatile("swi #1");
 #endif
+}
+
+static const char *_syscall_stringify(uint32_t scn) {
+	return (scn == SYSCALL_EXIT)          ? "EXIT"        :
+	       (scn == SYSCALL_FS_READ)       ? "READ"        :
+	       (scn == SYSCALL_FS_WRITE)      ? "WRITE"       :
+	       (scn == SYSCALL_FS_OPEN)       ? "OPEN"        :
+	       (scn == SYSCALL_FS_CLOSE)      ? "CLOSE"       :
+	       (scn == SYSCALL_FS_MKDIR)      ? "MKDIR"       :
+	       (scn == SYSCALL_FS_CREATE)     ? "CREATE"      :
+	       (scn == SYSCALL_FS_IOCTL)      ? "IOCTL"       :
+	       (scn == SYSCALL_FS_READ_BLK)   ? "READ_BLK"    :
+	       (scn == SYSCALL_FS_GETDIRINFO) ? "GETDIRINFO"  :
+	       (scn == SYSCALL_FORK)          ? "FORK"        :
+	       (scn == SYSCALL_EXECVE)        ? "EXECVE"      :
+	       (scn == SYSCALL_WAIT)          ? "WAIT"        :
+	       (scn == SYSCALL_TASK_SWITCH)   ? "TASK_SWITCH" :
+	       (scn == SYSCALL_FS_READDIR)    ? "FS_READDIR"  : "UNKNOWN";
 }

@@ -84,6 +84,6 @@ int kprintf(const char *format, ...);
  * @return the number of characters printed
  * @see print
  */
-int kprintv(char *format, __builtin_va_list varg);
+int kprintv(const char *format, __builtin_va_list varg);
 
 #endif

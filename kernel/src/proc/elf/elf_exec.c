@@ -21,7 +21,7 @@ static void elf_read_phdr(const Elf32_Ehdr *elf, struct kproc_mem_map_ent **mmap
 	elf_data->dynamic = NULL;
 
 	for(size_t i = 0; i < elf->e_phnum; i++) {
-		/*kdebug(DEBUGSRC_EXEC, "phdr[%2X/%2X] T:%X VADDR: %08X MSZ:%08X FSZ:%08X", i+1, elf->e_phnum, prog[i].p_type, prog[i].p_vaddr, prog[i].p_memsz, prog[i].p_filesz);*/
+		kdebug(DEBUGSRC_EXEC, ERR_TRACE, "phdr[%2X/%2X] T:%X VADDR: %08X MSZ:%08X FSZ:%08X", i+1, elf->e_phnum, prog[i].p_type, prog[i].p_vaddr, prog[i].p_memsz, prog[i].p_filesz);
 		switch(prog[i].p_type) {
 			case PT_LOAD: {
 				/* TODO: Read entire header first, so we can avoid issues with
@@ -110,7 +110,7 @@ static uintptr_t elf_exec_common(void *data, uint32_t length, arch_task_params_t
 		}
 
 		if(needed >= 0) {
-			kerror(ERR_BOOTINFO, "DT_NEEDED: %s", &elf_data->dynamic_str[elf_data->dynamic[needed].d_val]);
+			kdebug(DEBUGSRC_EXEC, ERR_TRACE, "DT_NEEDED: %s", &elf_data->dynamic_str[elf_data->dynamic[needed].d_val]);
 		}
 	}
 
@@ -138,7 +138,7 @@ int load_elf(void *file, uint32_t length) {
 	}
 
 
-	kdebug(DEBUGSRC_EXEC, "Entrypoint: %08X", entrypoint);
+	kdebug(DEBUGSRC_EXEC, ERR_TRACE, "Entrypoint: %08X", entrypoint);
 	
 	// Old way of creating new process:
 	int pid = add_user_task_arch((void *)entrypoint, "UNNAMED_ELF", 0, PRIO_USERPROG, &arch_params);
@@ -171,7 +171,7 @@ int exec_elf(void *data, uint32_t length, const char **argv, const char **envp) 
 		return -1;
 	}
 
-	kdebug(DEBUGSRC_EXEC, "Entrypoint: %08X", entrypoint);
+	kdebug(DEBUGSRC_EXEC, ERR_TRACE, "Entrypoint: %08X", entrypoint);
 
 	// TODO: Add generated memory map to this process
 

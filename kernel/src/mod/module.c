@@ -108,30 +108,30 @@ int module_install(kfile_hand_t *file) {
     Elf32_Ehdr        *mod_elf;
     symbol_t          *symbols;
     
-    kdebug(DEBUGSRC_MODULE, "module_install: Reading module");
+    kdebug(DEBUGSRC_MODULE, ERR_DEBUG, "module_install: Reading module");
     if(module_read(file, &mod_head, &mod_base, &mod_elf)) {
         return -1;
     }
-    kdebug(DEBUGSRC_MODULE, "module_install: Checking requirements");
+    kdebug(DEBUGSRC_MODULE, ERR_TRACE, "module_install: Checking requirements");
     if(_check_requirements(mod_head, mod_elf)) {
         kfree(mod_elf);
         return -1;
     }
     
-    kdebug(DEBUGSRC_MODULE, "module_install: Reading symbol table");
+    kdebug(DEBUGSRC_MODULE, ERR_TRACE, "module_install: Reading symbol table");
     if(elf_load_symbols(mod_elf, &symbols)) {
         kfree(mod_elf);
         return -1;
     }
     
-    kdebug(DEBUGSRC_MODULE, "module_install: Generating module entry");
+    kdebug(DEBUGSRC_MODULE, ERR_TRACE, "module_install: Generating module entry");
     const char *ident = (char *)elf_find_data(mod_elf, (uintptr_t)mod_head->metadata.ident);
     module_entry_t *modent = (module_entry_t *)kmalloc(sizeof(module_entry_t) + strlen(ident) + 1);
     memset(modent, 0, sizeof(module_entry_t));
     modent->ident = (char *)((uintptr_t)modent + sizeof(module_entry_t));
     memcpy(modent->ident, ident, strlen(ident) + 1);
 
-    kdebug(DEBUGSRC_MODULE, "module_install: Placing and relocation module");
+    kdebug(DEBUGSRC_MODULE, ERR_TRACE, "module_install: Placing and relocation module");
     if(_module_place(mod_elf, mod_head, _current_base, modent, symbols)) {
         kfree(mod_elf);
         kfree(symbols);
@@ -144,7 +144,7 @@ int module_install(kfile_hand_t *file) {
     modent->func(LAMBDA_MODFUNC_START, modent);
     
 
-    kdebug(DEBUGSRC_MODULE, "module_install: Adding module to list");
+    kdebug(DEBUGSRC_MODULE, ERR_TRACE, "module_install: Adding module to list");
     modent->list_item.data = (void *)modent;
     llist_append(&loaded_modules, &modent->list_item);
 
@@ -215,11 +215,11 @@ static int _do_reloc(uintptr_t baseaddr, const elf_reloc_t *relocs, uintptr_t sy
             *((uint32_t *)dataaddr) = symaddr;
             break;
         default:
-            kdebug(DEBUGSRC_MODULE, "_module_apply_relocs: Unhandled relocation type: %d", ELF32_R_TYPE(rel->r_info));
+            kdebug(DEBUGSRC_MODULE, ERR_WARN, "_module_apply_relocs: Unhandled relocation type: %d", ELF32_R_TYPE(rel->r_info));
             return -1;
     }
     
-    kdebug(DEBUGSRC_MODULE, "_do_reloc: Wrote %08X to %08X [%d]", *(uint32_t *)dataaddr, dataaddr, ELF32_R_TYPE(rel->r_info));
+    kdebug(DEBUGSRC_MODULE, ERR_TRACE, "_do_reloc: Wrote %08X to %08X [%d]", *(uint32_t *)dataaddr, dataaddr, ELF32_R_TYPE(rel->r_info));
 
     return 0;
 }
@@ -249,7 +249,7 @@ static int _module_apply_relocs(const Elf32_Ehdr *elf, const elf_reloc_t *relocs
             if(_RELOC_NEED_SYM(rel[j])) {
                 size_t sidx = ELF32_R_SYM(rel[j].r_info);
                 char *ident = &strs[syms[sidx].st_name];
-                kdebug(DEBUGSRC_MODULE, "_module_apply_relocs: %08X, %08X [%s]",
+                kdebug(DEBUGSRC_MODULE, ERR_TRACE, "_module_apply_relocs: %08X, %08X [%s]",
                        rel[j].r_offset, rel[j].r_info, ident);
                 
                 if(!module_symbol_find_kernel(ident, &symaddr)) {
@@ -269,12 +269,12 @@ static int _module_apply_relocs(const Elf32_Ehdr *elf, const elf_reloc_t *relocs
                         }
                     }
                     if (!found) {
-                        kdebug(DEBUGSRC_MODULE, "_module_apply_relocs: Could not find symbol %s", ident);
+                        kdebug(DEBUGSRC_MODULE, ERR_WARN, "_module_apply_relocs: Could not find symbol %s", ident);
                         return -1;
                     }
                 }
             } else {
-                kdebug(DEBUGSRC_MODULE, "_module_apply_relocs: %08X, %08X",
+                kdebug(DEBUGSRC_MODULE, ERR_TRACE, "_module_apply_relocs: %08X, %08X",
                        rel[j].r_offset, rel[j].r_info);
             }
 
@@ -364,10 +364,10 @@ static int _module_place(const Elf32_Ehdr *elf, const lambda_mod_head_t *mod_hea
         return -1;
     }
 
-    kdebug(DEBUGSRC_MODULE, "Translating module symbol table");
+    kdebug(DEBUGSRC_MODULE, ERR_TRACE, "Translating module symbol table");
     for(size_t i = 0; symbols[i].addr != 0xFFFFFFFF; i++) {
         symbols[i].addr = _translate_addr(relocs, symbols[i].addr);
-        kdebug(DEBUGSRC_MODULE, "  %d: [%s] => %08X", i, symbols[i].name, symbols[i].addr);
+        kdebug(DEBUGSRC_MODULE, ERR_TRACE, "  %d: [%s] => %08X", i, symbols[i].name, symbols[i].addr);
     }
     
     mod_ent->func    = (lambda_mod_func_t)_translate_addr(relocs, (uintptr_t)mod_head->function);
@@ -401,7 +401,7 @@ int module_start_thread(module_entry_t *mod, void (*entry)(void *), void *data, 
         }
     }
     if(tidx == MOD_THREAD_MAX) {
-        kdebug(DEBUGSRC_MODULE, "module_start_thread: Ran out of thread slots!");
+        kdebug(DEBUGSRC_MODULE, ERR_ERROR, "module_start_thread: Ran out of thread slots!");
         return -1;
     }
 

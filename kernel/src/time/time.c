@@ -10,7 +10,7 @@ uint64_t kerneltime = 0; //!< Number of elapsed ticks since the PIT was initiali
 
 void rollover(int pid) //!< Called when the timer rolls over
 {
-	kerror(ERR_LGERR, "Kernel time rolled over, a reboot is strongly suggested");
+	kerror(ERR_CRIT, "Kernel time rolled over, a reboot is strongly suggested");
 	add_time_block(&rollover, 0xFFFFFFFFFFFFFFFF, pid);
 }
 
@@ -51,5 +51,5 @@ void add_time_block(void (*func)(int), uint64_t count, int pid)
 		time_blocks[i].pid   = pid;
 		return;
 	}
-	kerror(ERR_SMERR, "No free time blocks");
+	kerror(ERR_ERROR, "No free time blocks");
 }

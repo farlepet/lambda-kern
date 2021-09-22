@@ -22,7 +22,7 @@
  * @return int 0 on success
  */
 static int proc_copy_data(kthread_t *dest, const kthread_t *src) {
-    kdebug(DEBUGSRC_PROC, "proc_copy_data");
+    kdebug(DEBUGSRC_PROC, ERR_TRACE, "proc_copy_data");
 
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
     struct kproc_mem_map_ent const *pent = src->process->mmap;
@@ -49,7 +49,7 @@ static int proc_copy_data(kthread_t *dest, const kthread_t *src) {
         cent->virt_address = pent->virt_address;
         cent->length       = pent->length;
 
-        kdebug(DEBUGSRC_PROC, "  -> %08X (%d B)", cent->virt_address, cent->length);
+        kdebug(DEBUGSRC_PROC, ERR_TRACE, "  -> %08X (%d B)", cent->virt_address, cent->length);
 
         // Allocate new memory:
         cent->phys_address = (uintptr_t)kmalloc(cent->length + 0x1000);
@@ -105,7 +105,7 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
     // TODO: Clean up!
 
     if(proc_add_child(parent, child)) {
-        kerror(ERR_SMERR, "mtask:add_task: Process %d has run out of children slots", parent->pid);
+        kdebug(DEBUGSRC_PROC, ERR_DEBUG, "mtask:add_task: Process %d has run out of children slots", parent->pid);
         unlock(&creat_task);
         return -1;
     }
@@ -172,12 +172,12 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
 
     uint32_t *syscall_args_virt = (uint32_t *)pusha_stack->ebx;
     uint32_t *syscall_args_phys = (uint32_t *)pgdir_get_phys_addr((uint32_t *)child->arch.cr3, syscall_args_virt);
-    kdebug(DEBUGSRC_PROC, "ARGS_LOC: %08X -> %08X -> %08X", syscall_args_virt, syscall_args_phys, *(uint32_t *)syscall_args_phys);
+    kdebug(DEBUGSRC_PROC, ERR_TRACE, "ARGS_LOC: %08X -> %08X -> %08X", syscall_args_virt, syscall_args_phys, *(uint32_t *)syscall_args_phys);
     syscall_args_phys[0] = 0; // <- Return 0 indicating child process
 
 
 
-    kdebug(DEBUGSRC_PROC, " -- eip: %08X esp: %08X ebp: %08X cr3: %08X", cthread->arch.eip, cthread->arch.esp, cthread->arch.ebp, child->arch.cr3);
+    kdebug(DEBUGSRC_PROC, ERR_TRACE, " -- eip: %08X esp: %08X ebp: %08X cr3: %08X", cthread->arch.eip, cthread->arch.esp, cthread->arch.ebp, child->arch.cr3);
 #else
     /* TODO */
     proc_copy_data(cthread, pthread);
@@ -203,7 +203,7 @@ int fork(void) {
 
     lock(&creat_task);
 	
-    kdebug(DEBUGSRC_PROC, "mtask:fork()");
+    kdebug(DEBUGSRC_PROC, ERR_DEBUG, "mtask:fork()");
 
     struct kproc *child = (struct kproc *)kmalloc(sizeof(struct kproc));
     // Doing a memcpy might be more efficient removing some instructions, but it
@@ -223,7 +223,7 @@ int fork(void) {
     fork_clone_process(child, proc);
 
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-    kdebug(DEBUGSRC_PROC, " -- Child Stack: %08X %08X", cthread->arch.esp, cthread->arch.ebp);
+    kdebug(DEBUGSRC_PROC, ERR_TRACE, " -- Child Stack: %08X %08X", cthread->arch.esp, cthread->arch.ebp);
 #endif
 
     proc_add_child(proc, child);

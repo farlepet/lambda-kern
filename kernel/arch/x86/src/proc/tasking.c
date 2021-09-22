@@ -44,7 +44,7 @@ int arch_proc_create_stack(kthread_t *thread) {
 	// TODO: Use better method, so as not to waste 4K of memory for every process.
     uintptr_t stack_begin = (uintptr_t)kmamalloc(thread->stack_size, 4096);
 
-	kdebug(DEBUGSRC_PROC, "arch_proc_create_stack [size: %d] [end: %08X, beg: %08X]",
+	kdebug(DEBUGSRC_PROC, ERR_TRACE, "arch_proc_create_stack [size: %d] [end: %08X, beg: %08X]",
 		thread->stack_size, stack_begin, stack_begin + thread->stack_size
 	);
 
@@ -72,7 +72,7 @@ int arch_proc_create_stack(kthread_t *thread) {
 int arch_proc_create_kernel_stack(kthread_t *thread) {
 	thread->arch.kernel_stack = (uint32_t)kmamalloc(PROC_KERN_STACK_SIZE, 4096);
 
-	kdebug(DEBUGSRC_PROC, "arch_proc_create_kernel_stack [size: %d] [end: %08X, beg: %08X]",
+	kdebug(DEBUGSRC_PROC, ERR_TRACE, "arch_proc_create_kernel_stack [size: %d] [end: %08X, beg: %08X]",
 		PROC_KERN_STACK_SIZE, thread->arch.kernel_stack, thread->arch.kernel_stack + PROC_KERN_STACK_SIZE
 	);
 
@@ -85,6 +85,7 @@ int arch_proc_create_kernel_stack(kthread_t *thread) {
     return 0;
 }
 
+__noreturn
 static void _thread_entrypoint(void) {
 	kthread_t *curr_thread = sched_get_curr_thread(0);
 	if(curr_thread == NULL) {
@@ -123,7 +124,7 @@ int arch_setup_thread(kthread_t *thread) {
 	thread->arch.esp         = thread->arch.kernel_stack;
 	thread->arch.stack_entry = thread->arch.stack_beg;
 
-	kdebug(DEBUGSRC_PROC, "arch_setup_thread EIP: %08X CR3: %08X ESP: %08X", thread->arch.eip, thread->process->arch.cr3, thread->arch.esp);
+	kdebug(DEBUGSRC_PROC, ERR_TRACE, "arch_setup_thread EIP: %08X CR3: %08X ESP: %08X", thread->arch.eip, thread->process->arch.cr3, thread->arch.esp);
 
     return 0;
 }
@@ -156,13 +157,13 @@ __hot void do_task_switch(void) {
 		thread->arch.eip = eip;
 	}
 
-    //kdebug(DEBUGSRC_PROC, "-TID: %d | PC: %08X | SP: %08X | CR3: %08X | NAME: %s", thread->tid, thread->arch.eip, thread->arch.esp, thread->process->arch.cr3, thread->name);
+    kdebug(DEBUGSRC_PROC, ERR_ALL, "-TID: %d | PC: %08X | SP: %08X | CR3: %08X | NAME: %s", thread->tid, thread->arch.eip, thread->arch.esp, thread->process->arch.cr3, thread->name);
 	
 	// Switch to next process here...
 	thread = sched_next_process(0);
 	proc   = thread->process;
     
-    //kdebug(DEBUGSRC_PROC, "+TID: %d | PC: %08X | SP: %08X | CR3: %08X | NAME: %s", thread->tid, thread->arch.eip, thread->arch.esp, thread->process->arch.cr3, thread->name);
+    kdebug(DEBUGSRC_PROC, ERR_ALL, "+TID: %d | PC: %08X | SP: %08X | CR3: %08X | NAME: %s", thread->tid, thread->arch.eip, thread->arch.esp, thread->process->arch.cr3, thread->name);
 
 	thread->flags |= KTHREAD_FLAG_RANONCE;
 	if (!thread->arch.kernel_stack) {	

@@ -41,7 +41,7 @@ static void _idle_thread(void) {
 }
 
 void sched_idle_init(void) {
-    kdebug(DEBUGSRC_PROC, "sched_idle_init(): Setting up idle threads for %d CPUs", _n_cpus);
+    kdebug(DEBUGSRC_PROC, ERR_INFO, "sched_idle_init(): Setting up idle threads for %d CPUs", _n_cpus);
     
     kproc_t *proc = proc_create("idle", 1, NULL);
     if(proc == NULL) {
@@ -49,7 +49,7 @@ void sched_idle_init(void) {
     }
     
     for(unsigned cpu = 0; cpu < _n_cpus; cpu++) {
-        kdebug(DEBUGSRC_PROC, "  sched_idle_init(): CPU %d", cpu);
+        kdebug(DEBUGSRC_PROC, ERR_DEBUG, "  sched_idle_init(): CPU %d", cpu);
         char name[9];
         /* TODO: Implement snprintf for safety */
         sprintf(name, "idle_%03d", cpu);
@@ -78,7 +78,7 @@ int sched_enqueue_thread(kthread_t *thread) {
     }
     thread->sched_item.data = thread;
     
-    kdebug(DEBUGSRC_PROC, "sched_enqueue(): TID: %d | NAME: %s", thread->tid, thread->name);
+    kdebug(DEBUGSRC_PROC, ERR_TRACE, "sched_enqueue(): TID: %d | NAME: %s", thread->tid, thread->name);
     
     if(lock_for(&_thread_queue.lock, 2000)) {
         return -1;
@@ -97,7 +97,7 @@ static inline size_t _cpu_thread_count(unsigned cpu) {
 }
 
 static inline void _cpu_add_thread(unsigned cpu, kthread_t *thread) {
-	kdebug(DEBUGSRC_PROC, "Assigning thread (%u, %s) to cpu %u", thread->tid, thread->name, cpu);
+	kdebug(DEBUGSRC_PROC, ERR_TRACE, "Assigning thread (%u, %s) to cpu %u", thread->tid, thread->name, cpu);
 
     llist_append(&_cpu_threads[cpu], &thread->sched_item);
     if(!_curr_thread[cpu]) {
@@ -160,8 +160,6 @@ kthread_t *sched_next_process(unsigned cpu) {
      * until we find one that we can schedule.
      */
     
-    /*kdebug(DEBUGSRC_PROC, " CPU %u: %u processses", cpu, _cpu_thread_count(cpu));*/
-
     kthread_t *thread = _curr_thread[cpu];
     
     llist_iterator_t iter = {
@@ -173,7 +171,6 @@ kthread_t *sched_next_process(unsigned cpu) {
         if(!llist_iterate(&iter, (void **)&thread)) {
             kpanic("sched_next_process(): Could not schedule new task -- All tasks are blocked!");
         }
-        /*kdebug(DEBUGSRC_PROC, " TID: %d | BLK: %08X | PROC: %s", thread->tid, thread->blocked, thread->name);*/
 
         if(iter.first == (llist_item_t *)0xFFFFFFFF) {
             iter.first = iter.curr;

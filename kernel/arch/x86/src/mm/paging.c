@@ -184,7 +184,7 @@ void map_page(void *physaddr, void *virtualaddr, uint32_t flags) {
 }
 
 void pgdir_map_page(uint32_t *pgdir, void *physaddr, void *virtualaddr, uint32_t flags) {
-	kdebug(DEBUGSRC_MM, "Mapping %8X to %8X (%03X) in %8X", virtualaddr, physaddr, flags, pgdir);
+	kdebug(DEBUGSRC_MM, ERR_TRACE, "Mapping %8X to %8X (%03X) in %8X", virtualaddr, physaddr, flags, pgdir);
 
 	virtualaddr = (void *)((uint32_t)virtualaddr & 0xFFFFF000);
 	physaddr    = (void *)((uint32_t)physaddr    & 0xFFFFF000);
@@ -227,7 +227,7 @@ void set_pagedir(uint32_t *dir) {
 		kpanic("Attempted to set pagedir pointer to NULL!");
 	}
 
-	kdebug(DEBUGSRC_MM, "SET_PAGEDIR: %08X", dir);
+	kdebug(DEBUGSRC_MM, ERR_TRACE, "SET_PAGEDIR: %08X", dir);
 	asm volatile("mov %0, %%cr3":: "b"(dir));
 }
 
@@ -285,17 +285,17 @@ void paging_init(uint32_t som, uint32_t eom) {
 		kpanic("paging_init: Number of required frames exceeds that allocated! %d > %d", nframes, N_FRAMES);
 	}
 
-	kerror(ERR_BOOTINFO, "  -> Clearing page frame table"); 
+	kerror(ERR_INFO, "  -> Clearing page frame table"); 
 	
 	for(size_t i = 0; i < (nframes / 32); i++, frames[i] = 0) {
 		frames[i] = 0;
 	}
 
-	kerror(ERR_BOOTINFO, "  -> Clearing page directory");
+	kerror(ERR_INFO, "  -> Clearing page directory");
 
 	clear_pagedir(pagedir);
 
-	kerror(ERR_BOOTINFO, "  -> Filling first 4 page tables");
+	kerror(ERR_INFO, "  -> Filling first 4 page tables");
 
 	/* @todo Base this on the actual used memory */
 	for(size_t i = 0; i < N_INIT_TABLES; i++) {
@@ -304,30 +304,30 @@ void paging_init(uint32_t som, uint32_t eom) {
 		pagedir[i] = (uint32_t)init_tbls[i] | 3;
 	}
 
-	kerror(ERR_BOOTINFO, "  -> Setting page directory");
+	kerror(ERR_INFO, "  -> Setting page directory");
 
 	kernel_cr3 = (uint32_t)pagedir;
 	set_pagedir(pagedir);
 
-	kerror(ERR_BOOTINFO, "  -> Enabling paging");
+	kerror(ERR_INFO, "  -> Enabling paging");
 
 	enable_paging();
 	enable_global_pages();
 
 	block_page(0x00000000); // Catch NULL pointers and jumps
 
-	kerror(ERR_BOOTINFO, "  -> Initializing `malloc`");
-	kerror(ERR_BOOTINFO, "      -> Allocating page frames");
+	kerror(ERR_INFO, "  -> Initializing `malloc`");
+	kerror(ERR_INFO, "      -> Allocating page frames");
 #define ALLOC_MEM_SZ 0x1000000 /* TODO: Make this dynamic */
 	uint32_t alloc_mem = (uint32_t)page_alloc(ALLOC_MEM_SZ + PAGE_SZ); // 16 MB should be good for now
 	if(alloc_mem % PAGE_SZ) {
 		alloc_mem = (alloc_mem + PAGE_SZ) & 0xFFFFF000;
 	}
 
-	kerror(ERR_BOOTINFO, "      -> Initializing allocation system");
+	kerror(ERR_INFO, "      -> Initializing allocation system");
 	init_alloc(alloc_mem, ALLOC_MEM_SZ);
 
-	kerror(ERR_BOOTINFO, "      -> %08X -> %08X (%08X)", alloc_mem, alloc_mem + ALLOC_MEM_SZ, ALLOC_MEM_SZ);
+	kerror(ERR_INFO, "      -> %08X -> %08X (%08X)", alloc_mem, alloc_mem + ALLOC_MEM_SZ, ALLOC_MEM_SZ);
 }
 
 
@@ -427,7 +427,7 @@ static void *get_first_avail_hole(uint32_t size) {
 		}
 		else base_i = 0xFFFFFFFF;
 	}
-	kerror(ERR_SMERR, "Could not find %d KiB block", size4k * 4);
+	kerror(ERR_ERROR, "Could not find %d KiB block", size4k * 4);
 	return 0;
 }
 
@@ -479,13 +479,13 @@ void page_free(void *ptr)
 {
 	if(!ptr)
 	{
-		kerror(ERR_SMERR, "Pointer given to `kfree` is null");
+		kerror(ERR_WARN, "Pointer given to `kfree` is null");
 		return;
 	}
 	struct alloc_head *header = (struct alloc_head *)(ptr - sizeof(struct alloc_head));
 	if((header->magic != 0xA110CA1E) || (header->addr != (uint32_t)ptr))
 	{
-		kerror(ERR_SMERR, "Pointer given to `kfree` is invalid");
+		kerror(ERR_WARN, "Pointer given to `kfree` is invalid");
 		return;
 	}
 

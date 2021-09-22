@@ -17,27 +17,27 @@
 #endif
 
 int execve(const char *filename, const char **argv, const char **envp) {
-    kdebug(DEBUGSRC_EXEC, "execve: %s (%08X, %08X)", filename, argv, envp);
+    kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "execve: %s (%08X, %08X)", filename, argv, envp);
     if(!mm_check_addr(argv)) {
-        kerror(ERR_BOOTINFO, "  -> ARGV invalid address?");
+        kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "  -> ARGV invalid address?");
     }
     if(!mm_check_addr(envp)) {
-        kerror(ERR_BOOTINFO, "  -> ENVP invalid address?");
+        kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "  -> ENVP invalid address?");
     }
 
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-    kdebug(DEBUGSRC_EXEC, "execve pgdir: %08X", get_pagedir());
+    kdebug(DEBUGSRC_EXEC, ERR_TRACE, "execve pgdir: %08X", get_pagedir());
 #endif
 
     for(int i = 0; argv[i]; i++) {
-        kdebug(DEBUGSRC_EXEC, "execve argv[%d]: %08X '%s'", i, argv[i], argv[i]);
+        kdebug(DEBUGSRC_EXEC, ERR_TRACE, "execve argv[%d]: %08X '%s'", i, argv[i], argv[i]);
     }
 	
     void  *exec_data;
     size_t exec_size;
 
     if(fs_read_file_by_path(filename, NULL, &exec_data, &exec_size, 0)) {
-		kerror(ERR_SMERR, "execve: Could not open %s!\n", argv[1]);
+		kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "execve: Could not open %s!\n", argv[1]);
 		return -1;
 	}
 
@@ -45,12 +45,12 @@ int execve(const char *filename, const char **argv, const char **envp) {
     // registered on-the-fly
     // Check for the filetype:
     if(*(uint32_t *)exec_data == ELF_IDENT) { // ELF
-        kdebug(DEBUGSRC_EXEC, "execve: Determined filetype as ELF");
+        kdebug(DEBUGSRC_EXEC, ERR_TRACE, "execve: Determined filetype as ELF");
         return exec_elf(exec_data, exec_size, argv, envp);
     } else if(*(uint16_t *)exec_data == 0x3335) { // SHEBANG, NOTE: Byte order might be wrong!
-        kerror(ERR_MEDERR, "execve: No support for shebang yet!");
+        kdebug(DEBUGSRC_EXEC, ERR_WARN, "execve: No support for shebang yet!");
     } else { // UNKNOWN
-        kerror(ERR_MEDERR, "execve: Unknown executable file type: %08X", *(uint32_t *)exec_data);
+        kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "execve: Unknown executable file type: %08X", *(uint32_t *)exec_data);
     }
 
     return -1;
@@ -83,7 +83,7 @@ static void exec_copy_arguments(kthread_t *thread, const char **argv, const char
     /* NULL pointers at the end of argv and envp */
     data_sz += sizeof(char *) * 2;
     
-    kdebug(DEBUGSRC_EXEC, "exec_copy_arguments(): ARGV: %08X, ENVP: %08X, SZ: %d",
+    kdebug(DEBUGSRC_EXEC, ERR_TRACE, "exec_copy_arguments(): ARGV: %08X, ENVP: %08X, SZ: %d",
            argv, envp, data_sz);
 
     /* TODO: We are wasting space when doing this, we could add it to the process' memory map such
@@ -104,7 +104,7 @@ static void exec_copy_arguments(kthread_t *thread, const char **argv, const char
     for(i = 0; i < argc; i++) {
         new_argv[i] = &new_buffer[c_off];
         memcpy(&new_buffer[c_off], argv[i], strlen(argv[i]) + 1);
-        kdebug(DEBUGSRC_EXEC, " -> ARG[%d]: %s", i, &new_buffer[c_off]);
+        kdebug(DEBUGSRC_EXEC, ERR_TRACE, " -> ARG[%d]: %s", i, &new_buffer[c_off]);
         c_off += strlen(argv[i]) + 1;
     }
     new_argv[i] = NULL;
@@ -113,13 +113,13 @@ static void exec_copy_arguments(kthread_t *thread, const char **argv, const char
     for(i = 0; i < envc; i++) {
         new_envp[i] = &new_buffer[c_off];
         memcpy(&new_buffer[c_off], envp[i], strlen(envp[i]) + 1);
-        kdebug(DEBUGSRC_EXEC, " -> ENV[%d]: %s", i, &new_buffer[c_off]);
+        kdebug(DEBUGSRC_EXEC, ERR_TRACE, " -> ENV[%d]: %s", i, &new_buffer[c_off]);
         c_off += strlen(envp[i]) + 1;
     }
     new_envp[i] = NULL;
 
     if(c_off != data_sz) {
-        kdebug(DEBUGSRC_EXEC, "  -> c_off (%d) != data_sz (%d)!", c_off, data_sz);
+        kdebug(DEBUGSRC_EXEC, ERR_TRACE, "  -> c_off (%d) != data_sz (%d)!", c_off, data_sz);
     }
 
     (void)thread;
@@ -127,7 +127,7 @@ static void exec_copy_arguments(kthread_t *thread, const char **argv, const char
     *n_argv = new_argv;
     *n_envp = new_envp;
 
-    kdebug(DEBUGSRC_EXEC, "  -> New locations: ARGV: %08X, ENVP: %08X", *n_argv, *n_envp);    
+    kdebug(DEBUGSRC_EXEC, ERR_TRACE, "  -> New locations: ARGV: %08X, ENVP: %08X", *n_argv, *n_envp);    
 }
 
 static void *_store_arguments(const char **argv, const char **envp, char ***_argv, char ***_envp) {
@@ -169,7 +169,7 @@ static void *_store_arguments(const char **argv, const char **envp, char ***_arg
     (*_envp)[envc] = NULL;
     
     if(off != data_sz) {
-        kdebug(DEBUGSRC_EXEC, "  -> off (%d) != data_sz (%d)!", off, data_sz);
+        kdebug(DEBUGSRC_EXEC, ERR_TRACE, "  -> off (%d) != data_sz (%d)!", off, data_sz);
     }
 
     return data;
@@ -177,7 +177,7 @@ static void *_store_arguments(const char **argv, const char **envp, char ***_arg
 
 void exec_replace_process_image(void *entryp, const char *name, arch_task_params_t *arch_params, symbol_t *symbols, const char **argv, const char **envp) {
     // TODO: Clean this up, separate out portions where possible/sensical
-    kdebug(DEBUGSRC_EXEC, "exec_replace_process_image @ %08X", entryp);
+    kdebug(DEBUGSRC_EXEC, ERR_TRACE, "exec_replace_process_image @ %08X", entryp);
 
     struct kproc tmp_proc;
     
@@ -305,7 +305,7 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     STACK_PUSH(thread->arch.esp, n_argv);
     STACK_PUSH(thread->arch.esp, argc);    
 
-    kdebug(DEBUGSRC_EXEC, "exec_replace_process_image(): Jumping into process");
+    kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "exec_replace_process_image(): Jumping into process");
 
     thread->flags |= KTHREAD_FLAG_RUNNABLE;
 

@@ -40,9 +40,9 @@ static void remap_pic(uint8_t off1, uint8_t off2)
  */
 static void _reload_idt(void)
 {
-	kerror(ERR_BOOTINFO, "      -> Loading IDT");
+	kerror(ERR_INFO, "      -> Loading IDT");
 	load_idt(IDT, sizeof(IDT)-1);
-	kerror(ERR_BOOTINFO, "      -> Remapping IRQ's");
+	kerror(ERR_INFO, "      -> Remapping IRQ's");
 	remap_pic(0x20, 0x28);
 }
 
@@ -54,7 +54,7 @@ static void _reload_idt(void)
  */
 void idt_init(void)
 {
-	kerror(ERR_BOOTINFO, "      -> Setting dummy interrupt vectors");
+	kerror(ERR_INFO, "      -> Setting dummy interrupt vectors");
 	int i = 0;
 	for(; i < 256; i++)
 	{

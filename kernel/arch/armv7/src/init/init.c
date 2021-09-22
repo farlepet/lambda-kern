@@ -26,21 +26,21 @@ void arch_init(void) {
     uart_pl011_create_chardev(&pl011, &uart);
     kput_char_dev = &uart;
 
-    kerror(ERR_BOOTINFO, "UART Initialized");
+    kerror(ERR_INFO, "UART Initialized");
 
     intr_init();
-    kerror(ERR_BOOTINFO, "Interrupts Initialized");
+    kerror(ERR_INFO, "Interrupts Initialized");
 
     ptr_t mpcore;
     __READ_PERIPHBASE(mpcore);
-    kerror(ERR_BOOTINFO, "PERIPHBASE: %08X", mpcore);
+    kerror(ERR_INFO, "PERIPHBASE: %08X", mpcore);
 
     armv7_gic_init(&gic,
                   (void *)(mpcore + MPCORE_PERIPHBASE_OFF_ICC),
                   (void *)(mpcore + MPCORE_PERIPHBASE_OFF_DCU));
     armv7_gic_create_intctlrdev(&gic, &intctlr);
     intr_attach_gic(&gic);
-    kerror(ERR_BOOTINFO, "GIC Initialized");
+    kerror(ERR_INFO, "GIC Initialized");
 
     uart_pl011_int_attach(&pl011, &intctlr, VEXPRESSA9_INT_UART0);
 

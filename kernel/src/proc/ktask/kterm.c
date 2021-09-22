@@ -177,7 +177,7 @@ static int kterm_exec(int argc, char **argv) {
 		pid = load_elf(exec_data, exec_size);
 
 		if(pid < 0) {
-			kerror(ERR_MEDERR, "Could not load executable");
+			kerror(ERR_WARN, "Could not load executable");
 			return 1;
 		}
 	} else {
@@ -186,30 +186,30 @@ static int kterm_exec(int argc, char **argv) {
 		return 1;
 	}
 
-	kerror(ERR_BOOTINFO, "Task PID: %d", pid);
+	kerror(ERR_DEBUG, "Task PID: %d", pid);
 	
 	// TODO: Create helper functions for this:
 	struct kproc *child = proc_by_pid(pid);
 	if(!child) {
-		kerror(ERR_MEDERR, "kterm: Could not find spawned process!");
+		kerror(ERR_WARN, "kterm: Could not find spawned process!");
 		return 1;
 	}
 
 	struct kfile *stdin = stream_create(EXEC_STREAM_LEN);
 	if(!stdin) {
-		kerror(ERR_MEDERR, "kterm: Could not create STDIN!");
+		kerror(ERR_WARN, "kterm: Could not create STDIN!");
 		return 1;
 	}
 
 	struct kfile *stdout = stream_create(EXEC_STREAM_LEN);
 	if(!stdout) {
-		kerror(ERR_MEDERR, "kterm: Could not create STDOUT!");
+		kerror(ERR_WARN, "kterm: Could not create STDOUT!");
 		return 1;
 	}
 
 	struct kfile *stderr = stream_create(EXEC_STREAM_LEN);
 	if(!stderr) {
-		kerror(ERR_MEDERR, "kterm: Could not create STDERR!");
+		kerror(ERR_WARN, "kterm: Could not create STDERR!");
 		return 1;
 	}
 	

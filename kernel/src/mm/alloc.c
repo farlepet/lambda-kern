@@ -37,9 +37,7 @@ static void add_alloc(struct alcent *al)
 		}
 	}
 
-	// This isn't a small error, but would YOU want to see this in a system log a  thousand times?
-	kerror(ERR_INFO, "Could not add allocation structure to list, it's full!");
-	return;
+	kpanic("Could not add allocation structure to list, it's full!");
 }
 
 /**
@@ -63,7 +61,7 @@ static void rm_alloc(int block, int idx) {
 				if((((allocs[j][i].addr + size) == addr)  ||
 				    (allocs[j][i].addr == (addr + size))) &&
 				   (!allocs[j][i].used)) {
-					kdebug(DEBUGSRC_MM, "  -> Merging free'd block (%08X,%d) with (%08X,%d)", addr, size, allocs[j][i].addr, allocs[j][i].size);
+					kdebug(DEBUGSRC_MM, ERR_TRACE, "  -> Merging free'd block (%08X,%d) with (%08X,%d)", addr, size, allocs[j][i].addr, allocs[j][i].size);
 					allocs[j][i].size += size;
 					if(allocs[j][i].addr > addr) {
 						allocs[j][i].addr = addr;
@@ -75,7 +73,7 @@ static void rm_alloc(int block, int idx) {
 		}
 	}
 
-	kdebug(DEBUGSRC_MM, "  -> Marking free'd block (%08X,%d)", addr, size);
+	kdebug(DEBUGSRC_MM, ERR_TRACE, "  -> Marking free'd block (%08X,%d)", addr, size);
 	// No preceeding or proceeding block found
 	allocs[block][idx].used = 0;
 }
@@ -141,7 +139,7 @@ static int get_free_block()
 }
 
 static void _alloc_new_block(void) {
-	kdebug(DEBUGSRC_MM, "_alloc_new_block");
+	kdebug(DEBUGSRC_MM, ERR_TRACE, "_alloc_new_block");
 	uint32_t asz = ALLOC_BLOCK * sizeof(struct alcent);
 
 	uint32_t idx = _find_hole(asz, 1);
@@ -171,8 +169,8 @@ void *kamalloc(size_t sz, size_t align) {
 		return NULL;
 	}
 
-	kdebug(DEBUGSRC_MM, "Allocating %d bytes of memory with alignment %d", sz, align);
-	kdebug(DEBUGSRC_MM, "  Used: %u, Free: %u", alloc_get_used(), alloc_get_free());
+	kdebug(DEBUGSRC_MM, ERR_TRACE, "Allocating %d bytes of memory with alignment %d", sz, align);
+	kdebug(DEBUGSRC_MM, ERR_TRACE, "  Used: %u, Free: %u", alloc_get_used(), alloc_get_free());
 
 	// We don't want two processes using the same memory block!
 	lock(&alloc_lock);
@@ -206,7 +204,7 @@ void *kamalloc(size_t sz, size_t align) {
 	if(allocs[block][index].size == sz) {
 		allocs[block][index].used = 1;
 		unlock(&alloc_lock);
-		kerror(ERR_DETAIL, "  -> %08X WH", allocs[block][index].addr);
+		kdebug(DEBUGSRC_MM, ERR_TRACE, "  -> %08X WH", allocs[block][index].addr);
 		return (void *)allocs[block][index].addr;
 	}
 	
@@ -225,12 +223,12 @@ void *kamalloc(size_t sz, size_t align) {
 			add_alloc(&fe);
 		}
 		allocs[block][index].size = correction;
-		kdebug(DEBUGSRC_MM, "  -> %08X PU", ae.addr);
+		kdebug(DEBUGSRC_MM, ERR_TRACE, "  -> %08X PU", ae.addr);
 	} else {
 		/* Block is aligned, but has extra space at the end */
 		allocs[block][index].size -= sz;
 		allocs[block][index].addr += sz;
-		kdebug(DEBUGSRC_MM, "  -> %08X PA", ae.addr);
+		kdebug(DEBUGSRC_MM, ERR_TRACE, "  -> %08X PA", ae.addr);
 	}
 
 	add_alloc(&ae);
@@ -257,7 +255,7 @@ EXPORT_FUNC(kmamalloc);
 
 void kfree(void *ptr)
 {
-	kdebug(DEBUGSRC_MM, "Freeing %08X", ptr);
+	kdebug(DEBUGSRC_MM, ERR_TRACE, "Freeing %08X", ptr);
 
 	lock(&alloc_lock);
 

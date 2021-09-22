@@ -48,7 +48,7 @@ static ssize_t _read(kfile_hand_t *hand, size_t off, size_t sz, void *buff) {
 
 static int _open(kfile_t *f, kfile_hand_t *hand) {
 	if(hand->open_flags & OFLAGS_WRITE) {
-        kdebug(DEBUGSRC_FS, "initrd: _open: Attempted to open file for writing!");
+        kdebug(DEBUGSRC_FS, ERR_DEBUG, "initrd: _open: Attempted to open file for writing!");
 		return -1;
 	}
 	/* TODO: Further check open flags/permissions */
@@ -68,7 +68,7 @@ static int _open(kfile_t *f, kfile_hand_t *hand) {
 		if(f->link) {
 			return fs_open(f->link, hand);
 		} else {
-            kdebug(DEBUGSRC_FS, "initrd: _open: Could not open following symlink!");
+            kdebug(DEBUGSRC_FS, ERR_DEBUG, "initrd: _open: Could not open following symlink!");
 			return -1;
 		}
 	}
@@ -95,7 +95,7 @@ void initrd_mount(kfile_t *mntpoint, uintptr_t initrd, size_t __unused len) {
 	cpio = (struct header_old_cpio *)initrd;
 
 	if(cpio->c_magic != 070707) {
-		kerror(ERR_MEDERR, "  -> Invalid CPIO magic number");
+		kdebug(DEBUGSRC_FS, ERR_CRIT, "  -> Invalid CPIO magic number");
 		return;
 	}
 
@@ -103,7 +103,7 @@ void initrd_mount(kfile_t *mntpoint, uintptr_t initrd, size_t __unused len) {
 
 	while (1) {
 		if(cfile->c_magic != 070707) {
-			kerror(ERR_MEDERR, "  -> Invalid or corrupt InitCPIO!\n");
+			kdebug(DEBUGSRC_FS, ERR_CRIT, "  -> Invalid or corrupt InitCPIO!\n");
 			return;
 		}
 

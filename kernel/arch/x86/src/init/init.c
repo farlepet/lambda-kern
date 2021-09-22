@@ -35,7 +35,7 @@ void arch_init(mboot_t *mboot_head) {
 	serial_create_chardev(SERIAL_COM1, &serial1);
 	kput_char_dev = &serial1;
 	
-	kerror(ERR_BOOTINFO, "Kernel occupies this memory space: %08X - %08X", &kern_start, &kern_end);
+	kerror(ERR_INFO, "Kernel occupies this memory space: %08X - %08X", &kern_start, &kern_end);
 
 	mm_init(mboot_head);
 
@@ -55,18 +55,18 @@ extern void exceptions_init(void); //!< Initializes basic exception handlers. Fo
  * Initializes based on the target architecture.
  */
 static void interrupts_init(void) {
-	kerror(ERR_BOOTINFO, "Enabling Interrupts");
+	kerror(ERR_INFO, "Enabling Interrupts");
 	
-    kerror(ERR_BOOTINFO, "  -> GDT");
+    kerror(ERR_INFO, "  -> GDT");
 	gdt_init();
-	kerror(ERR_BOOTINFO, "  -> IDT");
+	kerror(ERR_INFO, "  -> IDT");
 	idt_init();
-	kerror(ERR_BOOTINFO, "  -> Exceptions");
+	kerror(ERR_INFO, "  -> Exceptions");
 	exceptions_init();
-	kerror(ERR_BOOTINFO, "  -> STI");
+	kerror(ERR_INFO, "  -> STI");
 	enable_interrupts();
 
-	kerror(ERR_BOOTINFO, "Interrupts enabled");
+	kerror(ERR_INFO, "Interrupts enabled");
 
 }
 
@@ -79,7 +79,7 @@ static uintptr_t mods_end   = 0;
  * @param head the multiboot header location
  */
 static void mm_init(const mboot_t *head) {
-	kerror(ERR_BOOTINFO, "Initializing memory management");
+	kerror(ERR_INFO, "Initializing memory management");
 
 	if(!head)
 		kpanic("Multiboot header pointer is NULL!");
@@ -93,8 +93,8 @@ static void mm_init(const mboot_t *head) {
 		upper_mem -= (mods_end - 0x100000);
 	}
 
-	kerror(ERR_BOOTINFO, "  -> Paging");
+	kerror(ERR_INFO, "  -> Paging");
 	paging_init(mods_end, upper_mem);
 
-	kerror(ERR_BOOTINFO, "Memory management enabled");
+	kerror(ERR_INFO, "Memory management enabled");
 }

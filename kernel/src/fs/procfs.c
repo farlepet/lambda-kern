@@ -104,7 +104,7 @@ int proc_fs_open(const char *name, uint32_t flags) {
             hand->open_flags = flags;
 
             if(fs_open(file, hand)) {
-                kdebug(DEBUGSRC_FS, "proc_fs_open: fs_open of %s failed!", name);
+                kdebug(DEBUGSRC_FS, ERR_DEBUG, "proc_fs_open: fs_open of %s failed!", name);
                 kfree(hand);
                 return -1;
             }

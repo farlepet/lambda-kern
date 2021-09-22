@@ -29,7 +29,7 @@ void set_interrupt(interrupt_idx_e n, void *handler) {
 #elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARMV7)
 	intr_set_handler(n, handler);
 #endif
-	kerror(ERR_INFO, "Interrupt vector 0x%02X set", n);
+	kerror(ERR_DEBUG, "Interrupt vector 0x%02X set", n);
 }
 EXPORT_FUNC(set_interrupt);
 
@@ -84,5 +84,5 @@ void timer_init(uint32_t quantum) {
 	hal_timer_dev_setfreq(&timer, 1, 100);
 	hal_timer_dev_attach(&timer, 1, clk_count);
 #endif
-	kerror(ERR_BOOTINFO, "Timer initialized");
+	kerror(ERR_INFO, "Timer initialized");
 }

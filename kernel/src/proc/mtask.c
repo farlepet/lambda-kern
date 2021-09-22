@@ -91,7 +91,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 
 	kproc_t *curr_proc = mtask_get_curr_process();
 	
-	//kerror(ERR_BOOTINFO, "mtask:add_task(%08X, %s, %dK, %d, %08X, %d, %d)", process, name, (stack_size ? (stack_size / 1024) : (STACK_SIZE / 1024)), pri, pagedir, kernel, ring);
+	kdebug(DEBUGSRC_PROC, ERR_TRACE, "mtask:add_task(%08X, %s, ...)", process, name);
 
 	/*
 	 * Create process
@@ -99,12 +99,12 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 
 	kproc_t *proc = proc_create(name, kernel, arch_params);
 	if(!proc) {
-		kerror(ERR_LGERR, "mtask:add_task: Could not create process.");
+		kdebug(DEBUGSRC_PROC, ERR_CRIT, "mtask:add_task: Could not create process.");
 		return -1;
 	}
 
 	if(curr_proc && proc_add_child(curr_proc, proc)) {
-		kerror(ERR_SMERR, "mtask:add_task: Process %d has run out of children slots", curr_proc->pid);
+		kdebug(DEBUGSRC_PROC, ERR_DEBUG, "mtask:add_task: Process %d has run out of children slots", curr_proc->pid);
 		unlock(&creat_task);
 		kfree(proc);
 		return 0;
@@ -135,7 +135,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 	arch_setup_thread(thread);
 
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	kdebug(DEBUGSRC_PROC, "PID: %d EIP: %08X CR3: %08X ESP: %08X", proc->pid, thread->arch.eip, proc->arch.cr3, thread->arch.esp);
+	kdebug(DEBUGSRC_PROC, ERR_TRACE, "PID: %d EIP: %08X CR3: %08X ESP: %08X", proc->pid, thread->arch.eip, proc->arch.cr3, thread->arch.esp);
 #endif
 
 	thread->flags |= KTHREAD_FLAG_RUNNABLE | KTHREAD_FLAG_RANONCE;
@@ -175,7 +175,7 @@ kproc_t *mtask_get_curr_process(void) {
 
 
 void init_multitasking(void *process, char *name) {
-	kerror(ERR_BOOTINFO, "Initializing multitasking");
+	kdebug(DEBUGSRC_PROC, ERR_INFO, "Initializing multitasking");
 
 	llist_init(&procs);
 	sched_idle_init();
@@ -190,7 +190,7 @@ void init_multitasking(void *process, char *name) {
 
 	arch_multitasking_init();
 
-	kerror(ERR_BOOTINFO, "Multitasking enabled");
+	kdebug(DEBUGSRC_PROC, ERR_INFO, "Multitasking enabled");
 }
 
 
@@ -198,7 +198,7 @@ void init_multitasking(void *process, char *name) {
 __noreturn void exit(int code) {
 	kproc_t *curr_proc = mtask_get_curr_process();
 	
-	kdebug(DEBUGSRC_PROC, "exit(%d) called by process %d.", code, curr_proc->pid);
+	kdebug(DEBUGSRC_PROC, ERR_TRACE, "exit(%d) called by process %d.", code, curr_proc->pid);
 
 	// If parent processis waiting for child to exit, allow it to continue execution:
 	if(curr_proc->parent) {

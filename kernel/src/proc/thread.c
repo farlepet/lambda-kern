@@ -42,7 +42,7 @@ int thread_spawn(uintptr_t entrypoint, void *data, const char *name, size_t stac
     
     arch_setup_thread(thread);
 
-    kdebug(DEBUGSRC_PROC, "kthread_create [%s] @ %08X | TID: %d", name, entrypoint, thread->tid);
+    kdebug(DEBUGSRC_PROC, ERR_TRACE, "kthread_create [%s] @ %08X | TID: %d", name, entrypoint, thread->tid);
     
     thread->flags      = KTHREAD_FLAG_RUNNABLE | KTHREAD_FLAG_RANONCE;
 	

@@ -16,14 +16,14 @@ static int _handle_cmdline(const char *cmdline) {
     char tmp[1000];
     
     while(cmd < end) {
-        kerror(ERR_BOOTINFO, "CMD: %08X END: %08X", cmd, end);
+        kerror(ERR_DEBUG, "CMD: %08X END: %08X", cmd, end);
         int i = 0;
         if(*cmd == 0) break;
         while(*cmd == ' ') cmd++;
         while(*cmd != ' ' && *cmd != 0) tmp[i++] = *cmd++;
         tmp[i] = 0;
         
-        kerror(ERR_BOOTINFO, "  cmd: %s", tmp);
+        kerror(ERR_DEBUG, "  cmd: %s", tmp);
 
         if (!strcmp(tmp, "-cpio")) {
             /* Load CPIO ramdisk */
@@ -86,7 +86,7 @@ static int _handle_module(uintptr_t start, uintptr_t end, const char *name) {
 #if (FEATURE_MULTIBOOT == 1)
 void multiboot_check_commandline(const mboot_t *head) {
     if(!(head->flags & MBOOT_CMDLINE)) {
-        kerror(ERR_BOOTINFO, "No commandline provided");
+        kerror(ERR_INFO, "No commandline provided");
         return;
     }
     
@@ -94,25 +94,25 @@ void multiboot_check_commandline(const mboot_t *head) {
 }
 
 void multiboot_check_modules(const mboot_t *head) {
-    kerror(ERR_BOOTINFO, "Loading GRUB modules");
+    kerror(ERR_INFO, "Loading GRUB modules");
 
     if(!strlen((const char *)boot_options.init_ramdisk_name)) {
-        kerror(ERR_BOOTINFO, "  -> No initrd module specified.");
+        kerror(ERR_INFO, "  -> No initrd module specified.");
         return;
     }
 
     if(!(head->flags & MBOOT_MODULES)) {
-        kerror(ERR_BOOTINFO, "  -> No modules to load");
+        kerror(ERR_INFO, "  -> No modules to load");
         return;
     }
 
-    kerror(ERR_BOOTINFO, "Looking for initrd module [%s]", boot_options.init_ramdisk_name);
+    kerror(ERR_DEBUG, "Looking for initrd module [%s]", boot_options.init_ramdisk_name);
 
     mboot_module_t *mod = (mboot_module_t *)head->mod_addr;
     uint32_t modcnt = head->mod_count;
 
     for(uint32_t i = 0; i < modcnt; i++) {
-        kerror(ERR_BOOTINFO, "  -> MOD[%d/%d]: %s", i+1, modcnt, mod->string);
+        kerror(ERR_DEBUG, "  -> MOD[%d/%d]: %s", i+1, modcnt, mod->string);
 
         _handle_module(mod->mod_start, mod->mod_end, (const char *)mod->string);
 
@@ -184,7 +184,7 @@ void multiboot_check_commandline(const mboot_t *head) {
     const mboot_tag_cmdline_t *cmdline =
         (const mboot_tag_cmdline_t *)multiboot_find_tag(head, MBOOT_TAGTYPE_CMDLINE, 0);
     if(!cmdline) {
-        kerror(ERR_BOOTINFO, "No commandline provided");
+        kerror(ERR_INFO, "No commandline provided");
         return;
     }
 
@@ -196,7 +196,7 @@ void multiboot_check_modules(const mboot_t *head) {
     const mboot_tag_module_t *mod =
         (const mboot_tag_module_t *)multiboot_find_tag(head, MBOOT_TAGTYPE_MODULE, idx++);
     while(mod) {
-        kerror(ERR_BOOTINFO, "  -> MOD[%d]: %s", idx, mod->name);
+        kerror(ERR_DEBUG, "  -> MOD[%d]: %s", idx, mod->name);
         _handle_module(mod->mod_start, mod->mod_end, mod->name);
         mod = (const mboot_tag_module_t *)multiboot_find_tag(head, MBOOT_TAGTYPE_MODULE, idx++);
     }

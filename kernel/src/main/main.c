@@ -36,7 +36,7 @@ volatile boot_options_t boot_options = {
 __noreturn void kernel_task(void);
 
 __noreturn static void iloop() {
-	kerror(ERR_BOOTINFO, "iloop()");
+	kerror(ERR_INFO, "iloop()");
 	for(;;) busy_wait();
 }
 
@@ -55,14 +55,14 @@ __noreturn static void iloop() {
  * @param magic magic number telling us this is a multiboot-compliant bootloader
  */
 __noreturn void kmain(void) {
-	kerror(ERR_BOOTINFO, "---------------------------------------");
-	kerror(ERR_BOOTINFO, "Kernel version: "LAMBDA_VERSION_STR_FULL);
-	kerror(ERR_BOOTINFO, "Compiled by:    "COMPILER_VERSION);
-	kerror(ERR_BOOTINFO, "Built on:       "__DATE__" at "__TIME__);
-	kerror(ERR_BOOTINFO, "---------------------------------------");
+	kerror(ERR_INFO, "---------------------------------------");
+	kerror(ERR_INFO, "Kernel version: "LAMBDA_VERSION_STR_FULL);
+	kerror(ERR_INFO, "Compiled by:    "COMPILER_VERSION);
+	kerror(ERR_INFO, "Built on:       "__DATE__" at "__TIME__);
+	kerror(ERR_INFO, "---------------------------------------");
 
 #if (FEATURE_INITRD_EMBEDDED)
-	kerror(ERR_BOOTINFO, "Embedded initrd: %08X-%08X", &_binary_initrd_cpio_start, &_binary_initrd_cpio_end);
+	kerror(ERR_INFO, "Embedded initrd: %08X-%08X", &_binary_initrd_cpio_start, &_binary_initrd_cpio_end);
 	initrd_mount(fs_root, (uintptr_t)&_binary_initrd_cpio_start, &_binary_initrd_cpio_end - &_binary_initrd_cpio_start);
 #endif
 
@@ -91,7 +91,7 @@ static void spawn_init(void);
 __noreturn
 void kernel_task(void)
 {
-	kerror(ERR_BOOTINFO, "Main kernel task started");
+	kerror(ERR_INFO, "Main kernel task started");
 
 	init_ktasks();
 
@@ -104,13 +104,13 @@ void kernel_task(void)
 
 __noreturn
 static void spawn_init(void) {
-	kerror(ERR_BOOTINFO, "Loading init executable (%s)", boot_options.init_executable);
+	kerror(ERR_INFO, "Loading init executable (%s)", boot_options.init_executable);
 	struct kfile *exec = fs_find_file(fs_root, (const char *)boot_options.init_executable);
 	if(!exec) {
 		kpanic("Could not open init executable! (%s)\n", boot_options.init_executable);
 	}
 
-	kerror(ERR_BOOTINFO, "Opening executable");
+	kerror(ERR_INFO, "Opening executable");
 
 	void  *exec_data;
 	size_t exec_size;
@@ -127,7 +127,7 @@ static void spawn_init(void) {
 	/* Setup standard streams for child */
 	/* TODO: These streams should eventually be replaced by pointing to a driver
 	 * TTY or similar, rather than being directly controlled by the kernel. */
-	kerror(ERR_BOOTINFO, "Creating STDIO streams");
+	kerror(ERR_INFO, "Creating STDIO streams");
 
 	kfile_t *stdin = stream_create(INIT_STREAM_LEN);
 	if(!stdin) {
@@ -159,7 +159,7 @@ static void spawn_init(void) {
 		kpanic("Could not create stream habdle(s) for init!");
 	   }
 
-	kerror(ERR_BOOTINFO, "Loading ELF");
+	kerror(ERR_INFO, "Loading ELF");
 	int pid = load_elf(exec_data, exec_size);
 	if(!pid) {
 		kpanic("Failed to parse init executable or spawn task!");

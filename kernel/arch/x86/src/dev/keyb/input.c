@@ -106,7 +106,7 @@ void keyb_init()
 		}
 		if(val == 0xFC || val == 0xFD)
 		{
-			kerror(ERR_MEDERR, "Keyboard self-test failed");
+			kerror(ERR_ERROR, "Keyboard self-test failed");
 			return;
 		}
 	}

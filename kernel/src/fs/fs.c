@@ -373,7 +373,7 @@ void fs_init()
 {
 	fs_root = (kfile_t *)kmalloc(sizeof(kfile_t));
 	if(!fs_root) {
-    	kerror(ERR_LGERR, "fs_init(): Failed to allocade memory for root!");
+    	kerror(ERR_EMER, "fs_init(): Failed to allocade memory for root!");
 		return;
 	}
 

@@ -7,61 +7,42 @@
 #include <types.h>
 #include <video.h>
 
-static error_level_e minlvl    = ERR_INFO; //!< Minimal level where messages are shown
-static uint32_t      debugmask = (1UL << DEBUGSRC_PROC) |
-		            		     (1UL << DEBUGSRC_EXEC) |
-		    				   //(1UL << DEBUGSRC_MM)   |
-						         (1UL << DEBUGSRC_MODULE);
+static uint8_t _err_level[DEBUGSRC_MAX] = {
+    [0 ... (DEBUGSRC_MAX-1)] = ERR_INFO
+};
 
 static lock_t kerror_lock = 0; //!< Only 1 message can be printed at a time
 
-void kerror(error_level_e errlvl, char *msg, ...) {
-	if(errlvl >= minlvl) {
-		if(interrupts_enabled()) lock_for(&kerror_lock, 100); // We don't want something like a kernel message from a lost task stopping us
-
-		if(KERNEL_COLORCODE)
-			kprintf("\e[31m[\e[32m%X%08X\e[31m]\e[0m ", (uint32_t)(kerneltime >> 32), (uint32_t)kerneltime);
-		else
-			kprintf("[%X%08X] ", (uint32_t)(kerneltime >> 32), (uint32_t)kerneltime);
-
-		__builtin_va_list varg;
-		__builtin_va_start(varg, msg);
-		kprintv(msg, varg);
-		__builtin_va_end(varg);
-		kput('\n');
-		
-		if(interrupts_enabled()) unlock(&kerror_lock);
-	}
-}
-EXPORT_FUNC(kerror);
-
 static char *debug_names[DEBUGSRC_MAX] = {
-	[DEBUGSRC_FS]      = "  FS",
-	[DEBUGSRC_MM]      = "  MM",
-	[DEBUGSRC_PROC]    = "PROC",
-	[DEBUGSRC_EXEC]    = "EXEC",
-	[DEBUGSRC_SYSCALL] = " SCL",
-	[DEBUGSRC_MODULE]  = " MOD",
+    [DEBUGSRC_MISC]    = "MISC",
+    [DEBUGSRC_FS]      = "  FS",
+    [DEBUGSRC_MM]      = "  MM",
+    [DEBUGSRC_PROC]    = "PROC",
+    [DEBUGSRC_EXEC]    = "EXEC",
+    [DEBUGSRC_SYSCALL] = " SCL",
+    [DEBUGSRC_MODULE]  = " MOD",
 };
 
-void kdebug(debug_source_e src, char *msg, ...) {
-	if(src >= DEBUGSRC_MAX) { return; }
+void kdebug(debug_source_e src, error_level_e lvl, const char *msg, ...) {
+    if(SAFETY_CHECK(src >= DEBUGSRC_MAX) ||
+       (lvl < _err_level[src])) {
+        return;
+    }
 
-	if(debugmask & (1UL << src)) {
-		if(interrupts_enabled()) lock_for(&kerror_lock, 100); // We don't want something like a kernel message from a lost task stopping us
+    if(interrupts_enabled()) lock_for(&kerror_lock, 100); // We don't want something like a kernel message from a lost task stopping us
 
-		if(KERNEL_COLORCODE)
-			kprintf("\e[31m[\e[32m%X%08X\e[31m] [\e[33m%s\e[31m]\e[0m ", (uint32_t)(kerneltime >> 32), (uint32_t)kerneltime, debug_names[src]);
-		else
-			kprintf("[%X%08X] [%s]", (uint32_t)(kerneltime >> 32), (uint32_t)kerneltime, debug_names[src]);
+#if (KERNEL_COLORCODE)
+    kprintf("\e[31m[\e[32m%X%08X\e[31m] [\e[33m%s\e[31m]\e[0m ", (uint32_t)(kerneltime >> 32), (uint32_t)kerneltime, debug_names[src]);
+#else
+    kprintf("[%X%08X] [%s]", (uint32_t)(kerneltime >> 32), (uint32_t)kerneltime, debug_names[src]);
+#endif
 
-		__builtin_va_list varg;
-		__builtin_va_start(varg, msg);
-		kprintv(msg, varg);
-		__builtin_va_end(varg);
-		kput('\n');
-		
-		if(interrupts_enabled()) unlock(&kerror_lock);
-	}
+    __builtin_va_list varg;
+    __builtin_va_start(varg, msg);
+    kprintv(msg, varg);
+    __builtin_va_end(varg);
+    kput('\n');
+    
+    if(interrupts_enabled()) unlock(&kerror_lock);
 }
 EXPORT_FUNC(kdebug);
