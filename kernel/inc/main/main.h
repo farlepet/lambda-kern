@@ -18,7 +18,7 @@ typedef struct {
 #endif
 } boot_options_t;
 
-extern volatile boot_options_t boot_options;
+extern boot_options_t boot_options;
 
 __noreturn void kmain(void);
 

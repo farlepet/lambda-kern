@@ -11,6 +11,7 @@
 #include <arch/mm/gdt.h>
 #include <arch/mm/mem.h>
 
+#include <kern/cmdline.h>
 #include <err/error.h>
 #include <err/panic.h>
 
@@ -24,20 +25,16 @@
 static void interrupts_init(void);
 static void mm_init(const mboot_t *);
 
-/* TODO: Move this elsewhere, or dynamically allocate */
-static hal_io_char_dev_t serial1;
-
 void arch_init(mboot_t *mboot_head) {
     vga_clear();
     disable_interrupts();
 	
-    serial_init(SERIAL_COM1);
-	serial_create_chardev(SERIAL_COM1, &serial1);
-	kput_char_dev = &serial1;
-	
 	kerror(ERR_INFO, "Kernel occupies this memory space: %08X - %08X", &kern_start, &kern_end);
 
 	mm_init(mboot_head);
+
+	cmdline_init();
+	cmdline_handle_common();
 
     interrupts_init();
 

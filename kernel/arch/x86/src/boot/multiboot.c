@@ -1,3 +1,4 @@
+#include <kern/cmdline.h>
 #include <err/panic.h>
 #include <err/error.h>
 #include <fs/initrd.h>
@@ -6,64 +7,8 @@
 #include <video.h>
 
 #include <arch/boot/multiboot.h>
-#include <arch/io/serial.h>
 #include <arch/mm/paging.h>
 
-
-static int _handle_cmdline(const char *cmdline) {
-    const char *cmd = cmdline;
-    const char *end = cmd + strlen(cmd) + 1;
-    char tmp[1000];
-    
-    while(cmd < end) {
-        kerror(ERR_DEBUG, "CMD: %08X END: %08X", cmd, end);
-        int i = 0;
-        if(*cmd == 0) break;
-        while(*cmd == ' ') cmd++;
-        while(*cmd != ' ' && *cmd != 0) tmp[i++] = *cmd++;
-        tmp[i] = 0;
-        
-        kerror(ERR_DEBUG, "  cmd: %s", tmp);
-
-        if (!strcmp(tmp, "-cpio")) {
-            /* Load CPIO ramdisk */
-            while(*cmd == ' ') cmd++;
-            if(*cmd == 0) kpanic("No module name supplied after `-cpio`");
-            
-            size_t j = 0;
-            for(; (cmd[j] && cmd[j] != ' ' && j < (INITRD_MODULE_MAX_LEN - 1)); j++) {
-                boot_options.init_ramdisk_name[j] = cmd[j];
-            }
-            boot_options.init_ramdisk_name[j] = '\0';
-            
-            while(*cmd && *cmd != ' ') cmd++;
-        } else if(!strcmp(tmp, "-init")) {
-            /* Specify init executable */
-            while(*cmd == ' ') cmd++;
-            if(*cmd == 0) kpanic("No executable name supplied after `-init`");
-            
-            size_t j = 0;
-            for(; (cmd[j] && cmd[j] != ' ' && j < (INITEXEC_PATH_MAX_LEN - 1)); j++) {
-                boot_options.init_executable[j] = cmd[j];
-            }
-            boot_options.init_executable[j] = '\0';
-            
-            while(*cmd && *cmd != ' ') cmd++;
-        } else if(!strcmp(tmp, "-kterm")) {
-            /* Launch the kterm shell rather than spawning the init executable */
-            boot_options.init_executable[0] = '\0';
-        }
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86) // Names of serial ports will likely be different on different systems
-        else if(!strcmp(tmp, "-s"))     boot_options.output_serial = SERIAL_COM1;
-        else if(!strcmp(tmp, "-sCOM1")) boot_options.output_serial = SERIAL_COM1;
-        else if(!strcmp(tmp, "-sCOM2")) boot_options.output_serial = SERIAL_COM2;
-        else if(!strcmp(tmp, "-sCOM3")) boot_options.output_serial = SERIAL_COM3;
-        else if(!strcmp(tmp, "-sCOM4")) boot_options.output_serial = SERIAL_COM4;
-#endif
-    }
-
-    return 0;
-}
 
 static int _handle_module(uintptr_t start, uintptr_t end, const char *name) {
     uint32_t b = ((start - (uint32_t)firstframe) / 0x1000);
@@ -90,7 +35,7 @@ void multiboot_check_commandline(const mboot_t *head) {
         return;
     }
     
-    _handle_cmdline((const char *)head->cmdline);
+    cmdline_set(head->cmdline);
 }
 
 void multiboot_check_modules(const mboot_t *head) {
@@ -188,7 +133,7 @@ void multiboot_check_commandline(const mboot_t *head) {
         return;
     }
 
-    _handle_cmdline(cmdline->cmdline);
+    cmdline_set(cmdline->cmdline);
 }
 
 void multiboot_check_modules(const mboot_t *head) {
