@@ -1,8 +1,10 @@
 #include <kern/cmdline.h>
 #include <main/main.h>
 #include <err/panic.h>
+#include <err/error.h>
 #include <mm/alloc.h>
 #include <string.h>
+#include <stdlib.h>
 
 static const char  *_cmdline       = NULL;
 static const char **_cmdline_vars  = NULL;
@@ -92,6 +94,34 @@ void cmdline_handle_common(void) {
     _handle_option("cpio", boot_options.init_ramdisk_name, sizeof(boot_options.init_ramdisk_name));
     if(cmdline_getbool("kterm")) {
         boot_options.init_executable[0] = '\0';
+    }
+
+    const char *dbglvl = cmdline_getstr("debug_level");
+    if(dbglvl) {
+        while(*dbglvl) {
+            debug_source_e src;
+            if(*dbglvl == '*') {
+                src = DEBUGSRC_MAX;
+                dbglvl++;
+            } else {
+                src = strtoul(dbglvl, (char **)&dbglvl, 10);
+            }
+            if(*dbglvl != ':') break; /* Bad formatting */
+            dbglvl++;
+
+            error_level_e lvl = strtoul(dbglvl, (char **)&dbglvl, 10);
+            
+            if(src == DEBUGSRC_MAX) {
+                for(debug_source_e s = 0; s < DEBUGSRC_MAX; s++) {
+                    kdebug_set_errlvl(s, lvl);
+                }
+            } else {
+                kdebug_set_errlvl(src, lvl);
+            }
+
+            if(*dbglvl != ',') break; /* Bad formatting, or end of option */
+            dbglvl++;
+        }
     }
 }
 

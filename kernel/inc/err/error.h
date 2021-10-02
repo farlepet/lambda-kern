@@ -49,4 +49,19 @@ void kdebug(debug_source_e src, error_level_e lvl, const char *msg, ...);
 
 #define kerror(...) kdebug(DEBUGSRC_MISC, __VA_ARGS__)
 
+/**
+ * @brief Set debug level filter for a given debug source
+ * 
+ * @param src Debug source
+ * @param lvl Debug level
+ */
+void kdebug_set_errlvl(debug_source_e src, error_level_e lvl);
+
+/**
+ * @brief Get current debug level filter for a given debug source
+ * 
+ * @param src Debug source
+ */
+error_level_e kdebug_get_errlvl(debug_source_e src);
+
 #endif

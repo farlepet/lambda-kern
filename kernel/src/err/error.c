@@ -46,3 +46,19 @@ void kdebug(debug_source_e src, error_level_e lvl, const char *msg, ...) {
     if(interrupts_enabled()) unlock(&kerror_lock);
 }
 EXPORT_FUNC(kdebug);
+
+void kdebug_set_errlvl(debug_source_e src, error_level_e lvl) {
+    if(src >= DEBUGSRC_MAX) {
+        return;
+    }
+
+    _err_level[src] = lvl;
+}
+
+error_level_e kdebug_get_errlvl(debug_source_e src) {
+    if(src >= DEBUGSRC_MAX) {
+        return ERR_NONE;
+    }
+
+    return _err_level[src];
+}
