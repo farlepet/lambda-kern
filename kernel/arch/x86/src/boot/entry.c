@@ -8,7 +8,7 @@
 #include <arch/boot/multiboot.h>
 
 #if (FEATURE_MULTIBOOT == 2)
-__section(".mboot")
+__section(.mboot)
 __align(8)
 __used
 static mboot_head_t _boot_head = {
@@ -38,7 +38,7 @@ static mboot_head_t _boot_head = {
 	}
 };
 #elif (FEATURE_MULTIBOOT == 1)
-__section(".mboot")
+__section(.mboot)
 __align(8)
 __used
 static mboot_head_t _boot_head = {
