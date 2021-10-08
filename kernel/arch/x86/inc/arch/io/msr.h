@@ -13,7 +13,7 @@ static inline int msr_avail(void) {
 }
 
 typedef enum {
-    MSRREG_LOCALAPIC = 0x0000001B
+    MSRREG_APICBASE = 0x0000001B
 } msr_register_e;
 
 /**

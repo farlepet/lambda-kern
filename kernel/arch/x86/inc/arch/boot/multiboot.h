@@ -10,6 +10,8 @@
 
 #include <types.h>
 
+#include <arch/acpi/acpi_data.h>
+
 #pragma pack (push, 1)
 
 #if (FEATURE_MULTIBOOT == 1)
@@ -153,6 +155,14 @@ typedef struct {
     uint32_t size_lower;
     uint32_t size_upper;
 } mboot_tag_basicmem_t;
+
+/* Note: Same format is used for old and new, but the length of the structure
+ * will differ. */
+typedef struct {
+    uint32_t type;
+    uint32_t size;
+    acpi_rsdp_desc_t rsdp;
+} mboot_tag_acpi_rsdp_t;
 #endif
 
 

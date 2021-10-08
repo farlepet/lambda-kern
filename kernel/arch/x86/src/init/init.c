@@ -4,6 +4,8 @@
 #include <arch/dev/vga/print.h>
 #include <arch/io/serial.h>
 
+#include <arch/acpi/acpi.h>
+#include <arch/intr/apic/apic.h>
 #include <arch/intr/idt.h>
 #include <arch/intr/pit.h>
 
@@ -35,6 +37,9 @@ void arch_init(mboot_t *mboot_head) {
 
 	cmdline_init();
 	cmdline_handle_common();
+
+	acpi_init(mboot_head);
+	apic_init();
 
     interrupts_init();
 
