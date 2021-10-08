@@ -12,8 +12,8 @@ static struct {
     uint32_t             lapic_count;
     apic_lapic_handle_t *lapic_hands;
 
-    uint64_t             ioapic;
-    uint64_t             lapic64;
+    uintptr_t            ioapic;
+    uintptr_t            lapic64;
 } _apic_data;
 
 __unused
@@ -62,12 +62,12 @@ void apic_init(void) {
             const acpi_madt_entry_ioapic_t *ioapic = (acpi_madt_entry_ioapic_t *)ent->data;
             kerror(ERR_TRACE, "    [%hhu] ID: %3hhd, ADDR: %08X, BASE: %08X",
                    ent->type, ioapic->apic_id, ioapic->apic_addr, ioapic->gsi_base);
-            _apic_data.ioapic = ioapic->apic_addr;
+            _apic_data.ioapic = (uintptr_t)ioapic->apic_addr;
         } else if(ent->type == ACPI_MADT_ENTRYTYPE_LAPICADDROVER) {
             const acpi_madt_entry_lapic_addrover_t *lapic = (acpi_madt_entry_lapic_addrover_t *)ent->data;
             kerror(ERR_TRACE, "    [%hhu] ADDR: %08X",
                    ent->type, lapic->lapic_addr);
-            _apic_data.ioapic = lapic->lapic_addr;
+            _apic_data.ioapic = (uintptr_t)lapic->lapic_addr;
         } else if(ent->type == ACPI_MADT_ENTRYTYPE_IOAPICSRCOVER) {
             const acpi_madt_entry_ioapic_srcover_t *sover = (acpi_madt_entry_ioapic_srcover_t *)ent->data;
             kerror(ERR_TRACE, "    [%hhu] SRC: (%3hhd:%3hhd), GSI: %3d, FLAGS: %04hX",
