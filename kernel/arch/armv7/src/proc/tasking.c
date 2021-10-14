@@ -88,13 +88,14 @@ __hot void do_task_switch(void) {
                      "mov %1, lr \n"
 
                      "bic r0, r0, #0x0d \n"
-                     "msr cpsr, r0 \n"
-                     : "=r" (thread->arch.regs.sp), "=r" (thread->arch.regs.lr));
+                     "msr cpsr, r0 \n" :
+                     "=r" (thread->arch.regs.sp), "=r" (thread->arch.regs.lr) ::
+                     "r0");
     } else {
         thread->flags |= KTHREAD_FLAG_RANONCE;
     }
     
-    //kdebug(DEBUGSRC_PROC, "-TID: %d | PC: %08X | LR: %08X | SP: %08X | CPSR: %08X | NAME: %s", thread->tid, thread->arch.regs.pc, thread->arch.regs.lr, thread->arch.regs.sp, thread->arch.regs.cpsr, thread->name);
+    kdebug(DEBUGSRC_PROC, ERR_ALL, "-TID: %d | PC: %08X | LR: %08X | SP: %08X | CPSR: %08X | NAME: %s", thread->tid, thread->arch.regs.pc, thread->arch.regs.lr, thread->arch.regs.sp, thread->arch.regs.cpsr, thread->name);
 
     /* Get next threadess to run. */
 	thread = sched_next_process(0);
@@ -119,7 +120,7 @@ __hot void do_task_switch(void) {
     irq_stack_end[-15] = thread->arch.regs.cpsr;
 #pragma GCC diagnostic pop
 	
-    //kdebug(DEBUGSRC_PROC, "+TID: %d | PC: %08X | LR: %08X | SP: %08X | CPSR: %08X | NAME: %s", thread->tid, thread->arch.regs.pc, thread->arch.regs.lr, thread->arch.regs.sp, thread->arch.regs.cpsr, thread->name);
+    kdebug(DEBUGSRC_PROC, ERR_ALL, "+TID: %d | PC: %08X | LR: %08X | SP: %08X | CPSR: %08X | NAME: %s", thread->tid, thread->arch.regs.pc, thread->arch.regs.lr, thread->arch.regs.sp, thread->arch.regs.cpsr, thread->name);
 
     /* Restore SP and LR: */
     asm volatile("mrs r0, cpsr \n"
@@ -131,5 +132,6 @@ __hot void do_task_switch(void) {
 
                  "bic r0, r0, #0x0d \n"
                  "msr cpsr, r0 \n"
-                 : : "r" (thread->arch.regs.sp), "r" (thread->arch.regs.lr));
+                 : : "r" (thread->arch.regs.sp), "r" (thread->arch.regs.lr) :
+                 "r0");
 }
