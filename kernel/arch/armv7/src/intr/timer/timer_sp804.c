@@ -4,17 +4,17 @@
 
 #include <video.h>
 
-static int timerdev_setfreq(void *data, uint8_t idx, uint32_t freq);
-static int timerdev_attach(void *data, uint8_t idx, void (*callback)(void));
+static int _timerdev_setfreq(void *data, uint8_t idx, uint32_t freq);
+static int _timerdev_attach(void *data, uint8_t idx, void (*callback)(void));
 
 int timer_sp804_create_timerdev(timer_sp804_handle_t *hand, hal_timer_dev_t *dev) {
     memset(dev, 0, sizeof(hal_timer_dev_t));
 
     dev->data = (void *)hand;
 
-    dev->setfreq   = timerdev_setfreq;
+    dev->setfreq   = _timerdev_setfreq;
     dev->setperiod = NULL; /* TODO */
-    dev->attach    = timerdev_attach;
+    dev->attach    = _timerdev_attach;
 
     dev->cap = HAL_TIMERDEV_CAP_VARFREQ | HAL_TIMERDEV_CAP_CALLBACK;
 
@@ -26,6 +26,9 @@ int timer_sp804_init(timer_sp804_handle_t *hand, void *base) {
         return -1;
     }
 
+    /* TODO: Determine actual source clock */
+    hand->srcclk_freq = 800000;
+
     hand->base = (timer_sp804_regmap_t *)base;
 
     /* Disable both timers: */
@@ -35,7 +38,7 @@ int timer_sp804_init(timer_sp804_handle_t *hand, void *base) {
     return 0;
 }
 
-static void intr_handler(uint32_t __unused int_n, void *data) {
+static void _intr_handler(uint32_t __unused int_n, void *data) {
     timer_sp804_handle_t *hand = (timer_sp804_handle_t *)data;
 
     if(hand->base->TIM1.MIS) {
@@ -54,21 +57,21 @@ static void intr_handler(uint32_t __unused int_n, void *data) {
 }
 
 int timer_sp804_int_attach(timer_sp804_handle_t *hand, hal_intctlr_dev_t *intctlr, uint32_t int_n) {
-    hal_intctlr_dev_intr_attach(intctlr, int_n, intr_handler, hand);
+    hal_intctlr_dev_intr_attach(intctlr, int_n, _intr_handler, hand);
     hal_intctlr_dev_intr_enable(intctlr, int_n);
 
     return 0;
 }
 
-static int timerdev_setfreq(void *data, uint8_t idx, uint32_t freq) {
+static int _timerdev_setfreq(void *data, uint8_t idx, uint32_t freq) {
+    timer_sp804_handle_t *hand = (timer_sp804_handle_t *)data;
+    
     if(idx >= 2) {
         return -1;
     }
-    if(freq > 8000000) {
+    if(freq > hand->srcclk_freq) {
         return -1;
     }
-
-    timer_sp804_handle_t *hand = (timer_sp804_handle_t *)data;
 
     timer_sp804_regmap_tspec_t *timer = (idx == 0) ?
                                         &hand->base->TIM1 :
@@ -80,15 +83,14 @@ static int timerdev_setfreq(void *data, uint8_t idx, uint32_t freq) {
                   (1UL << TIMER_SP804_CTRL_SIZE__POS) |
                   (1UL << TIMER_SP804_CTRL_MODE__POS);
 
-    /** TODO: Determine source clock frequency */
-    timer->LOAD = 8000000 / freq;
+    timer->LOAD = hand->srcclk_freq / freq;
 
     timer->CTRL |= (1UL << TIMER_SP804_CTRL_EN__POS);
 
     return 0;
 }
 
-static int timerdev_attach(void *data, uint8_t idx, void (*callback)(void)) {
+static int _timerdev_attach(void *data, uint8_t idx, void (*callback)(void)) {
 	if(idx >= 2) {
 		return -1;
 	}
