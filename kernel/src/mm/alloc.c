@@ -204,7 +204,7 @@ void *kamalloc(size_t sz, size_t align) {
 	if(allocs[block][index].size == sz) {
 		allocs[block][index].used = 1;
 		unlock(&alloc_lock);
-		kdebug(DEBUGSRC_MM, ERR_TRACE, "  -> %08X WH", allocs[block][index].addr);
+		kdebug(DEBUGSRC_MM, ERR_TRACE, "  -> %08X WH %d:%d", allocs[block][index].addr, block, index);
 		return (void *)allocs[block][index].addr;
 	}
 	
@@ -214,7 +214,6 @@ void *kamalloc(size_t sz, size_t align) {
 		/* Block isn't perfectly aligned */
 		size_t correction = align - (allocs[block][index].addr % align);
 		ae.addr = allocs[block][index].addr + correction;
-		add_alloc(&ae);
 		if(allocs[block][index].size > (sz + correction)) {
 			/* Block also extends beyond needed space */
 			struct alcent fe = {.valid = 1, .used = 0,
@@ -223,12 +222,12 @@ void *kamalloc(size_t sz, size_t align) {
 			add_alloc(&fe);
 		}
 		allocs[block][index].size = correction;
-		kdebug(DEBUGSRC_MM, ERR_TRACE, "  -> %08X PU", ae.addr);
+		kdebug(DEBUGSRC_MM, ERR_TRACE, "  -> %08X PU %d:%d", ae.addr, block, index);
 	} else {
 		/* Block is aligned, but has extra space at the end */
 		allocs[block][index].size -= sz;
 		allocs[block][index].addr += sz;
-		kdebug(DEBUGSRC_MM, ERR_TRACE, "  -> %08X PA", ae.addr);
+		kdebug(DEBUGSRC_MM, ERR_TRACE, "  -> %08X PA %d:%d", ae.addr, block, index);
 	}
 
 	add_alloc(&ae);
