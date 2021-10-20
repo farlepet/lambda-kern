@@ -45,6 +45,8 @@ int armv7_gic_irqhandle(armv7_gic_handle_t *hand) {
     /* Read and acknowledge interrupt ID */
     uint32_t intr = hand->icc->IAR & 0x00FFFFFF;
 
+    /* Clear interrupt */
+    hand->icc->EOIR = intr;
 
     for(uint16_t i = 0; i < ARMV7_GIC_MAX_CALLBACKS; i++) {
         if(hand->callbacks[i].int_n == intr &&
@@ -57,8 +59,10 @@ int armv7_gic_irqhandle(armv7_gic_handle_t *hand) {
         }
     }
 
-    /* Clear interrupt */
-    hand->icc->EOIR = intr;
+    /* NOTE: With the current design of multithreading, we cannot guarantee that
+     * we will reach this point every time. Thus we must clear the interrupt
+     * prior to servicing it, and we cannot rely on execution after returning
+     * from that call. */
 
     return ret;
 }

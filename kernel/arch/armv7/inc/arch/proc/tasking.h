@@ -9,30 +9,19 @@
 
 typedef struct {
     volatile struct {
-        uint32_t r0;
-        uint32_t r1;
-        uint32_t r2;
-        uint32_t r3;
-        uint32_t r4;
-        uint32_t r5;
-        uint32_t r6;
-        uint32_t r7;
-        uint32_t r8;
-        uint32_t r9;
-        uint32_t r10;
-        uint32_t r11;
-        uint32_t r12;
-        uint32_t sp;
-        uint32_t lr;
-        uint32_t cpsr;
-        uint32_t pc;
-    } regs;                     //!< Saved registers
+        uint32_t ksp;  /*!< Kernel stack pointer */
+        uint32_t usp;  /*!< User stack pointer */
+        uint32_t lr;   /*!< Link register */
+        uint32_t pc;   /*!< Program counter */
+        uint32_t cpsr; /*!< Current program status register */
+        uint32_t spsr; /*!< Saved program status register - only used in _thread_entrypoint() */
+    } regs;                     /*!< Saved registers */
 
-	uint32_t kernel_stack;      //!< Kernel stack
-	uint32_t kernel_stack_size; //!< Size of kernel stack
+	uint32_t kernel_stack;      /*!< Kernel stack */
+	uint32_t kernel_stack_size; /*!< Size of kernel stack */
 
-	uint32_t stack_beg;         //!< Beginning of stack
-	uint32_t stack_end;         //!< Current end of stack
+	uint32_t stack_beg;         /*!< Beginning of stack */
+	uint32_t stack_end;         /*!< Current end of stack */
 } kthread_arch_t;
 
 typedef struct {

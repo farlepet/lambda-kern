@@ -170,7 +170,9 @@ void *kamalloc(size_t sz, size_t align) {
 	}
 
 	kdebug(DEBUGSRC_MM, ERR_TRACE, "Allocating %d bytes of memory with alignment %d", sz, align);
-	kdebug(DEBUGSRC_MM, ERR_TRACE, "  Used: %u, Free: %u", alloc_get_used(), alloc_get_free());
+	/* NOTE: The following line caused ARMv7 to get stuck in `alloc_get_used()`
+	 * in the kterm task. */
+	//kdebug(DEBUGSRC_MM, ERR_TRACE, "  Used: %u, Free: %u", alloc_get_used(), alloc_get_free());
 
 	// We don't want two processes using the same memory block!
 	lock(&alloc_lock);

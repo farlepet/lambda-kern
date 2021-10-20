@@ -41,18 +41,23 @@ int timer_sp804_init(timer_sp804_handle_t *hand, void *base) {
 static void _intr_handler(uint32_t __unused int_n, void *data) {
     timer_sp804_handle_t *hand = (timer_sp804_handle_t *)data;
 
+    /* NOTE: With the current design of multithreading, we cannot guarantee that
+     * we will always return from the callback. Thus we must clear the interrupt
+     * prior to servicing it, and we cannot rely on execution after returning
+     * from that call. */
+    
     if(hand->base->TIM1.MIS) {
+        hand->base->TIM1.INTCLR = 1;
         if(hand->callbacks[0]) {
             hand->callbacks[0]();
         }
-        hand->base->TIM1.INTCLR = 1;
     }
     
     if(hand->base->TIM2.MIS) {
+        hand->base->TIM2.INTCLR = 1;
         if(hand->callbacks[1]) {
             hand->callbacks[1]();
         }
-        hand->base->TIM2.INTCLR = 1;
     }
 }
 
