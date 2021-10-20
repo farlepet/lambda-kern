@@ -10,16 +10,21 @@ typedef struct {
 	arch_iret_regs_t  *iret;
 } kproc_arch_syscall_regs_t;
 
+/** Kernel representation of a stack allocated to a thread */
 typedef struct {
-	uint32_t esp;               /** Stack pointer */
-	uint32_t ebp;               /** Stack base pointer */
-	uint32_t eip;               /** Instruction pointer */
+    uint32_t begin;  /*!< Beginning of stack (i.e. top of allocated memory + 1) */
+    uint32_t size;   /*!< Usable size of stack in bytes */
+} arch_stack_t;
 
-	uint32_t kernel_stack;      /** Kernel stack */
+typedef struct {
+	uint32_t esp;            /*!< Stack pointer */
+	uint32_t ebp;            /*!< Stack base pointer */
+	uint32_t eip;            /*!< Instruction pointer */
 
-	uintptr_t stack_beg;        /** Beginning of stack */
-	uintptr_t stack_end;        /** Current end of stack */
-	uintptr_t stack_entry;      /** What to set ESP to on initial thread entry */
+	arch_stack_t stack_kern; /*!< Kernel stack */
+	arch_stack_t stack_user; /*!< User stack */
+
+	uintptr_t stack_entry;   /*!< What to set ESP to on initial thread entry */
 
 	kproc_arch_syscall_regs_t syscall_regs; //!< Syscall registers
 } kthread_arch_t;

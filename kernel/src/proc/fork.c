@@ -137,14 +137,14 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
     cthread->entrypoint = pthread->entrypoint;
     child->arch.cr3     = (uint32_t)clone_pagedir_full((void *)parent->arch.cr3);
 
-    cthread->stack_size = pthread->arch.stack_beg - pthread->arch.stack_end;
+    cthread->stack_size = pthread->arch.stack_user.size;
     proc_create_stack(cthread);
     proc_create_kernel_stack(cthread);
 
     cthread->arch.ebp = pthread->arch.ebp;
     
     // POPAD: 8 DWORDS, IRETD: 5 DWORDS
-    cthread->arch.esp = cthread->arch.kernel_stack - 52;
+    cthread->arch.esp = cthread->arch.stack_kern.begin - 52;
     cthread->arch.eip = (uint32_t)return_from_fork;
 
     proc_copy_stack(cthread, pthread);
@@ -152,7 +152,7 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
 
     proc_copy_data(cthread, pthread);
 
-    arch_iret_regs_t  *iret_stack  = (arch_iret_regs_t *)(cthread->arch.kernel_stack - sizeof(arch_iret_regs_t));
+    arch_iret_regs_t  *iret_stack  = (arch_iret_regs_t *)(cthread->arch.stack_kern.begin - sizeof(arch_iret_regs_t));
     arch_pusha_regs_t *pusha_stack = (arch_pusha_regs_t *)((uintptr_t)iret_stack - sizeof(arch_pusha_regs_t));
     
     memcpy(iret_stack,  pthread->arch.syscall_regs.iret,  sizeof(arch_iret_regs_t));

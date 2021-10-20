@@ -241,7 +241,7 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
 
     int kernel = (curr_proc->type & TYPE_KERNEL);
 
-    uint32_t stack_size = old_thread->arch.stack_beg - old_thread->arch.stack_end;
+    uint32_t stack_size = old_thread->arch.stack_user.size;
 
     uint32_t stack_begin, virt_stack_begin;
     if(!kernel) virt_stack_begin = 0xFF000000;
@@ -266,13 +266,16 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
             //(void *)(procs[p].esp - i), (void *)(procs[p].esp - i), 0x03);
     }
 
-    thread->arch.kernel_stack = (uint32_t)kmamalloc(PROC_KERN_STACK_SIZE, 0x1000) + PROC_KERN_STACK_SIZE;
+    thread->arch.stack_kern.size = PROC_KERN_STACK_SIZE;
+    thread->arch.stack_kern.begin = (uint32_t)kmamalloc(PROC_KERN_STACK_SIZE, 0x1000) + PROC_KERN_STACK_SIZE;
     for(i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
-        pgdir_map_page(arch_params->pgdir, (void *)(thread->arch.kernel_stack - i), (void *)(thread->arch.kernel_stack - i), 0x03);
+        pgdir_map_page(arch_params->pgdir,
+                       (void *)(thread->arch.stack_kern.begin - i),
+                       (void *)(thread->arch.stack_kern.begin - i), 0x03);
     }
 
-    thread->arch.stack_end = thread->arch.ebp - stack_size;
-    thread->arch.stack_beg = thread->arch.ebp;
+    thread->arch.stack_user.size  = stack_size;
+    thread->arch.stack_user.begin = thread->arch.ebp;
 
 #  ifdef STACK_PROTECTOR
     // TODO: Fix stack guarding:

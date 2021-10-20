@@ -11,25 +11,30 @@ extern uint32_t irq_stack_end[];
 
 extern uintptr_t get_pc(void);
 
-int arch_proc_create_stack(kthread_t *thread) {
-    /* Might need to increase alignment when incorporating MMU */
-    uint32_t stack = (uint32_t)kamalloc(thread->stack_size, 16);
-    if(!stack) {
+static int _allocate_stack(arch_stack_t *stack, uint32_t size) {
+    stack->size  = size;
+    stack->begin = (uint32_t)kmamalloc(size, 4096);
+    if(!stack->begin) {
         return -1;
     }
-
     /* TODO: MMU */
-    thread->arch.stack_beg = stack;
-    thread->arch.stack_end = stack + thread->stack_size;
+    stack->begin += size;
 
     return 0;
 }
 
-int arch_proc_create_kernel_stack(kthread_t __unused *thread) {
-	thread->arch.kernel_stack_size = PROC_KERN_STACK_SIZE;
-	thread->arch.kernel_stack = (uint32_t)kmamalloc(thread->arch.kernel_stack_size, 4096);
-    /* TODO: MMU */
-    thread->arch.kernel_stack += thread->arch.kernel_stack_size;
+int arch_proc_create_stack(kthread_t *thread) {
+    if(_allocate_stack(&thread->arch.stack_user, thread->stack_size)) {
+        return -1;
+    }
+
+    return 0;
+}
+
+int arch_proc_create_kernel_stack(kthread_t *thread) {
+    if(_allocate_stack(&thread->arch.stack_kern, PROC_KERN_STACK_SIZE)) {
+        return -1;
+    }
 
     return 0;
 }
@@ -68,8 +73,8 @@ int arch_setup_thread(kthread_t *thread) {
     //thread->arch.regs.cpsr = 0x60000113;
     thread->arch.regs.cpsr = 0x600001D2;
     thread->arch.regs.spsr = 0x60000113;
-    thread->arch.regs.ksp  = thread->arch.kernel_stack;
-    thread->arch.regs.usp  = thread->arch.stack_end;
+    thread->arch.regs.ksp  = thread->arch.stack_kern.begin;
+    thread->arch.regs.usp  = thread->arch.stack_user.begin;
     thread->arch.regs.lr   = (uint32_t)exit;
 
     return 0;
@@ -106,7 +111,7 @@ __hot void do_task_switch(void) {
     }
     
     kdebug(DEBUGSRC_PROC, ERR_ALL, "-TID: %02d | PC: %08X | SP: %08X | CPSR: %08X | NAME: %s",
-           thread->tid, ((uint32_t *)thread->arch.kernel_stack)[-1], thread->arch.regs.usp,
+           thread->tid, ((uint32_t *)thread->arch.stack_kern.begin)[-1], thread->arch.regs.usp,
            thread->arch.regs.spsr, thread->name);
 
     /* Get next thread to run. */
@@ -114,7 +119,7 @@ __hot void do_task_switch(void) {
 
     //kdebug(DEBUGSRC_PROC, ERR_ALL, "+TID: %d | PC: %08X | LR: %08X | SP: [%08X,%08X] | CPSR: %08X | NAME: %s", thread->tid, thread->arch.regs.pc, thread->arch.regs.lr, thread->arch.regs.ksp, thread->arch.regs.usp, thread->arch.regs.cpsr, thread->name);
     kdebug(DEBUGSRC_PROC, ERR_ALL, "+TID: %02d | PC: %08X | SP: %08X | CPSR: %08X | NAME: %s",
-           thread->tid, ((uint32_t *)thread->arch.kernel_stack)[-1], thread->arch.regs.usp,
+           thread->tid, ((uint32_t *)thread->arch.stack_kern.begin)[-1], thread->arch.regs.usp,
            thread->arch.regs.spsr, thread->name);
 
     thread->flags |= KTHREAD_FLAG_RANONCE;

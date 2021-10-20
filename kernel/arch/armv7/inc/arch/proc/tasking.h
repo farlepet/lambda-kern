@@ -7,6 +7,12 @@
 
 #include <arch/intr/int.h>
 
+/** Kernel representation of a stack allocated to a thread */
+typedef struct {
+    uint32_t begin;  /*!< Beginning of stack (i.e. top of allocated memory + 1) */
+    uint32_t size;   /*!< Usable size of stack in bytes */
+} arch_stack_t;
+
 typedef struct {
     volatile struct {
         uint32_t ksp;  /*!< Kernel stack pointer */
@@ -17,11 +23,8 @@ typedef struct {
         uint32_t spsr; /*!< Saved program status register - only used in _thread_entrypoint() */
     } regs;                     /*!< Saved registers */
 
-	uint32_t kernel_stack;      /*!< Kernel stack */
-	uint32_t kernel_stack_size; /*!< Size of kernel stack */
-
-	uint32_t stack_beg;         /*!< Beginning of stack */
-	uint32_t stack_end;         /*!< Current end of stack */
+	arch_stack_t stack_kern; /*!< Kernel stack */
+    arch_stack_t stack_user; /*!< User stack */
 } kthread_arch_t;
 
 typedef struct {

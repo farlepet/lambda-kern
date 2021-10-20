@@ -106,9 +106,10 @@ int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_reg
 		kerror(ERR_WARN, "      -> Thread %d [%s]", curr_thread->tid, curr_thread->name);
 		kerror(ERR_WARN, "      -> Entrypoint: %08X", curr_thread->entrypoint);
 
-		if(((cr2 < curr_thread->arch.stack_beg) && (cr2 > curr_thread->arch.stack_end - curr_thread->stack_size)) ||
-		   ((cr2 < curr_thread->arch.stack_beg + curr_thread->stack_size) && (cr2 > curr_thread->arch.stack_end)))
-		{
+		if(((cr2 > curr_thread->arch.stack_user.begin) &&
+		    (cr2 < (curr_thread->arch.stack_user.begin + 0x1000))) ||
+		   ((cr2 < (curr_thread->arch.stack_user.begin - curr_thread->arch.stack_user.size)) &&
+		    ((cr2 > (curr_thread->arch.stack_user.begin - curr_thread->arch.stack_user.size - 0x1000))))) {
 			kerror(ERR_WARN, "       -> Caused a stack overflow and is being dealt with");
 		}
 	
