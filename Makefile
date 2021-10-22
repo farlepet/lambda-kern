@@ -1,6 +1,6 @@
 MAINDIR    = .
 KERNEL     = $(MAINDIR)/kernel
-BUILDDIR   = $(MAINDIR)/build
+BUILDDIR   = $(MAINDIR)/build/$(ARCH)/$(CPU)/$(HW)
 
 VERBOSE     = 0
 EMBEDINITRD = 1

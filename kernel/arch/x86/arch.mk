@@ -1,4 +1,6 @@
 # Architecture-specific Makefile options for X86
+CPU        = ia32
+HW         = pc
 
 CFLAGS    += -m32 -march=i586
 LDARCH     = -melf_i386
@@ -6,7 +8,7 @@ LDFLAGS    = $(LDARCH) -T kernel/arch/x86/arch.ld
 
 # TODO: Make this command-line selectable:
 CFLAGS    += -D__LAMBDA_PLATFORM_ARCH__=PLATFORM_ARCH_X86 \
-             -D__LAMBDA_PLATFORM_CPU__=PLATFORM_CPU_X86 \
+             -D__LAMBDA_PLATFORM_CPU__=PLATFORM_CPU_IA32 \
              -D__LAMBDA_PLATFORM_HW__=PLATFORM_HW_PC
 
 ASFLAGS    = -m32

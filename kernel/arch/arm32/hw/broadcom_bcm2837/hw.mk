@@ -1,4 +1,6 @@
-# Architecture-specific Makefile options for the Broadcom BCM2837
+# HW-specific Makefile options for the Broadcom BCM2837
+
+CPU        = cortex_a53
 
 CFLAGS    += -march=armv8-a -marm
 LDFLAGS   += -T $(HWDIR)/hw.ld
@@ -11,17 +13,6 @@ ASFLAGS    = -march=armv8-a
 ifeq ($(CC), clang)
 CFLAGS  += -target armv8--eabi -mcpu=cortex-a53
 ASFLAGS += -target armv8--eabi -mcpu=cortex-a53
-endif
-
-
-ifeq ($(EMBEDINITRD), 1)
-$(BUILDDIR)/lambda.o: $(OBJS) $(BUILDDIR)/initrd.o
-	@echo -e "\033[33m  \033[1mLinking sources\033[0m"
-	$(Q) $(LD) -r -o $@ $(OBJS) $(BUILDDIR)/initrd.o
-else 
-$(BUILDDIR)/lambda.o: $(OBJS)
-	@echo -e "\033[33m  \033[1mLinking sources\033[0m"
-	$(Q) $(LD) -r -o $@ $(OBJS)
 endif
 
 

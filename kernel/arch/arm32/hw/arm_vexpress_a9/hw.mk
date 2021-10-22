@@ -1,4 +1,6 @@
-# Architecture-specific Makefile options for armv7
+# HW-specific Makefile options for ARM VExpress A9
+
+CPU        = cortex_a9
 
 CFLAGS    += -march=armv7-a
 LDFLAGS   += -T $(HWDIR)/hw.ld

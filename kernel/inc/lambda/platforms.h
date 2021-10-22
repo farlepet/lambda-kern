@@ -8,9 +8,9 @@
 
 /* TODO: Potentially move the following to their respective architectures, as
  * they are platform-specific */
-#define PLATFORM_CPU_X86           (1)
-#define PLATFORM_CPU_X86_64        (2)
-#define PLATFORM_CPU_RISCV_RV64I   (3)
+#define PLATFORM_CPU_IA32        (1)
+#define PLATFORM_CPU_X86_64      (2)
+#define PLATFORM_CPU_RISCV_RV64I (3)
 
 #define PLATFORM_HW_PC              (1)
 #define PLATFORM_HW_KENDRYTE_K210   (2)
