@@ -2,8 +2,8 @@
  *  \brief Contains support for the ARMv7 (optional) generic timer.
  *
  */
-#ifndef ARCH_ARMV7_INTR_GTIMER_H
-#define ARCH_ARMV7_INTR_GTIMER_H
+#ifndef ARCH_ARM32_INTR_GTIMER_H
+#define ARCH_ARM32_INTR_GTIMER_H
 
 #include <hal/timer/timer.h>
 

@@ -34,17 +34,17 @@ KERNSRC    = $(KERNEL)/src
 ARCHSRC    = $(MAINDIR)/kernel/arch/$(ARCH)/src
 ARCHINC    = $(MAINDIR)/kernel/arch/$(ARCH)/inc
 
+
+.PHONY: clean documentation cppcheck
+
+.DEFAULT_GOAL=$(BUILDDIR)/lambda.kern
+
+# TODO: Allow selecting of specific source files in a smart way
 SRCS       = $(wildcard $(KERNSRC)/*.c) $(wildcard $(KERNSRC)/*/*.c) $(wildcard $(KERNSRC)/*/*/*.c)
-SRCS      += $(wildcard $(ARCHSRC)/*.c) $(wildcard $(ARCHSRC)/*/*.c) $(wildcard $(ARCHSRC)/*/*/*.c)
-SRCS      += $(wildcard $(ARCHSRC)/*.s) $(wildcard $(ARCHSRC)/*/*.s) $(wildcard $(ARCHSRC)/*/*/*.s)
 
 OBJS       = $(filter %.o,$(patsubst $(KERNEL)/%.c,$(BUILDDIR)/%.o,$(SRCS)) \
                           $(patsubst $(KERNEL)/%.s,$(BUILDDIR)/%.o,$(SRCS)))
 DEPS       = $(filter %.d,$(patsubst $(KERNEL)/%.c,$(BUILDDIR)/%.d,$(SRCS)))
-
-.PHONY: all clean documentation cppcheck
-
-all: $(BUILDDIR)/lambda.kern
 
 # Architecture-specific makefile options
 include kernel/arch/$(ARCH)/arch.mk
@@ -77,6 +77,7 @@ $(BUILDDIR)/symbols.o: $(BUILDDIR)/lambda.o
 # TODO: Only include this if FEATURE_INITRD_EMBEDDED
 $(BUILDDIR)/initrd.o: initrd.cpio
 	@echo -e "\033[33m  \033[1mGenerating embedded InitRD object\033[0m"
+	$(Q) mkdir -p $(dir $@)
 	$(Q) $(LD) $(LDARCH) -r -b binary $< -o $@
 
 

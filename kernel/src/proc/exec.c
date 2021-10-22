@@ -60,7 +60,7 @@ int execve(const char *filename, const char **argv, const char **envp) {
  * Copy and relocate arguments (argv, envp) to the next process image, and
  * push these values to the stack.
  */
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARMV7)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARM32)
 __unused
 #endif
 static void exec_copy_arguments(kthread_t *thread, const char **argv, const char **envp, char ***n_argv, char ***n_envp) {

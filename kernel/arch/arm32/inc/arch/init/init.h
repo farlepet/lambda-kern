@@ -3,8 +3,8 @@
  *
  */
 
-#ifndef ARCH_ARMV7_INIT_H
-#define ARCH_ARMV7_INIT_H
+#ifndef ARCH_ARM32_INIT_H
+#define ARCH_ARM32_INIT_H
 
 #include <hal/intr/int_ctlr.h>
 

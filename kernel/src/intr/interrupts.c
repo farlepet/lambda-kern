@@ -7,7 +7,7 @@
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 #  include <arch/intr/idt.h>
 #  include <arch/intr/pit.h>
-#elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARMV7)
+#elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARM32)
 #  include <arch/intr/gtimer.h>
 #  include <arch/intr/timer/timer_sp804.h>
 #endif
@@ -26,7 +26,7 @@
 void set_interrupt(interrupt_idx_e n, void *handler) {
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 	set_idt((uint8_t)n, 0x08, 0x8E, handler);
-#elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARMV7)
+#elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARM32)
 	intr_set_handler(n, handler);
 #endif
 	kerror(ERR_DEBUG, "Interrupt vector 0x%02X set", n);
@@ -59,7 +59,7 @@ static void _task_switch_handler() {
 
 /* TODO: Move HAL elsewhere */
 static hal_timer_dev_t timer;
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARMV7)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARM32)
 /* TODO: Store these handles elsewhere */
 static timer_sp804_handle_t sp804;
 #endif
@@ -73,7 +73,7 @@ void timer_init(uint32_t quantum) {
 	pit_init(quantum);
 	pit_create_timerdev(&timer);
 	hal_timer_dev_attach(&timer, 0, _task_switch_handler);
-#elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARMV7)
+#elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARM32)
     timer_sp804_init(&sp804, VEXPRESS_A9_PERIPH_TIMER01_BASE);
 	timer_sp804_int_attach(&sp804, &intctlr, VEXPRESSA9_INT_TIM01);
 	timer_sp804_create_timerdev(&sp804, &timer);

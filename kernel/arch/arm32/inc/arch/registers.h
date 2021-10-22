@@ -1,5 +1,5 @@
-#ifndef ARCH_ARMV7_REGISTERS_H
-#define ARCH_ARMV7_REGISTERS_H
+#ifndef ARCH_ARM32_REGISTERS_H
+#define ARCH_ARM32_REGISTERS_H
 
 #include <types.h>
 

@@ -2,8 +2,8 @@
  *  \brief Contains support for the ARMv7 generic interrupt controller.
  *
  */
-#ifndef ARCH_ARMV7_INTR_GIC_H
-#define ARCH_ARMV7_INTR_GIC_H
+#ifndef ARCH_ARM32_INTR_GIC_H
+#define ARCH_ARM32_INTR_GIC_H
 
 #include <hal/intr/int_ctlr.h>
 
@@ -26,16 +26,16 @@ typedef volatile struct {
 
 /** Interrupt Interface registers */
 typedef volatile struct {
-#define ARMV7_GIC_ICC_CTLR_GRP1ENABLE__POS        (       0)
-#define ARMV7_GIC_ICC_CTLR_GRP1FIQBYPDISABLE__POS (       5)
-#define ARMV7_GIC_ICC_CTLR_GRP1IRQBYPDISABLE__POS (       6)
-#define ARMV7_GIC_ICC_CTLR_EOIMODENS__POS         (       9)
+#define ARM32_GIC_ICC_CTLR_GRP1ENABLE__POS        (       0)
+#define ARM32_GIC_ICC_CTLR_GRP1FIQBYPDISABLE__POS (       5)
+#define ARM32_GIC_ICC_CTLR_GRP1IRQBYPDISABLE__POS (       6)
+#define ARM32_GIC_ICC_CTLR_EOIMODENS__POS         (       9)
     uint32_t CTLR;     /** CPU Interface Control */
-#define ARMV7_GIC_ICC_PMR_PRI__POS                (       0)
-#define ARMV7_GIC_ICC_PMR_PRI__MASK               (0x00FFUL)
+#define ARM32_GIC_ICC_PMR_PRI__POS                (       0)
+#define ARM32_GIC_ICC_PMR_PRI__MASK               (0x00FFUL)
     uint32_t PMR;      /** Interrupt Priority Mask */
-#define ARMV7_GIC_ICC_BPR_BINPOINT__POS           (       0)
-#define ARMV7_GIC_ICC_BPR_BINPOINT__MASK          (0x0007UL)
+#define ARM32_GIC_ICC_BPR_BINPOINT__POS           (       0)
+#define ARM32_GIC_ICC_BPR_BINPOINT__MASK          (0x0007UL)
     uint32_t BPR;      /** Binary Point */
     uint32_t IAR;      /** Interrupt Acknowledge */
     uint32_t EOIR;     /** End of Interrupt */
@@ -83,8 +83,8 @@ typedef volatile struct {
 
 /* Interrupt Distributor registers */
 typedef volatile struct {
-#define ARMV7_GIC_DCU_CTLR_SECUREEN__POS    (       0)
-#define ARMV7_GIC_DCU_CTLR_NONSECUREEN__POS (       1)
+#define ARM32_GIC_DCU_CTLR_SECUREEN__POS    (       0)
+#define ARM32_GIC_DCU_CTLR_NONSECUREEN__POS (       1)
     uint32_t CTLR;            /** Distributor Control */
     uint32_t TYPER;           /** Interrupt Controller Type */
     uint32_t IIDR;            /** Distributor Implementor Identification */
@@ -130,8 +130,8 @@ typedef struct {
     armv7_gic_icc_regmap_t *icc;
     armv7_gic_dcu_regmap_t *dcu;
 
-#define ARMV7_GIC_MAX_CALLBACKS (16)
-    armv7_gic_callback_t callbacks[ARMV7_GIC_MAX_CALLBACKS];    
+#define ARM32_GIC_MAX_CALLBACKS (16)
+    armv7_gic_callback_t callbacks[ARM32_GIC_MAX_CALLBACKS];    
 } armv7_gic_handle_t;
 
 int armv7_gic_create_intctlrdev(armv7_gic_handle_t *hand, hal_intctlr_dev_t *intctlrdev);

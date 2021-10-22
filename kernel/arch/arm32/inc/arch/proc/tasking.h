@@ -1,5 +1,5 @@
-#ifndef ARCH_ARMV7_PROC_TASKING_H
-#define ARCH_ARMV7_PROC_TASKING_H
+#ifndef ARCH_ARM32_PROC_TASKING_H
+#define ARCH_ARM32_PROC_TASKING_H
 
 #include <stdint.h>
 

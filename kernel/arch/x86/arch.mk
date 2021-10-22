@@ -12,6 +12,8 @@ CFLAGS    += -D__LAMBDA_PLATFORM_ARCH__=PLATFORM_ARCH_X86 \
 ASFLAGS    = -m32
 
 
+SRCS      += $(wildcard $(ARCHSRC)/*.c) $(wildcard $(ARCHSRC)/*/*.c) $(wildcard $(ARCHSRC)/*/*/*.c)
+SRCS      += $(wildcard $(ARCHSRC)/*.s) $(wildcard $(ARCHSRC)/*/*.s) $(wildcard $(ARCHSRC)/*/*/*.s)
 
 ifeq ($(EMBEDINITRD), 1)
 $(BUILDDIR)/lambda.o: $(OBJS) $(BUILDDIR)/initrd.o

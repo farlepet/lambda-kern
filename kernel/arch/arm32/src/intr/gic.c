@@ -27,12 +27,12 @@ int armv7_gic_init(armv7_gic_handle_t *hand, volatile void *icc_base, volatile v
     hand->dcu = (armv7_gic_dcu_regmap_t *)dcu_base;
 
     hand->icc->PMR  = 0x00FF; /* Enable full range of interrupt priorities */
-    hand->icc->CTLR = (1UL << ARMV7_GIC_ICC_CTLR_GRP1ENABLE__POS);
+    hand->icc->CTLR = (1UL << ARM32_GIC_ICC_CTLR_GRP1ENABLE__POS);
 
-    hand->dcu->CTLR |= (1UL << ARMV7_GIC_DCU_CTLR_SECUREEN__POS) |
-                       (1UL << ARMV7_GIC_DCU_CTLR_NONSECUREEN__POS);
+    hand->dcu->CTLR |= (1UL << ARM32_GIC_DCU_CTLR_SECUREEN__POS) |
+                       (1UL << ARM32_GIC_DCU_CTLR_NONSECUREEN__POS);
 
-    for(int i = 0; i < ARMV7_GIC_MAX_CALLBACKS; i++) {
+    for(int i = 0; i < ARM32_GIC_MAX_CALLBACKS; i++) {
         hand->callbacks[i].int_n = 0xFFFFFFFFUL;
     }
 
@@ -48,7 +48,7 @@ int armv7_gic_irqhandle(armv7_gic_handle_t *hand) {
     /* Clear interrupt */
     hand->icc->EOIR = intr;
 
-    for(uint16_t i = 0; i < ARMV7_GIC_MAX_CALLBACKS; i++) {
+    for(uint16_t i = 0; i < ARM32_GIC_MAX_CALLBACKS; i++) {
         if(hand->callbacks[i].int_n == intr &&
            hand->callbacks[i].callback) {
             hand->callbacks[i].callback(intr, hand->callbacks[i].data);
@@ -103,7 +103,7 @@ static int intctlr_intr_attach(void *data, uint32_t int_n, void (*callback)(uint
 
     armv7_gic_handle_t *hand = (armv7_gic_handle_t *)data;
 
-    for(int i = 0; i < ARMV7_GIC_MAX_CALLBACKS; i++) {
+    for(int i = 0; i < ARM32_GIC_MAX_CALLBACKS; i++) {
         if(hand->callbacks[i].int_n == 0xFFFFFFFFUL) {
             hand->callbacks[i].int_n    = int_n;
             hand->callbacks[i].data     = int_data;

@@ -71,7 +71,7 @@ static void elf_read_phdr(const Elf32_Ehdr *elf, struct kproc_mem_map_ent **mmap
 static uintptr_t elf_exec_common(void *data, uint32_t length, arch_task_params_t *arch_params, symbol_t **symbols, struct kproc_mem_map_ent **mmap_entries, proc_elf_data_t *elf_data) {
 	/* TODO: Use this for error-checking */
 	(void)length;
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARMV7)
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARM32)
 	(void)arch_params;
 #endif
 	
