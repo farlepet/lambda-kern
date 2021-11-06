@@ -26,6 +26,7 @@ typedef unsigned long long int max_ptr_t; //!< Maximum pointer size that can be 
 #define __thiscall       __attribute__((__thiscall__))            //!< Causes argument 1 to be passed in by ecx
 #define __noreturn       __attribute__((__noreturn__))            //!< The function doesn't return
 #define __naked          __attribute__((__naked__))               //!< Do not add callee instructions to this function
+#define __weak           __attribute__((__weak__))                //!< Weak declaration
 
 #ifdef __clang__
 #  define __optimize_none  __attribute__((optnone))               //!< Prevent optimization of this function

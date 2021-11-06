@@ -6,10 +6,10 @@
 
 #define enable_interrupts()  asm volatile("cpsie i")
 #define disable_interrupts() asm volatile("cpsid i")
-//#define interrupt_halt()     asm volatile("wfi")
-//#define busy_wait()          asm volatile("wfi")
-#define interrupt_halt()     asm volatile("nop")
-#define busy_wait()          asm volatile("nop")
+#define interrupt_halt()     asm volatile("wfi")
+#define busy_wait()          asm volatile("wfi")
+//#define interrupt_halt()     asm volatile("nop")
+//#define busy_wait()          asm volatile("nop")
 
 #define enable_fiqs()  asm volatile("cpsie f")
 #define disable_fiqs() asm volatile("cpsid f")

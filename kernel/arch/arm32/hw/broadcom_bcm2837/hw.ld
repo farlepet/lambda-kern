@@ -2,15 +2,18 @@ ENTRY (reset)
 
 SECTIONS
 {
-        . = 0x80000;
+        . = 0x00008000;
 
         kern_start = .;
         
+        __text_begin = .;
         .text : {
                 *(.entryp)
                 *(.text)
         }
+        __text_end = .;
         
+        __rodata_begin = .;
         .rodata : {
                 *(.rodata)
                 
@@ -22,15 +25,20 @@ SECTIONS
                 *(.__lambda_strings)
                 __lambda_strings_end = .;
         }
+        __rodata_end = .;
         
+        __data_begin = .;
         .data : {
                 *(.data)
         }
+        __data_end = .;
         
+        __bss_begin = .;
         .bss : {
                 *(COMMON)
                 *(.bss)
         }
+        __bss_end = .;
         
         kern_end = .;
 

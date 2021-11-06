@@ -8,7 +8,13 @@
 #  include <arch/proc/stack_trace.h>
 #endif
 
-void __noreturn _kpanic(char *msg, ...)
+__weak
+void arch_kpanic_hook(void) {
+
+}
+
+__noreturn
+void _kpanic(char *msg, ...)
 {
     disable_interrupts();
     
@@ -34,5 +40,7 @@ void __noreturn _kpanic(char *msg, ...)
     stack_trace(16, __builtin_frame_address(0), (uint32_t)&stack_trace_here, NULL);
 #endif
     
+    arch_kpanic_hook();
+
     for(;;) interrupt_halt();
 }

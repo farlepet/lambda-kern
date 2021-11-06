@@ -20,6 +20,7 @@ AS            = $(CROSS_COMPILE)gcc
 LD            = $(CROSS_COMPILE)ld
 AR            = $(CROSS_COMPILE)ar
 STRIP         = $(CROSS_COMPILE)strip
+OBJCOPY       = $(CROSS_COMPILE)objcopy
 
 
 GIT_VERSION := "$(shell git describe --abbrev=8 --dirty=\* --always --tags)"

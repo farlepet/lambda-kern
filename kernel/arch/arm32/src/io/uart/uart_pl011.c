@@ -47,28 +47,25 @@ int uart_pl011_init(uart_pl011_handle_t *hand, void *base, uint32_t baud) {
     }
 
     hand->base = (uart_pl011_regmap_t *)base;
-
+	
     uint16_t intdiv;
     uint8_t  fracdiv;
     /* TODO: Determine UART source clock frequency */
-    if (_calc_divisor(24000000, baud, &intdiv, &fracdiv)) {
+    if (_calc_divisor(3000000, baud, &intdiv, &fracdiv)) {
         return -1;
     }
     hand->base->IBRD = intdiv;
     hand->base->FBRD = fracdiv;
 
     /* TODO: Allow for configuration here */
-    hand->base->LCR = (1UL << UART_PL011_LCR_BRK__POS) |
-                      (1UL << UART_PL011_LCR_PEN__POS) |
-                      (1UL << UART_PL011_LCR_EPS__POS) |
-                      (1UL << UART_PL011_LCR_FEN__POS) |
+    hand->base->LCR = (1UL << UART_PL011_LCR_FEN__POS) |
                       (3UL << UART_PL011_LCR_WLEN__POS);
 
     hand->base->CR  = (1UL << UART_PL011_CR_UARTEN__POS) |
                       (1UL << UART_PL011_CR_TXE__POS)    |
                       (1UL << UART_PL011_CR_RXE__POS);
 
-	add_input_dev(&_serial_dev, IDRIVER_SERIAL, "ser", 1, 0);
+    add_input_dev(&_serial_dev, IDRIVER_SERIAL, "ser", 1, 0);
 	_serial_dev.iev_buff = &_serial_buff;
  
     return 0;
@@ -102,7 +99,7 @@ int uart_pl011_int_attach(uart_pl011_handle_t *hand, hal_intctlr_dev_t *intctlr,
 
     //hand->base->CR &= ~(1UL << UART_PL011_CR_UARTEN__POS);
     
-    hand->base->IMSC |= (1UL << 4);
+    //hand->base->IMSC |= (1UL << 4);
     
     //hand->base->CR |= (1UL << UART_PL011_CR_UARTEN__POS);
 

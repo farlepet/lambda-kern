@@ -14,7 +14,8 @@ LDFLAGS    = -marm
 
 ASFLAGS    = -marm
 
-CFLAGS    += -D__LAMBDA_PLATFORM_ARCH__=PLATFORM_ARCH_ARM32
+CFLAGS    += -D__LAMBDA_PLATFORM_ARCH__=PLATFORM_ARCH_ARM32 \
+             -I$(HWINC)
 
 ifneq ($(CC), clang)
 CFLAGS  += -Wno-unknown-pragmas

@@ -74,6 +74,7 @@ void timer_init(uint32_t quantum) {
 	pit_create_timerdev(&timer);
 	hal_timer_dev_attach(&timer, 0, _task_switch_handler);
 #elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARM32)
+#  if (__LAMBDA_PLATFORM_HW__ == PLATFORM_HW_ARM_VEXPRESS_A9)
     timer_sp804_init(&sp804, VEXPRESS_A9_PERIPH_TIMER01_BASE);
 	timer_sp804_int_attach(&sp804, &intctlr, VEXPRESSA9_INT_TIM01);
 	timer_sp804_create_timerdev(&sp804, &timer);
@@ -83,6 +84,13 @@ void timer_init(uint32_t quantum) {
 	/* Kernel time timer: */
 	hal_timer_dev_setfreq(&timer, 1, 100);
 	hal_timer_dev_attach(&timer, 1, clk_count);
+#  else
+	(void)quantum;
+	(void)timer;
+	(void)sp804;
+	(void)_task_switch_handler;
+	(void)clk_count;
+#  endif
 #endif
 	kerror(ERR_INFO, "Timer initialized");
 }

@@ -150,6 +150,9 @@ void sched_processes() {
 
 __hot
 kthread_t *sched_get_curr_thread(unsigned cpu) {
+    if(!_curr_thread) {
+        return NULL;
+    }
     return _curr_thread[cpu];
 }
 
