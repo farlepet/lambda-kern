@@ -41,17 +41,22 @@ static int _calc_divisor(uint32_t clkfreq, uint32_t baud, uint16_t *divint, uint
     return 0;
 }
 
-int uart_pl011_init(uart_pl011_handle_t *hand, void *base, uint32_t baud) {
-    if(!base) {
+int uart_pl011_init(uart_pl011_handle_t *hand, void *base, hal_clock_dev_t *src_clock, uint32_t baud) {
+    if(!base ||
+       !src_clock) {
         return -1;
     }
 
-    hand->base = (uart_pl011_regmap_t *)base;
-	
+    hand->base      = (uart_pl011_regmap_t *)base;
+    hand->src_clock = src_clock;
+
+    /* Clear interrupts */
+    hand->base->ICR = 0x7FF;
+
     uint16_t intdiv;
     uint8_t  fracdiv;
     /* TODO: Determine UART source clock frequency */
-    if (_calc_divisor(3000000, baud, &intdiv, &fracdiv)) {
+    if (_calc_divisor(hand->src_clock->freq, baud, &intdiv, &fracdiv)) {
         return -1;
     }
     hand->base->IBRD = intdiv;

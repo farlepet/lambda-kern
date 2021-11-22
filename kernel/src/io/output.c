@@ -20,12 +20,6 @@ void kput(char c) {
 	if(kput_char_dev) {
 		hal_io_char_dev_putc(kput_char_dev, c);
 	}
-#if 0
-	if(boot_options.output_serial) {
-		serial_write((uint16_t)boot_options.output_serial, c);
-	}
-	else vga_put(c);
-#endif
 }
 
 /**

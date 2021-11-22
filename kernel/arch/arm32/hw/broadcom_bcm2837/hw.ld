@@ -9,13 +9,13 @@ SECTIONS
         __text_begin = .;
         .text : {
                 *(.entryp)
-                *(.text)
+                *(.text.*)
         }
         __text_end = .;
         
         __rodata_begin = .;
         .rodata : {
-                *(.rodata)
+                *(.rodata.*)
                 
                 __lambda_symbols_begin = .;
                 *(.__lambda_symbols)
@@ -29,14 +29,14 @@ SECTIONS
         
         __data_begin = .;
         .data : {
-                *(.data)
+                *(.data*)
         }
         __data_end = .;
         
         __bss_begin = .;
-        .bss : {
+        .bss (NOLOAD) : {
                 *(COMMON)
-                *(.bss)
+                *(.bss .bss.*)
         }
         __bss_end = .;
         

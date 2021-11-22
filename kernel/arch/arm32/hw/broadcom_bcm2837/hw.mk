@@ -23,7 +23,7 @@ $(BUILDDIR)/lambda.shared: $(BUILDDIR)/lambda.o
 	@echo -e "\033[33m  \033[1mLinking kernel\033[0m"
 	$(Q) $(CC) -shared -o $@ $< -T kernel/arch/arm32/arch.ld
 
-$(BUILDDIR)/lambda.kern: $(BUILDDIR)/lambda.o
+$(BUILDDIR)/lambda.kern: $(BUILDDIR)/lambda.o $(HWDIR)/hw.ld
 	@echo -e "\033[33m  \033[1mProducing kernel executable\033[0m"
 	$(Q) $(CC) $(CFLAGS) $(LDFLAGS) -o $@ $< -lgcc
 

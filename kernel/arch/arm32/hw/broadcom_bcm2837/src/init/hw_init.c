@@ -17,15 +17,23 @@ hal_intctlr_dev_t               intctlr;
 
 static ptr_t periphbase = 0;
 
-#if 1
+static hal_clock_dev_t ioclock;
+
+#if 0
 __attribute__((aligned(16))) 
-static volatile uint32_t _mbox_clkrate[9] = {
-    9*4, 0, 0x38002, 12, 8, 2, 3000000, 0 ,0
+static volatile uint32_t _mbox_clkrate[12] = {
+    sizeof(_mbox_clkrate), 0,
+    0x38002, 12, 0, 2, 48000000,
+    0,
+    0, 0, 0, 0
 };
 
 __attribute__((aligned(16))) 
-static volatile uint32_t _mbox_clken[8] = {
-    9*4, 0, 0x38001, 8, 8, 2, 3, 0
+static volatile uint32_t _mbox_clken[12] = {
+    sizeof(_mbox_clken), 0,
+    0x30047, 4, 0, 2,
+    0,
+    0, 0, 0, 0, 0
 };
 #endif
 
@@ -40,7 +48,9 @@ int hw_init_console(void) {
         (bcm2835_gpio_regmap_t *)(periphbase + BROADCOM_BCM2837_PERIPHBASE_OFF_GPIO);
     bcm2835_gpio_debug(0x0);
 
-#if 1
+    ioclock.freq = 48000000;
+
+#if 0
     /* Force to 3 MHz */
     bcm2835_mailbox_regmap_t *mailbox =
         (bcm2835_mailbox_regmap_t *)(periphbase + BROADCOM_BCM2837_PERIPHBASE_OFF_MAILBOX);
@@ -50,10 +60,11 @@ int hw_init_console(void) {
     
     bcm2835_mailbox_write(mailbox, BCM2835_MAILBOX_CHAN_PROPTAGS_TOVC, (uint32_t)&_mbox_clken);
     bcm2835_mailbox_read(mailbox, BCM2835_MAILBOX_CHAN_PROPTAGS_TOVC);
+    //ioclock.freq = _mbox_clken[6];
     bcm2835_gpio_debug(0x2);
 #endif
 
-    /* Disable pull up/down */
+    /* Set UART pins to pulldown */
     bcm2835_gpio_setpull(gpio, 14, BCM2835_GPIO_PULL_PULLDOWN);
     bcm2835_gpio_setpull(gpio, 15, BCM2835_GPIO_PULL_PULLDOWN);
     /* Set UART pin functions to AUX0 */
@@ -63,16 +74,13 @@ int hw_init_console(void) {
     
     uart_pl011_init(&pl011,
                     (void *)(periphbase + BROADCOM_BCM2837_PERIPHBASE_OFF_PL011),
+                    &ioclock,
                     115200);
     bcm2835_gpio_debug(0x4);
     uart_pl011_create_chardev(&pl011, &uart);
     kput_char_dev = &uart;
     
     bcm2835_gpio_debug(0x5);
-
-    for(;;) {
-        kerror(ERR_ERROR, "TEST");
-    }
 
     return 0;
 }

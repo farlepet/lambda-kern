@@ -7,6 +7,7 @@
 
 #include <hal/io/char/char.h>
 #include <hal/intr/int_ctlr.h>
+#include <hal/clock/clock.h>
 #include <io/input.h>
 
 typedef struct {
@@ -60,8 +61,9 @@ typedef struct {
     volatile uint32_t ICR;   /** Interrupt clear */
     volatile uint32_t DMACR; /** DMA control */
     volatile uint32_t __reserved2[13];
-    volatile uint32_t __reserved3[976];
-    volatile uint32_t __reserved4[4];
+    volatile uint32_t __reserved3[4];
+    volatile uint32_t __reserved4[976];
+    volatile uint32_t __reserved5[4];
     volatile uint32_t PeriphID0;
     volatile uint32_t PeriphID1;
     volatile uint32_t PeriphID2;
@@ -73,14 +75,16 @@ typedef struct {
 } uart_pl011_regmap_t;
 
 typedef struct {
-    uart_pl011_regmap_t *base;
+    uart_pl011_regmap_t *base;      /*!< Register map */
+    hal_clock_dev_t     *src_clock; /*!< Clock source for UART */
+
     /* TODO: Should this be incorporated into hal_io_char_dev_t? */
     struct input_dev    *idev;
 } uart_pl011_handle_t;
 
 int uart_pl011_create_chardev(uart_pl011_handle_t *hand, hal_io_char_dev_t *chardev);
 
-int uart_pl011_init(uart_pl011_handle_t *hand, void *base, uint32_t baud);
+int uart_pl011_init(uart_pl011_handle_t *hand, void *base, hal_clock_dev_t *src_clock, uint32_t baud);
 
 int uart_pl011_int_attach(uart_pl011_handle_t *hand, hal_intctlr_dev_t *intctlr, uint32_t int_n);
 
