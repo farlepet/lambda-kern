@@ -39,9 +39,9 @@ $(BUILDDIR)/lambda.ukern: $(BUILDDIR)/lambda.kern
 
 #@qemu-system-aarch64 -M raspi3 -kernel $< -serial stdio -no-reboot
 emu: $(BUILDDIR)/lambda.kern
-	@qemu-system-arm -M raspi2 -kernel $< -serial stdio -no-reboot
+	@qemu-system-arm -M raspi2b -kernel $< -serial stdio -no-reboot
 
 #@qemu-system-aarch64 -M raspi3 -kernel $< -serial stdio -no-reboot -s -S
 emu-debug: $(BUILDDIR)/lambda.kern
-	@qemu-system-arm -M raspi2 -kernel $< -serial stdio -no-reboot -s -S
+	@qemu-system-arm -M raspi2b -kernel $< -serial stdio -no-reboot -s -S
 
