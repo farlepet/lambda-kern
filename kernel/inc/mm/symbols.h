@@ -4,6 +4,7 @@
 #include <types.h>
 
 extern uint32_t kern_start; // Start of the kernel
+extern uint32_t kern_end; // Start of the kernel
 
 typedef struct symbol {
     char    *name; //!< Symbol name

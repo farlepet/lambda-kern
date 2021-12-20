@@ -50,6 +50,9 @@ int uart_pl011_init(uart_pl011_handle_t *hand, void *base, hal_clock_dev_t *src_
     hand->base      = (uart_pl011_regmap_t *)base;
     hand->src_clock = src_clock;
 
+    /* Disable */
+    hand->base->CR = 0;
+
     /* Clear interrupts */
     hand->base->ICR = 0x7FF;
 
@@ -102,11 +105,9 @@ int uart_pl011_int_attach(uart_pl011_handle_t *hand, hal_intctlr_dev_t *intctlr,
     hal_intctlr_dev_intr_attach(intctlr, int_n, _intr_recv_handler, hand);
     hal_intctlr_dev_intr_enable(intctlr, int_n);
 
-    //hand->base->CR &= ~(1UL << UART_PL011_CR_UARTEN__POS);
-    
-    //hand->base->IMSC |= (1UL << 4);
-    
-    //hand->base->CR |= (1UL << UART_PL011_CR_UARTEN__POS);
+    hand->base->CR &= ~(1UL << UART_PL011_CR_UARTEN__POS);
+    hand->base->IMSC |= (1UL << 4);
+    hand->base->CR |= (1UL << UART_PL011_CR_UARTEN__POS);
 
     return 0;
 }

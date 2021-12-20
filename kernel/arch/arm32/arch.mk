@@ -8,7 +8,7 @@ HWDIR      = $(MAINDIR)/kernel/arch/$(ARCH)/hw/$(HW)
 HWSRC      = $(HWDIR)/src
 HWINC      = $(HWDIR)/inc
 
-CFLAGS    += -marm
+CFLAGS    += -marm -mapcs-frame -mpoke-function-name
 LDARCH     = -marmelf
 LDFLAGS    = -marm
 

@@ -8,8 +8,7 @@
 #  include <arch/intr/idt.h>
 #  include <arch/intr/pit.h>
 #elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARM32)
-#  include <arch/intr/gtimer.h>
-#  include <arch/intr/timer/timer_sp804.h>
+#  include <arch/init/hw_init.h>
 #endif
 
 #include <arch/init/init.h>
@@ -33,36 +32,6 @@ void set_interrupt(interrupt_idx_e n, void *handler) {
 }
 EXPORT_FUNC(set_interrupt);
 
-#if (__LAMBDA_PLATFORM_ARCH__ != PLATFORM_ARCH_X86)
-/* TODO: Move elsewhere */
-__hot
-static void clk_count() {
-	/* TODO: Determine from timer struct */
-	kerneltime += 10;
-	
-	for(uint32_t i = 0; i < MAX_TIME_BLOCKS; i++) {
-		if(time_blocks[i].event) {
-			if(--time_blocks[i].count == 0x00000000) {
-				do_time_block_timeup(i);
-			}
-		}
-	}
-}
-#endif
-
-__hot
-static void _task_switch_handler() {
-	/* TODO: Make this more effecient */
-	sched_processes();
-	do_task_switch();
-}
-
-/* TODO: Move HAL elsewhere */
-static hal_timer_dev_t timer;
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARM32)
-/* TODO: Store these handles elsewhere */
-static timer_sp804_handle_t sp804;
-#endif
 /**
  * \brief Initializes the system timer.
  * Initializes the timer used by the target architecture.
@@ -70,27 +39,15 @@ static timer_sp804_handle_t sp804;
  */
 void timer_init(uint32_t quantum) {
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
+	/* TODO: Move to x86 arch */
+	static hal_timer_dev_t timer;
 	pit_init(quantum);
 	pit_create_timerdev(&timer);
 	hal_timer_dev_attach(&timer, 0, _task_switch_handler);
 #elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARM32)
-#  if (__LAMBDA_PLATFORM_HW__ == PLATFORM_HW_ARM_VEXPRESS_A9)
-    timer_sp804_init(&sp804, VEXPRESS_A9_PERIPH_TIMER01_BASE);
-	timer_sp804_int_attach(&sp804, &intctlr, VEXPRESSA9_INT_TIM01);
-	timer_sp804_create_timerdev(&sp804, &timer);
-	/* Task switch timer: */
-	hal_timer_dev_setfreq(&timer, 0, quantum);
-	hal_timer_dev_attach(&timer, 0, _task_switch_handler);
-	/* Kernel time timer: */
-	hal_timer_dev_setfreq(&timer, 1, 100);
-	hal_timer_dev_attach(&timer, 1, clk_count);
-#  else
+	hw_init_timer(quantum);
+#else
 	(void)quantum;
-	(void)timer;
-	(void)sp804;
-	(void)_task_switch_handler;
-	(void)clk_count;
-#  endif
 #endif
 	kerror(ERR_INFO, "Timer initialized");
 }

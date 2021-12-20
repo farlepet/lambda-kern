@@ -39,6 +39,6 @@ void intr_set_handler(interrupt_idx_e idx, void (*handler)(uint8_t, uintptr_t));
 
 void intr_init(void);
 
-void intr_attach_gic(armv7_gic_handle_t *hand);
+void intr_attach_irqhandler(void (*handler)(void *), void *data);
 
 #endif

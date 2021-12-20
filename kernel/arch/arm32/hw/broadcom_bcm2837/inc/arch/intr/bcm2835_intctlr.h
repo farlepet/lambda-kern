@@ -42,7 +42,11 @@ typedef enum {
     BCM2835_INT_GPU0_HALT     = 4,
     BCM2835_INT_GPU1_HALT     = 5,
     BCM2835_INT_ILL_ACCESS_T1 = 6,
-    BCM2835_INT_ILL_ACCESS_T2 = 7
+    BCM2835_INT_ILL_ACCESS_T2 = 7,
+    BCM2835_INT_GPUIRQ_0      = 8,
+    BCM2835_INT_GPUIRQ_1      = 9,
+
+    BCM2835_INT_OFFSET        = 128 /*!< Add this offset when registering one of these interrupts */
 } bcm2835_int_e;
 
 typedef struct {

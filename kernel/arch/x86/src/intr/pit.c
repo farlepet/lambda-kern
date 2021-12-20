@@ -34,21 +34,13 @@ void pit_create_timerdev(hal_timer_dev_t *dev) {
 void pit_handler(void)
 {
 	/* TODO: Determine from timer settings. */
-	kerneltime += 10;
-	
-	register uint32_t i = 0;
-	for(; i < MAX_TIME_BLOCKS; i++)
-		if(time_blocks[i].event)
-			if(--time_blocks[i].count == 0x00000000)
-				do_time_block_timeup(i);
+	time_update(10);
 	
 	outb(0x20, 0x20);
 
 	if(pit_callback) {
 		pit_callback();
 	}
-
-	//do_task_switch();
 }
 
 /**

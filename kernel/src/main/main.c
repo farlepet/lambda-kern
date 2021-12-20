@@ -48,12 +48,6 @@ __noreturn static void iloop() {
 #  define COMPILER_VERSION COMPILER" "__VERSION__
 #endif
 
-/**
- * Main kernel functions, initializes all devices, and sets up environment.
- * 
- * @param mboot_head pointer to multiboot structure
- * @param magic magic number telling us this is a multiboot-compliant bootloader
- */
 __noreturn void kmain(void) {
 	kerror(ERR_INFO, "---------------------------------------");
 	kerror(ERR_INFO, "Kernel version: "LAMBDA_VERSION_STR_FULL);
@@ -129,19 +123,12 @@ static void spawn_init(void) {
 	 * TTY or similar, rather than being directly controlled by the kernel. */
 	kerror(ERR_INFO, "Creating STDIO streams");
 
-	kfile_t *stdin = stream_create(INIT_STREAM_LEN);
-	if(!stdin) {
-		kpanic("init: Could not create STDIN!");
-	}
+	kfile_t *stdin, *stdout, *stderr;
 
-	kfile_t *stdout = stream_create(INIT_STREAM_LEN);
-	if(!stdout) {
-		kpanic("init: Could not create STDOUT!");
-	}
-
-	kfile_t *stderr = stream_create(INIT_STREAM_LEN);
-	if(!stderr) {
-		kpanic("init: Could not create STDERR!");
+	if(!(stdin  = stream_create(INIT_STREAM_LEN))  ||
+	   !(stdout = stream_create(INIT_STREAM_LEN)) ||
+	   !(stderr = stream_create(INIT_STREAM_LEN))) {
+		kpanic("init: Could not create STDIO streams!");
 	}
 
 	kfile_hand_t *stdin_kern  = fs_handle_create_open(stdin,  OFLAGS_WRITE);
@@ -156,7 +143,7 @@ static void spawn_init(void) {
 	   !stdin_user  ||
 	   !stdout_user ||
 	   !stderr_user) {
-		kpanic("Could not create stream habdle(s) for init!");
+		kpanic("Could not create stream handle(s) for init!");
 	   }
 
 	kerror(ERR_INFO, "Loading ELF");

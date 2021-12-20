@@ -2,22 +2,24 @@
 #include <arch/io/uart/uart_pl011.h>
 #include <arch/plat/platform.h>
 #include <arch/intr/bcm2835_intctlr.h>
+#include <arch/intr/timer/bcm2835_systimer.h>
 #include <arch/io/bcm2835_gpio.h>
 #include <arch/io/bcm2835_mailbox.h>
+#include <arch/proc/tasking.h>
 
 #include <err/error.h>
 #include <mm/alloc.h>
 #include <video.h>
 
-static uart_pl011_handle_t pl011;
-static hal_io_char_dev_t   uart;
+static uart_pl011_handle_t _pl011;
+static hal_io_char_dev_t   _uart;
 
-static bcm2835_intctlr_handle_t bcm2835_intctlr;
+static bcm2835_intctlr_handle_t _bcm2835_intctlr;
 hal_intctlr_dev_t               intctlr;
 
-static ptr_t periphbase = 0;
+static ptr_t _periphbase = (ptr_t)BROADCOM_BCM2837_PERIPHBASE_PI2;
 
-static hal_clock_dev_t ioclock;
+static hal_clock_dev_t _uartclock;
 
 #if 0
 __attribute__((aligned(16))) 
@@ -39,21 +41,17 @@ static volatile uint32_t _mbox_clken[12] = {
 
 int hw_init_console(void) {
     bcm2835_gpio_debug_init();
-    //__READ_PERIPHBASE(periphbase);
-    periphbase = (ptr_t)BROADCOM_BCM2837_PERIPHBASE_PI2;
-    /* Disable UART */
-    ((volatile uart_pl011_regmap_t *)(periphbase + BROADCOM_BCM2837_PERIPHBASE_OFF_PL011))->CR = 0;
-
-    bcm2835_gpio_regmap_t *gpio =
-        (bcm2835_gpio_regmap_t *)(periphbase + BROADCOM_BCM2837_PERIPHBASE_OFF_GPIO);
     bcm2835_gpio_debug(0x0);
 
-    ioclock.freq = 48000000;
+    bcm2835_gpio_regmap_t *gpio =
+        (bcm2835_gpio_regmap_t *)(_periphbase + BROADCOM_BCM2837_PERIPHBASE_OFF_GPIO);
+
+    _uartclock.freq = 48000000;
 
 #if 0
     /* Force to 3 MHz */
     bcm2835_mailbox_regmap_t *mailbox =
-        (bcm2835_mailbox_regmap_t *)(periphbase + BROADCOM_BCM2837_PERIPHBASE_OFF_MAILBOX);
+        (bcm2835_mailbox_regmap_t *)(_periphbase + BROADCOM_BCM2837_PERIPHBASE_OFF_MAILBOX);
     bcm2835_mailbox_write(mailbox, BCM2835_MAILBOX_CHAN_PROPTAGS_TOVC, (uint32_t)&_mbox_clkrate);
     bcm2835_mailbox_read(mailbox, BCM2835_MAILBOX_CHAN_PROPTAGS_TOVC);
     bcm2835_gpio_debug(0x1);
@@ -72,13 +70,13 @@ int hw_init_console(void) {
     bcm2835_gpio_setfunc(gpio, 15, BCM2835_GPIO_FUNCTIONSELECT_ALT0);
     bcm2835_gpio_debug(0x3);
     
-    uart_pl011_init(&pl011,
-                    (void *)(periphbase + BROADCOM_BCM2837_PERIPHBASE_OFF_PL011),
-                    &ioclock,
+    uart_pl011_init(&_pl011,
+                    (void *)(_periphbase + BROADCOM_BCM2837_PERIPHBASE_OFF_PL011),
+                    &_uartclock,
                     115200);
     bcm2835_gpio_debug(0x4);
-    uart_pl011_create_chardev(&pl011, &uart);
-    kput_char_dev = &uart;
+    uart_pl011_create_chardev(&_pl011, &_uart);
+    kput_char_dev = &_uart;
     
     bcm2835_gpio_debug(0x5);
 
@@ -86,15 +84,49 @@ int hw_init_console(void) {
 }
 
 int hw_init_interrupts(void) {
-    kerror(ERR_INFO, "PERIPHBASE: %08X", periphbase);
+    kerror(ERR_INFO, "PERIPHBASE: %08X", _periphbase);
 
-    bcm2835_intctlr_init(&bcm2835_intctlr,
-                         (void *)(periphbase + BROADCOM_BCM2837_PERIPHBASE_OFF_INTCTLR));
-    bcm2835_intctlr_create_intctlrdev(&bcm2835_intctlr, &intctlr);
-    //intr_attach_gic(&gic);
-    kerror(ERR_INFO, "GIC Initialized");
+    bcm2835_gpio_debug(0x6);
+    bcm2835_intctlr_init(&_bcm2835_intctlr,
+                         (void *)(_periphbase + BROADCOM_BCM2837_PERIPHBASE_OFF_INTCTLR));
+    bcm2835_intctlr_create_intctlrdev(&_bcm2835_intctlr, &intctlr);
+    kerror(ERR_INFO, "Interrupt Controller Initialized");
+    bcm2835_gpio_debug(0x7);
 
-    uart_pl011_int_attach(&pl011, &intctlr, BCM2835_IRQ_UART);
+    uart_pl011_int_attach(&_pl011, &intctlr, BCM2835_IRQ_UART);
+    bcm2835_gpio_debug(0x8);
+
+    enable_interrupts();
+    bcm2835_gpio_debug(0x9);
+
+    return 0;
+}
+
+__hot
+static void _clk_count() {
+	/* TODO: Determine from timer struct */
+	time_update(10);
+}
+
+__hot
+static void _task_switch_handler() {
+	/* TODO: Make this more effecient */
+	sched_processes();
+	do_task_switch();
+}
+
+static hal_timer_dev_t           _timer;
+static bcm2835_systimer_handle_t _systimer;
+int hw_init_timer(uint32_t rate) {
+    bcm2835_systimer_init(&_systimer, (void *)(_periphbase + BROADCOM_BCM2837_PERIPHBASE_OFF_SYSTIMER));
+	bcm2835_systimer_int_attach(&_systimer, &intctlr);
+	bcm2835_systimer_create_timerdev(&_systimer, &_timer);
+	/* Task switch timer: */
+	hal_timer_dev_setfreq(&_timer, 0, rate);
+	hal_timer_dev_attach(&_timer, 0, _task_switch_handler);
+	/* Kernel time timer: */
+	hal_timer_dev_setfreq(&_timer, 1, 100);
+	hal_timer_dev_attach(&_timer, 1, _clk_count);
 
     return 0;
 }

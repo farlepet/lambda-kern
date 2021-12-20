@@ -17,16 +17,14 @@ typedef int64_t time_t; //!< Typedef used when specifying UNIX time (not timer t
  * be decremented by 1. When count reaches 0, event() is called.
  * @see do_time_block_timeup
  */
-struct time_block
+typedef struct time_block
 {
 	void     (*event)(int pid); //!< Called when `count` = 0
 	uint64_t count;             //!< The number of ticks left
 	int      pid;               //!< PID of the process using this block
-};
+} time_block_t;
 
 #define MAX_TIME_BLOCKS 64 //!< Maximum number of timer blocks able to be used. We cannot let this get too high, or we will experience slowdown.
-
-extern struct time_block time_blocks[MAX_TIME_BLOCKS]; //!< Array of timeblocks used by various processes
 
 /**
  * \brief Called when count reaches 0.
@@ -53,5 +51,12 @@ void add_time_block(void (*func)(int), uint64_t count, int pid);
  * @param delay number of ticks to wait for
  */
 void delay(uint64_t delay);
+
+/**
+ * \brief Updates kernel time and time blocks.
+ * 
+ * @param off Number of milliseconds since last call
+ */
+void time_update(uint64_t off);
 
 #endif

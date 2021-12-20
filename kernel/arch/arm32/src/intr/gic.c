@@ -3,19 +3,21 @@
 #include <err/error.h>
 
 #include <arch/intr/gic.h>
+#include <arch/intr/int.h>
 
-static int intctlr_intr_enable(void *data, uint32_t int_n);
-static int intctlr_intr_disable(void *data, uint32_t int_n);
-static int intctlr_intr_attach(void *data, uint32_t int_n, void (*callback)(uint32_t, void *), void *int_data);
+static int  _intctlr_intr_enable(void *data, uint32_t int_n);
+static int  _intctlr_intr_disable(void *data, uint32_t int_n);
+static int  _intctlr_intr_attach(void *data, uint32_t int_n, void (*callback)(uint32_t, void *), void *int_data);
+static void _irqhandle(void *data);
 
 int armv7_gic_create_intctlrdev(armv7_gic_handle_t *hand, hal_intctlr_dev_t *intctlrdev) {
     memset(intctlrdev, 0, sizeof(hal_intctlr_dev_t));
 
     intctlrdev->data = (void *)hand;
 
-    intctlrdev->intr_enable  = intctlr_intr_enable;
-    intctlrdev->intr_disable = intctlr_intr_disable;
-    intctlrdev->intr_attach  = intctlr_intr_attach;
+    intctlrdev->intr_enable  = _intctlr_intr_enable;
+    intctlrdev->intr_disable = _intctlr_intr_disable;
+    intctlrdev->intr_attach  = _intctlr_intr_attach;
 
     intctlrdev->cap = HAL_INTCTLRDEV_CAP_INTENDISABLE | HAL_INTCTLRDEV_CAP_INTATTACH;
 
@@ -35,13 +37,16 @@ int armv7_gic_init(armv7_gic_handle_t *hand, volatile void *icc_base, volatile v
     for(int i = 0; i < ARM32_GIC_MAX_CALLBACKS; i++) {
         hand->callbacks[i].int_n = 0xFFFFFFFFUL;
     }
+    
+    intr_attach_irqhandler(_irqhandle, hand);
 
     return 0;
 }
 
 __hot
-int armv7_gic_irqhandle(armv7_gic_handle_t *hand) {
-    int ret = 1;
+static void _irqhandle(void *data) {
+    armv7_gic_handle_t *hand = (armv7_gic_handle_t *)data;
+
     /* Read and acknowledge interrupt ID */
     uint32_t intr = hand->icc->IAR & 0x00FFFFFF;
 
@@ -52,7 +57,6 @@ int armv7_gic_irqhandle(armv7_gic_handle_t *hand) {
         if(hand->callbacks[i].int_n == intr &&
            hand->callbacks[i].callback) {
             hand->callbacks[i].callback(intr, hand->callbacks[i].data);
-            ret = 0;
             /* NOTE: If multiple callbacks for a single interrupt ar desired,
              * the break can simply be removed. */
             break;
@@ -63,11 +67,9 @@ int armv7_gic_irqhandle(armv7_gic_handle_t *hand) {
      * we will reach this point every time. Thus we must clear the interrupt
      * prior to servicing it, and we cannot rely on execution after returning
      * from that call. */
-
-    return ret;
 }
 
-static int intctlr_intr_enable(void *data, uint32_t int_n) {
+static int _intctlr_intr_enable(void *data, uint32_t int_n) {
     if (int_n > 255) {
         return -1;
     }
@@ -83,7 +85,7 @@ static int intctlr_intr_enable(void *data, uint32_t int_n) {
     return 0;
 }
 
-static int intctlr_intr_disable(void *data, uint32_t int_n) {
+static int _intctlr_intr_disable(void *data, uint32_t int_n) {
     if (int_n > 255) {
         return -1;
     }
@@ -96,7 +98,7 @@ static int intctlr_intr_disable(void *data, uint32_t int_n) {
     return 0;
 }
 
-static int intctlr_intr_attach(void *data, uint32_t int_n, void (*callback)(uint32_t, void *), void *int_data) {
+static int _intctlr_intr_attach(void *data, uint32_t int_n, void (*callback)(uint32_t, void *), void *int_data) {
     if (int_n > 255) {
         return -1;
     }
