@@ -3,11 +3,7 @@
 #include <string.h>
 #include <mm/mm.h>
 #include <proc/atomic.h>
-
-#if 0
-#  include <arch/dev/vga/print.h>
-#  include <arch/io/serial.h>
-#endif
+#include <proc/mtask.h>
 
 hal_io_char_dev_t *kput_char_dev = NULL;
 
@@ -361,7 +357,7 @@ static lock_t print_lock;
  * @see print
  */
 int kprintf(const char *format, ...) {
-	if(interrupts_enabled()) lock_for(&print_lock, 100);
+	if(mtask_get_curr_thread()) lock_for(&print_lock, 100);
 	__builtin_va_list varg;
 	__builtin_va_start(varg, format);
 	char temp[1024];
@@ -370,7 +366,7 @@ int kprintf(const char *format, ...) {
 	int ret = print(temp, format, varg);
 	kprint(temp);
 	__builtin_va_end(varg);
-	if(interrupts_enabled()) unlock(&print_lock);
+	if(mtask_get_curr_thread()) unlock(&print_lock);
 	return ret;
 }
 
@@ -384,12 +380,12 @@ int kprintf(const char *format, ...) {
  * @see print
  */
 int kprintv(const char *format, __builtin_va_list varg) {
-	if(interrupts_enabled()) lock_for(&print_lock, 100);
+	if(mtask_get_curr_thread()) lock_for(&print_lock, 100);
 	char temp[1024];
 	int i = 0;
 	while(i < 1024) temp[i++] = ' ';
 	int ret = print(temp, format, varg);
 	kprint(temp);
-	if(interrupts_enabled()) unlock(&print_lock);
+	if(mtask_get_curr_thread()) unlock(&print_lock);
 	return ret;
 }
