@@ -7,8 +7,8 @@ start:
 	mov $(new_stack_t + STACK_SZ), %esp
     mov %esp, %ebp
 
-	pushl %eax # Bootloader magic number
-	pushl %ebx # Bootloader data header
+	push %eax # Bootloader magic number
+	push %ebx # Bootloader data header
 
 	cli
 	call kentry
@@ -23,8 +23,6 @@ endloop:
 
 .global get_eip
 get_eip:
-	;pop %eax
-	;push %eax
 	mov (%esp), %eax
 	ret
 

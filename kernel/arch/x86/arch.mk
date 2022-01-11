@@ -1,21 +1,30 @@
 # Architecture-specific Makefile options for X86
+
+# Default target:
 CPU        = ia32
 HW         = pc
 
+HWDIR      = $(MAINDIR)/kernel/arch/$(ARCH)/hw/$(HW)
+HWSRC      = $(HWDIR)/src
+HWINC      = $(HWDIR)/inc
+
 CFLAGS    += -m32 -march=i586
 LDARCH     = -melf_i386
-LDFLAGS    = $(LDARCH) -T kernel/arch/x86/arch.ld
+LDFLAGS    = $(LDARCH)
 
 # TODO: Make this command-line selectable:
 CFLAGS    += -D__LAMBDA_PLATFORM_ARCH__=PLATFORM_ARCH_X86 \
-             -D__LAMBDA_PLATFORM_CPU__=PLATFORM_CPU_IA32 \
-             -D__LAMBDA_PLATFORM_HW__=PLATFORM_HW_PC
+             -I$(HWINC)
 
 ASFLAGS    = -m32
 
-
+# TODO: Allow selecting of specific source files in a smart way
+SRCS      += $(wildcard $(HWSRC)/*.c)   $(wildcard $(HWSRC)/*/*.c)   $(wildcard $(HWSRC)/*/*/*.c)
+SRCS      += $(wildcard $(HWSRC)/*.s)   $(wildcard $(HWSRC)/*/*.s)   $(wildcard $(HWSRC)/*/*/*.s)
 SRCS      += $(wildcard $(ARCHSRC)/*.c) $(wildcard $(ARCHSRC)/*/*.c) $(wildcard $(ARCHSRC)/*/*/*.c)
 SRCS      += $(wildcard $(ARCHSRC)/*.s) $(wildcard $(ARCHSRC)/*/*.s) $(wildcard $(ARCHSRC)/*/*/*.s)
+
+include $(HWDIR)/hw.mk
 
 ifeq ($(EMBEDINITRD), 1)
 $(BUILDDIR)/lambda.o: $(OBJS) $(BUILDDIR)/initrd.o

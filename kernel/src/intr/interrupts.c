@@ -6,11 +6,9 @@
 
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 #  include <arch/intr/idt.h>
-#  include <arch/intr/pit.h>
-#elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARM32)
-#  include <arch/init/hw_init.h>
 #endif
 
+#include <arch/init/hw_init.h>
 #include <arch/init/init.h>
 #include <arch/intr/int.h>
 #include <arch/proc/tasking.h>
@@ -23,6 +21,7 @@
  * @param handler the location of the interrupt handler
  */
 void set_interrupt(interrupt_idx_e n, void *handler) {
+	/* TODO: Move abstraction into arch */
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 	set_idt((uint8_t)n, 0x08, 0x8E, handler);
 #elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARM32)
@@ -38,16 +37,7 @@ EXPORT_FUNC(set_interrupt);
  * @param quantum the speed in Hz
  */
 void timer_init(uint32_t quantum) {
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	/* TODO: Move to x86 arch */
-	static hal_timer_dev_t timer;
-	pit_init(quantum);
-	pit_create_timerdev(&timer);
-	hal_timer_dev_attach(&timer, 0, _task_switch_handler);
-#elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARM32)
 	hw_init_timer(quantum);
-#else
-	(void)quantum;
-#endif
+	
 	kerror(ERR_INFO, "Timer initialized");
 }

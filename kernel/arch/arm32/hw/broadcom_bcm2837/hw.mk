@@ -10,7 +10,7 @@ CFLAGS    += -D__LAMBDA_PLATFORM_CPU__=PLATFORM_CPU_ARM_CORTEX_A53 \
              -D__LAMBDA_PLATFORM_HW__=PLATFORM_HW_BROADCOM_BCM2837
 
 #ASFLAGS    = -march=armv8-a
-ASFLAGS    = -march=armv7-a
+ASFLAGS   += -march=armv7-a
 
 ifeq ($(CC), clang)
 CFLAGS  += -target armv8--eabi -mcpu=cortex-a53
