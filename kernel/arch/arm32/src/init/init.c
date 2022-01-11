@@ -1,10 +1,6 @@
 #include <arch/init/init.h>
 #include <arch/intr/int.h>
-#include <arch/intr/gtimer.h>
-#include <arch/intr/gic.h>
-
-#include <arch/registers.h>
-#include <arch/plat/platform.h>
+#include <arch/mm/mmu.h>
 
 #include <arch/init/hw_init.h>
 
@@ -16,6 +12,8 @@
 void arch_init(void) {
     disable_interrupts();
     disable_fiqs();
+
+    armv7_mmu_init();
 
     if(hw_init_console()) {
         /* Of course, if we fail to initialize the console, this message may
