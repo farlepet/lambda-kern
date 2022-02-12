@@ -1,6 +1,4 @@
 #include <lambda/export.h>
-#include <proc/atomic.h>
-#include <proc/mtask.h>
 #include <time/time.h>
 #include <err/error.h>
 #include <config.h>
@@ -10,8 +8,6 @@
 static uint8_t _err_level[DEBUGSRC_MAX] = {
     [0 ... (DEBUGSRC_MAX-1)] = ERR_INFO
 };
-
-static lock_t kerror_lock = 0; //!< Only 1 message can be printed at a time
 
 static char *debug_names[DEBUGSRC_MAX] = {
     [DEBUGSRC_MISC]    = "MISC",
@@ -29,8 +25,6 @@ void kdebug(debug_source_e src, error_level_e lvl, const char *msg, ...) {
         return;
     }
 
-    if(mtask_get_curr_thread()) lock_for(&kerror_lock, 100); // We don't want something like a kernel message from a lost task stopping us
-
 #if (KERNEL_COLORCODE)
     kprintf("\e[31m[\e[32m%X%08X\e[31m] [\e[33m%s\e[31m]\e[0m ", (uint32_t)(kerneltime >> 32), (uint32_t)kerneltime, debug_names[src]);
 #else
@@ -42,8 +36,6 @@ void kdebug(debug_source_e src, error_level_e lvl, const char *msg, ...) {
     kprintv(msg, varg);
     __builtin_va_end(varg);
     kput('\n');
-    
-    if(mtask_get_curr_thread()) unlock(&kerror_lock);
 }
 EXPORT_FUNC(kdebug);
 

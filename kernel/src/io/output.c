@@ -357,16 +357,18 @@ static lock_t print_lock;
  * @see print
  */
 int kprintf(const char *format, ...) {
-	if(mtask_get_curr_thread()) lock_for(&print_lock, 100);
 	__builtin_va_list varg;
 	__builtin_va_start(varg, format);
 	char temp[1024];
-	int i = 0;
-	while(i < 1024) temp[i++] = ' ';
 	int ret = print(temp, format, varg);
+
+	if(mtask_get_curr_thread() &&
+	   interrupts_enabled()) lock_for(&print_lock, 100);
 	kprint(temp);
+	if(mtask_get_curr_thread() &&
+	   interrupts_enabled()) unlock(&print_lock);
+
 	__builtin_va_end(varg);
-	if(mtask_get_curr_thread()) unlock(&print_lock);
 	return ret;
 }
 
@@ -380,12 +382,14 @@ int kprintf(const char *format, ...) {
  * @see print
  */
 int kprintv(const char *format, __builtin_va_list varg) {
-	if(mtask_get_curr_thread()) lock_for(&print_lock, 100);
 	char temp[1024];
-	int i = 0;
-	while(i < 1024) temp[i++] = ' ';
 	int ret = print(temp, format, varg);
+
+	if(mtask_get_curr_thread() &&
+	   interrupts_enabled()) lock_for(&print_lock, 100);
 	kprint(temp);
-	if(mtask_get_curr_thread()) unlock(&print_lock);
+	if(mtask_get_curr_thread() &&
+	   interrupts_enabled()) unlock(&print_lock);
+
 	return ret;
 }
