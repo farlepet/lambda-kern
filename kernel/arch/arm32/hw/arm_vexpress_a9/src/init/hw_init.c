@@ -55,7 +55,7 @@ int hw_init_mm(void) {
 __hot
 static void _clk_count() {
 	/* TODO: Determine from timer struct */
-	time_update(10);
+	time_update(10000000);
 }
 
 __hot

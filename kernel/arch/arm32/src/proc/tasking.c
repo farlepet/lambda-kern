@@ -112,21 +112,19 @@ __hot void do_task_switch(void) {
         }
         thread->arch.regs.pc = pc;
 
-        kdebug(DEBUGSRC_PROC, ERR_ALL, "-TID: %02d | PC: %p | SP: [%p,%p] | CPSR: %08X | NAME: %s : %p",
+        kdebug(DEBUGSRC_PROC, ERR_ALL, "-TID: %02d | PC: %p | SP: [%p,%p] | CPSR: %08X | NAME: %s",
             thread->tid, ((uint32_t *)thread->arch.stack_kern.begin)[-1],
             thread->arch.regs.usp, thread->arch.regs.ksp,
-            thread->arch.regs.spsr, thread->name,
-            thread);
+            thread->arch.regs.spsr, thread->name);
 
         /* Get next thread to run. */
         thread = sched_next_process(0);
     }
 
-    kdebug(DEBUGSRC_PROC, ERR_ALL, "+TID: %02d | PC: %p | SP: [%p,%p] | CPSR: %08X | NAME: %s : %p",
+    kdebug(DEBUGSRC_PROC, ERR_ALL, "+TID: %02d | PC: %p | SP: [%p,%p] | CPSR: %08X | NAME: %s",
            thread->tid, ((uint32_t *)thread->arch.stack_kern.begin)[-1],
            thread->arch.regs.usp, thread->arch.regs.ksp,
-           thread->arch.regs.spsr, thread->name,
-           thread);
+           thread->arch.regs.spsr, thread->name);
 
     thread->flags |= KTHREAD_FLAG_RANONCE;
 

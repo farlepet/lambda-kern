@@ -4,6 +4,7 @@
 #include <mm/mm.h>
 #include <proc/atomic.h>
 #include <proc/mtask.h>
+#include <math.h>
 
 hal_io_char_dev_t *kput_char_dev = NULL;
 
@@ -60,57 +61,6 @@ void kwprint(uint16_t *str) {
 typedef unsigned long long arg_type_t;
 typedef signed long long   sarg_type_t;
 
-#if (PLATFORM_BITS < PLATFORM_BITS_64)
-/**
- * @brief Divides two `arg_type_t` values, and stores the remainder. Used mainly
- * to allow use of 64-bit numbers on 32-bit platforms.
- * 
- * @note This is not an effecient method, so 64-bit numbers should be used
- * sparingly in debug statements on 32-bit platforms.
- * 
- * @param a Dividend
- * @param b Divsior
- * @return arg_type_t Result
- */
-static arg_type_t _arg_udiv(arg_type_t a, arg_type_t b, arg_type_t *rem) {
-    /* This Basic implementation is based off the simple 128-bit division
-     * algorithm found here: https://danlark.org/2020/06/14/128-bit-division/ */
-
-    if(a < 0x100000000ULL) {
-        /* Do fast 32-bit arithmetic when possible */
-        *rem = (uint32_t)a % (uint32_t)b;
-        return (uint32_t)a / (uint32_t)b;
-    }
-
-    if(b > a) {
-        *rem = a;
-        return 0;
-    }
-
-    arg_type_t q = 0; /* Quotient */
-
-    /* Get difference in position of most-significant bits between dividend and
-     * divisor
-     * NOTE: (63 - clz(a)) - (63 - clz(b)) == clz(b) - clz(a) */
-    int shift = __builtin_clzll(b | 1) - __builtin_clzll(a | 1);
-
-    b <<= shift;
-
-    while(shift >= 0) {
-        q <<= 1;
-        if(a >= b) {
-            a -= b;
-            q |= 1;
-        }
-        b >>= 1;
-        shift--;
-    }
-
-    *rem = a;
-    return q;
-}
-#endif /* (PLATFORM_BITS < PLATFORM_BITS_64) */
-
 /**
  * Converts an interger into a string and places the output into `out`
  * Used by `print` to make the code cleaner.
@@ -139,14 +89,9 @@ static int _print_int(arg_type_t num, uint8_t base, uint8_t u, uint8_t pad, uint
     char ans[25] = { '0', 0, };
     int i = 0;
     while(num) {
-#if (PLATFORM_BITS < PLATFORM_BITS_64)
         arg_type_t rem;
-        num = _arg_udiv(num, base, &rem);
+        num = udiv64(num, base, &rem);
         ans[i++] = nums[rem];
-#else
-        ans[i++] = nums[num % base];
-        num = num / base;
-#endif
     }
     if(i == 0) i++;
 

@@ -4,6 +4,7 @@
 #include <proc/mtask.h>
 #include <time/time.h>
 #include <err/error.h>
+#include <err/panic.h>
 
 /**
  * \brief Tells `delay` it can return.
@@ -12,25 +13,22 @@
  * @param tid the tid of the caller to `delay`
  */
 static void time_over(int tid) {
-	kthread_t *thread = thread_by_tid(tid);
+    kthread_t *thread = thread_by_tid(tid);
+    if(thread == NULL) {
+        kpanic("thread is NULL for TID %d!", tid);
+    }
 
-	thread->blocked &= (uint32_t)~BLOCK_DELAY;
+    thread->blocked &= (uint32_t)~BLOCK_DELAY;
 }
 
-/**
- * \brief Waits for a specified amount of time.
- * Creates a time block to wait for `delay` clock ticks, then waits until the
- * time has run out.
- * @param delay number of ticks to wait for
- */
-void delay(uint64_t delay) {
+void delay(uint32_t delay) {
     kthread_t *curr_thread = mtask_get_curr_thread();
 
-	add_time_block(&time_over, delay, curr_thread->tid);
-	curr_thread->blocked |= BLOCK_DELAY;
+    add_time_block(&time_over, (uint64_t)delay * 1000000ULL, curr_thread->tid);
+    curr_thread->blocked |= BLOCK_DELAY;
 
-	while(curr_thread->blocked & BLOCK_DELAY) {
-		interrupt_halt(); // Halt until multitasking comes in
-	}
+    while(curr_thread->blocked & BLOCK_DELAY) {
+        interrupt_halt(); // Halt until multitasking comes in
+    }
 }
 EXPORT_FUNC(delay);

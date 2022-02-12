@@ -6,7 +6,7 @@
 __hot
 static void _task_switch_handler() {
 	/* TODO: Determine from timer struct */
-	time_update(10);
+	time_update(10000000);
 	/* TODO: Make this more effecient */
 	sched_processes();
 	do_task_switch();

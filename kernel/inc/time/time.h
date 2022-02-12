@@ -3,7 +3,13 @@
 
 #include <types.h>
 
-extern uint64_t kerneltime; //!< Number of elapsed ticks since the PIT was initialized
+/**
+ * @brief Nanoseconds since system timer initialization
+ * 
+ * @note 2^64 nanoseconds = ~585 years
+ */
+
+extern uint64_t kerneltime;
 
 /**
  * Used when specifying UNIX time (not timer ticks).
@@ -20,42 +26,33 @@ typedef int64_t time_t; //!< Typedef used when specifying UNIX time (not timer t
 typedef struct time_block
 {
 	void     (*event)(int pid); //!< Called when `count` = 0
-	uint64_t count;             //!< The number of ticks left
+	uint64_t end;               //!< Value of kerneltime at which timer expires
 	int      pid;               //!< PID of the process using this block
 } time_block_t;
 
 #define MAX_TIME_BLOCKS 64 //!< Maximum number of timer blocks able to be used. We cannot let this get too high, or we will experience slowdown.
 
 /**
- * \brief Called when count reaches 0.
- * This makes it easier for the timer interrupt to call event(). After calling event()
- * it resets the time_blocks[] entry so another process can use it.
- * @param n the entry within time_blocks
- * @see time_blocks
- */
-void do_time_block_timeup(uint32_t n);
-
-/**
  * \brief Adds a time block to time_blocks[].
  * Finds the first free time_block and sets its values to the ones supplied.
  * @param func the function to call when count reaches 0
- * @param count the number of ticks to wait before calling func()
+ * @param off the number of nanoseconds to wait before calling func()
  * @param pid the pid of the process that is using this time_block
  */
-void add_time_block(void (*func)(int), uint64_t count, int pid);
+void add_time_block(void (*func)(int), uint64_t off, int pid);
 
 /**
  * \brief Waits for a specified amount of time.
  * Creates a time block to wait for `delay` clock ticks, then waits until the
  * time has run out.
- * @param delay number of ticks to wait for
+ * @param delay number of milliseconds to wait for
  */
-void delay(uint64_t delay);
+void delay(uint32_t delay);
 
 /**
  * \brief Updates kernel time and time blocks.
  * 
- * @param off Number of milliseconds since last call
+ * @param off Number of nanoseconds since last call
  */
 void time_update(uint64_t off);
 
