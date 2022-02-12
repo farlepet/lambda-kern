@@ -1,5 +1,4 @@
 #include <lambda/export.h>
-#include <lambda/platforms.h>
 #include <video.h>
 #include <string.h>
 #include <mm/mm.h>

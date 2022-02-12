@@ -19,7 +19,7 @@
 #define PLATFORM_BITS_8  (8)
 #define PLATFORM_BITS_16 (16)
 #define PLATFORM_BITS_32 (32)
-#define PLATFORM_BITS_68 (64)
+#define PLATFORM_BITS_64 (64)
 #define PLATFORM_BITS    (PLATFORM_BITS_32)
 
 #endif
