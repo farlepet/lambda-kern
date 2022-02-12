@@ -5,11 +5,13 @@
     push {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12}
     mrs  r0, spsr
     push {r0}
+    push {r0} /* Padding to 8-byte align stack */
     mov  r0, \intn
     mov  r1, lr
 .endm
 
 .macro __INTR_END
+    pop {r0} /* Pop padding byte */
     pop {r0}
     msr spsr, r0
     pop {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12}

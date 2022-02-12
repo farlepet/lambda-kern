@@ -26,9 +26,9 @@ void kdebug(debug_source_e src, error_level_e lvl, const char *msg, ...) {
     }
 
 #if (KERNEL_COLORCODE)
-    kprintf("\e[31m[\e[32m%X%08X\e[31m] [\e[33m%s\e[31m]\e[0m ", (uint32_t)(kerneltime >> 32), (uint32_t)kerneltime, debug_names[src]);
+    kprintf("\e[31m[\e[32m%010lld\e[31m] [\e[33m%s\e[31m]\e[0m ", kerneltime, debug_names[src], &msg);
 #else
-    kprintf("[%X%08X] [%s]", (uint32_t)(kerneltime >> 32), (uint32_t)kerneltime, debug_names[src]);
+    kprintf("[%010lld] [%s]", kerneltime, debug_names[src]);
 #endif
 
     __builtin_va_list varg;

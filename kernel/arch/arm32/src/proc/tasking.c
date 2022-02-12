@@ -92,6 +92,7 @@ __hot void do_task_switch(void) {
 	kthread_t *thread = sched_get_curr_thread(0);
 
     if(thread->flags & KTHREAD_FLAG_RANONCE) {
+        /* Save the CPSR, stack pointers, and link register of the current thread */
         asm volatile("mrs %0, cpsr\n"
                      "mov %1, sp  \n"
                      "mov %3, lr  \n"
@@ -105,22 +106,27 @@ __hot void do_task_switch(void) {
                      "=r"(thread->arch.regs.lr));
         uint32_t pc = get_pc();
         if(pc == 0xFFFFFFFF) {
+            /* We just came here from the bx at the end of this function, so we
+             * are ready to exit and continue executing on the new thread */
             return;
         }
         thread->arch.regs.pc = pc;
+
+        kdebug(DEBUGSRC_PROC, ERR_ALL, "-TID: %02d | PC: %p | SP: [%p,%p] | CPSR: %08X | NAME: %s : %p",
+            thread->tid, ((uint32_t *)thread->arch.stack_kern.begin)[-1],
+            thread->arch.regs.usp, thread->arch.regs.ksp,
+            thread->arch.regs.spsr, thread->name,
+            thread);
+
+        /* Get next thread to run. */
+        thread = sched_next_process(0);
     }
-    
-    kdebug(DEBUGSRC_PROC, ERR_ALL, "-TID: %02d | PC: %08X | SP: %08X | CPSR: %08X | NAME: %s",
-           thread->tid, ((uint32_t *)thread->arch.stack_kern.begin)[-1], thread->arch.regs.usp,
-           thread->arch.regs.spsr, thread->name);
 
-    /* Get next thread to run. */
-    thread = sched_next_process(0);
-
-    //kdebug(DEBUGSRC_PROC, ERR_ALL, "+TID: %d | PC: %08X | LR: %08X | SP: [%08X,%08X] | CPSR: %08X | NAME: %s", thread->tid, thread->arch.regs.pc, thread->arch.regs.lr, thread->arch.regs.ksp, thread->arch.regs.usp, thread->arch.regs.cpsr, thread->name);
-    kdebug(DEBUGSRC_PROC, ERR_ALL, "+TID: %02d | PC: %08X | SP: %08X | CPSR: %08X | NAME: %s",
-           thread->tid, ((uint32_t *)thread->arch.stack_kern.begin)[-1], thread->arch.regs.usp,
-           thread->arch.regs.spsr, thread->name);
+    kdebug(DEBUGSRC_PROC, ERR_ALL, "+TID: %02d | PC: %p | SP: [%p,%p] | CPSR: %08X | NAME: %s : %p",
+           thread->tid, ((uint32_t *)thread->arch.stack_kern.begin)[-1],
+           thread->arch.regs.usp, thread->arch.regs.ksp,
+           thread->arch.regs.spsr, thread->name,
+           thread);
 
     thread->flags |= KTHREAD_FLAG_RANONCE;
 
@@ -136,6 +142,5 @@ __hot void do_task_switch(void) {
                  "r"(thread->arch.regs.lr),
                  "r"(thread->arch.regs.ksp),
                  "r"(thread->arch.regs.usp),
-                 "r"(thread->arch.regs.pc) :
-                 "r0","lr");
+                 "r"(thread->arch.regs.pc));
 }
