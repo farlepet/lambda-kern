@@ -14,14 +14,31 @@ typedef struct {
 } arch_stack_t;
 
 typedef struct {
-    volatile struct {
+    struct {
         uint32_t ksp;  /*!< Kernel stack pointer */
         uint32_t usp;  /*!< User stack pointer */
         uint32_t lr;   /*!< Link register */
         uint32_t pc;   /*!< Program counter */
         uint32_t cpsr; /*!< Current program status register */
         uint32_t spsr; /*!< Saved program status register - only used in _thread_entrypoint() */
-    } regs;                     /*!< Saved registers */
+    } regs;                  /*!< Saved registers */
+    
+    struct {
+        /* NOTE: We don't care about R0, since it's being used to check for
+         * completion of context switch. */
+        uint32_t r1;
+        uint32_t r2;
+        uint32_t r3;
+        uint32_t r4;
+        uint32_t r5;
+        uint32_t r6;
+        uint32_t r7;
+        uint32_t r8;
+        uint32_t r9;
+        uint32_t r10;
+        uint32_t r11;
+        uint32_t r12;
+    } gpregs; /*!< Saved general-purpose registers */
 
 	arch_stack_t stack_kern; /*!< Kernel stack */
     arch_stack_t stack_user; /*!< User stack */

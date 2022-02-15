@@ -88,7 +88,7 @@ __noreturn void kterm_task() {
 		char t = 0;
 		while(1) {
 			while(!fs_read(kterm_stdin, 0, 1, (uint8_t *)&t)) {
-				delay(1);
+				delay(10);
 			}
 
 			if(t == '\n' || t == '\r') break;

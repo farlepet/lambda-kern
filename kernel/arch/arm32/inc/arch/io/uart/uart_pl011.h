@@ -54,7 +54,20 @@ typedef struct {
 #define UART_PL011_CR_RTSEN__POS  (    14) /** Requeset to send enable */
 #define UART_PL011_CR_CTSEN__POS  (    15) /** Clear to send enable */
     volatile uint32_t CR;    /** Control */
+#define UART_PL011_IFLS_TXIFLSEL__POS (    0) /** Transmit fifo interrupt level select */
+#define UART_PL011_IFLS_RXIFLSEL__POS (    3) /** Receive fifo interrupt level select */
     volatile uint32_t IFLS;  /** Interrupt FIFO level select */
+#define UART_PL011_IMSC_RIMIM__POS  (     0) /** Ring Indicator interrupt */
+#define UART_PL011_IMSC_CTSMIM__POS (     1) /** Clear To Send interrupt */
+#define UART_PL011_IMSC_DCDMIM__POS (     2) /** Data Carrier Detect interrupt */
+#define UART_PL011_IMSC_DSRMIM__POS (     3) /** Data Set Ready interrupt */
+#define UART_PL011_IMSC_RXIM__POS   (     4) /** Receive interrupt */
+#define UART_PL011_IMSC_TXIM__POS   (     5) /** Transmit interrupt */
+#define UART_PL011_IMSC_RTIM__POS   (     6) /** Receive Timeout interrupt */
+#define UART_PL011_IMSC_FEIM__POS   (     7) /** Framing Error interrupt */
+#define UART_PL011_IMSC_PEIM__POS   (     8) /** Parity Error interrupt */
+#define UART_PL011_IMSC_BEIM__POS   (     9) /** Break Error interrupt */
+#define UART_PL011_IMSC_OEIM__POS   (    10) /** Overrun Error interrupt */
     volatile uint32_t IMSC;  /** Interrupt mask set/clear */
     volatile uint32_t RIS;   /** Raw interrupt status */
     volatile uint32_t MIS;   /** Masked interrupt status */

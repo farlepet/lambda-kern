@@ -28,7 +28,7 @@ GIT_VERSION := "$(shell git describe --abbrev=8 --dirty=\* --always --tags)"
 CFLAGS    += -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/$(ARCH)/inc/ \
 			 -nostdlib -nostdinc -ffreestanding -Wall -Wextra -Werror -O2 \
 			 -pipe -g -fno-stack-protector -fdata-sections -ffunction-sections \
-			 -include "lambda/platforms.h" \
+			 -include "config.h" \
 			 -DKERNEL_GIT=\"$(GIT_VERSION)\"
 
 KERNSRC    = $(KERNEL)/src

@@ -2,14 +2,14 @@
 
 .global __int_table
 __int_table:
-    b reset
-    b __int_wrap_undefined
-    b __int_wrap_syscall
-    b __int_wrap_prefetchabort
-    b __int_wrap_dataabort
-    b __int_wrap_hyptrap
-    b __int_wrap_irq
-    b __int_wrap_fiq
+    b reset                    /* + 0x00 */
+    b __int_wrap_undefined     /* + 0x04 */
+    b __int_wrap_syscall       /* + 0x08 */
+    b __int_wrap_prefetchabort /* + 0x0C */
+    b __int_wrap_dataabort     /* + 0x10 */
+    b __int_wrap_hyptrap       /* + 0x14 */
+    b __int_wrap_irq           /* + 0x18 */
+    b __int_wrap_fiq           /* + 0x20 */
 .size __int_table, . - __int_table
 
 .extern new_stack_end

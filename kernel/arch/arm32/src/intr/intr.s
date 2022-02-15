@@ -36,7 +36,6 @@ __int_wrap_undefined:
     __INTR_END
 
 __int_wrap_syscall:
-#    ldr sp, =irq_stack_end
     push {lr}
     push {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12}
     mov  r0, #2

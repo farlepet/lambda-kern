@@ -7,6 +7,7 @@
 #include <arch/io/bcm2835_mailbox.h>
 #include <arch/proc/tasking.h>
 
+#include <proc/mtask.h>
 #include <err/error.h>
 #include <mm/alloc.h>
 #include <video.h>
@@ -105,7 +106,7 @@ int hw_init_interrupts(void) {
 __hot
 static void _clk_count() {
 	/* TODO: Determine from timer struct */
-	time_update(10000000);
+	time_update(1000000);
 }
 
 __hot
@@ -125,7 +126,7 @@ int hw_init_timer(uint32_t rate) {
 	hal_timer_dev_setfreq(&_timer, 0, rate);
 	hal_timer_dev_attach(&_timer, 0, _task_switch_handler);
 	/* Kernel time timer: */
-	hal_timer_dev_setfreq(&_timer, 1, 100);
+	hal_timer_dev_setfreq(&_timer, 1, 1000);
 	hal_timer_dev_attach(&_timer, 1, _clk_count);
 
     return 0;
@@ -144,6 +145,21 @@ int hw_init_mm(void) {
 
 /* TODO: Move */
 void arch_kpanic_hook(void) {
+    kthread_t *thread = mtask_get_curr_thread();
+    if(thread) {
+        kprintf("\n--------- REGISTERS ---------\n");
+        kprintf("r0:   xxxxxxxx r1:   %08X\n", thread->arch.gpregs.r1);
+        kprintf("r2:   %08X r3:   %08X\n", thread->arch.gpregs.r2, thread->arch.gpregs.r3);
+        kprintf("r4:   %08X r5:   %08X\n", thread->arch.gpregs.r4, thread->arch.gpregs.r5);
+        kprintf("r6:   %08X r7:   %08X\n", thread->arch.gpregs.r6, thread->arch.gpregs.r7);
+        kprintf("r8:   %08X r9:   %08X\n", thread->arch.gpregs.r8, thread->arch.gpregs.r9);
+        kprintf("r10:  %08X r11:  %08X\n", thread->arch.gpregs.r10, thread->arch.gpregs.r11);
+        kprintf("r12:  %08X\n", thread->arch.gpregs.r12);
+        kprintf("ksp:  %08X usp:  %08X\n", thread->arch.regs.ksp, thread->arch.regs.usp);
+        kprintf("cpsr: %08X spsr: %08X\n", thread->arch.regs.cpsr, thread->arch.regs.spsr);
+        kprintf("-----------------------------\n");
+    }
+
     bcm2835_gpio_debug_init();
 
     for(;;) {    

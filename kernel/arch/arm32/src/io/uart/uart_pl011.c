@@ -5,7 +5,7 @@
 #include <proc/ktasks.h>
 #include <err/error.h>
 
-static input_dev_t _serial_dev;
+static input_dev_t _serial_dev = {0};
 
 #define SERIAL_BUFF_CNT 16
 static cbuff_t _serial_buff = STATIC_CBUFF(sizeof(struct input_event) * SERIAL_BUFF_CNT);
@@ -93,9 +93,11 @@ static void _intr_recv_handler(uint32_t int_n, void *data) {
 
     uart_pl011_handle_t *hand = (uart_pl011_handle_t *)data;
 
-    uint8_t inp = (uint8_t)hand->base->DR;
-
-    _handle_input(hand, inp);
+    uint8_t inp;
+    while(!(hand->base->FR & (1UL << UART_PL011_FR_RXFE__POS))) {
+        inp = (uint8_t)hand->base->DR;
+        _handle_input(hand, inp);
+    }
 
     /* Clear all UART interrupts */
     hand->base->ICR = 0x07FF;
@@ -106,7 +108,14 @@ int uart_pl011_int_attach(uart_pl011_handle_t *hand, hal_intctlr_dev_t *intctlr,
     hal_intctlr_dev_intr_enable(intctlr, int_n);
 
     hand->base->CR &= ~(1UL << UART_PL011_CR_UARTEN__POS);
-    hand->base->IMSC |= (1UL << 4);
+
+    /* Interrupt at FIFO 1/8 full */
+    hand->base->IFLS = (0UL << UART_PL011_IMSC_TXIM__POS) |
+                       (0UL << UART_PL011_IMSC_RXIM__POS);
+
+    /* Enable RX interrupt */
+    hand->base->IMSC = (1UL << UART_PL011_IMSC_RXIM__POS);
+
     hand->base->CR |= (1UL << UART_PL011_CR_UARTEN__POS);
 
     return 0;

@@ -88,22 +88,28 @@ void arch_multitasking_init(void) {
     /* TODO */
 }
 
-__hot void do_task_switch(void) {
+__hot
+void do_task_switch(void) {
 	kthread_t *thread = sched_get_curr_thread(0);
 
     if(thread->flags & KTHREAD_FLAG_RANONCE) {
         /* Save the CPSR, stack pointers, and link register of the current thread */
-        asm volatile("mrs %0, cpsr\n"
-                     "mov %1, sp  \n"
-                     "mov %3, lr  \n"
+        register void *r0 asm("r0") = (void *)&thread->arch.gpregs;
+        asm volatile("stm %4, {r1-r11}\n"
+            
+                     "mrs %0, cpsr\n" /* Kernel Program Status Register */
+                     "str sp, %1  \n" /* Kernel stack pointer */
+                     "str lr, %3  \n" /* Kernel LR */
 
-                     "cps #0x13   \n"
-                     "mov %2, sp  \n"
+                     "cps #0x13   \n" /* Thread stack pointer */
+                     "str sp, %2  \n"
                      "cps #0x12   \n" :
                      "=r"(thread->arch.regs.cpsr),
-                     "=r"(thread->arch.regs.ksp),
-                     "=r"(thread->arch.regs.usp),
-                     "=r"(thread->arch.regs.lr));
+                     "=m"(thread->arch.regs.ksp),
+                     "=m"(thread->arch.regs.usp),
+                     "=m"(thread->arch.regs.lr) :
+                     "r"(r0));
+
         uint32_t pc = get_pc();
         if(pc == 0xFFFFFFFF) {
             /* We just came here from the bx at the end of this function, so we
@@ -117,6 +123,17 @@ __hot void do_task_switch(void) {
             thread->arch.regs.usp, thread->arch.regs.ksp,
             thread->arch.regs.spsr, thread->name);
 
+#if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
+        if((thread->arch.regs.usp > thread->arch.stack_user.begin) ||
+           (thread->arch.regs.usp < (thread->arch.stack_user.begin - thread->arch.stack_user.size))) {
+            kpanic("User stack pointer out-of-bounds!");
+        }
+        if((thread->arch.regs.ksp > thread->arch.stack_kern.begin) ||
+           (thread->arch.regs.ksp < (thread->arch.stack_kern.begin - thread->arch.stack_kern.size))) {
+            kpanic("Kernel stack pointer out-of-bounds!");
+        }
+#endif /* CHECK_STRICTNESS */
+
         /* Get next thread to run. */
         thread = sched_next_process(0);
     }
@@ -128,17 +145,28 @@ __hot void do_task_switch(void) {
 
     thread->flags |= KTHREAD_FLAG_RANONCE;
 
-    asm volatile("cps #0x13   \n"
-                 "mov sp, %3  \n"
-                 
+    /* TODO: Using specific registers here is not desired, there is likely a
+     * better way to go about this. As-is, this portion of code, and the above
+     * conterpart, is somewhat fragile. */
+    register void *r0  asm("r0")  = (void *)&thread->arch.gpregs;
+    register void *r12 asm("r12") = (void *)thread->arch.regs.pc;
+    asm volatile("cps #0x13          \n"
+                 "ldr sp, %3         \n"
+
                  "msr cpsr, %0       \n"
-                 "mov lr,   %1       \n"
-                 "mov sp,   %2       \n"
+                 "ldr lr,   %1       \n"
+                 "ldr sp,   %2       \n"
+
+                 "ldm %5, {r1-r11}   \n"
+
                  "mov r0, #0xFFFFFFFF\n"
                  "bx  %4             \n" ::
                  "r"(thread->arch.regs.cpsr),
-                 "r"(thread->arch.regs.lr),
-                 "r"(thread->arch.regs.ksp),
-                 "r"(thread->arch.regs.usp),
-                 "r"(thread->arch.regs.pc));
+                 "m"(thread->arch.regs.lr),
+                 "m"(thread->arch.regs.ksp),
+                 "m"(thread->arch.regs.usp),
+                 "r"(r12),
+                 "r"(r0));
+    
+    __builtin_unreachable();
 }

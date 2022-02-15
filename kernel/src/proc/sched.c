@@ -1,4 +1,5 @@
 #include <proc/proc.h>
+#include <proc/mtask.h>
 #include <proc/thread.h>
 #include <data/llist.h>
 #include <mm/alloc.h>
@@ -42,7 +43,8 @@ static void _idle_thread(void) {
 
 void sched_idle_init(void) {
     kdebug(DEBUGSRC_PROC, ERR_INFO, "sched_idle_init(): Setting up idle threads for %d CPUs", _n_cpus);
-    
+
+    /* TODO: Do we need a separate process per CPU? */
     kproc_t *proc = proc_create("idle", 1, NULL);
     if(proc == NULL) {
         kpanic("sched_idle_init: Could not create idle process!");
@@ -54,7 +56,7 @@ void sched_idle_init(void) {
         /* TODO: Implement snprintf for safety */
         sprintf(name, "idle_%03d", cpu);
         
-        kthread_t *thread = thread_create((uintptr_t)_idle_thread, NULL, name, 0x1000, PRIO_IDLE);
+        kthread_t *thread = thread_create((uintptr_t)_idle_thread, NULL, name, 0x200, PRIO_IDLE);
         if(thread == NULL) {
             kpanic("sched_idle_init: Could not create idle thread for CPU %u!", cpu);
         }
@@ -70,6 +72,8 @@ void sched_idle_init(void) {
 
         _cpu_add_thread(cpu, thread);
     }
+
+    mtask_insert_proc(proc);
 }
 
 int sched_enqueue_thread(kthread_t *thread) {
