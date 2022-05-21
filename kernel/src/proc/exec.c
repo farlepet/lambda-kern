@@ -13,7 +13,6 @@
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 #  include <arch/intr/int.h>
 #  include <arch/proc/user.h>
-#  include <arch/mm/paging.h>
 #endif
 
 int execve(const char *filename, const char **argv, const char **envp) {
@@ -25,9 +24,7 @@ int execve(const char *filename, const char **argv, const char **envp) {
         kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "  -> ENVP invalid address?");
     }
 
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-    kdebug(DEBUGSRC_EXEC, ERR_TRACE, "execve pgdir: %08X", get_pagedir());
-#endif
+    kdebug(DEBUGSRC_EXEC, ERR_TRACE, "execve MMU: %p", (uintptr_t)mmu_get_current_table());
 
     for(int i = 0; argv[i]; i++) {
         kdebug(DEBUGSRC_EXEC, ERR_TRACE, "execve argv[%d]: %08X '%s'", i, argv[i], argv[i]);
@@ -92,11 +89,8 @@ static void exec_copy_arguments(kthread_t *thread, const char **argv, const char
     char **new_argv  = (char **)new_buffer;
     char **new_envp  = NULL;
 
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-    for(ptr_t p = (ptr_t)new_buffer; p < ((ptr_t)new_buffer + data_sz); p += 0x1000) {
-        pgdir_map_page((uint32_t *)thread->process->arch.cr3, (void *)p, (void *)p, 0x07);
-    }
-#endif
+    mmu_map_table(thread->process->mmu_table, (uintptr_t)new_buffer, (uintptr_t)new_buffer, data_sz,
+                  (MMU_FLAG_READ | MMU_FLAG_WRITE));
 
     size_t c_off = (argc + envc + 2) * sizeof(char *);
     
@@ -190,9 +184,7 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     kproc_t *curr_proc = old_thread->process;
     memcpy(&tmp_proc, curr_proc, sizeof(struct kproc));
 
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
     disable_interrupts();
-#endif
 
     // Clear out old data:
     memset(curr_proc, 0, sizeof(struct kproc));
@@ -237,7 +229,7 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     // TODO: Free unused frames
     // TODO: Only keep required portions of pagedir
     //proc->cr3 = tmp_proc.cr3;
-    curr_proc->arch.cr3 = (uint32_t)arch_params->pgdir;
+    curr_proc->mmu_table = (mmu_table_t *)arch_params->pgdir;
 
     int kernel = (curr_proc->type & TYPE_KERNEL);
 
@@ -259,20 +251,16 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
 
     thread->arch.esp = thread->arch.ebp;
 
-    uint32_t i = 0;
-    for(; i < stack_size; i+= 0x1000) {
-        if(kernel) pgdir_map_page(arch_params->pgdir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x03);
-        else       pgdir_map_page(arch_params->pgdir, (void *)(stack_begin + i), (void *)(virt_stack_begin + i), 0x07);
-            //(void *)(procs[p].esp - i), (void *)(procs[p].esp - i), 0x03);
-    }
+    mmu_map_table(curr_proc->mmu_table, virt_stack_begin, stack_begin, stack_size,
+                  kernel ? (MMU_FLAG_READ | MMU_FLAG_WRITE) :
+                           (MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_KERNEL));
 
+    uintptr_t kern_stack = (uintptr_t)kmamalloc(PROC_KERN_STACK_SIZE, 0x1000);
     thread->arch.stack_kern.size = PROC_KERN_STACK_SIZE;
-    thread->arch.stack_kern.begin = (uint32_t)kmamalloc(PROC_KERN_STACK_SIZE, 0x1000) + PROC_KERN_STACK_SIZE;
-    for(i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
-        pgdir_map_page(arch_params->pgdir,
-                       (void *)(thread->arch.stack_kern.begin - i),
-                       (void *)(thread->arch.stack_kern.begin - i), 0x03);
-    }
+    thread->arch.stack_kern.begin = kern_stack + PROC_KERN_STACK_SIZE;
+    mmu_map_table(curr_proc->mmu_table, kern_stack, kern_stack, PROC_KERN_STACK_SIZE,
+                  (MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_KERNEL));
+    
 
     thread->arch.stack_user.size  = stack_size;
     thread->arch.stack_user.begin = thread->arch.ebp;
@@ -302,7 +290,7 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     exec_copy_arguments(thread, (const char **)_argv, (const char **)_envp, &n_argv, &n_envp);
     kfree(_arg_alloc);
 
-    set_pagedir(arch_params->pgdir);
+    mmu_set_current_table(curr_proc->mmu_table);
 
     STACK_PUSH(thread->arch.esp, n_envp);
     STACK_PUSH(thread->arch.esp, n_argv);

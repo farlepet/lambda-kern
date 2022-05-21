@@ -6,7 +6,6 @@
 
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 #  include <arch/proc/user.h>
-#  include <arch/mm/paging.h>
 #  include <arch/proc/stack.h>
 #endif
 
@@ -61,24 +60,19 @@ static int proc_copy_data(kthread_t *dest, const kthread_t *src) {
             cent->phys_address += (0x1000 - ((cent->phys_address & 0xFFF) - (pent->phys_address & 0xFFF)));
         }
 
-        // Map memory (TODO: Optimize):
-        for(size_t offset = 0; offset < pent->length; offset += 0x1000) {
-            pgdir_map_page((uint32_t *)dest->process->arch.cr3,
-                (void *)(cent->phys_address & ~0xFFF) + offset,
-                (void *)(cent->virt_address & ~0xFFF) + offset,
-                0x7 // TODO: Check flags of origional map, or add flag to kproc_mem_map_ent to determine type
-            );
+        /* Map memory in new process */
+        mmu_map_table(dest->process->mmu_table, cent->virt_address, cent->phys_address, pent->length,
+                      (MMU_FLAG_READ | MMU_FLAG_READ) /* TODO: Dynamically determine flags */);
 
-            // May not be necessary, map memory to itself before we copy:
-            map_page(
-                (void *)(cent->phys_address & ~0xFFF) + offset,
-                (void *)(cent->phys_address & ~0xFFF) + offset,
-                0x7 // TODO: Check flags of origional map, or add flag to kproc_mem_map_ent to determine type
-            );
-        }
+        /* Temporarially identity map destination memory */
+        mmu_map(cent->phys_address, cent->phys_address, pent->length,
+                (MMU_FLAG_READ | MMU_FLAG_READ | MMU_FLAG_KERNEL));
 
         // Copy data:
         memcpy((void *)cent->phys_address, (void *)pent->virt_address, pent->length);
+
+        /* Remove temporary identity mapping */
+        mmu_unmap(cent->phys_address, pent->length);
 
         // Move on to next memory map entry:
         cent = cent->next;
@@ -135,7 +129,7 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
     child->arch.ring    = parent->arch.ring;
     cthread->entrypoint = pthread->entrypoint;
-    child->arch.cr3     = (uint32_t)clone_pagedir_full((void *)parent->arch.cr3);
+    child->mmu_table    = mmu_clone_table(parent->mmu_table);
 
     cthread->stack_size = pthread->arch.stack_user.size;
     proc_create_stack(cthread);
@@ -171,13 +165,15 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
 
 
     uint32_t *syscall_args_virt = (uint32_t *)pusha_stack->ebx;
-    uint32_t *syscall_args_phys = (uint32_t *)pgdir_get_phys_addr((uint32_t *)child->arch.cr3, syscall_args_virt);
+    uint32_t *syscall_args_phys = 0;
+    mmu_map_get_table(child->mmu_table, (uintptr_t)syscall_args_virt, (uintptr_t *)syscall_args_phys);
+
     kdebug(DEBUGSRC_PROC, ERR_TRACE, "ARGS_LOC: %08X -> %08X -> %08X", syscall_args_virt, syscall_args_phys, *(uint32_t *)syscall_args_phys);
     syscall_args_phys[0] = 0; // <- Return 0 indicating child process
 
 
 
-    kdebug(DEBUGSRC_PROC, ERR_TRACE, " -- eip: %08X esp: %08X ebp: %08X cr3: %08X", cthread->arch.eip, cthread->arch.esp, cthread->arch.ebp, child->arch.cr3);
+    kdebug(DEBUGSRC_PROC, ERR_TRACE, " -- eip: %08X esp: %08X ebp: %08X cr3: %p", cthread->arch.eip, cthread->arch.esp, cthread->arch.ebp, child->mmu_table);
 #else
     /* TODO */
     proc_copy_data(cthread, pthread);

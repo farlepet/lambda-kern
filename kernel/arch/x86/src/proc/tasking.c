@@ -41,7 +41,6 @@ int arch_proc_create_stack(kthread_t *thread) {
 	int tpos = llist_get_position(&thread->process->threads, &thread->list_item);
 	virt_stack_begin -= tpos * 0x10000;
 
-	// TODO: Use better method, so as not to waste 4K of memory for every process.
     uintptr_t stack_begin = (uintptr_t)kmamalloc(thread->stack_size, 4096);
 
 	kdebug(DEBUGSRC_PROC, ERR_TRACE, "arch_proc_create_stack [size: %d] [end: %08X, beg: %08X]",
@@ -49,12 +48,10 @@ int arch_proc_create_stack(kthread_t *thread) {
 	);
 
     // Map stack memory
-	for(size_t i = 0; i < thread->stack_size; i+= 0x1000) {
-		pgdir_map_page((uint32_t *)thread->process->arch.cr3,
-		               (void *)(stack_begin + i), (void *)(virt_stack_begin + i),
-					   (kernel ? 0x03 : 0x07));
-	}
-
+	mmu_map_table(thread->process->mmu_table, virt_stack_begin, stack_begin, thread->stack_size,
+				  kernel ? (MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_KERNEL) :
+						   (MMU_FLAG_READ | MMU_FLAG_WRITE));
+	
 	thread->arch.stack_user.size  = thread->stack_size;
 	thread->arch.stack_user.begin = virt_stack_begin + thread->stack_size;
 
@@ -77,11 +74,8 @@ int arch_proc_create_kernel_stack(kthread_t *thread) {
 		PROC_KERN_STACK_SIZE, thread->arch.stack_kern.begin, thread->arch.stack_kern.begin + thread->arch.stack_kern.size
 	);
 
-	for(size_t i = 0; i < PROC_KERN_STACK_SIZE; i+=0x1000) {
-		pgdir_map_page((uint32_t *)thread->process->arch.cr3,
-		               (void *)(thread->arch.stack_kern.begin + i),
-					   (void *)(thread->arch.stack_kern.begin + i), 0x03);
-	}
+	mmu_map_table(thread->process->mmu_table, thread->arch.stack_kern.begin, thread->arch.stack_kern.begin, PROC_KERN_STACK_SIZE,
+	              (MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_KERNEL));
 
 	thread->arch.stack_kern.begin += thread->arch.stack_kern.size;
 
@@ -127,7 +121,7 @@ int arch_setup_thread(kthread_t *thread) {
 	thread->arch.esp         = thread->arch.stack_kern.begin;
 	thread->arch.stack_entry = thread->arch.stack_user.begin;
 
-	kdebug(DEBUGSRC_PROC, ERR_TRACE, "arch_setup_thread EIP: %08X CR3: %08X ESP: %08X", thread->arch.eip, thread->process->arch.cr3, thread->arch.esp);
+	kdebug(DEBUGSRC_PROC, ERR_TRACE, "arch_setup_thread EIP: %08X CR3: %08X ESP: %08X", thread->arch.eip, thread->process->mmu_table, thread->arch.esp);
 
     return 0;
 }
@@ -160,13 +154,13 @@ __hot void do_task_switch(void) {
 		thread->arch.eip = eip;
 	}
 
-    kdebug(DEBUGSRC_PROC, ERR_ALL, "-TID: %d | PC: %08X | SP: %08X | CR3: %08X | NAME: %s", thread->tid, thread->arch.eip, thread->arch.esp, thread->process->arch.cr3, thread->name);
+    kdebug(DEBUGSRC_PROC, ERR_ALL, "-TID: %d | PC: %08X | SP: %08X | CR3: %08X | NAME: %s", thread->tid, thread->arch.eip, thread->arch.esp, thread->process->mmu_table, thread->name);
 	
 	// Switch to next process here...
 	thread = sched_next_process(0);
 	proc   = thread->process;
     
-    kdebug(DEBUGSRC_PROC, ERR_ALL, "+TID: %d | PC: %08X | SP: %08X | CR3: %08X | NAME: %s", thread->tid, thread->arch.eip, thread->arch.esp, thread->process->arch.cr3, thread->name);
+    kdebug(DEBUGSRC_PROC, ERR_ALL, "+TID: %d | PC: %08X | SP: %08X | CR3: %08X | NAME: %s", thread->tid, thread->arch.eip, thread->arch.esp, thread->process->mmu_table, thread->name);
 
 	thread->flags |= KTHREAD_FLAG_RANONCE;
 	if (!thread->arch.stack_kern.begin) {	
@@ -177,7 +171,7 @@ __hot void do_task_switch(void) {
 	esp = thread->arch.esp;
 	ebp = thread->arch.ebp;
 	eip = thread->arch.eip;
-	cr3 = proc->arch.cr3;
+	cr3 = (uint32_t)proc->mmu_table;
 
 	asm volatile("mov %0, %%ebx\n"
 				 "mov %1, %%esp\n"

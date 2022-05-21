@@ -85,9 +85,9 @@ kproc_t *proc_create(char *name, int kernel, arch_task_params_t *arch_params) {
 	/* TODO: Move to arch */
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 	if(arch_params && arch_params->pgdir) {
-		process->arch.cr3 = (uint32_t)arch_params->pgdir;
+		process->mmu_table = (mmu_table_t *)arch_params->pgdir;
 	} else {
-		process->arch.cr3 = (uint32_t)clone_kpagedir();
+		process->mmu_table = mmu_clone_table(mmu_get_kernel_table());
 	}
 	if(arch_params) {
 		process->arch.ring = arch_params->ring;

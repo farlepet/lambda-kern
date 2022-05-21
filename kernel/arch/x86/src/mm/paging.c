@@ -1,3 +1,4 @@
+#include <arch/types/mmu.h>
 #include <arch/intr/int.h>
 #include <arch/mm/paging.h>
 #include <arch/mm/mem.h>
@@ -10,9 +11,6 @@
 #include <video.h>
 
 #define N_INIT_TABLES     1
-#define PAGE_SZ           4096
-#define PGDIR_ENTRIES     1024
-#define PGTBL_ENTRIES     1024
 #define N_FRAMES          0x8000 /* 4 GiB / (32 * 4 KiB) = 0x8000 */
 #define N_PREALLOC_FRAMES 20
 

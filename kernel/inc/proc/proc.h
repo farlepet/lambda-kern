@@ -41,6 +41,7 @@ typedef struct kproc   kproc_t;
 #include <mm/symbols.h>
 #include <proc/syscalls.h>
 #include <proc/elf.h>
+#include <mm/mmu.h>
 
 #include <arch/proc/tasking.h>
 
@@ -107,7 +108,9 @@ struct kproc { //!< Structure of a process as seen by the kernel
 	int           parent;   //!< PID of parent process
 
 	uint32_t      type;     //!< Type of process
-	
+
+	mmu_table_t  *mmu_table; /** MMU table for process */
+
 	kproc_arch_t  arch;     /** Architecture-specific process data */
 
 	struct kproc *children[MAX_CHILDREN]; //!< Pointers to direct child processes (ex: NOT children's children)

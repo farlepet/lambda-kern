@@ -31,7 +31,6 @@ typedef struct {
 
 typedef struct {
 	uint8_t  ring; /** Ring to run in (0-3) */
-	uint32_t cr3;  /** Page directory */
 } kproc_arch_t;
 
 /* Architecture-specific task creation parameters */

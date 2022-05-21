@@ -4,34 +4,25 @@
 #include <err/error.h>
 #include <proc/proc.h>
 #include <mm/alloc.h>
-
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-#  include <arch/mm/paging.h>
-#endif
+#include <mm/mmu.h>
 
 int mm_check_addr(const void *addr) {
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	uint32_t page = get_page_entry(addr);
+	int flags = mmu_map_get((uintptr_t)addr, NULL);
+	if(flags < 0) {
+		return 0;
+	}
 
-	if(!(page & 0x01)) return 0; // Page not present
-
-	return (page & 0x02) ? (2) : (1); // Check R/W bit
-#else
-	/* Unimplemented for this architecture, assume address is good. */
-	(void)addr;
-	return 2;
-#endif
+	return (flags & MMU_FLAG_WRITE) ? 2 :
+	       (flags & MMU_FLAG_READ)  ? 1 : 0;
 }
 
 void *mm_translate_proc_addr(struct kproc *proc, const void *addr) {
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	return (void *)((pgdir_get_page_entry((uint32_t *)proc->arch.cr3, addr) & 0xFFFFF000 ) | ((uint32_t)addr & 0xFFF));
-#else
-	// Unimplemented for this architecture
-	(void)proc;
-	(void)addr;
-	return NULL;
-#endif
+	uintptr_t phys = 0;
+	if(mmu_map_get_table(proc->mmu_table, (uintptr_t)addr, &phys) < 0) {
+		return NULL;
+	}
+
+	return (void *)phys;
 }
 
 int mm_proc_mmap_add(struct kproc *proc, uintptr_t phys, uintptr_t virt, size_t sz) {

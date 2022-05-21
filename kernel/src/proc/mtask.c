@@ -118,7 +118,8 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 	if(kernel) proc->type |= TYPE_KERNEL;
 
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	proc->arch.cr3  = (uint32_t)arch_params->pgdir;
+	/* TODO: Move MMU table outside of arch-specific params */
+	proc->mmu_table = (mmu_table_t *)arch_params->pgdir;
 	proc->arch.ring = arch_params->ring;
 #endif
 	
@@ -135,7 +136,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 	arch_setup_thread(thread);
 
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	kdebug(DEBUGSRC_PROC, ERR_TRACE, "PID: %d EIP: %08X CR3: %08X ESP: %08X", proc->pid, thread->arch.eip, proc->arch.cr3, thread->arch.esp);
+	kdebug(DEBUGSRC_PROC, ERR_TRACE, "PID: %d EIP: %08X CR3: %08X ESP: %08X", proc->pid, thread->arch.eip, proc->mmu_table, thread->arch.esp);
 #endif
 
 	thread->flags |= KTHREAD_FLAG_RUNNABLE | KTHREAD_FLAG_RANONCE;
