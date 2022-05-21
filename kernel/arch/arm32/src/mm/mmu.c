@@ -3,9 +3,10 @@
 
 #include <err/panic.h>
 
+#include <mm/mmu.h>
+
 __align(4096)
 static uint32_t _mmu_table[4096];
-
 
 
 static void _mmu_map_section(uint32_t *table, uint32_t virt, uint32_t phys, uint32_t flags) {
@@ -54,3 +55,60 @@ int armv7_mmu_init(void) {
 
     return 0;
 }
+
+
+
+/* TODO: This is just initial patial support */
+
+size_t mmu_get_pagesize(void) {
+    return 1024 * 1024;
+}
+
+mmu_table_t *mmu_get_current_table(void) {
+    return (mmu_table_t *)_mmu_table;
+}
+
+mmu_table_t *mmu_get_kernel_table(void) {
+    return (mmu_table_t *)_mmu_table;
+}
+
+int mmu_set_current_table(mmu_table_t *table) {
+    (void)table;
+    return -1;
+}
+
+int mmu_map_table(mmu_table_t *table, uintptr_t virt, uintptr_t phys, size_t size, uint32_t flags) {
+    /* TODO */
+    (void)table;
+    (void)virt;
+    (void)phys;
+    (void)size;
+    (void)flags;
+
+    return -1;
+}
+
+int mmu_unmap_table(mmu_table_t *table, uintptr_t virt, size_t size) {
+    /* TODO */
+    (void)table;
+    (void)virt;
+    (void)size;
+
+    return -1;
+}
+
+int mmu_map_get_table(mmu_table_t *table, uintptr_t virt, uintptr_t *phys) {
+    /* TODO: Support non-identity-mapped data, and different tables */
+    (void)table;
+
+    *phys = virt & 0xFFF00000;
+
+    return (MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_EXEC);
+}
+
+mmu_table_t *mmu_clone_table(mmu_table_t *src) {
+    (void)src;
+
+    return NULL;
+}
+
