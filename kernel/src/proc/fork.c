@@ -60,19 +60,14 @@ static int proc_copy_data(kthread_t *dest, const kthread_t *src) {
             cent->phys_address += (0x1000 - ((cent->phys_address & 0xFFF) - (pent->phys_address & 0xFFF)));
         }
 
+
         /* Map memory in new process */
         mmu_map_table(dest->process->mmu_table, cent->virt_address, cent->phys_address, pent->length,
                       (MMU_FLAG_READ | MMU_FLAG_READ) /* TODO: Dynamically determine flags */);
 
-        /* Temporarially identity map destination memory */
-        mmu_map(cent->phys_address, cent->phys_address, pent->length,
-                (MMU_FLAG_READ | MMU_FLAG_READ | MMU_FLAG_KERNEL));
-
-        // Copy data:
-        memcpy((void *)cent->phys_address, (void *)pent->virt_address, pent->length);
-
-        /* Remove temporary identity mapping */
-        mmu_unmap(cent->phys_address, pent->length);
+        mmu_copy_data(dest->process->mmu_table, cent->virt_address,
+                      src->process->mmu_table,  pent->virt_address,
+                      pent->length);
 
         // Move on to next memory map entry:
         cent = cent->next;

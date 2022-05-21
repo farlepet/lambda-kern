@@ -11,6 +11,18 @@
 #define MMU_FLAG_KERNEL (0x00000010) /** Mapped memory belongs to the kernel, and cannot be accessed by user processes */
 
 /**
+ * @brief MMU entry
+ * 
+ * @see mmu_map_save
+ * @see mmu_map_restore
+ */
+typedef struct {
+    uintptr_t virt;  /** Virtual address */
+    uintptr_t phys;  /** Physical address */
+    uint32_t  flags; /** Flags, see MMU_FLAG_* */
+} mmu_map_entry_t;
+
+/**
  * @brief Get page size currently in use on the system
  *
  * If supports multiple page sizes concurrently, the smallest is returned.
@@ -128,6 +140,25 @@ int mmu_map_get_table(mmu_table_t *table, uintptr_t virt, uintptr_t *phys);
 int mmu_map_get(uintptr_t virt, uintptr_t *phys);
 
 /**
+ * @brief Save current MMU mapping for a given virtual address
+ *
+ * @param entry Entry in which to save mapping
+ * @param virt Virtual address
+ *
+ * @return int -1 on failure, 0 on success
+ */
+int mmu_map_save(mmu_map_entry_t *entry, uintptr_t virt);
+
+/**
+ * @brief Restore MMU mapping from a saved entry
+ *
+ * @param entry Entry containing saved mapping
+ *
+ * @return int -1 on failure, 0 on success
+ */
+int mmu_map_restore(mmu_map_entry_t *entry);
+
+/**
  * @brief Clones MMU table
  *
  * @note This function is implemented per-architecture
@@ -139,5 +170,27 @@ int mmu_map_get(uintptr_t virt, uintptr_t *phys);
  * @return mmu_table_t* NULL on error, else newly cloned MMU table
  */
 mmu_table_t *mmu_clone_table(mmu_table_t *src);
+
+/**
+ * @brief Copy data from one MMU context to another
+ *
+ * Assumes that virtual addresses in question are properly mapped in both the source
+ * and destination MMU tables. Is safe to use when physical memory may not be
+ * sequential.
+ *
+ * @note Currently, offset within page must be equal between source and destination.
+ *
+ * @note This is a rather ineffecient implementation, it's intention mainly to
+ * provide a common method for all architectures.
+ *
+ * @param dmmu Destination MMU table
+ * @param dvirt Destination virtual address
+ * @param smmu Source MMU table
+ * @param svirt Source virtual address
+ * @param size Size of data to copy, in bytes
+ *
+ * @return int 0 on success, else -1
+ */
+int mmu_copy_data(mmu_table_t *dmmu, uintptr_t dvirt, mmu_table_t *smmu, uintptr_t svirt, size_t size);
 
 #endif
