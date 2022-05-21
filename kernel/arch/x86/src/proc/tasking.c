@@ -137,7 +137,6 @@ __hot void do_task_switch(void) {
 	if(!thread) {
 		return;
 	}
-	kproc_t   *proc   = thread->process;
 
 	uint32_t esp, ebp, eip, cr3;
 	asm volatile ("mov %%esp, %0" : "=r" (esp));
@@ -155,11 +154,10 @@ __hot void do_task_switch(void) {
 	}
 
     kdebug(DEBUGSRC_PROC, ERR_ALL, "-TID: %d | PC: %08X | SP: %08X | CR3: %08X | NAME: %s", thread->tid, thread->arch.eip, thread->arch.esp, thread->process->mmu_table, thread->name);
-	
+
 	// Switch to next process here...
 	thread = sched_next_process(0);
-	proc   = thread->process;
-    
+
     kdebug(DEBUGSRC_PROC, ERR_ALL, "+TID: %d | PC: %08X | SP: %08X | CR3: %08X | NAME: %s", thread->tid, thread->arch.eip, thread->arch.esp, thread->process->mmu_table, thread->name);
 
 	thread->flags |= KTHREAD_FLAG_RANONCE;
@@ -171,7 +169,7 @@ __hot void do_task_switch(void) {
 	esp = thread->arch.esp;
 	ebp = thread->arch.ebp;
 	eip = thread->arch.eip;
-	cr3 = (uint32_t)proc->mmu_table;
+	cr3 = (uint32_t)thread->process->mmu_table;
 
 	asm volatile("mov %0, %%ebx\n"
 				 "mov %1, %%esp\n"

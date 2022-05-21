@@ -77,7 +77,7 @@ int mmu_copy_data(mmu_table_t *dmmu, uintptr_t dvirt, mmu_table_t *smmu, uintptr
         if((sflag = mmu_map_get_table(smmu, src, &sphys) < 0)  ||
            !(sflag & MMU_FLAG_READ)                            ||
            (dflag = mmu_map_get_table(dmmu, dest, &dphys) < 0) ||
-           !(sflag & MMU_FLAG_WRITE)) {
+           !(dflag & MMU_FLAG_WRITE)) {
             return -1;
         }
 

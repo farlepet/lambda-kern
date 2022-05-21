@@ -99,6 +99,8 @@ documentation:
 cppcheck:
 	$(Q) cppcheck --enable=all --suppress=arithOperationsOnVoidPointer --suppress=unusedFunction -I kernel/inc -I kernel/arch/$(ARCH)/inc kernel/
 
+scan-build:
+	@scan-build --use-cc=$(CC) -analyze-headers $(MAKE)
 
 
 $(BUILDDIR)/%.o: $(KERNEL)/%.c

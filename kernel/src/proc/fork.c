@@ -161,7 +161,7 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
 
     uint32_t *syscall_args_virt = (uint32_t *)pusha_stack->ebx;
     uint32_t *syscall_args_phys = 0;
-    mmu_map_get_table(child->mmu_table, (uintptr_t)syscall_args_virt, (uintptr_t *)syscall_args_phys);
+    mmu_map_get_table(child->mmu_table, (uintptr_t)syscall_args_virt, (uintptr_t *)&syscall_args_phys);
 
     kdebug(DEBUGSRC_PROC, ERR_TRACE, "ARGS_LOC: %08X -> %08X -> %08X", syscall_args_virt, syscall_args_phys, *(uint32_t *)syscall_args_phys);
     syscall_args_phys[0] = 0; // <- Return 0 indicating child process
