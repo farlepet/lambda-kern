@@ -423,7 +423,12 @@ static int kterm_dbgc(int argc, char **argv) {
 #endif
 	} else if (!strcmp(argv[1], "pagefault")) {
 		kprintf("pagefault (0x00000004)\n");
+		/* GCC 12.1.0 is (incorrectly?) complaining about this line:
+		 *   array subscript 0 is outside array bounds of 'uint32_t[0]' {aka 'unsigned int[]'} */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
 		*(uint32_t *)0x00000004 = 0xFFFFFFFF;
+#pragma GCC diagnostic pop
 		kprintf("pagefault (0xFFFFFFFC)\n");
 		*(uint32_t *)0xFFFFFFFC = 0xFFFFFFFF;
 	} else {
