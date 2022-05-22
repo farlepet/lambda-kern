@@ -1,5 +1,8 @@
+#include <string.h>
+
 #include <arch/mm/paging.h>
 
+#include <mm/alloc.h>
 #include <mm/mmu.h>
 
 /* TODO: Possibly move relevant portions of paging.c into this file */
@@ -79,5 +82,29 @@ int mmu_map_get_table(mmu_table_t *table, uintptr_t virt, uintptr_t *phys) {
 }
 
 mmu_table_t *mmu_clone_table(mmu_table_t *src) {
-    return (mmu_table_t *)clone_pagedir_full((uint32_t *)src);
+    size_t n_tables = 0;
+    for(size_t i = 0; i < PGDIR_ENTRIES; i++) {
+        if(src->pagedir_ents[i] & PAGE_DIRECTORY_FLAG_PRESENT) {
+            n_tables++;
+        }
+    }
+
+    size_t dirsz = sizeof(mmu_table_t) + (0x1000 * n_tables);
+    mmu_table_t *new = (mmu_table_t *)kamalloc(dirsz, PAGE_SZ);
+    mmu_map((uintptr_t)new, (uintptr_t)new, dirsz, (MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_KERNEL));
+
+    memcpy(new, src, sizeof(mmu_table_t));
+
+    size_t off = 0x1000;
+    for(size_t i = 0; i < PGDIR_ENTRIES; i++) {
+        if(new->pagedir_ents[i] & PAGE_DIRECTORY_FLAG_PRESENT) {
+            new->pagedir_ents[i] = (new->pagedir_ents[i] & 0x00000FFF) |
+                                   ((uint32_t)new + off);
+            memcpy((void *)(new->pagedir_ents[i] & 0xFFFFF000),
+                   (void *)(src->pagedir_ents[i] & 0xFFFFF000), 0x1000);
+            off += 0x1000;
+        }
+    }
+
+    return new;
 }
