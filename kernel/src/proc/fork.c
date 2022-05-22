@@ -23,11 +23,8 @@
 static int proc_copy_data(kthread_t *dest, const kthread_t *src) {
     kdebug(DEBUGSRC_PROC, ERR_TRACE, "proc_copy_data");
 
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
     struct kproc_mem_map_ent const *pent = src->process->mmap;
     struct kproc_mem_map_ent *cent;
-
-    // TODO: Split out architecture-dependant portions (e.g. memory mapping)
 
     size_t n_ents = 0;
     while(pent != NULL) {
@@ -62,22 +59,21 @@ static int proc_copy_data(kthread_t *dest, const kthread_t *src) {
 
 
         /* Map memory in new process */
-        mmu_map_table(dest->process->mmu_table, cent->virt_address, cent->phys_address, pent->length,
-                      (MMU_FLAG_READ | MMU_FLAG_READ) /* TODO: Dynamically determine flags */);
+        if(mmu_map_table(dest->process->mmu_table, cent->virt_address, cent->phys_address, pent->length,
+                         (MMU_FLAG_READ | MMU_FLAG_WRITE) /* TODO: Dynamically determine flags */)){
+            return -1;
+        }
 
-        mmu_copy_data(dest->process->mmu_table, cent->virt_address,
-                      src->process->mmu_table,  pent->virt_address,
-                      pent->length);
+        if(mmu_copy_data(dest->process->mmu_table, cent->virt_address,
+                         src->process->mmu_table,  pent->virt_address,
+                         pent->length)) {
+            return -1;
+        }
 
         // Move on to next memory map entry:
         cent = cent->next;
         pent = pent->next;
     }
-#else
-    /* TODO */
-    (void)dest;
-    (void)src;
-#endif
 
     return 0;
 }
@@ -121,23 +117,23 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
 
     cthread->prio = pthread->prio;
 
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-    child->arch.ring    = parent->arch.ring;
     cthread->entrypoint = pthread->entrypoint;
     child->mmu_table    = mmu_clone_table(parent->mmu_table);
+
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
+    child->arch.ring    = parent->arch.ring;
 
     cthread->stack_size = pthread->arch.stack_user.size;
     proc_create_stack(cthread);
     proc_create_kernel_stack(cthread);
 
     cthread->arch.ebp = pthread->arch.ebp;
-    
+
     // POPAD: 8 DWORDS, IRETD: 5 DWORDS
     cthread->arch.esp = cthread->arch.stack_kern.begin - 52;
     cthread->arch.eip = (uint32_t)return_from_fork;
 
     proc_copy_stack(cthread, pthread);
-    //proc_copy_kernel_stack(child, parent);
 
     proc_copy_data(cthread, pthread);
 
@@ -147,26 +143,13 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
     memcpy(iret_stack,  pthread->arch.syscall_regs.iret,  sizeof(arch_iret_regs_t));
     memcpy(pusha_stack, pthread->arch.syscall_regs.pusha, sizeof(arch_pusha_regs_t));
 
-#  if 0
-    kdebug(DEBUGSRC_PROC, "IRET_STACK (%08X):", iret_stack);
-    for(size_t i = 0; i < 5; i++) {
-        kdebug(DEBUGSRC_PROC, "    %08X", ((uint32_t *)iret_stack)[i]);
+    uintptr_t syscall_args_virt = pusha_stack->ebx;
+
+    /* Return 0 indicating child process */
+    uint32_t zero = 0;
+    if(mmu_write_data(child->mmu_table, syscall_args_virt, &zero, 4)) {
+        return -1;
     }
-    kdebug(DEBUGSRC_PROC, "PUSHA_STACK (%08X):", pusha_stack);
-    for(size_t i = 0; i < 8; i++) {
-        kdebug(DEBUGSRC_PROC, "    %08X", ((uint32_t *)pusha_stack)[i]);
-    }
-#  endif
-
-
-    uint32_t *syscall_args_virt = (uint32_t *)pusha_stack->ebx;
-    uint32_t *syscall_args_phys = 0;
-    mmu_map_get_table(child->mmu_table, (uintptr_t)syscall_args_virt, (uintptr_t *)&syscall_args_phys);
-
-    kdebug(DEBUGSRC_PROC, ERR_TRACE, "ARGS_LOC: %08X -> %08X -> %08X", syscall_args_virt, syscall_args_phys, *(uint32_t *)syscall_args_phys);
-    syscall_args_phys[0] = 0; // <- Return 0 indicating child process
-
-
 
     kdebug(DEBUGSRC_PROC, ERR_TRACE, " -- eip: %08X esp: %08X ebp: %08X cr3: %p", cthread->arch.eip, cthread->arch.esp, cthread->arch.ebp, child->mmu_table);
 #else
