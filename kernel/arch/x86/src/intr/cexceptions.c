@@ -101,7 +101,7 @@ int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_reg
 	kerror(ERR_WARN, "  -> Kernel pagedir: 0x%08X", kernel_cr3);
 
 
-	if(curr_proc) {
+	if(curr_proc && mm_check_addr(curr_proc)) {
 		kerror(ERR_WARN, "  -> Caused by process %d [%s]", curr_proc->pid, curr_proc->name);
 		kerror(ERR_WARN, "      -> Thread %d [%s]", curr_thread->tid, curr_thread->name);
 		kerror(ERR_WARN, "      -> Entrypoint: %08X", curr_thread->entrypoint);
@@ -137,6 +137,8 @@ int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_reg
 
 		/* Halt */
 		return 1;
+	} else if (curr_proc && !mm_check_addr(curr_proc)) {
+		kerror(ERR_WARN, "  -> curr_proc is corrupted: %p", curr_proc);
 	}
 
 	if(regs->ebp != 0) { stack_trace(5, (uint32_t *)regs->ebp, iregs->eip, NULL); }
@@ -187,7 +189,7 @@ void handle_exception(uint8_t exception, struct pusha_regs regs, uint32_t errcod
 
 		if(hand->handler) {
 			if(hand->handler(&regs, errcode, &iregs)) {
-				if(curr_proc) {
+				if(curr_proc && mm_check_addr(curr_proc)) {
 					kerror(ERR_WARN, "Killing task");
 					exit(1);
 				}
@@ -202,7 +204,7 @@ void handle_exception(uint8_t exception, struct pusha_regs regs, uint32_t errcod
 			dump_regs(&regs);
 
 			if(hand->kill) {
-				if(curr_proc) {
+				if(curr_proc && mm_check_addr(curr_proc)) {
 					kerror(ERR_WARN, "Killing task");
 					exit(1);
 				}

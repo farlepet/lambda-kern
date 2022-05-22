@@ -1,5 +1,5 @@
 #include <arch/proc/stack_trace.h>
-#include <arch/mm/paging.h>
+#include <mm/mm.h>
 
 #include <video.h>
 
@@ -20,8 +20,8 @@ void stack_trace(uint32_t max_frames, uint32_t *ebp, uint32_t saved_eip, symbol_
     if(saved_eip) stack_trace_print_func(saved_eip, symbols);
     uint32_t fr = 0;
     for(; fr < max_frames; fr++) {
-        if(!page_present((uint32_t)ebp)) {
-            kprintf("  EBP[%08x] points to non-present page!\n");
+        if(!mm_check_addr(ebp)) {
+            kprintf("  EBP[%08x] points to non-present page!\n", ebp);
             break;
         }
         uint32_t eip = ebp[1];
@@ -51,7 +51,7 @@ static int stack_trace_print_func(uint32_t eip, symbol_t *symbols) {
             return -1;
         }
     } else if(symbols == sym_functions) {
-        kprintf("  [%08x] %s\n", eip, page_present(eip) ? "" : "[np]");
+        kprintf("  [%08x] %s\n", eip, mm_check_addr((void *)eip) ? "" : "[np]");
     } else {
         return stack_trace_print_func(eip, sym_functions);
     }
@@ -66,8 +66,7 @@ static void stack_trace_print_data(uint32_t *ebp, uint32_t len) {
         if(i != 0 && (i % 4) == 0) {
             kprintf("\n     ");
         }
-        if(!page_present((uint32_t)ebp - (i + 1)*4))
-        {
+        if(!mm_check_addr((void *)((uint32_t)ebp - (i + 1)*4))) {
             kprintf("\n");
             return;
         }

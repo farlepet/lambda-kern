@@ -6,6 +6,8 @@
 
 #include <data/llist.h>
 
+#include <mm/mm.h>
+
 void llist_init(llist_t *list) {
     memset(list, 0, sizeof(llist_t));
 }
@@ -17,7 +19,27 @@ void llist_append_unlocked(llist_t *list, llist_item_t *item) {
         return;
     }
 
+#if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
+    if(!mm_check_addr(list)) {
+        kpanic("Bad list addr: %p", list);
+    }
+    if(!mm_check_addr(list)) {
+        kpanic("Bad item addr: %p", item);
+    }
+#endif
+
     if(list->list) {
+#if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
+        if(!mm_check_addr(list->list)) {
+            kpanic("Bad list->list addr: %p", list->list);
+        }
+        if(!mm_check_addr(list->list->prev)) {
+            kpanic("Bad list->list->prev addr: %p", list->list->prev);
+        }
+        if(!mm_check_addr(list->list->prev->next)) {
+            kpanic("Bad list->list->prev->next addr: %p", list->list->prev->next);
+        }
+#endif
         list->list->prev->next = item;
         item->prev             = list->list->prev;
         list->list->prev       = item;

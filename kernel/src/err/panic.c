@@ -1,6 +1,7 @@
 #include <proc/mtask.h>
 #include <intr/intr.h>
 #include <err/panic.h>
+#include <mm/mm.h>
 #include <types.h>
 #include <video.h>
 
@@ -32,10 +33,12 @@ void _kpanic(char *msg, ...)
     
     /* TODO: Multiprocessor support */
     kthread_t *thread = mtask_get_curr_thread();
-    if(thread) {
+    if(thread && mm_check_addr(thread)) {
         kproc_t *proc = thread->process;
         kprintf("    Thread  %d [%s]\n", thread->tid, thread->name);
-        kprintf("    Process %d [%s]\n", proc->pid,   proc->name);
+        if(proc && mm_check_addr(proc)) {
+            kprintf("    Process %d [%s]\n", proc->pid,   proc->name);
+        }
     }
 
     // Print regs here
