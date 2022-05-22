@@ -193,4 +193,28 @@ mmu_table_t *mmu_clone_table(mmu_table_t *src);
  */
 int mmu_copy_data(mmu_table_t *dmmu, uintptr_t dvirt, mmu_table_t *smmu, uintptr_t svirt, size_t size);
 
+/**
+ * @brief Copy data into MMU context
+ *
+ * @param table MMU table
+ * @param virt Virtual address at which to store data
+ * @param buff Buffer containing data to write
+ * @param size Size of data to write
+ *
+ * @return int 0 on success, else -1
+ */
+int mmu_write_data(mmu_table_t *table, uintptr_t virt, const void *buff, size_t size);
+
+/**
+ * @brief Copy data from MMU context
+ *
+ * @param table MMU table
+ * @param virt Virtual address from which to copy data
+ * @param buff Buffer into which to write read data
+ * @param size Size of data to read
+ *
+ * @return int 0 on success, else -1
+ */
+int mmu_read_data(mmu_table_t *table, uintptr_t virt, void *buff, size_t size);
+
 #endif
