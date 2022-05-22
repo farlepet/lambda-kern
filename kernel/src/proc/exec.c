@@ -209,6 +209,7 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     thread->entrypoint = (uint32_t)entryp;
     thread->prio       = old_thread->prio;
     thread->tid        = old_thread->tid;
+    thread->stack_size = old_thread->stack_size;
     proc_add_thread(curr_proc, thread);
     sched_enqueue_thread(thread);
 
@@ -221,6 +222,7 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     curr_proc->list_item = tmp_proc.list_item;
     curr_proc->list_item.data = curr_proc;
 
+
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
     // Copy architecture-specific bits:
     curr_proc->arch.ring = tmp_proc.arch.ring;
@@ -230,56 +232,12 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     // TODO: Only keep required portions of pagedir
     //proc->cr3 = tmp_proc.cr3;
     curr_proc->mmu_table = (mmu_table_t *)arch_params->pgdir;
+#endif
 
-    int kernel = (curr_proc->type & TYPE_KERNEL);
-
-    uint32_t stack_size = old_thread->arch.stack_user.size;
-
-    uint32_t stack_begin, virt_stack_begin;
-    if(!kernel) virt_stack_begin = 0xFF000000;
-    else        virt_stack_begin = 0x7F000000;
-
-#  ifdef STACK_PROTECTOR
-    stack_begin = (uint32_t)kamalloc(stack_size + 0x2000, 0x1000);
-    thread->arch.ebp  = virt_stack_begin + 0x1000;
-    thread->arch.ebp += (stack_size + 0x1000);
-#  else // STACK_PROTECTOR
-    stack_begin = ((uint32_t)kmamalloc(stack_size, 0x1000));
-    thread->arch.ebp  = virt_stack_begin;
-    thread->arch.ebp += stack_size;
-#  endif // !STACK_PROTECTOR
-
-    thread->arch.esp = thread->arch.ebp;
-
-    mmu_map_table(curr_proc->mmu_table, virt_stack_begin, stack_begin, stack_size,
-                  kernel ? (MMU_FLAG_READ | MMU_FLAG_WRITE) :
-                           (MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_KERNEL));
-
-    uintptr_t kern_stack = (uintptr_t)kmamalloc(PROC_KERN_STACK_SIZE, 0x1000);
-    thread->arch.stack_kern.size = PROC_KERN_STACK_SIZE;
-    thread->arch.stack_kern.begin = kern_stack + PROC_KERN_STACK_SIZE;
-    mmu_map_table(curr_proc->mmu_table, kern_stack, kern_stack, PROC_KERN_STACK_SIZE,
-                  (MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_KERNEL));
-    
-
-    thread->arch.stack_user.size  = stack_size;
-    thread->arch.stack_user.begin = thread->arch.ebp;
-
-#  ifdef STACK_PROTECTOR
-    // TODO: Fix stack guarding:
-    block_page(thread->arch.stack_end - 0x1000);
-    block_page(thread->arch.stack_beg + 0x1000);
-#  endif // STACK_PROTECTOR
-
-    /*proc->kernel_stack      = tmp_proc.kernel_stack;
-
-    proc->stack_beg = tmp_proc.stack_beg;
-    proc->stack_end = tmp_proc.stack_end;*/
-    // Reset stack:
-    //proc->ebp = proc->esp = proc->stack_beg;
+    proc_create_stack(thread);
+    proc_create_kernel_stack(thread);
 
     //enable_interrupts();
-
 
     uint32_t argc = 0;
     while(argv[argc]) argc++;
@@ -292,20 +250,19 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
 
     mmu_set_current_table(curr_proc->mmu_table);
 
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
+    thread->arch.esp = thread->arch.ebp;
+
     STACK_PUSH(thread->arch.esp, n_envp);
     STACK_PUSH(thread->arch.esp, n_argv);
-    STACK_PUSH(thread->arch.esp, argc);    
+    STACK_PUSH(thread->arch.esp, argc);
+#endif
 
     kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "exec_replace_process_image(): Jumping into process");
 
     thread->flags |= KTHREAD_FLAG_RUNNABLE;
 
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
     enter_ring_newstack(curr_proc->arch.ring, entryp, (void *)thread->arch.esp);
-#else
-    /* TODO */
-    (void)arch_params;
-    (void)argv;
-    (void)envp;
-    (void)_arg_alloc;
 #endif
 }
