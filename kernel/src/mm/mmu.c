@@ -27,11 +27,10 @@ int mmu_unmap(uintptr_t virt, size_t size) {
 
 int mmu_map_get(uintptr_t virt, uintptr_t *phys) {
     mmu_table_t *table = mmu_get_current_table();
-#if CHECK_STRICTNESS(LAMBDA_STRICTNESS_LOWIMPACT)
     if(table == NULL) {
-        return -1;
+        /* Assuming MMU not enabled */
+        return MMU_FLAG_READ | MMU_FLAG_WRITE;
     }
-#endif
 
     return mmu_map_get_table(table, virt, phys);
 }

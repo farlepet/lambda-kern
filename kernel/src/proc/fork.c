@@ -90,17 +90,14 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
     // TODO: Clean up!
 
     if(proc_add_child(parent, child)) {
-        kdebug(DEBUGSRC_PROC, ERR_DEBUG, "mtask:add_task: Process %d has run out of children slots", parent->pid);
+        kdebug(DEBUGSRC_PROC, ERR_DEBUG, "fork_clone_process: Process %d has run out of children slots", parent->pid);
         unlock(&creat_task);
         return -1;
     }
 
     int kernel = (parent->type & TYPE_KERNEL);
 
-
     memcpy(child->name, parent->name, strlen(parent->name));
-
-	memset(child->children, 0xFF, sizeof(child->children));
 
     kthread_t *cthread = (kthread_t *)child->threads.list->data;
     kthread_t *pthread = mtask_get_curr_thread();
@@ -194,13 +191,13 @@ int fork(void) {
     llist_init(&child->threads);
     proc_add_thread(child, cthread);
 
-    fork_clone_process(child, proc);
+    if(fork_clone_process(child, proc)) {
+        return -1;
+    }
 
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
     kdebug(DEBUGSRC_PROC, ERR_TRACE, " -- Child Stack: %08X %08X", cthread->arch.esp, cthread->arch.ebp);
 #endif
-
-    proc_add_child(proc, child);
 
     child->type |= TYPE_RUNNABLE;
     cthread->flags |= KTHREAD_FLAG_RUNNABLE;

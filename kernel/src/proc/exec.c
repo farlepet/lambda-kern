@@ -57,9 +57,6 @@ int execve(const char *filename, const char **argv, const char **envp) {
  * Copy and relocate arguments (argv, envp) to the next process image, and
  * push these values to the stack.
  */
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARM32)
-__unused
-#endif
 static void exec_copy_arguments(kthread_t *thread, const char **argv, const char **envp, char ***n_argv, char ***n_envp) {
     size_t   data_sz = 0;
     uint32_t argc = 0;
@@ -204,14 +201,15 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     /* @todo: Dequeue old threads */
 	llist_init(&curr_proc->threads);
 	kthread_t *thread = (kthread_t *)kmalloc(sizeof(kthread_t));
-    
+    memset(thread, 0, sizeof(kthread_t));
+
     thread->process    = curr_proc;
     thread->entrypoint = (uint32_t)entryp;
     thread->prio       = old_thread->prio;
     thread->tid        = old_thread->tid;
     thread->stack_size = old_thread->stack_size;
+    memcpy(thread->name, curr_proc->name, strlen(curr_proc->name) + 1);
     proc_add_thread(curr_proc, thread);
-    sched_enqueue_thread(thread);
 
     curr_proc->cwd = tmp_proc.cwd;
     memcpy(curr_proc->open_files, tmp_proc.open_files, sizeof(curr_proc->open_files));
@@ -261,6 +259,8 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "exec_replace_process_image(): Jumping into process");
 
     thread->flags |= KTHREAD_FLAG_RUNNABLE;
+
+    sched_enqueue_thread(thread);
 
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
     enter_ring_newstack(curr_proc->arch.ring, entryp, (void *)thread->arch.esp);
