@@ -1,5 +1,8 @@
-#include <lambda/export.h>
 #include <string.h>
+
+#include <lambda/export.h>
+#include <err/panic.h>
+#include <mm/mm.h>
 
 /**
  * Calculates the length of a string.
@@ -8,6 +11,11 @@
  * @return the length of the string
  */
 size_t strlen(const char *str) {
+#if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
+	if(!mm_check_addr(str)) {
+		kpanic("Bad address: %p", str);
+	}
+#endif
 	register size_t i = 0;
 	while(str[i]) { i++; }
 	return i;
@@ -21,6 +29,11 @@ EXPORT_FUNC(strlen);
  * @return the length of the wide string
  */
 size_t wcslen(const short *str) {
+#if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
+	if(!mm_check_addr(str)) {
+		kpanic("Bad address: %p", str);
+	}
+#endif
 	register size_t i = 0;
 	while(str[i]) { i++; }
 	return i;
@@ -34,6 +47,14 @@ EXPORT_FUNC(wcslen);
  * @param str2 second string
  */
 int strcmp(const char *str1, const char *str2) {
+#if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
+	if(!mm_check_addr(str1)) {
+		kpanic("Bad str1 address: %p", str1);
+	}
+	if(!mm_check_addr(str2)) {
+		kpanic("Bad str2 address: %p", str2);
+	}
+#endif
 	while(*str1 && (*str1 == *str2)) {
 		str1++;
 		str2++;
@@ -43,6 +64,14 @@ int strcmp(const char *str1, const char *str2) {
 EXPORT_FUNC(strcmp);
 
 int strncmp(const char *str1, const char *str2, size_t num) {
+#if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
+	if(!mm_check_addr(str1)) {
+		kpanic("Bad str1 address: %p", str1);
+	}
+	if(!mm_check_addr(str2)) {
+		kpanic("Bad str2 address: %p", str2);
+	}
+#endif
 	while(*str1 && (*str1 == *str2) && --num) {
 		str1++;
 		str2++;
@@ -52,6 +81,11 @@ int strncmp(const char *str1, const char *str2, size_t num) {
 EXPORT_FUNC(strncmp);
 
 char *strchr(const char *s, int c) {
+#if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
+	if(!mm_check_addr(s)) {
+		kpanic("Bad address: %p", s);
+	}
+#endif
 	while(*s) {
 		if(*s == (char)c) return (char *)s;
 		s++;
@@ -61,6 +95,14 @@ char *strchr(const char *s, int c) {
 EXPORT_FUNC(strchr);
 
 char *strcpy(char *dest, const char *src) {
+#if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
+	if(!mm_check_addr(dest)) {
+		kpanic("Bad destination address: %p", dest);
+	}
+	if(!mm_check_addr(src)) {
+		kpanic("Bad source address: %p", src);
+	}
+#endif
 	size_t i = 0;
 	while(src[i]) {
 		dest[i] = src[i];
@@ -73,6 +115,14 @@ char *strcpy(char *dest, const char *src) {
 EXPORT_FUNC(strcpy);
 
 char *strncpy(char *dest, const char *src, size_t n) {
+#if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
+	if(!mm_check_addr(dest)) {
+		kpanic("Bad destination address: %p", dest);
+	}
+	if(!mm_check_addr(src)) {
+		kpanic("Bad source address: %p", src);
+	}
+#endif
 	size_t i = 0;
 	while((i < n) && src[i]) {
 		dest[i] = src[i];
@@ -87,6 +137,14 @@ char *strncpy(char *dest, const char *src, size_t n) {
 EXPORT_FUNC(strncpy);
 
 void *memcpy(void *dest, const void *src, size_t n) {
+#if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
+	if(!mm_check_addr(dest)) {
+		kpanic("Bad destination address: %p", dest);
+	}
+	if(!mm_check_addr(src)) {
+		kpanic("Bad source address: %p", src);
+	}
+#endif
 	uint8_t *dp = dest;
 	const uint8_t *sp = src;
 	while (n--) {
@@ -98,6 +156,11 @@ EXPORT_FUNC(memcpy);
 
 
 void *memset(void *s, int c, uint32_t n) {
+#if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
+	if(!mm_check_addr(s)) {
+		kpanic("Bad address: %p", s);
+	}
+#endif
 	uint8_t *p = s;
 	while(n--) {
 		*p++ = (uint8_t)c;
@@ -108,6 +171,14 @@ EXPORT_FUNC(memset);
 
 
 void *memmove(void *dst, const void *src, size_t n) {
+#if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
+	if(!mm_check_addr(dst)) {
+		kpanic("Bad destination address: %p", dst);
+	}
+	if(!mm_check_addr(src)) {
+		kpanic("Bad source address: %p", src);
+	}
+#endif
 	const uint8_t *_src = src;
 	uint8_t *_dst = dst;
 
