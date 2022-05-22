@@ -78,11 +78,12 @@ typedef signed long long   sarg_type_t;
  * @see print
  */
 static int _print_int(arg_type_t num, uint8_t base, uint8_t u, uint8_t pad, uint8_t padzero, uint8_t possign, uint8_t posspace, uint8_t _case, char *out) {
-    sarg_type_t onum = (sarg_type_t)num;
-    if(onum < 0 && !u) num = (~num) + 1;
-    char *nums;
-    if(_case) nums = "0123456789ABCDEF";
-    else      nums = "0123456789abcdef";
+    int neg = (!u && (num & (1ULL << 63)));
+    if(neg) num = (~num) + 1;
+
+    const char *nums = _case ? "0123456789ABCDEF" : "0123456789abcdef";
+
+    int outidx = 0;
 
     /* Maximum characters occupied by base 8 representation of 64-bit number:
      *   64 / log(8) = 23.333 */
@@ -95,29 +96,26 @@ static int _print_int(arg_type_t num, uint8_t base, uint8_t u, uint8_t pad, uint
     }
     if(i == 0) i++;
 
-    if(!u) {
-        if(onum >= 0) {
-            if(possign) {
-                *out++ = '+';
-            }
-            else if(posspace) {
-                *out++ = ' ';
-            }
-        }
-        else {
-            *out++ = '-';
+    if(neg) {
+        out[outidx++] = '-';
+    } else {
+        if(possign) {
+            out[outidx++] = '+';
+        } else if(posspace) {
+            out[outidx++] = ' ';
         }
     }
 
-    int p = pad - i;
-    if(p > 0) {
-        while(p--) *out++ = (padzero ? '0' : ' ');
-        while(--i >= 0) *out++ = ans[i];
-        return (int)((pad > strlen(ans)) ? pad : strlen(ans)) + ((((possign || posspace) && !u) && onum >= 0) || ((onum < 0) && !u));
-    } else {
-        while(--i >= 0) *out++ = ans[i];
-        return (int)(strlen(ans) + ((((possign || posspace) && !u) && onum >= 0) || ((onum < 0) && !u)));
+    int p = ((pad - i) > 0) ? (pad - i) : 0;
+
+    while(p--) {
+        out[outidx++] = (padzero ? '0' : ' ');
     }
+    while(--i >= 0) {
+        out[outidx++] = ans[i];
+    }
+
+    return outidx;
 }
 
 
@@ -164,6 +162,17 @@ static arg_type_t _get_arg(__builtin_va_list *varg, int size) {
     }
 
     return arg;
+}
+
+static arg_type_t _sign_extend(arg_type_t val, int size) {
+    switch(size) {
+        case -2: return (arg_type_t)(sarg_type_t)(char)val;
+        case -1: return (arg_type_t)(sarg_type_t)(short)val;
+        case  0: return (arg_type_t)(sarg_type_t)(int)val;
+        case  1: return (arg_type_t)(sarg_type_t)(long)val;
+    }
+    /* No sign extension if already full width. */
+    return val;
 }
 
 /**
@@ -256,7 +265,8 @@ static int print(char *out, const char *format, __builtin_va_list varg) {
             case 'u':
             case 'd':
             case 'i': arg = _get_arg(&varg, size);
-                      temp = (ptr_t)_print_int(arg, 10, (*format != 'u'), width, padzeros, showsign, signspace, 0, out);
+                      if(*format != 'u') arg = _sign_extend(arg, size);
+                      temp = (ptr_t)_print_int(arg, 10, (*format == 'u'), width, padzeros, showsign, signspace, 0, out);
                       nchars += temp;
                       out += temp;
                       ZERO_ALL_VID();

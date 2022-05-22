@@ -128,7 +128,7 @@ int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_reg
 					if(i != -4) {
 						kput('\n');
 					}
-					kprintf("<%8X(%d)>: ", &stack[i], i);
+					kprintf("<%8X(% d)>: ", &stack[i], i);
 				}
 				kprintf("[%08X] ", stack[i]);
 			}
