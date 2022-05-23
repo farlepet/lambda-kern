@@ -29,6 +29,7 @@ int mmu_map_get(uintptr_t virt, uintptr_t *phys) {
     mmu_table_t *table = mmu_get_current_table();
     if(table == NULL) {
         /* Assuming MMU not enabled */
+        *phys = virt & ~(mmu_get_pagesize() - 1);
         return MMU_FLAG_READ | MMU_FLAG_WRITE;
     }
 

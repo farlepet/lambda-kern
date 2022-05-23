@@ -104,7 +104,7 @@ static uint32_t _find_hole(size_t sz, size_t align)
 				if(off == align) {
 					off = 0;
 				}
-				if((allocs[j][i].size - off) >= sz) { // Is it big enough, and allow the required alignment?
+				if(allocs[j][i].size >= (sz + off)) { // Is it big enough, and allow the required alignment?
 					if(allocs[j][i].size < size) { // Is it smaller than the previously found block (if any)?
 						idx = (uint16_t)i | j << 16;
 						size = allocs[j][i].size;
