@@ -87,7 +87,7 @@ int fs_open(kfile_t *f, kfile_hand_t *hand) {
 		return -1;
 	}
 
-	if(f->ops->open) {
+	if(f->ops && f->ops->open) {
 		return f->ops->open(f, hand);
 	} else {
 		/* TODO: Check requested flags */
