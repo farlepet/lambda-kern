@@ -20,8 +20,9 @@ void stack_trace(uint32_t max_frames, uint32_t *ebp, uint32_t saved_eip, symbol_
     if(saved_eip) stack_trace_print_func(saved_eip, symbols);
     uint32_t fr = 0;
     for(; fr < max_frames; fr++) {
-        if(!mm_check_addr(ebp)) {
-            kprintf("  EBP[%08x] points to non-present page!\n", ebp);
+        if(!mm_check_addr(ebp) ||
+           !mm_check_addr(ebp+4)) {
+            kprintf("  EBP (%08x), or EBP+4, points to non-present page!\n", ebp);
             break;
         }
         uint32_t eip = ebp[1];
