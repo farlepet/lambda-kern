@@ -34,4 +34,13 @@ kthread_t *thread_create(uintptr_t entrypoint, void *data, const char *name, siz
  */
 int thread_spawn(uintptr_t entrypoint, void *data, const char *name, size_t stack_size, int prio);
 
+/**
+ * @brief Destroy thread and free memory
+ *
+ * @param thread Thread to destroy
+ *
+ * @return int 0 on success, else non-zero
+ */
+int thread_destroy(kthread_t *thread);
+
 #endif

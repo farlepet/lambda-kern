@@ -95,6 +95,25 @@ int sched_enqueue_thread(kthread_t *thread) {
     return 0;
 }
 
+int sched_remove_thread(kthread_t *thread) {
+    /* TODO: This is very inefficient */
+    for(unsigned i = 0; i < _n_cpus; i++) {
+        if(llist_get_position(&_cpu_threads[i], &thread->sched_item) >= 0) {
+	        kdebug(DEBUGSRC_PROC, ERR_TRACE, "Removing thread (%d, %s) from cpu %u", thread->tid, thread->name, i);
+            if(lock_for(&_cpu_threads[i].lock, 2000)) {
+                return -1;
+            }
+
+            llist_remove_unlocked(&_cpu_threads[i], &thread->sched_item);
+
+            unlock(&_cpu_threads[i].lock);
+
+            return 0;
+        }
+    }
+
+    return -1;
+}
 
 static inline size_t _cpu_thread_count(unsigned cpu) {
     return llist_count(&_cpu_threads[cpu]);
@@ -122,7 +141,7 @@ static inline void _schedule_thread(kthread_t *thread) {
         if(cnt < count) {
             count = cnt;
             cpu   = i;
-        }        
+        }
     }
 
     _cpu_add_thread(cpu, thread);
@@ -145,7 +164,7 @@ void sched_processes() {
     llist_item_t *item = llist_pop_unlocked(&_thread_queue);
     while(item) {
         _schedule_thread((kthread_t *)item->data);
-        
+
         item = llist_pop_unlocked(&_thread_queue);
     }
 
@@ -166,9 +185,9 @@ kthread_t *sched_next_process(unsigned cpu) {
      * Next thread is chosen by going process-by-process, looking at each thread
      * until we find one that we can schedule.
      */
-    
+
     kthread_t *thread = _curr_thread[cpu];
-    
+
     llist_iterator_t iter = {
         .first = (llist_item_t *)0xFFFFFFFF,
         .curr  = &thread->sched_item
@@ -198,4 +217,17 @@ kthread_t *sched_next_process(unsigned cpu) {
     _curr_thread[cpu]->process->book.schedule_count++;
 
     return _curr_thread[cpu];
+}
+
+void sched_replace_thread(kthread_t *new_thread) {
+    /* TODO: Detect current CPU */
+    unsigned cpu = 0;
+    kthread_t *old_thread = _curr_thread[cpu];
+    new_thread->sched_item.data = new_thread;
+
+    /* Assuming we are in a safe, uninterruptable state */
+    llist_remove(&_cpu_threads[cpu], &old_thread->sched_item);
+    llist_append(&_cpu_threads[cpu], &new_thread->sched_item);
+
+    _curr_thread[cpu] = new_thread;
 }

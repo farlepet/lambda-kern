@@ -85,7 +85,7 @@ static int proc_copy_data(kthread_t *dest, const kthread_t *src) {
  * @param parent_idx Index of parent process in process array
  * @return int 0 on success 
  */
-static int __no_inline fork_clone_process(struct kproc *child, struct kproc *parent) {
+static int __no_inline fork_clone_process(kproc_t *child, kproc_t *parent) {
     // TODO: Sort out X86-specific bits!
     // TODO: Clean up!
 
@@ -95,48 +95,65 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
         return -1;
     }
 
-    int kernel = (parent->type & TYPE_KERNEL);
+    /*
+     * Copy process data
+     */
 
-    memcpy(child->name, parent->name, strlen(parent->name));
+    strncpy(child->name, parent->name, KPROC_NAME_MAX);
 
-    kthread_t *cthread = (kthread_t *)child->threads.list->data;
-    kthread_t *pthread = mtask_get_curr_thread();
+    child->pid = get_next_pid();
+    child->uid = parent->uid;
+    child->gid = parent->gid;
+    child->cwd = parent->cwd;
 
-    cthread->process = child;
-    child->pid   = get_next_pid();
-    cthread->tid = child->pid;
+    if(parent->type & TYPE_KERNEL) {
+        child->type |= TYPE_KERNEL;
+    }
 
-    child->uid  = parent->uid;
-    child->gid  = parent->gid;
-
-    if(kernel) child->type |= TYPE_KERNEL;
-    cthread->flags |= KTHREAD_FLAG_RANONCE;
-
-    cthread->prio = pthread->prio;
-
-    cthread->entrypoint = pthread->entrypoint;
-    child->mmu_table    = mmu_clone_table(parent->mmu_table);
+    /* Copy open file descriptors: */
+    memcpy(child->open_files,    parent->open_files,    sizeof(child->open_files));
+    memcpy(child->file_position, parent->file_position, sizeof(child->file_position));
 
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
     child->arch.ring    = parent->arch.ring;
+#endif
 
-    cthread->stack_size = pthread->arch.stack_user.size;
-    proc_create_stack(cthread);
-    proc_create_kernel_stack(cthread);
+    child->mmu_table    = mmu_clone_table(parent->mmu_table);
 
+    /*
+     * Copy thread data
+     */
+
+    kthread_t       *cthread = (kthread_t *)child->threads.list->data;
+    const kthread_t *pthread = mtask_get_curr_thread();
+
+    cthread->tid        = child->pid;
+    cthread->prio       = pthread->prio;
+    cthread->entrypoint = pthread->entrypoint;
+    cthread->stack_size = pthread->stack_size;
+
+    if(proc_create_stack(cthread) ||
+       proc_create_kernel_stack(cthread)) {
+        return -1;
+    }
+
+    if(proc_copy_stack(cthread, pthread) ||
+       proc_copy_data(cthread, pthread)) {
+        return -1;
+    }
+
+    cthread->flags |= KTHREAD_FLAG_RANONCE;
+
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
     cthread->arch.ebp = pthread->arch.ebp;
 
     // POPAD: 8 DWORDS, IRETD: 5 DWORDS
     cthread->arch.esp = cthread->arch.stack_kern.begin - 52;
     cthread->arch.eip = (uint32_t)return_from_fork;
 
-    proc_copy_stack(cthread, pthread);
-
-    proc_copy_data(cthread, pthread);
-
     arch_iret_regs_t  *iret_stack  = (arch_iret_regs_t *)(cthread->arch.stack_kern.begin - sizeof(arch_iret_regs_t));
     arch_pusha_regs_t *pusha_stack = (arch_pusha_regs_t *)((uintptr_t)iret_stack - sizeof(arch_pusha_regs_t));
-    
+
     memcpy(iret_stack,  pthread->arch.syscall_regs.iret,  sizeof(arch_iret_regs_t));
     memcpy(pusha_stack, pthread->arch.syscall_regs.pusha, sizeof(arch_pusha_regs_t));
 
@@ -149,17 +166,7 @@ static int __no_inline fork_clone_process(struct kproc *child, struct kproc *par
     }
 
     kdebug(DEBUGSRC_PROC, ERR_TRACE, " -- eip: %08X esp: %08X ebp: %08X cr3: %p", cthread->arch.eip, cthread->arch.esp, cthread->arch.ebp, child->mmu_table);
-#else
-    /* TODO */
-    proc_copy_data(cthread, pthread);
 #endif
-
-    // Copy open file descriptors:
-    memcpy(child->open_files, parent->open_files, sizeof(child->open_files));
-    memcpy(child->file_position, parent->file_position, sizeof(child->file_position));
-
-    // Set working directory:
-    child->cwd = parent->cwd;
 
     return 0;
 }
@@ -176,18 +183,14 @@ int fork(void) {
 	
     kdebug(DEBUGSRC_PROC, ERR_DEBUG, "mtask:fork()");
 
-    struct kproc *child = (struct kproc *)kmalloc(sizeof(struct kproc));
-    // Doing a memcpy might be more efficient removing some instructions, but it
-    // may also introduce bugs/security flaws if certain info isn't cleared properly.
-    memset(child, 0, sizeof(struct kproc));
-    child->parent = proc->pid;
-    
+    kproc_t *child = (kproc_t *)kmalloc(sizeof(kproc_t));
+    kassert(child, "fork(): Ran out of memory attempting to allocate process!");
+    memset(child, 0, sizeof(kproc_t));
+
     kthread_t *cthread = (kthread_t *)kmalloc(sizeof(kthread_t));
-    if(cthread == NULL) {
-        kpanic("kthread_create: Ran out of memory attempting to allocate thread!");
-    }
+    kassert(cthread, "fork(): Ran out of memory attempting to allocate thread!");
     memset(cthread, 0, sizeof(kthread_t));
-	
+
     llist_init(&child->threads);
     proc_add_thread(child, cthread);
 
@@ -199,7 +202,7 @@ int fork(void) {
     kdebug(DEBUGSRC_PROC, ERR_TRACE, " -- Child Stack: %08X %08X", cthread->arch.esp, cthread->arch.ebp);
 #endif
 
-    child->type |= TYPE_RUNNABLE;
+    child->type    |= TYPE_RUNNABLE;
     cthread->flags |= KTHREAD_FLAG_RUNNABLE;
 
     mtask_insert_proc(child);

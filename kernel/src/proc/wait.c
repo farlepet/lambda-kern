@@ -3,6 +3,8 @@
 
 #include <proc/mtask.h>
 #include <proc/exec.h>
+#include <err/error.h>
+#include <err/panic.h>
 
 /**
  * Find the first dead child process of the given parent.
@@ -10,7 +12,7 @@
  * @param parent Parent process
  * @returns Index of dead child process, else -1
  */
-static inline int find_dead_child(struct kproc *parent) {
+static inline int _find_dead_child(struct kproc *parent) {
     for(int idx = 0; idx < MAX_CHILDREN; idx++) {
         if(parent->children[idx]) {
             if(parent->children[idx]->type & TYPE_ZOMBIE) { // Is this process dead?
@@ -41,11 +43,12 @@ int wait(int *stat_loc) {
 
     // If process has no children, return -1
     if(!child_exists) {
+	    kdebug(DEBUGSRC_PROC, ERR_TRACE, "wait(): No children");
         return -1;
     }
 
     // Check if a dead child process already exists:
-    chidx = find_dead_child(curr_proc);
+    chidx = _find_dead_child(curr_proc);
     if(chidx >= 0) {
         goto CHILD_FOUND;
     }
@@ -56,24 +59,20 @@ int wait(int *stat_loc) {
     run_sched();
 
     // When process is re-entered here, a child has exited
-    chidx = find_dead_child(curr_proc);
+    chidx = _find_dead_child(curr_proc);
     if(chidx < 0) {
         // Something went wrong, we should never get here
-        return -1;
+	    kpanic("wait(): Child missing");
     }
 CHILD_FOUND:
     child = curr_proc->children[chidx];
 
     (void)stat_loc; // TODO: Modify stat_loc
 
-    // TODO: Free up process-used memory.
-    // Process slot can now be safely re-used
-    if(child->type & TYPE_ZOMBIE) {
-        child->type = 0;
-    }
-
     // Free up child slot
     curr_proc->children[chidx] = NULL;
+
+    proc_destroy(child);
 
     return cpid;
 }

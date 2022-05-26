@@ -1,4 +1,5 @@
 #include <proc/mtask.h>
+#include <proc/thread.h>
 #include <proc/exec.h>
 #include <err/error.h>
 #include <fs/procfs.h>
@@ -7,13 +8,10 @@
 #include <mm/alloc.h>
 #include <mm/mm.h>
 
+#include <arch/intr/int.h>
+
 #include <string.h>
 #include <sys/stat.h>
-
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-#  include <arch/intr/int.h>
-#  include <arch/proc/user.h>
-#endif
 
 int execve(const char *filename, const char **argv, const char **envp) {
     kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "execve: %s (%08X, %08X)", filename, argv, envp);
@@ -24,12 +22,12 @@ int execve(const char *filename, const char **argv, const char **envp) {
         kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "  -> ENVP invalid address?");
     }
 
-    kdebug(DEBUGSRC_EXEC, ERR_TRACE, "execve MMU: %p", (uintptr_t)mmu_get_current_table());
+    kdebug(DEBUGSRC_EXEC, ERR_TRACE, "execve MMU: %p", mmu_get_current_table());
 
     for(int i = 0; argv[i]; i++) {
         kdebug(DEBUGSRC_EXEC, ERR_TRACE, "execve argv[%d]: %08X '%s'", i, argv[i], argv[i]);
     }
-	
+
     void  *exec_data;
     size_t exec_size;
 
@@ -138,7 +136,9 @@ static void *_store_arguments(const char **argv, const char **envp, char ***_arg
     }
 
 
+    /* TODO: Create allocation function wrapper that also maps. */
     void *data = kmalloc(data_sz);
+    mmu_map((uintptr_t)data, (uintptr_t)data, data_sz, MMU_FLAG_READ | MMU_FLAG_WRITE);
 
     *_argv = (char **)data;
     *_envp = &(*_argv)[argc + 1];
@@ -170,72 +170,76 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     // TODO: Clean this up, separate out portions where possible/sensical
     kdebug(DEBUGSRC_EXEC, ERR_TRACE, "exec_replace_process_image @ %08X", entryp);
 
-    struct kproc tmp_proc;
-    
+    kproc_t tmp_proc;
+
     char **_argv, **_envp;
     void *_arg_alloc = _store_arguments(argv, envp, &_argv, &_envp);
 
     // Copy data to temporary struct for easy copying of requred portions
     // Probably innefecient, and could be done better 
-    kthread_t *old_thread   = mtask_get_curr_thread();
-    kproc_t *curr_proc = old_thread->process;
-    memcpy(&tmp_proc, curr_proc, sizeof(struct kproc));
+    kthread_t *old_thread = mtask_get_curr_thread();
+    kproc_t   *curr_proc  = old_thread->process;
+
+    memcpy(&tmp_proc, curr_proc, sizeof(kproc_t));
 
     disable_interrupts();
 
-    // Clear out old data:
-    memset(curr_proc, 0, sizeof(struct kproc));
+    /*
+     * Process
+     */
+    memset(curr_proc, 0, sizeof(kproc_t));
 
-    memcpy(curr_proc->name, name, strlen(name) + 1);
+    strncpy(curr_proc->name, name, KPROC_NAME_MAX);
 
-    curr_proc->pid = tmp_proc.pid;
-    curr_proc->uid = tmp_proc.uid;
-    curr_proc->gid = tmp_proc.gid;
-
-    curr_proc->type = tmp_proc.type;
+    curr_proc->pid    = tmp_proc.pid;
+    curr_proc->uid    = tmp_proc.uid;
+    curr_proc->gid    = tmp_proc.gid;
+    curr_proc->type   = tmp_proc.type;
     curr_proc->parent = tmp_proc.parent;
+    curr_proc->cwd    = tmp_proc.cwd;
+
+    curr_proc->symbols = symbols;
+
+    curr_proc->list_item      = tmp_proc.list_item;
+    curr_proc->list_item.data = curr_proc;
+
     // Not sure whether or not these should carry over:
     memcpy(curr_proc->children, tmp_proc.children, sizeof(curr_proc->children));
 
-    /* @todo: Free old thread. */
-    /* @todo: Dequeue old threads */
-	llist_init(&curr_proc->threads);
+    memcpy(curr_proc->open_files,    tmp_proc.open_files,    sizeof(curr_proc->open_files));
+    memcpy(curr_proc->file_position, tmp_proc.file_position, sizeof(curr_proc->file_position));
+
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
+    /* TODO: Ring can probably be abstracted to some sort of priviledge level that
+     * will let us take it out of the arch-specific params. */
+    curr_proc->arch.ring = tmp_proc.arch.ring;
+    /* TODO: The MMU table should be created by exec and passed into the method
+     * responsible for setting up execution data. */
+    curr_proc->mmu_table = (mmu_table_t *)arch_params->pgdir;
+    // TODO: Free unused frames
+    // TODO: Only keep required portions of pagedir
+#endif
+    /*
+     * Thread
+     */
 	kthread_t *thread = (kthread_t *)kmalloc(sizeof(kthread_t));
     memset(thread, 0, sizeof(kthread_t));
+    strncpy(thread->name, curr_proc->name, KPROC_NAME_MAX);
 
     thread->process    = curr_proc;
     thread->entrypoint = (uint32_t)entryp;
     thread->prio       = old_thread->prio;
     thread->tid        = old_thread->tid;
     thread->stack_size = old_thread->stack_size;
-    memcpy(thread->name, curr_proc->name, strlen(curr_proc->name) + 1);
-    proc_add_thread(curr_proc, thread);
-
-    curr_proc->cwd = tmp_proc.cwd;
-    memcpy(curr_proc->open_files, tmp_proc.open_files, sizeof(curr_proc->open_files));
-    memcpy(curr_proc->file_position, tmp_proc.file_position, sizeof(curr_proc->file_position));
-
-    curr_proc->symbols = symbols;
-
-    curr_proc->list_item = tmp_proc.list_item;
-    curr_proc->list_item.data = curr_proc;
-
 
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-    // Copy architecture-specific bits:
-    curr_proc->arch.ring = tmp_proc.arch.ring;
-    thread->arch.eip  = (uint32_t)entryp;
-    
-    // TODO: Free unused frames
-    // TODO: Only keep required portions of pagedir
-    //proc->cr3 = tmp_proc.cr3;
-    curr_proc->mmu_table = (mmu_table_t *)arch_params->pgdir;
+    thread->arch.eip  = thread->entrypoint;
 #endif
 
-    proc_create_stack(thread);
-    proc_create_kernel_stack(thread);
+    llist_init(&curr_proc->threads);
+    proc_add_thread(curr_proc, thread);
 
-    //enable_interrupts();
+    arch_setup_thread(thread);
 
     uint32_t argc = 0;
     while(argv[argc]) argc++;
@@ -254,15 +258,21 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     STACK_PUSH(thread->arch.esp, n_envp);
     STACK_PUSH(thread->arch.esp, n_argv);
     STACK_PUSH(thread->arch.esp, argc);
+
+    thread->arch.stack_entry = thread->arch.esp;
+
+    thread->flags |= KTHREAD_FLAG_STACKSETUP;
 #endif
 
     kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "exec_replace_process_image(): Jumping into process");
 
     thread->flags |= KTHREAD_FLAG_RUNNABLE;
+    thread->flags &= ~(KTHREAD_FLAG_RANONCE);
 
-    sched_enqueue_thread(thread);
+    sched_replace_thread(thread);
 
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-    enter_ring_newstack(curr_proc->arch.ring, entryp, (void *)thread->arch.esp);
-#endif
+    thread_destroy(old_thread);
+
+
+    run_sched();
 }

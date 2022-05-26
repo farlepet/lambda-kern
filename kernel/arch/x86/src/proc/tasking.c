@@ -97,15 +97,17 @@ static void _thread_entrypoint(void) {
 		kpanic("_proc_entrypoint: Entrypoint is NULL!");
 	}
 
-	if(curr_proc->type & TYPE_KERNEL) {	
-		STACK_PUSH(curr_thread->arch.stack_entry, curr_thread->thread_data);
-	} else {
-		/* Empty args and env for CRT0 w/ user applications */
-		STACK_PUSH(curr_thread->arch.stack_entry, NULL);                                   /* ENVP */
-		STACK_PUSH(curr_thread->arch.stack_entry, NULL);                                   /* ARGV */
-		STACK_PUSH(curr_thread->arch.stack_entry, curr_thread->arch.stack_user.begin - 4); /* ENVP ptr */
-		STACK_PUSH(curr_thread->arch.stack_entry, curr_thread->arch.stack_user.begin - 8); /* ARGV ptr */
-		STACK_PUSH(curr_thread->arch.stack_entry, 0);                                      /* ARGC */
+	if(!(curr_thread->flags & KTHREAD_FLAG_STACKSETUP)) {
+		if(curr_proc->type & TYPE_KERNEL) {	
+			STACK_PUSH(curr_thread->arch.stack_entry, curr_thread->thread_data);
+		} else {
+			/* Empty args and env for CRT0 w/ user applications */
+			STACK_PUSH(curr_thread->arch.stack_entry, NULL);                                   /* ENVP */
+			STACK_PUSH(curr_thread->arch.stack_entry, NULL);                                   /* ARGV */
+			STACK_PUSH(curr_thread->arch.stack_entry, curr_thread->arch.stack_user.begin - 4); /* ENVP ptr */
+			STACK_PUSH(curr_thread->arch.stack_entry, curr_thread->arch.stack_user.begin - 8); /* ARGV ptr */
+			STACK_PUSH(curr_thread->arch.stack_entry, 0);                                      /* ARGC */
+		}
 	}
 
 	enter_ring_newstack(curr_proc->arch.ring, (void *)curr_thread->entrypoint, (void *)curr_thread->arch.stack_entry);

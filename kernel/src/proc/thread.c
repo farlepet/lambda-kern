@@ -50,3 +50,12 @@ int thread_spawn(uintptr_t entrypoint, void *data, const char *name, size_t stac
     
     return thread->tid;
 }
+
+int thread_destroy(kthread_t *thread) {
+	kdebug(DEBUGSRC_PROC, ERR_TRACE, "thread_destroy: %d, %s", thread->tid, thread->name);
+    sched_remove_thread(thread);
+
+    kfree(thread);
+
+    return 0;
+}

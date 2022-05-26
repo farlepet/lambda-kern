@@ -11,7 +11,7 @@
 #  include <arch/proc/user.h>
 #endif
 
-static void elf_read_phdr(const Elf32_Ehdr *elf, struct kproc_mem_map_ent **mmap_entries, proc_elf_data_t *elf_data, arch_task_params_t *arch_params) {
+static void elf_read_phdr(const Elf32_Ehdr *elf, struct kproc_mem_map_ent **mmap_entries, proc_elf_data_t *elf_data, mmu_table_t *mmu_table) {
 	if(!mmap_entries || !elf_data) { return; }
 
 	struct kproc_mem_map_ent **mmap_next = mmap_entries;
@@ -52,14 +52,8 @@ static void elf_read_phdr(const Elf32_Ehdr *elf, struct kproc_mem_map_ent **mmap
 				(*mmap_next)->next         = NULL;
 				mmap_next = &((*mmap_next)->next);
 
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-				/* TODO: Create architecture-independant memory mapping mechanism. */
-				for(uintptr_t pg = 0; pg < prog[i].p_memsz; pg += 0x1000) {
-					pgdir_map_page(arch_params->pgdir, (phys + pg), (void *)(prog[i].p_vaddr + pg), 0x07);
-				}
-#else
-	(void)arch_params;
-#endif
+				mmu_map_table(mmu_table, prog[i].p_vaddr, (uintptr_t)phys, prog[i].p_memsz,
+				              (MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_EXEC));
 			} break;
 			case PT_DYNAMIC:
 				elf_data->dynamic = (Elf32_Dyn *)prog[i].p_vaddr;
@@ -68,7 +62,7 @@ static void elf_read_phdr(const Elf32_Ehdr *elf, struct kproc_mem_map_ent **mmap
 	}
 }
 
-static uintptr_t elf_exec_common(void *data, uint32_t length, arch_task_params_t *arch_params, symbol_t **symbols, struct kproc_mem_map_ent **mmap_entries, proc_elf_data_t *elf_data) {
+static uintptr_t elf_exec_common(void *data, uint32_t length, mmu_table_t *mmu_table, symbol_t **symbols, struct kproc_mem_map_ent **mmap_entries, proc_elf_data_t *elf_data) {
 	/* TODO: Use this for error-checking */
 	(void)length;
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARM32)
@@ -77,7 +71,7 @@ static uintptr_t elf_exec_common(void *data, uint32_t length, arch_task_params_t
 	
 	const Elf32_Ehdr *head = (Elf32_Ehdr *)data;
 
-	elf_read_phdr(head, mmap_entries, elf_data, arch_params);
+	elf_read_phdr(head, mmap_entries, elf_data, mmu_table);
 
 	if(symbols) {
 		*symbols = NULL;
@@ -123,16 +117,18 @@ int load_elf(void *file, uint32_t length) {
 		return -1;
 	}
 
+	mmu_table_t *mmu_table = mmu_clone_table(mmu_get_kernel_table());
+
 	arch_task_params_t arch_params;
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	arch_params.pgdir = clone_kpagedir();
+	arch_params.pgdir = (uint32_t *)mmu_table;
 #endif
-	
+
 	symbol_t                 *symbols;
 	struct kproc_mem_map_ent *mmap_entries;
 	proc_elf_data_t           elf_data;
 
-	uintptr_t entrypoint = elf_exec_common(file, length, &arch_params, &symbols, &mmap_entries, &elf_data);
+	uintptr_t entrypoint = elf_exec_common(file, length, mmu_table, &symbols, &mmap_entries, &elf_data);
 	if(entrypoint == 0) {
 		return -1;
 	}
@@ -157,16 +153,18 @@ int exec_elf(void *data, uint32_t length, const char **argv, const char **envp) 
 		return 0;
 	}
 
+	mmu_table_t *mmu_table = mmu_clone_table(mmu_get_kernel_table());
+	
 	arch_task_params_t arch_params;
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	arch_params.pgdir = clone_kpagedir();
+	arch_params.pgdir = (uint32_t *)mmu_table;
 #endif
 
 	symbol_t                 *symbols;
 	struct kproc_mem_map_ent *mmap_entries;
 	proc_elf_data_t           elf_data;
 
-	uintptr_t entrypoint = elf_exec_common(data, length, &arch_params, &symbols, &mmap_entries, &elf_data);
+	uintptr_t entrypoint = elf_exec_common(data, length, mmu_table, &symbols, &mmap_entries, &elf_data);
 	if(entrypoint == 0) {
 		return -1;
 	}

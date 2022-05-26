@@ -157,6 +157,11 @@ int mtask_insert_proc(struct kproc *proc) {
 	return 0;
 }
 
+int mtask_remove_proc(kproc_t *proc) {
+    llist_remove(&procs, &proc->list_item);
+
+    return 0;
+}
 
 __hot
 kthread_t *mtask_get_curr_thread(void) {
@@ -198,20 +203,23 @@ void init_multitasking(void *process, char *name) {
 
 __noreturn void exit(int code) {
 	kproc_t *curr_proc = mtask_get_curr_process();
-	
-	kdebug(DEBUGSRC_PROC, ERR_TRACE, "exit(%d) called by process %d.", code, curr_proc->pid);
 
-	// If parent processis waiting for child to exit, allow it to continue execution:
-	if(curr_proc->parent) {
-		struct kproc *parent = proc_by_pid(curr_proc->parent);
-		/* @todo Unblock the exact thread waiting on exit */
-		((kthread_t *)parent->threads.list->data)->blocked &= (uint32_t)~(BLOCK_WAIT);
-	}
+	kdebug(DEBUGSRC_PROC, ERR_TRACE, "exit(%d) called by process %d.", code, curr_proc->pid);
 
 	/* @todo Migrate this to threads*/
 	curr_proc->type &= (uint32_t)~(TYPE_RUNNABLE);
 	curr_proc->type |= TYPE_ZOMBIE; // It isn't removed unless it's parent inquires on it
 	curr_proc->exitcode = code;
+
+	// If parent process is waiting for child to exit, allow it to continue execution:
+	if(curr_proc->parent) {
+		struct kproc *parent = proc_by_pid(curr_proc->parent);
+		/* @todo Unblock the exact thread waiting on exit */
+		kthread_t *thread = (kthread_t *)parent->threads.list->data;
+
+		kdebug(DEBUGSRC_PROC, ERR_TRACE, "  -> Unblocking (%d, %s) -> (%d, %s)", parent->pid, parent->name, thread->tid, thread->name);
+		thread->blocked &= (uint32_t)~(BLOCK_WAIT);
+	}
 
 	for(;;) {
 		run_sched();

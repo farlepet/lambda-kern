@@ -1,4 +1,5 @@
 #include <proc/mtask.h>
+#include <proc/thread.h>
 #include <err/error.h>
 #include <err/panic.h>
 #include <proc/proc.h>
@@ -112,4 +113,42 @@ int proc_add_thread(kproc_t *proc, kthread_t *thread) {
 	llist_append(&proc->threads, &thread->list_item);
 
 	return 0;
+}
+
+int proc_destroy(kproc_t *proc) {
+	kdebug(DEBUGSRC_PROC, ERR_TRACE, "proc_destroy: %d, %s", proc->pid, proc->name);
+
+    mtask_remove_proc(proc);
+
+    if(proc->mmu_table) {
+        /* TODO: MMU table doesn't necessarially need to be a single allocation */
+        kfree(proc->mmu_table);
+    }
+
+    if(proc->symbols) {
+        kfree(proc->symbols);
+    }
+
+    if(proc->elf_data) {
+        kfree(proc->elf_data);
+    }
+
+    /* TODO: All allocations should be tracked in mmap, to simplify process
+     * destruction */
+    while(proc->mmap) {
+        struct kproc_mem_map_ent *ent = proc->mmap;
+        proc->mmap = proc->mmap->next;
+        kfree(ent);
+    }
+
+    while(proc->threads.list) {
+        kthread_t *thread = proc->threads.list->data;
+        llist_remove(&proc->threads, proc->threads.list);
+
+        thread_destroy(thread);
+    }
+
+    kfree(proc);
+
+    return 0;
 }

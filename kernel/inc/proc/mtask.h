@@ -123,6 +123,15 @@ struct kproc *mtask_get_curr_process(void);
  */
 int mtask_insert_proc(struct kproc *proc);
 
+/**
+ * @brief Remove process from process list
+ *
+ * @param proc Process to remove
+ *
+ * @return int 0 on success, else non-zero
+ */
+int mtask_remove_proc(kproc_t *proc);
+
 // TODO: Move x86-specific stack operation!
 #define STACK_PUSH(esp, data) do { \
         esp = esp - 4; \

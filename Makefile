@@ -67,7 +67,8 @@ CFLAGS += -Weverything                \
 		  -Wno-packed                  \
 		  -Wno-unknown-warning-option  \
 		  -Wno-date-time               \
-		  -Wno-reserved-identifier
+		  -Wno-reserved-identifier     \
+		  -Wno-extra-semi-stmt
 endif
 
 

@@ -77,9 +77,10 @@ typedef struct proc_elf_data {
 struct kthread {
 	char              name[KPROC_NAME_MAX+1];   /** Name of thread */
 	uint32_t          tid;        /** Thread ID */
-#define KTHREAD_FLAG_RUNNABLE 0x80000000 /** Thread contents is valid */
-#define KTHREAD_FLAG_RUNNING  0x00000001 /** Thread is currently running */
-#define KTHREAD_FLAG_RANONCE  0x00000002 /** Thread has ran at least once */
+#define KTHREAD_FLAG_RUNNABLE   (1UL << 31) /** Thread contents is valid */
+#define KTHREAD_FLAG_RUNNING    (1UL <<  0) /** Thread is currently running */
+#define KTHREAD_FLAG_RANONCE    (1UL <<  1) /** Thread has ran at least once */
+#define KTHREAD_FLAG_STACKSETUP (1UL <<  2) /** User stack has been initialized already */
 	uint32_t          flags;      /** Thread flags */
 	int               prio;       /** Thread priority */
 
@@ -201,12 +202,32 @@ kthread_t *sched_next_process(unsigned cpu);
 int sched_enqueue_thread(kthread_t *thread);
 
 /**
+ * @brief Remove thread from scheduler
+ *
+ * @param thread Thread to remove
+ *
+ * @return int 0 on success, else non-zero
+ */
+int sched_remove_thread(kthread_t *thread);
+
+/**
  * \brief Get currently active thread on the requested CPU
  * 
  * @param cpu CPU to get actuve thread of
  * @return NULL on error, else pointer to active thread on CPU
  */
 kthread_t *sched_get_curr_thread(unsigned cpu);
+
+/**
+ * @brief Replaces current thread with another, does not free thread
+ *
+ * @note This must only be called when interrupts are disabled
+ *
+ * @see execve
+ *
+ * @param new_thread New thread to take the place of the current one
+ */
+void sched_replace_thread(kthread_t *new_thread);
 
 /**
  * \brief Add memory map record to process
@@ -236,5 +257,14 @@ int proc_add_mmap_ents(struct kproc *proc, struct kproc_mem_map_ent *entries);
  * @return 0 on success, else non-zero
  */
 int proc_add_thread(kproc_t *proc, kthread_t *thread);
+
+/**
+ * @brief Destroy process and free memory
+ *
+ * @param proc Process to destroy
+ *
+ * @return int 0 on success, else non-zero
+ */
+int proc_destroy(kproc_t *proc);
 
 #endif
