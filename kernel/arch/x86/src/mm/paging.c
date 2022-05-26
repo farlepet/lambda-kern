@@ -182,8 +182,6 @@ void map_page(void *physaddr, void *virtualaddr, uint32_t flags) {
 }
 
 void pgdir_map_page(uint32_t *pgdir, void *physaddr, void *virtualaddr, uint32_t flags) {
-	kdebug(DEBUGSRC_MM, ERR_TRACE, "Mapping %8X to %8X (%03X) in %8X", virtualaddr, physaddr, flags, pgdir);
-
 	virtualaddr = (void *)((uint32_t)virtualaddr & 0xFFFFF000);
 	physaddr    = (void *)((uint32_t)physaddr    & 0xFFFFF000);
 

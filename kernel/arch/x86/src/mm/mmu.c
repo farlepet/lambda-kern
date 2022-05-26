@@ -2,6 +2,7 @@
 
 #include <arch/mm/paging.h>
 
+#include <err/error.h>
 #include <mm/alloc.h>
 #include <mm/mmu.h>
 
@@ -27,6 +28,8 @@ int mmu_set_current_table(mmu_table_t *table) {
 }
 
 int mmu_map_table(mmu_table_t *table, uintptr_t virt, uintptr_t phys, size_t size, uint32_t flags) {
+	kdebug(DEBUGSRC_MM, ERR_TRACE, "Mapping %p[%u] to %p (%02X) in %p", virt, size, phys, flags, table);
+
     uint32_t page_flags = PAGE_TABLE_FLAG_PRESENT;
 
     /* TODO: Caching and global flags */
