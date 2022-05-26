@@ -57,6 +57,8 @@ static void send_input_char(char c) {
 	if(kinput_dest) {
 		fs_write(kinput_dest, 0, 1, (uint8_t *)&c);
 	}
+	/* Temporary workaround prior to real TTY devices */
+	kput(c);
 }
 
 

@@ -101,7 +101,6 @@ __noreturn void kterm_task() {
 
 			if(t != 0) {
 				input[iloc++] = t;
-				kprintf("%c", t);
 			}
 		}
 
