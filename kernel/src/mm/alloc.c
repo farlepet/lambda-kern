@@ -13,6 +13,8 @@ static struct alcent block_1[ALLOC_BLOCK];
 
 static struct alcent *allocs[ALLOC_BLOCKS] = { block_1 };
 
+#define MIN_ALIGN 4
+
 /**
  * Add a memory block to the block list
  *
@@ -242,7 +244,7 @@ void *kamalloc(size_t sz, size_t align) {
 EXPORT_FUNC(kamalloc);
 
 void *kmalloc(size_t sz) {
-	return kamalloc(sz, 1);
+	return kamalloc(sz, MIN_ALIGN);
 }
 EXPORT_FUNC(kmalloc);
 
@@ -263,16 +265,22 @@ void kfree(void *ptr)
 	int i, j = 0;
 
 	// Find the corresponding memory block
-	for(; j < ALLOC_BLOCKS; j++)
-	{
-		if(!allocs[j]) continue;
-		for(i = 0; i < ALLOC_BLOCK; i++)
-			if(allocs[j][i].valid) // Is it valid?
-				if(allocs[j][i].addr == (uint32_t)ptr) // Is it the correct block?
+	for(; j < ALLOC_BLOCKS; j++) {
+		if(!allocs[j]) {
+			continue;
+		}
+		for(i = 0; i < ALLOC_BLOCK; i++) {
+			if(allocs[j][i].valid) { // Is it valid?
+				if(allocs[j][i].addr == (uint32_t)ptr) { // Is it the correct block?
 					rm_alloc(j, i); // Free it!
+					unlock(&alloc_lock);
+					return;
+				}
+			}
+		}
 	}
 
-	unlock(&alloc_lock);
+	kpanic("Attempt to free address not previously allocated: %p", ptr);
 }
 EXPORT_FUNC(kfree);
 
