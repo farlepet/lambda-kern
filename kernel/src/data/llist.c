@@ -20,25 +20,15 @@ void llist_append_unlocked(llist_t *list, llist_item_t *item) {
     }
 
 #if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
-    if(!mm_check_addr(list)) {
-        kpanic("Bad list addr: %p", list);
-    }
-    if(!mm_check_addr(list)) {
-        kpanic("Bad item addr: %p", item);
-    }
+    kassert(mm_check_addr(list), "Bad list addr: %p", list);
+    kassert(mm_check_addr(item), "Bad item addr: %p", item);
 #endif
 
     if(list->list) {
 #if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
-        if(!mm_check_addr(list->list)) {
-            kpanic("Bad list->list addr: %p", list->list);
-        }
-        if(!mm_check_addr(list->list->prev)) {
-            kpanic("Bad list->list->prev addr: %p", list->list->prev);
-        }
-        if(!mm_check_addr(list->list->prev->next)) {
-            kpanic("Bad list->list->prev->next addr: %p", list->list->prev->next);
-        }
+        kassert(mm_check_addr(list->list), "Bad list->list addr: %p", list->list);
+        kassert(mm_check_addr(list->list->prev), "Bad list->list->prev addr: %p", list->list);
+        kassert(mm_check_addr(list->list->prev->next), "Bad list->list->prev->next addr: %p", list->list);
 #endif
         list->list->prev->next = item;
         item->prev             = list->list->prev;
@@ -107,12 +97,19 @@ int llist_get_position(llist_t *list, llist_item_t *item) {
         return -1;
     }
 
+#if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
+    kassert(mm_check_addr(list->list), "Bad list->list addr: %p", list->list);
+#endif
+
     llist_item_t *citem = list->list;
     int i = 0;
     do {
         if(citem == item) {
             return i;
         }
+#if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
+        kassert(mm_check_addr(citem->next), "Bad citem->next addr: %p", citem->next);
+#endif
         citem = citem->next;
         i++;
     } while(citem != list->list);

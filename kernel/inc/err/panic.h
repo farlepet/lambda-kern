@@ -16,5 +16,7 @@ void _kpanic(char *msg, ...);
 
 #define kpanic(...) _kpanic(__FILE__ ":" __kpanic_stringify2(__LINE__) ": " __VA_ARGS__)
 
+#define kassert(EXPR, ...) if(!(EXPR)) { kpanic(__VA_ARGS__); }
+
 /* TODO: Move this declaration elsewhere */
 void arch_kpanic_hook(void);
