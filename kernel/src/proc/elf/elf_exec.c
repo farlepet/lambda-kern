@@ -65,9 +65,6 @@ static void elf_read_phdr(const Elf32_Ehdr *elf, struct kproc_mem_map_ent **mmap
 static uintptr_t elf_exec_common(void *data, uint32_t length, mmu_table_t *mmu_table, symbol_t **symbols, struct kproc_mem_map_ent **mmap_entries, proc_elf_data_t *elf_data) {
 	/* TODO: Use this for error-checking */
 	(void)length;
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARM32)
-	(void)arch_params;
-#endif
 	
 	const Elf32_Ehdr *head = (Elf32_Ehdr *)data;
 
@@ -146,35 +143,20 @@ int load_elf(void *file, uint32_t length) {
 	return pid;
 }
 
-int exec_elf(void *data, uint32_t length, const char **argv, const char **envp) {
-	//kerror(ERR_BOOTINFO, "Executing elf from %08X of length %08X", data, length);
-
-	if(elf_check_header(data)) {
-		return 0;
-	}
-
-	mmu_table_t *mmu_table = mmu_clone_table(mmu_get_kernel_table());
-	
-	arch_task_params_t arch_params;
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	arch_params.pgdir = (uint32_t *)mmu_table;
-#endif
-
-	symbol_t                 *symbols;
-	struct kproc_mem_map_ent *mmap_entries;
-	proc_elf_data_t           elf_data;
-
-	uintptr_t entrypoint = elf_exec_common(data, length, mmu_table, &symbols, &mmap_entries, &elf_data);
-	if(entrypoint == 0) {
+int exec_elf(exec_data_t *exec_data) {
+	if(elf_check_header(exec_data->file_data)) {
 		return -1;
 	}
 
-	kdebug(DEBUGSRC_EXEC, ERR_TRACE, "Entrypoint: %08X", entrypoint);
+	exec_data->elf_data = (proc_elf_data_t *)kmalloc(sizeof(proc_elf_data_t));
 
-	// TODO: Add generated memory map to this process
+	exec_data->entrypoint = elf_exec_common(exec_data->file_data, exec_data->file_size, exec_data->mmu_table,
+	                                        &exec_data->symbols, &exec_data->mmap_entries, exec_data->elf_data);
+	if(exec_data->entrypoint == 0) {
+		return -1;
+	}
 
-	exec_replace_process_image((void *)entrypoint, argv[0], &arch_params, symbols, argv, envp);
+	kdebug(DEBUGSRC_EXEC, ERR_TRACE, "Entrypoint: %08X", exec_data->entrypoint);
 
-	/* We shouldn't get this far */
-	return -1;
+	return 0;
 }

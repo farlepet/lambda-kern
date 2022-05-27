@@ -13,6 +13,8 @@
 #include <string.h>
 #include <sys/stat.h>
 
+static void _exec_replace_process_image(exec_data_t *exec_data);
+
 int execve(const char *filename, const char **argv, const char **envp) {
     kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "execve: %s (%08X, %08X)", filename, argv, envp);
     if(!mm_check_addr(argv)) {
@@ -28,25 +30,47 @@ int execve(const char *filename, const char **argv, const char **envp) {
         kdebug(DEBUGSRC_EXEC, ERR_TRACE, "execve argv[%d]: %08X '%s'", i, argv[i], argv[i]);
     }
 
-    void  *exec_data;
-    size_t exec_size;
+    exec_data_t *exec_data = (exec_data_t *)kmalloc(sizeof(exec_data_t));
+    if(exec_data == NULL) {
+		kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "execve: Could not allocate exec_data struct!\n");
+		return -1;
+    }
 
-    if(fs_read_file_by_path(filename, NULL, &exec_data, &exec_size, 0)) {
-		kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "execve: Could not open %s!\n", argv[1]);
+    if(fs_read_file_by_path(filename, NULL, &exec_data->file_data, &exec_data->file_size, 0)) {
+		kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "execve: Could not open %s!\n", filename);
+        kfree(exec_data);
 		return -1;
 	}
+
+    exec_data->argv      = argv;
+    exec_data->envp      = envp;
+
+    exec_data->mmu_table = mmu_clone_table(mmu_get_kernel_table());
+
+    strncpy(exec_data->name, argv[0], KPROC_NAME_MAX);
+
+    int ret = -1;
 
     // TODO: Add executable type handlers in the future, so that they can be
     // registered on-the-fly
     // Check for the filetype:
-    if(*(uint32_t *)exec_data == ELF_IDENT) { // ELF
+    if(*(uint32_t *)exec_data->file_data == ELF_IDENT) { // ELF
         kdebug(DEBUGSRC_EXEC, ERR_TRACE, "execve: Determined filetype as ELF");
-        return exec_elf(exec_data, exec_size, argv, envp);
-    } else if(*(uint16_t *)exec_data == 0x3335) { // SHEBANG, NOTE: Byte order might be wrong!
+        ret = exec_elf(exec_data);
+    } else if(*(uint16_t *)exec_data->file_data == 0x3335) { // SHEBANG, NOTE: Byte order might be wrong!
         kdebug(DEBUGSRC_EXEC, ERR_WARN, "execve: No support for shebang yet!");
     } else { // UNKNOWN
         kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "execve: Unknown executable file type: %08X", *(uint32_t *)exec_data);
     }
+
+    if(ret == 0) {
+        _exec_replace_process_image(exec_data);
+    }
+
+    /* Above should only return on failure */
+
+    kfree(exec_data->file_data);
+    kfree(exec_data);
 
     return -1;
 }
@@ -55,7 +79,7 @@ int execve(const char *filename, const char **argv, const char **envp) {
  * Copy and relocate arguments (argv, envp) to the next process image, and
  * push these values to the stack.
  */
-static void exec_copy_arguments(kthread_t *thread, const char **argv, const char **envp, char ***n_argv, char ***n_envp) {
+static void _exec_copy_arguments(mmu_table_t *mmu_table, const char **argv, const char **envp, char ***n_argv, char ***n_envp) {
     size_t   data_sz = 0;
     uint32_t argc = 0;
     uint32_t envc = 0;
@@ -84,7 +108,7 @@ static void exec_copy_arguments(kthread_t *thread, const char **argv, const char
     char **new_argv  = (char **)new_buffer;
     char **new_envp  = NULL;
 
-    mmu_map_table(thread->process->mmu_table, (uintptr_t)new_buffer, (uintptr_t)new_buffer, data_sz,
+    mmu_map_table(mmu_table, (uintptr_t)new_buffer, (uintptr_t)new_buffer, data_sz,
                   (MMU_FLAG_READ | MMU_FLAG_WRITE));
 
     size_t c_off = (argc + envc + 2) * sizeof(char *);
@@ -110,8 +134,6 @@ static void exec_copy_arguments(kthread_t *thread, const char **argv, const char
     if(c_off != data_sz) {
         kdebug(DEBUGSRC_EXEC, ERR_TRACE, "  -> c_off (%d) != data_sz (%d)!", c_off, data_sz);
     }
-
-    (void)thread;
 
     *n_argv = new_argv;
     *n_envp = new_envp;
@@ -166,14 +188,14 @@ static void *_store_arguments(const char **argv, const char **envp, char ***_arg
     return data;
 }
 
-void exec_replace_process_image(void *entryp, const char *name, arch_task_params_t *arch_params, symbol_t *symbols, const char **argv, const char **envp) {
+static void _exec_replace_process_image(exec_data_t *exec_data) {
     // TODO: Clean this up, separate out portions where possible/sensical
-    kdebug(DEBUGSRC_EXEC, ERR_TRACE, "exec_replace_process_image @ %08X", entryp);
+    kdebug(DEBUGSRC_EXEC, ERR_TRACE, "exec_replace_process_image @ %08X", exec_data->entrypoint);
 
     kproc_t tmp_proc;
 
     char **_argv, **_envp;
-    void *_arg_alloc = _store_arguments(argv, envp, &_argv, &_envp);
+    void *_arg_alloc = _store_arguments(exec_data->argv, exec_data->envp, &_argv, &_envp);
 
     // Copy data to temporary struct for easy copying of requred portions
     // Probably innefecient, and could be done better 
@@ -189,7 +211,7 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
      */
     memset(curr_proc, 0, sizeof(kproc_t));
 
-    strncpy(curr_proc->name, name, KPROC_NAME_MAX);
+    strncpy(curr_proc->name, exec_data->name, KPROC_NAME_MAX);
 
     curr_proc->pid    = tmp_proc.pid;
     curr_proc->uid    = tmp_proc.uid;
@@ -198,7 +220,10 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     curr_proc->parent = tmp_proc.parent;
     curr_proc->cwd    = tmp_proc.cwd;
 
-    curr_proc->symbols = symbols;
+    curr_proc->mmu_table = exec_data->mmu_table;
+    curr_proc->symbols   = exec_data->symbols;
+    curr_proc->mmap      = exec_data->mmap_entries;
+    curr_proc->elf_data  = exec_data->elf_data;
 
     curr_proc->list_item      = tmp_proc.list_item;
     curr_proc->list_item.data = curr_proc;
@@ -213,11 +238,7 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     /* TODO: Ring can probably be abstracted to some sort of priviledge level that
      * will let us take it out of the arch-specific params. */
     curr_proc->arch.ring = tmp_proc.arch.ring;
-    /* TODO: The MMU table should be created by exec and passed into the method
-     * responsible for setting up execution data. */
-    curr_proc->mmu_table = (mmu_table_t *)arch_params->pgdir;
     // TODO: Free unused frames
-    // TODO: Only keep required portions of pagedir
 #endif
     /*
      * Thread
@@ -227,7 +248,7 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     strncpy(thread->name, curr_proc->name, KPROC_NAME_MAX);
 
     thread->process    = curr_proc;
-    thread->entrypoint = (uint32_t)entryp;
+    thread->entrypoint = exec_data->entrypoint;
     thread->prio       = old_thread->prio;
     thread->tid        = old_thread->tid;
     thread->stack_size = old_thread->stack_size;
@@ -239,15 +260,18 @@ void exec_replace_process_image(void *entryp, const char *name, arch_task_params
     llist_init(&curr_proc->threads);
     proc_add_thread(curr_proc, thread);
 
+    /* @todo We might be able to reuse the current stacks - otherwise, we will
+     * need to free these stacks. */
     arch_setup_thread(thread);
 
     uint32_t argc = 0;
-    while(argv[argc]) argc++;
+    while(exec_data->argv[argc]) argc++;
 
     char **n_argv;
     char **n_envp;
 
-    exec_copy_arguments(thread, (const char **)_argv, (const char **)_envp, &n_argv, &n_envp);
+    _exec_copy_arguments(curr_proc->mmu_table, (const char **)_argv, (const char **)_envp,
+                         &n_argv, &n_envp);
     kfree(_arg_alloc);
 
     mmu_set_current_table(curr_proc->mmu_table);

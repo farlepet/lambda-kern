@@ -285,6 +285,7 @@ typedef enum {
 
 
 #include <mm/symbols.h>
+#include <proc/exec.h>
 
 int elf_find_section(const Elf32_Ehdr *elf, Elf32_Shdr **section, const char *section_name);
 
@@ -296,6 +297,6 @@ int elf_load_symbols(const Elf32_Ehdr *elf, symbol_t **symbols);
 
 int load_elf(void *file, uint32_t length);
 
-int exec_elf(void *data, uint32_t length, const char **argv, const char **envp);
+int exec_elf(exec_data_t *exec_data);
 
 #endif
