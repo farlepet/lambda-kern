@@ -135,10 +135,13 @@ int proc_destroy(kproc_t *proc) {
 
     /* TODO: All allocations should be tracked in mmap, to simplify process
      * destruction */
-    while(proc->mmap) {
+	if(proc->mmap) {
+    /*while(proc->mmap) {
         struct kproc_mem_map_ent *ent = proc->mmap;
-        proc->mmap = proc->mmap->next;
-        kfree(ent);
+        proc->mmap = proc->mmap->next; */
+        kfree(proc->mmap);
+		/* @todo: Sometimes mmap is a single allocated block, sometimes it is a
+		 * set of allocated blocks. */
     }
 
     while(proc->threads.list) {
