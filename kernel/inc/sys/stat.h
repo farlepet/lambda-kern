@@ -5,24 +5,42 @@
 
 #include <sys/types.h>
 
-struct stat {
-    dev_t     st_dev;
-    ino_t     st_ino;
-    mode_t    st_mode;
-    nlink_t   st_nlink;
-    uid_t     st_uid;
-    gid_t     st_gid;
-    dev_t     st_rdev;
-    off_t     st_size;
-    time_t    st_atime;
-    time_t    st_mtime;
-    time_t    st_ctime;
-    blksize_t st_blksize;
-    blkcnt_t  st_blkcnt;
-};
+/**
+ * @brief Kernel representatino of file information
+ */
+typedef struct kstat {
+    /** Device ID */
+    uint32_t dev_id;
+    /** Special file device ID */
+    uint32_t rdev_id;
+    /** inode number */
+    uint64_t inode;
+    /** Unix permissions */
+    uint32_t mode;
+    /** Number of hard links to this file */
+    uint32_t n_link;
+    /** Owning user ID */
+    uint32_t uid;
+    /** Owner group ID */
+    uint32_t gid;
+    /** File size in bytes */
+    uint64_t size;
+    /** Actual size of allocated space for file on storage medium */
+    uint64_t alloc_size;
+    /** Access time, in nanoseconds since 1970-01-01 UTC */
+    int64_t atime;
+    /** Creation time, in nanoseconds since 1970-01-01 UTC */
+    int64_t btime;
+    /** Status change time, in nanoseconds since 1970-01-01 UTC */
+    int64_t ctime;
+    /** Modification time, in nanoseconds since 1970-01-01 UTC */
+    int64_t mtime;
+    /** Preferred block size, in bytes */
+    uint32_t blksize;
+} kstat_t;
 
-int kfstat(kfile_hand_t *f, struct stat *buf);
+int kfstat(kfile_t *f, kstat_t *buf);
 
-int fstat(int fd, struct stat *buf);
+int fstat(int fd, kstat_t *buf);
 
 #endif

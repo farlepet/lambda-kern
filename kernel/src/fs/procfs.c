@@ -5,6 +5,7 @@
 #include <err/error.h>
 #include <fs/dirinfo.h>
 #include <mm/alloc.h>
+#include <mm/mm.h>
 
 #include <string.h>
 
@@ -84,44 +85,42 @@ int proc_fs_open(const char *name, uint32_t flags) {
         return -1;
     }
 
-    if(thread->process->cwd) {
-        char tmp[256];
-        // TODO: Check for name length!
-        memcpy(tmp, name, strlen(name)+1);
-        //struct kfile *file = fs_finddir(proc->cwd, name);
-        struct kfile *file = fs_find_file(thread->process->cwd, tmp);
-        if(file) {
-            // TODO: Check if file is open!!!
-            // TODO: Handle errors!
-            // TODO: Make sure flags match up!
-            if(_open_check_flags(file, flags)) {
-                return -1;
-            }
 
-            kfile_hand_t *hand = (kfile_hand_t *)kmalloc(sizeof(kfile_hand_t));
-            memset(hand, 0, sizeof(kfile_hand_t));
-
-            hand->open_flags = flags;
-
-            if(fs_open(file, hand)) {
-                kdebug(DEBUGSRC_FS, ERR_DEBUG, "proc_fs_open: fs_open of %s failed!", name);
-                kfree(hand);
-                return -1;
-            }
-
-            // TODO: Handle errors!
-            int ret = proc_add_file(thread->process, hand);
-            if (ret > 0) {
-                if(!SAFETY_CHECK(hand->open_flags & OFLAGS_OPEN)) {
-                    kpanic("Open succeeded, but open flag is not set!");
-                }
-                return ret;
-            }
-    
-            kfree(hand);
+    char tmp[256];
+    // TODO: Check for name length!
+    memcpy(tmp, name, strlen(name)+1);
+    struct kfile *file = fs_find_file(thread->process->cwd, tmp);
+    if(file) {
+        // TODO: Check if file is open!!!
+        // TODO: Handle errors!
+        // TODO: Make sure flags match up!
+        if(_open_check_flags(file, flags)) {
+            return -1;
         }
+
+        kfile_hand_t *hand = (kfile_hand_t *)kmalloc(sizeof(kfile_hand_t));
+        memset(hand, 0, sizeof(kfile_hand_t));
+
+        hand->open_flags = flags;
+
+        if(fs_open(file, hand)) {
+            kdebug(DEBUGSRC_FS, ERR_DEBUG, "proc_fs_open: fs_open of %s failed!", name);
+            kfree(hand);
+            return -1;
+        }
+
+        // TODO: Handle errors!
+        int ret = proc_add_file(thread->process, hand);
+        if (ret > 0) {
+            if(!SAFETY_CHECK(hand->open_flags & OFLAGS_OPEN)) {
+                kpanic("Open succeeded, but open flag is not set!");
+            }
+            return ret;
+        }
+
+        kfree(hand);
     }
-    
+
     return -1;
 }
 
@@ -251,4 +250,30 @@ int proc_fs_readdir(int desc, uint32_t idx, struct user_dirent *buff, uint32_t b
     }
 
     return (sizeof(struct user_dirent) + strlen(buff->d_name) + 1);
+}
+
+int proc_fs_stat(const char *path, kstat_t *buf, uint32_t __unused flags) {
+    if(!mm_check_addr(path) ||
+       !mm_check_addr(buf)) {
+        return -1;
+    }
+    
+    kthread_t *thread = mtask_get_curr_thread();
+    if(!thread) return -1;
+
+    if(thread->process->cwd == NULL) {
+        return -1;
+    }
+
+    char tmp[256];
+    // TODO: Check for name length!
+    memcpy(tmp, path, strlen(path)+1);
+
+    /* TODO: Check permissions */
+    struct kfile *file = fs_find_file(thread->process->cwd, tmp);
+    if(file) {
+        return kfstat(file, buf);
+    }
+
+    return -1;
 }

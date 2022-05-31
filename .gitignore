@@ -48,3 +48,6 @@ stage2_eltorito
 
 # Doxygen output
 doc
+
+# Debug files
+.gdb_history

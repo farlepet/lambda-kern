@@ -315,13 +315,13 @@ static int __read_file(kfile_hand_t *file, void **buff, size_t *sz, size_t max_s
 		max_sz = SIZE_MAX;
 	}
 	
-	struct stat _stat;
-	if(kfstat(file, &_stat)) {
+	kstat_t _stat;
+	if(kfstat(file->file, &_stat)) {
 		return -1;
 	}
 
-	if(_stat.st_size < max_sz) {
-		max_sz = _stat.st_size;
+	if(_stat.size < max_sz) {
+		max_sz = _stat.size;
 	}
 
 	*buff = kmalloc(max_sz);

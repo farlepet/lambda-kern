@@ -32,7 +32,9 @@ typedef struct {
 #pragma GCC diagnostic ignored "-Wcast-function-type"
 static syscall_desc_t syscalls[] = {
 	[SYSCALL_EXIT]      = { (func0_t)exit,         1, 0 },
-	
+
+	[SYSCALL_FS_READDIR]  = { (func0_t)proc_fs_readdir,  4, 0 },
+	[SYSCALL_FS_STAT]     = { (func0_t)proc_fs_stat,     3, 0 },
 	[SYSCALL_FS_READ]     = { (func0_t)proc_fs_read,     4, 0 },
 	[SYSCALL_FS_WRITE]    = { (func0_t)proc_fs_write,    4, 0 },
 	[SYSCALL_FS_OPEN]     = { (func0_t)proc_fs_open,     2, 0 },
@@ -49,8 +51,6 @@ static syscall_desc_t syscalls[] = {
 	[SYSCALL_WAIT]   = { (func0_t)wait,   1, 0 },
 
 	[SYSCALL_TASK_SWITCH] = { (func0_t)do_task_switch, 0, 0 },
-	
-	[SYSCALL_FS_READDIR] = { (func0_t)proc_fs_readdir, 4, 0 }
 };
 #pragma GCC diagnostic pop
 
@@ -134,6 +134,8 @@ void call_syscall(uint32_t scn, uint32_t *args)
 
 static const char *_syscall_stringify(uint32_t scn) {
 	return (scn == SYSCALL_EXIT)          ? "EXIT"        :
+	       (scn == SYSCALL_FS_READDIR)    ? "READDIR"     :
+	       (scn == SYSCALL_FS_STAT)       ? "STAT"        :
 	       (scn == SYSCALL_FS_READ)       ? "READ"        :
 	       (scn == SYSCALL_FS_WRITE)      ? "WRITE"       :
 	       (scn == SYSCALL_FS_OPEN)       ? "OPEN"        :
@@ -146,6 +148,5 @@ static const char *_syscall_stringify(uint32_t scn) {
 	       (scn == SYSCALL_FORK)          ? "FORK"        :
 	       (scn == SYSCALL_EXECVE)        ? "EXECVE"      :
 	       (scn == SYSCALL_WAIT)          ? "WAIT"        :
-	       (scn == SYSCALL_TASK_SWITCH)   ? "TASK_SWITCH" :
-	       (scn == SYSCALL_FS_READDIR)    ? "FS_READDIR"  : "UNKNOWN";
+	       (scn == SYSCALL_TASK_SWITCH)   ? "TASK_SWITCH" : "UNKNOWN";
 }

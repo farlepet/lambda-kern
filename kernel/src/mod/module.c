@@ -26,20 +26,20 @@ int module_read(kfile_hand_t *file, lambda_mod_head_t **head, uintptr_t *base, E
     Elf32_Ehdr        *elf_data;
     Elf32_Shdr        *mod_section;
     lambda_mod_head_t *mod_head;
-    struct stat        file_stat;
+    kstat_t            file_stat;
 
     if(!file) {
         return 1;
     }
 
-	if(kfstat(file, &file_stat)) {
+	if(kfstat(file->file, &file_stat)) {
         return 1;
     }
-    elf_data = (Elf32_Ehdr *)kmalloc(file_stat.st_size);
+    elf_data = (Elf32_Ehdr *)kmalloc(file_stat.size);
     if(!elf_data) {
         return 1;
     }
-    if((size_t)fs_read(file, 0, file_stat.st_size, (void *)elf_data) != file_stat.st_size) {
+    if((size_t)fs_read(file, 0, file_stat.size, (void *)elf_data) != file_stat.size) {
         kfree(elf_data);
         return 1;
     }

@@ -17,6 +17,13 @@ extern uint64_t kerneltime;
  */
 typedef int64_t time_t; //!< Typedef used when specifying UNIX time (not timer ticks)
 
+struct timespec {
+    /** Time in seconds */
+    time_t  tv_sec;
+    /** Offset in nanoseconds */
+    int32_t tv_nsec;
+};
+
 /**
  * \brief A structure to help with timing.
  * A structure that helps processes keep time. Every timer tick, count will
