@@ -35,11 +35,11 @@ int module_read(kfile_hand_t *file, lambda_mod_head_t **head, uintptr_t *base, E
 	if(kfstat(file->file, &file_stat)) {
         return 1;
     }
-    elf_data = (Elf32_Ehdr *)kmalloc(file_stat.size);
+    elf_data = (Elf32_Ehdr *)kmalloc((size_t)file_stat.size);
     if(!elf_data) {
         return 1;
     }
-    if((size_t)fs_read(file, 0, file_stat.size, (void *)elf_data) != file_stat.size) {
+    if((size_t)fs_read(file, 0, (size_t)file_stat.size, (void *)elf_data) != file_stat.size) {
         kfree(elf_data);
         return 1;
     }

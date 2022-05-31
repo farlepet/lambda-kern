@@ -321,7 +321,7 @@ static int __read_file(kfile_hand_t *file, void **buff, size_t *sz, size_t max_s
 	}
 
 	if(_stat.size < max_sz) {
-		max_sz = _stat.size;
+		max_sz = (size_t)_stat.size;
 	}
 
 	*buff = kmalloc(max_sz);
