@@ -25,4 +25,7 @@ int proc_fs_readdir(int desc, uint32_t idx, struct user_dirent *buff, uint32_t b
 
 int proc_fs_stat(const char *path, kstat_t *buf, uint32_t flags);
 
+#define SYSCALL_ACCESS_FLAG_CWDOVER (1UL << 0) /** Override CWD with given fd */
+int proc_fs_access(int dirfd, const char *pathname, uint32_t mode, uint32_t flags);
+
 #endif

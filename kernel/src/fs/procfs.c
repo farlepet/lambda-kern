@@ -85,11 +85,8 @@ int proc_fs_open(const char *name, uint32_t flags) {
         return -1;
     }
 
+    struct kfile *file = fs_find_file(thread->process->cwd, name);
 
-    char tmp[256];
-    // TODO: Check for name length!
-    memcpy(tmp, name, strlen(name)+1);
-    struct kfile *file = fs_find_file(thread->process->cwd, tmp);
     if(file) {
         // TODO: Check if file is open!!!
         // TODO: Handle errors!
@@ -265,15 +262,37 @@ int proc_fs_stat(const char *path, kstat_t *buf, uint32_t __unused flags) {
         return -1;
     }
 
-    char tmp[256];
-    // TODO: Check for name length!
-    memcpy(tmp, path, strlen(path)+1);
-
     /* TODO: Check permissions */
-    struct kfile *file = fs_find_file(thread->process->cwd, tmp);
+    struct kfile *file = fs_find_file(thread->process->cwd, path);
     if(file) {
         return kfstat(file, buf);
     }
 
     return -1;
+}
+
+int proc_fs_access(int dirfd, const char *pathname, uint32_t __unused mode, uint32_t flags) {
+    kthread_t *thread = mtask_get_curr_thread();
+
+    kfile_t *dir = thread->process->cwd;
+    if(flags & SYSCALL_ACCESS_FLAG_CWDOVER) {
+        if((dirfd < 0) ||
+           (dirfd >= MAX_OPEN_FILES) ||
+           (thread->process->open_files[dirfd] == NULL)) {
+            /* @todo Return error code */
+            return -1;
+        }
+        dir = thread->process->open_files[dirfd]->file;
+    } else {
+        dir = thread->process->cwd;
+    }
+
+    kfile_t *file = fs_find_file(dir, pathname);
+
+    if(file == NULL) {
+        return -1;
+    }
+
+    /* @todo Actually check permissions - right now this only check existence! */
+    return 0;
 }

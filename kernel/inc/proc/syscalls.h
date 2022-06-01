@@ -8,6 +8,7 @@
 enum syscalls {
     SYSCALL_EXIT      = 3,
 
+    SYSCALL_FS_ACCESS  = 9,
     SYSCALL_FS_READDIR = 10,
     SYSCALL_FS_STAT    = 11,
     SYSCALL_FS_READ    = 12,

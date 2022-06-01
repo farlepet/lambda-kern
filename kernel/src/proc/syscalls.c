@@ -31,26 +31,27 @@ typedef struct {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-function-type"
 static syscall_desc_t syscalls[] = {
-	[SYSCALL_EXIT]      = { (func0_t)exit,         1, 0 },
+	[SYSCALL_EXIT]      = { (func0_t)exit,         1 },
 
-	[SYSCALL_FS_READDIR]  = { (func0_t)proc_fs_readdir,  4, 0 },
-	[SYSCALL_FS_STAT]     = { (func0_t)proc_fs_stat,     3, 0 },
-	[SYSCALL_FS_READ]     = { (func0_t)proc_fs_read,     4, 0 },
-	[SYSCALL_FS_WRITE]    = { (func0_t)proc_fs_write,    4, 0 },
-	[SYSCALL_FS_OPEN]     = { (func0_t)proc_fs_open,     2, 0 },
-	[SYSCALL_FS_CLOSE]    = { (func0_t)proc_fs_close,    1, 0 },
-	[SYSCALL_FS_MKDIR]    = { (func0_t)proc_fs_mkdir,    3, 0 },
-	[SYSCALL_FS_CREATE]   = { (func0_t)proc_fs_create,   3, 0 },
-	[SYSCALL_FS_IOCTL]    = { (func0_t)proc_fs_ioctl,    3, 0 },
+	[SYSCALL_FS_ACCESS]   = { (func0_t)proc_fs_access,   4 },
+	[SYSCALL_FS_READDIR]  = { (func0_t)proc_fs_readdir,  4 },
+	[SYSCALL_FS_STAT]     = { (func0_t)proc_fs_stat,     3 },
+	[SYSCALL_FS_READ]     = { (func0_t)proc_fs_read,     4 },
+	[SYSCALL_FS_WRITE]    = { (func0_t)proc_fs_write,    4 },
+	[SYSCALL_FS_OPEN]     = { (func0_t)proc_fs_open,     2 },
+	[SYSCALL_FS_CLOSE]    = { (func0_t)proc_fs_close,    1 },
+	[SYSCALL_FS_MKDIR]    = { (func0_t)proc_fs_mkdir,    3 },
+	[SYSCALL_FS_CREATE]   = { (func0_t)proc_fs_create,   3 },
+	[SYSCALL_FS_IOCTL]    = { (func0_t)proc_fs_ioctl,    3 },
 
-	[SYSCALL_FS_READ_BLK]   = { (func0_t)proc_fs_read_blk,   4, 0 },
-	[SYSCALL_FS_GETDIRINFO] = { (func0_t)proc_fs_getdirinfo, 2, 0 },
+	[SYSCALL_FS_READ_BLK]   = { (func0_t)proc_fs_read_blk,   4 },
+	[SYSCALL_FS_GETDIRINFO] = { (func0_t)proc_fs_getdirinfo, 2 },
 
-	[SYSCALL_FORK]   = { (func0_t)fork,   0, 0 },
-	[SYSCALL_EXECVE] = { (func0_t)execve, 3, 0 },
-	[SYSCALL_WAIT]   = { (func0_t)wait,   1, 0 },
+	[SYSCALL_FORK]   = { (func0_t)fork,   0 },
+	[SYSCALL_EXECVE] = { (func0_t)execve, 3 },
+	[SYSCALL_WAIT]   = { (func0_t)wait,   1 },
 
-	[SYSCALL_TASK_SWITCH] = { (func0_t)do_task_switch, 0, 0 },
+	[SYSCALL_TASK_SWITCH] = { (func0_t)do_task_switch, 0 },
 };
 #pragma GCC diagnostic pop
 
