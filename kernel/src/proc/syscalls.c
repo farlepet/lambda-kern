@@ -25,7 +25,6 @@
 typedef struct {
 	func0_t  func;   /** Pointer to function */
 	int      nargs;  /** Number of arguments */
-	uint64_t ncalls; /** Number of times this syscall was called */
 } syscall_desc_t;
 
 #pragma GCC diagnostic push
@@ -66,8 +65,6 @@ int service_syscall(uint32_t scn, syscallarg_t *args) {
 		kdebug(DEBUGSRC_SYSCALL, ERR_INFO, "Thread %d (%s) has tried to call an invalid syscall: %u Args: %08X", curr_thread->tid, curr_thread->name, scn, args);
 		return -1;
 	}
-
-	syscalls[scn].ncalls++;
 
 	func0_t func = syscalls[scn].func;
 
