@@ -88,5 +88,6 @@ typedef syscallarg_t (*func2_t)(syscallarg_t, syscallarg_t);
 typedef syscallarg_t (*func3_t)(syscallarg_t, syscallarg_t, syscallarg_t);
 typedef syscallarg_t (*func4_t)(syscallarg_t, syscallarg_t, syscallarg_t, syscallarg_t);
 typedef syscallarg_t (*func5_t)(syscallarg_t, syscallarg_t, syscallarg_t, syscallarg_t, syscallarg_t);
+typedef syscallarg_t (*func6_t)(syscallarg_t, syscallarg_t, syscallarg_t, syscallarg_t, syscallarg_t, syscallarg_t);
 
 #endif

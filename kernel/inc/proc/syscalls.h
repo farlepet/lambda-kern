@@ -6,7 +6,10 @@
 #include <arch/intr/int.h>
 
 enum syscalls {
-    SYSCALL_EXIT      = 3,
+    SYSCALL_EXIT       = 3,
+
+    SYSCALL_MMAP       = 4,
+    SYSCALL_MUNMAP     = 5,
 
     SYSCALL_FS_ACCESS  = 9,
     SYSCALL_FS_READDIR = 10,

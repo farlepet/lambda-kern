@@ -15,6 +15,7 @@
 #include <proc/mtask.h>
 #include <proc/exec.h>
 #include <fs/procfs.h>
+#include <mm/mmap.h>
 
 #if 1
 #  define syscall_debug(...) kdebug(DEBUGSRC_SYSCALL, __VA_ARGS__)
@@ -31,6 +32,9 @@ typedef struct {
 #pragma GCC diagnostic ignored "-Wcast-function-type"
 static syscall_desc_t syscalls[] = {
 	[SYSCALL_EXIT]      = { (func0_t)exit,         1 },
+	
+	[SYSCALL_MMAP]      = { (func0_t)mmap,         6 },
+	[SYSCALL_MUNMAP]    = { (func0_t)munmap,       2 },
 
 	[SYSCALL_FS_ACCESS]   = { (func0_t)proc_fs_access,   4 },
 	[SYSCALL_FS_READDIR]  = { (func0_t)proc_fs_readdir,  4 },
@@ -77,23 +81,33 @@ int service_syscall(uint32_t scn, syscallarg_t *args) {
 			break;
 
 		case 1:
-			syscall_debug(ERR_TRACE, "  -> ARGS: { %08X }", args[0]);
+			syscall_debug(ERR_TRACE, "  -> ARGS: { %p }", args[0]);
 			args[0] = (syscallarg_t)((func1_t)func)(args[0]);
 			break;
 
 		case 2:
-			syscall_debug(ERR_TRACE, "  -> ARGS: { %08X %08X }", args[0], args[1]);
+			syscall_debug(ERR_TRACE, "  -> ARGS: { %p %p }", args[0], args[1]);
 			args[0] = (syscallarg_t)((func2_t)func)(args[0], args[1]);
 			break;
 
 		case 3:
-			syscall_debug(ERR_TRACE, "  -> ARGS: { %08X %08X %08X }", args[0], args[1], args[2]);
+			syscall_debug(ERR_TRACE, "  -> ARGS: { %p %p %p }", args[0], args[1], args[2]);
 			args[0] = (syscallarg_t)((func3_t)func)(args[0], args[1], args[2]);
 			break;
-		
+
 		case 4:
-			syscall_debug(ERR_TRACE, "  -> ARGS: { %08X %08X %08X %08X }", args[0], args[1], args[2], args[3]);
+			syscall_debug(ERR_TRACE, "  -> ARGS: { %p %p %p %p }", args[0], args[1], args[2], args[3]);
 			args[0] = (syscallarg_t)((func4_t)func)(args[0], args[1], args[2], args[3]);
+			break;
+
+		case 5:
+			syscall_debug(ERR_TRACE, "  -> ARGS: { %p %p %p %p %p }", args[0], args[1], args[2], args[3], args[4]);
+			args[0] = (syscallarg_t)((func5_t)func)(args[0], args[1], args[2], args[3], args[4]);
+			break;
+
+		case 6:
+			syscall_debug(ERR_TRACE, "  -> ARGS: { %p %p %p %p %p %p }", args[0], args[1], args[2], args[3], args[4], args[5]);
+			args[0] = (syscallarg_t)((func6_t)func)(args[0], args[1], args[2], args[3], args[4], args[5]);
 			break;
 
 		default:
