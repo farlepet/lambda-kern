@@ -146,7 +146,10 @@ void call_syscall(uint32_t scn, uint32_t *args)
 
 static const char *_syscall_stringify(uint32_t scn) {
 	return (scn == SYSCALL_EXIT)          ? "EXIT"        :
+	       (scn == SYSCALL_MMAP)          ? "MMAP"        :
+	       (scn == SYSCALL_MUNMAP)        ? "MUNMAP"      :
 	       (scn == SYSCALL_FS_READDIR)    ? "READDIR"     :
+	       (scn == SYSCALL_FS_ACCESS)     ? "ACCESS"      :
 	       (scn == SYSCALL_FS_STAT)       ? "STAT"        :
 	       (scn == SYSCALL_FS_READ)       ? "READ"        :
 	       (scn == SYSCALL_FS_WRITE)      ? "WRITE"       :
