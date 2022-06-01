@@ -92,9 +92,8 @@ int fs_open(kfile_t *f, kfile_hand_t *hand) {
 	} else {
 		/* TODO: Check requested flags */
 		/* TODO: Keep track of active references in kfile_t */
-		lock(&f->file_lock);
 		hand->open_flags |= OFLAGS_OPEN;
-		unlock(&f->file_lock);
+		hand->file = f;
 	}
 
 	return 0;
