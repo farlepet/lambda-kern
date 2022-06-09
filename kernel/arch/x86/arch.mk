@@ -38,7 +38,7 @@ endif
 
 $(BUILDDIR)/lambda.shared: $(BUILDDIR)/lambda.o
 	@echo -e "\033[33m  \033[1mLinking kernel\033[0m"
-	$(Q) $(CC) -m32 -shared -o $@ $< -T kernel/arch/x86/arch.ld
+	$(Q) $(CC) -m32 -shared -o $@ $< -T kernel/arch/x86/hw/pc/hw.ld
 
 $(BUILDDIR)/lambda.kern: $(BUILDDIR)/lambda.o
 	@echo -e "\033[33m  \033[1mProducing kernel executable\033[0m"
