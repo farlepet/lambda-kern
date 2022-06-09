@@ -20,7 +20,7 @@ static llist_t loaded_modules;
 /* TODO: Better method for choosing where to place module */
 static uintptr_t _current_base = 0x80000000;
 
-static int _module_place(const Elf32_Ehdr *elf, const lambda_mod_head_t *mod_head, uintptr_t baseaddr, module_entry_t *mod_ent, symbol_t *symbols);
+static lambda_mod_head_t *_module_place(const Elf32_Ehdr *elf, const lambda_mod_head_t *mod_head, uintptr_t baseaddr, module_entry_t *mod_ent, symbol_t *symbols);
 
 int module_read(kfile_hand_t *file, lambda_mod_head_t **head, uintptr_t *base, Elf32_Ehdr **elf) {
     Elf32_Ehdr        *elf_data;
@@ -39,15 +39,19 @@ int module_read(kfile_hand_t *file, lambda_mod_head_t **head, uintptr_t *base, E
     if(!elf_data) {
         return 1;
     }
-    if((size_t)fs_read(file, 0, (size_t)file_stat.size, (void *)elf_data) != file_stat.size) {
+    if((size_t)fs_read(file, 0, sizeof(Elf32_Ehdr), (void *)elf_data) != sizeof(Elf32_Ehdr)) {
+        kfree(elf_data);
+        return 1;
+    }
+    if(elf_check_header(elf_data)) {
         kfree(elf_data);
         return 1;
     }
 
-    if(elf_check_header(elf_data)) {
+    if((size_t)fs_read(file, 0, (size_t)file_stat.size, (void *)elf_data) != file_stat.size) {
+        kfree(elf_data);
         return 1;
     }
-
     if(elf_find_section(elf_data, &mod_section, LAMBDA_MODULE_SECTION_NAME)) {
         kfree(elf_data);
         return 1;
@@ -71,7 +75,7 @@ int module_read(kfile_hand_t *file, lambda_mod_head_t **head, uintptr_t *base, E
     return 0;
 }
 
-static int _check_requirements(lambda_mod_head_t *mod_head, Elf32_Ehdr *mod_elf) {
+static int _check_requirements(lambda_mod_head_t *mod_head) {
     if(!mod_head->metadata.requirements) {
         /* No requirements, auto-pass */
         return 0;
@@ -80,21 +84,19 @@ static int _check_requirements(lambda_mod_head_t *mod_head, Elf32_Ehdr *mod_elf)
     llist_iterator_t iter;
     module_entry_t  *mod;
 
-    /* TODO: Extract, or relocate, such data prior to arriving here */
-    char **reqs = (char **)elf_find_data(mod_elf, (uintptr_t)mod_head->metadata.requirements);
+    const char *const *reqs = (const char *const *)mod_head->metadata.requirements;
     /* TODO: Potentially enforce maximum number of requirements */
     for(size_t i = 0; reqs[i]; i++) {
-        char *req = (char *)elf_find_data(mod_elf, (uintptr_t)reqs[i]);
-
         int found = 0;
         llist_iterator_init(&loaded_modules, &iter);
         while(!found && llist_iterate(&iter, (void **)&mod)) {
-            if(!strcmp(req, mod->ident)) {
+            if(!strcmp(reqs[i], mod->ident)) {
                 found = 1;
             }
         }
         if(!found) {
             /* Requirement not satisfied */
+            kdebug(DEBUGSRC_MODULE, ERR_WARN, "%s: Requirement not satisfied: %s", mod_head->metadata.name, reqs[i]);
             return -1;
         }
     }
@@ -103,7 +105,9 @@ static int _check_requirements(lambda_mod_head_t *mod_head, Elf32_Ehdr *mod_elf)
 }
 
 int module_install(kfile_hand_t *file) {
+    /* @todo A lot of work is needed here in order to prevent memory leaks */
     lambda_mod_head_t *mod_head;
+    lambda_mod_head_t *mod_head_reloc;
     uintptr_t          mod_base;
     Elf32_Ehdr        *mod_elf;
     symbol_t          *symbols;
@@ -112,18 +116,7 @@ int module_install(kfile_hand_t *file) {
     if(module_read(file, &mod_head, &mod_base, &mod_elf)) {
         return -1;
     }
-    kdebug(DEBUGSRC_MODULE, ERR_TRACE, "module_install: Checking requirements");
-    if(_check_requirements(mod_head, mod_elf)) {
-        kfree(mod_elf);
-        return -1;
-    }
-    
-    kdebug(DEBUGSRC_MODULE, ERR_TRACE, "module_install: Reading symbol table");
-    if(elf_load_symbols(mod_elf, &symbols)) {
-        kfree(mod_elf);
-        return -1;
-    }
-    
+
     kdebug(DEBUGSRC_MODULE, ERR_TRACE, "module_install: Generating module entry");
     const char *ident = (char *)elf_find_data(mod_elf, (uintptr_t)mod_head->metadata.ident);
     module_entry_t *modent = (module_entry_t *)kmalloc(sizeof(module_entry_t) + strlen(ident) + 1);
@@ -131,8 +124,20 @@ int module_install(kfile_hand_t *file) {
     modent->ident = (char *)((uintptr_t)modent + sizeof(module_entry_t));
     memcpy(modent->ident, ident, strlen(ident) + 1);
 
-    kdebug(DEBUGSRC_MODULE, ERR_TRACE, "module_install: Placing and relocation module");
-    if(_module_place(mod_elf, mod_head, _current_base, modent, symbols)) {
+    kdebug(DEBUGSRC_MODULE, ERR_TRACE, "module_install: Reading symbol table");
+    if(elf_load_symbols(mod_elf, &symbols)) {
+        kfree(mod_elf);
+        return -1;
+    }
+
+    /* This is potentially wasteful if the module ends up getting rejected, but
+     * it makes it much easier to perform the requisite checks, and shouldn't be
+     * big deal since the calling process (should) be priviledged. Alternatively,
+     * we can do a partial placement first. */
+    kdebug(DEBUGSRC_MODULE, ERR_TRACE, "module_install: Placing and relocating module");
+    mod_head_reloc = _module_place(mod_elf, mod_head, _current_base, modent, symbols);
+    if(mod_head_reloc == NULL) {
+        /* @todo Remove module */
         kfree(mod_elf);
         kfree(symbols);
         kfree(modent);
@@ -141,8 +146,17 @@ int module_install(kfile_hand_t *file) {
     }
     _current_base += 0x10000; /* TODO: Actually determine module space */
 
+    kdebug(DEBUGSRC_MODULE, ERR_TRACE, "module_install: Checking requirements");
+    if(_check_requirements(mod_head_reloc)) {
+        kfree(mod_elf);
+        kfree(symbols);
+        kfree(modent);
+
+        return -1;
+    }
+
+    kdebug(DEBUGSRC_MODULE, ERR_TRACE, "module_install: Calling function @ %p", modent->func);
     modent->func(LAMBDA_MODFUNC_START, modent);
-    
 
     kdebug(DEBUGSRC_MODULE, ERR_TRACE, "module_install: Adding module to list");
     modent->list_item.data = (void *)modent;
@@ -303,7 +317,7 @@ static void *_alloc_map(uintptr_t virt, size_t len) {
     return paddr;
 }
 
-static int _module_place(const Elf32_Ehdr *elf, const lambda_mod_head_t *mod_head, uintptr_t baseaddr, module_entry_t *mod_ent, symbol_t *symbols) {
+static lambda_mod_head_t *_module_place(const Elf32_Ehdr *elf, const lambda_mod_head_t *mod_head, uintptr_t baseaddr, module_entry_t *mod_ent, symbol_t *symbols) {
     Elf32_Phdr *prog = (Elf32_Phdr *)((uintptr_t)elf + elf->e_phoff);
 	
     size_t n_loads = 0;
@@ -361,7 +375,7 @@ static int _module_place(const Elf32_Ehdr *elf, const lambda_mod_head_t *mod_hea
 
     if(_module_apply_relocs(elf, relocs, symbols, baseaddr)) {
         kfree(relocs);
-        return -1;
+        return NULL;
     }
 
     kdebug(DEBUGSRC_MODULE, ERR_TRACE, "Translating module symbol table");
@@ -370,12 +384,19 @@ static int _module_place(const Elf32_Ehdr *elf, const lambda_mod_head_t *mod_hea
         kdebug(DEBUGSRC_MODULE, ERR_TRACE, "  %d: [%s] => %08X", i, symbols[i].name, symbols[i].addr);
     }
     
-    mod_ent->func    = (lambda_mod_func_t)_translate_addr(relocs, (uintptr_t)mod_head->function);
+    kdebug(DEBUGSRC_MODULE, ERR_TRACE, "Mod func: %p -> %p", mod_head->function, mod_ent->func);
+    
+    Elf32_Shdr *mod_section;
+    if(elf_find_section(elf, &mod_section, LAMBDA_MODULE_SECTION_NAME)) {
+        return NULL;
+    }
+    lambda_mod_head_t *new_mod_head = (lambda_mod_head_t *)_translate_addr(relocs, mod_section->sh_addr);
+    mod_ent->func    = new_mod_head->function;
     mod_ent->symbols = symbols;
 
     kfree(relocs);
 
-    return 0;
+    return new_mod_head;
 }
 
 
