@@ -29,7 +29,16 @@ int module_install(kfile_hand_t *file);
 
 int module_uninstall(module_entry_t *mod);
 
-
+/**
+ * @brief Preload modules before entering userspace
+ *
+ * @note This may be a temporary feature, and removed once syscalls are added to
+ * manage modules.
+ *
+ * @param path Path to file containing absolute paths to modules to load
+ * @return int 0 on success, > 0 on non-critical failure, < 0 on critical failure
+ */
+int modules_preload(const char *path);
 
 int module_start_thread(module_entry_t *mod, void (*entry)(void *), void *data, const char *name);
 

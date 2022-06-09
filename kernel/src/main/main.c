@@ -5,6 +5,7 @@
 #include <proc/mtask.h>
 #include <proc/exec.h>
 #include <proc/elf.h>
+#include <mod/module.h>
 #include <mm/alloc.h>
 #include <main/main.h>
 #include <err/panic.h>
@@ -88,6 +89,8 @@ void kernel_task(void)
 	kerror(ERR_INFO, "Main kernel task started");
 
 	init_ktasks();
+
+	modules_preload("/etc/modules.preload");
 
 	if(strlen((const char *)boot_options.init_executable)) {
 		spawn_init();
