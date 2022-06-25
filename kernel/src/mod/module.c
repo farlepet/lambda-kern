@@ -156,7 +156,10 @@ int module_install(kfile_hand_t *file) {
     }
 
     kdebug(DEBUGSRC_MODULE, ERR_TRACE, "module_install: Calling function @ %p", modent->func);
-    modent->func(LAMBDA_MODFUNC_START, modent);
+    if(modent->func(LAMBDA_MODFUNC_START, modent)) {
+        kdebug(DEBUGSRC_MODULE, ERR_WARN, "module_install: Module function return non-zero!");
+        /* @todo: remove module */
+    }
 
     kdebug(DEBUGSRC_MODULE, ERR_TRACE, "module_install: Adding module to list");
     modent->list_item.data = (void *)modent;
@@ -166,6 +169,8 @@ int module_install(kfile_hand_t *file) {
 }
 
 int module_uninstall(module_entry_t *mod) {
+    mod->func(LAMBDA_MODFUNC_STOP, mod);
+    /* @todo Actually remove module */
     llist_remove(&loaded_modules, &mod->list_item);
     
     kfree(mod);

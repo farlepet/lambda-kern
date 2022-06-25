@@ -214,10 +214,13 @@ EXPORT_FUNC(fs_ioctl);
 
 
 kfile_t *fs_find_file(kfile_t *f, const char *path) {
-	if(f == NULL)    return NULL;
 	if(path == NULL) return NULL;
 	if(*path == 0)   return NULL; // No path given
-	
+
+	if(f == NULL) {
+		f = fs_root;
+	}
+
 	if(path[0] == '.') {
 		if(path[1] == '.') { // [..]
 			if(strlen(path) > 2) {
@@ -270,6 +273,7 @@ kfile_t *fs_find_file(kfile_t *f, const char *path) {
 
 	return NULL;
 }
+EXPORT_FUNC(fs_find_file);
 
 
 kfile_hand_t *fs_handle_create(void) {
