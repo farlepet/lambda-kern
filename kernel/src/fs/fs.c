@@ -21,7 +21,6 @@ int fs_add_file(kfile_t *file, kfile_t *parent) {
 		kfiles      = file;
 		file->prev  = file;
 		file->next  = file;
-		file->magic = 0xF11E0000;
 		fs_root     = file;
 	} else {
 		if(parent == NULL) parent = fs_root;
@@ -40,8 +39,6 @@ int fs_add_file(kfile_t *file, kfile_t *parent) {
 			file->prev          = last;
 			file->next          = parent->child;
 		}
-		
-		file->magic        = 0xF11E0000;
 	}
 
 	return file->inode;

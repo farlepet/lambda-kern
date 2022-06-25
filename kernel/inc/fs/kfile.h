@@ -102,8 +102,6 @@ struct kfile
 
 	lock_t file_lock;         //!< Make sure only one process can access this at a time
 
-	uint32_t magic;           //!< Verify this is a valid file entry (0xF11E0000)
-
 	struct kfile *parent;     //!< Pointer to parent directory
 	struct kfile *child;      //!< Pointer to first child file, if applicable
 
