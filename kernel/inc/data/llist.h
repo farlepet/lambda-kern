@@ -118,4 +118,13 @@ llist_item_t *llist_pop_unlocked(llist_t *list);
  */
 int llist_count(const llist_t *list);
 
+/**
+ * @brief Gets the list item at the specified index
+ *
+ * @param list List to index into
+ * @param idx Index of list item to find, starting from zero
+ * @return llist_item_t* Pointer to list item at requested index, or NULL if not found
+ */
+llist_item_t *llist_get(const llist_t *list, size_t idx);
+
 #endif

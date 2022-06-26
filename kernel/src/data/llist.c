@@ -194,3 +194,24 @@ int llist_count(const llist_t *list) {
     return count;
 }
 EXPORT_FUNC(llist_count);
+
+llist_item_t *llist_get(const llist_t *list, size_t idx) {
+    if(list == NULL || list->list == NULL) {
+        return NULL;
+    }
+
+    size_t              count = 0;
+    llist_item_t       *item  = list->list;
+    const llist_item_t *first = item;
+
+    do {
+        if(count == idx) {
+            return item;
+        }
+        item = item->next;
+        count++;
+    } while(item != first);
+
+    return NULL;
+}
+EXPORT_FUNC(llist_get);
