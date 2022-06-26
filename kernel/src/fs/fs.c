@@ -1,45 +1,37 @@
 #include <lambda/export.h>
 #include <err/error.h>
+#include <err/panic.h>
 #include <mm/alloc.h>
 #include <fs/fs.h>
 
 #include <string.h>
 #include <sys/stat.h>
 
-static kfile_t *kfiles;
-
-kfile_t *fs_root;
+kfile_t *fs_root = NULL;
 
 static uint32_t c_inode = 1;
 
 int fs_add_file(kfile_t *file, kfile_t *parent) {
+#if CHECK_STRICTNESS(LAMBDA_STRICTNESS_LOWIMPACT)
+	if (!fs_root) {
+		kpanic("VFS not yet initialized!");
+	}
+	if (!file) {
+		kpanic("file is NULL!");
+	}
+#endif
 	//kerror(ERR_BOOTINFO, "  -> fs_add_file: %s, %d", file->name, file->length);
 	file->inode     = c_inode++;
 	file->file_lock = 0;
 
-	if(!kfiles) {
-		kfiles      = file;
-		file->prev  = file;
-		file->next  = file;
-		fs_root     = file;
-	} else {
-		if(parent == NULL) parent = fs_root;
+	if(parent == NULL) parent = fs_root;
 
-		file->parent = parent;
+	file->list_item.data = file;
 
-		// This assumes that the parent is in the filesystem already
-		if(parent->child == NULL) {
-			parent->child = file;
-			file->next = file;
-			file->prev = file;
-		} else {
-			kfile_t *last  = parent->child->prev;
-			parent->child->prev = file;
-			last->next          = file;
-			file->prev          = last;
-			file->next          = parent->child;
-		}
-	}
+	llist_append(&parent->children, &file->list_item);
+	file->parent = parent;
+
+	llist_init(&file->children);
 
 	return file->inode;
 }
@@ -115,20 +107,18 @@ EXPORT_FUNC(fs_close);
 
 struct dirent *fs_readdir(DIR *d) {
 	if(d && d->dir) {
-		if(d->current == NULL) {d->prev = NULL; return NULL; }
+		if(d->current == NULL) { d->prev = NULL; return NULL; }
 
 		struct dirent *dent = kmalloc(sizeof(struct dirent));
 
 		dent->ino = d->current->inode;
 		memcpy(dent->name, d->current->name, FILE_NAME_MAX);
 
-		if(d->current->next == d->dir->child) {
-			d->prev = d->current;
+		d->prev = d->current;
+		if(d->current->list_item.next == d->dir->children.list) {
 			d->current = NULL;
-		}
-		else {
-			d->prev = d->current;
-			d->current = d->current->next;
+		} else {
+			d->current = (kfile_t *)d->current->list_item.next->data;
 		}
 
 		return dent;
@@ -138,15 +128,16 @@ struct dirent *fs_readdir(DIR *d) {
 EXPORT_FUNC(fs_readdir);
 
 kfile_t *fs_finddir(kfile_t *f, const char *name) {
-	if(f && f->child) {
-		kfile_t *file = f->child;
+	if(f && f->children.list) {
+		llist_iterator_t iter;
+		kfile_t         *file;
 
-		do {
+		llist_iterator_init(&f->children, &iter);
+		while(llist_iterate(&iter, (void **)&file)) {
 			if(!strcmp((char *)file->name, name)) {
 				return file;
 			}
-			file = file->next;
-		} while(file != f->child);
+		}
 	}
 	return NULL;
 }
@@ -164,7 +155,7 @@ DIR *fs_opendir(kfile_t *f) {
 	DIR *stream = (DIR *)kmalloc(sizeof(DIR));
 
 	stream->dir     = f;
-	stream->current = f->child;
+	stream->current = (kfile_t *)f->children.list->data;
 	stream->prev    = NULL;
 
 	return stream;
@@ -369,11 +360,10 @@ int fs_read_file_by_path(const char *path, kfile_t *cwd, void **buff, size_t *sz
 }
 
 
-void fs_init()
-{
+void fs_init() {
 	fs_root = (kfile_t *)kmalloc(sizeof(kfile_t));
 	if(!fs_root) {
-    	kerror(ERR_EMER, "fs_init(): Failed to allocade memory for root!");
+    	kerror(ERR_EMER, "fs_init(): Failed to allocate memory for root!");
 		return;
 	}
 
@@ -394,5 +384,5 @@ void fs_init()
 	fs_root->mtime      = time;
 	fs_root->ctime      = time;
 
-	fs_add_file(fs_root, NULL);
+	llist_init(&fs_root->children);
 }

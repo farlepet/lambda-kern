@@ -192,14 +192,7 @@ int proc_fs_getdirinfo(int desc, struct dirinfo *dinfo) {
         } else {
             dinfo->parent_ino = 0;
         }
-        // Count children
-        struct kfile *tmp = file->child;
-        if(tmp) {
-            do {
-                dinfo->n_children++;
-                tmp = tmp->next;
-            } while(tmp && tmp != file->child);
-        }
+        dinfo->n_children = llist_count(&file->children);
 
         memcpy(dinfo->name, file->name, FILE_NAME_MAX);
     }
@@ -231,16 +224,10 @@ int proc_fs_readdir(int desc, uint32_t idx, struct user_dirent *buff, uint32_t b
         strcpy(buff->d_name, "..");
     } else {
         idx -= 2;
-        file = file->child;
-        if(file == NULL) return -1;
-        
-        struct kfile *fchild = file;
 
-        while(idx--) {
-            file = file->next;
-            if(file == NULL)   return -1;
-            if(file == fchild) return -1;
-        }
+        llist_item_t *child = llist_get(&file->children, idx);
+        if(child == NULL) { return -1; }
+        file = (kfile_t *)child->data;
 
         buff->d_ino = file->inode;
         strcpy(buff->d_name, file->name);

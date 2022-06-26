@@ -7,6 +7,7 @@
 #include <fs/dirent.h>
 #include <proc/atomic.h>
 #include <fs/dirstream.h>
+#include <data/llist.h>
 
 /* NOTE: Some of these flags don't matter after the file is opened, it might be
  * useful to either map or simply mask off these flags. */
@@ -87,7 +88,7 @@ struct kfile
 	uint32_t  uid;            //!< User ID
 	uint32_t  gid;            //!< Group ID
 
-	struct kfile *link;       //!< Used for symlinks
+	kfile_t  *link;           //!< Used for symlinks
 
 	uint32_t  pflags;         //!< Premissions: r/w/e
 	uint32_t  flags;          //!< File type, etc...
@@ -102,11 +103,10 @@ struct kfile
 
 	lock_t file_lock;         //!< Make sure only one process can access this at a time
 
-	struct kfile *parent;     //!< Pointer to parent directory
-	struct kfile *child;      //!< Pointer to first child file, if applicable
+	kfile_t *parent;          //!< Pointer to parent directory
 
-	struct kfile *prev;       //!< Previous file in the linked-list
-	struct kfile *next;       //!< Next file in the linked-list
+	llist_item_t list_item;   //!< Linked list item
+	llist_t      children;    //!< List of children
 };
 
 /**
