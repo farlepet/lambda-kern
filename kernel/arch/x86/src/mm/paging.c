@@ -2,6 +2,7 @@
 #include <arch/intr/int.h>
 #include <arch/mm/paging.h>
 #include <arch/mm/mem.h>
+#include <arch/registers.h>
 
 #include <err/error.h>
 #include <err/panic.h>
@@ -234,38 +235,15 @@ uint32_t *get_pagedir() {
 }
 
 void enable_paging() {
-	uint32_t cr0;
-	asm volatile("mov %%cr0, %0": "=b"(cr0));
-	cr0 |= 0x80000000;
-	asm volatile("mov %0, %%cr0":: "b"(cr0));
+	uint32_t cr0 = register_cr0_read();
+	cr0 |= CR0_FLAG_PG;
+	register_cr0_write(cr0);
 }
 
 void disable_paging() {
-	uint32_t cr0;
-	asm volatile("mov %%cr0, %0": "=b"(cr0));
-	cr0 &= ~0x80000000;
-	asm volatile("mov %0, %%cr0":: "b"(cr0));
-}
-
-/**
- * Enable the use of global page flag.
- */
-static void enable_global_pages() {
-	uint32_t cr4;
-	asm volatile("mov %%cr4, %0": "=b"(cr4));
-	cr4 |= (1UL << 7);
-	asm volatile("mov %0, %%cr4":: "b"(cr4));
-}
-
-/**
- * Disable the use of global page flag.
- */
-__unused
-static void disable_global_pages() {
-	uint32_t cr4;
-	asm volatile("mov %%cr4, %0": "=b"(cr4));
-	cr4 &= ~(1UL << 7);
-	asm volatile("mov %0, %%cr4":: "b"(cr4));
+	uint32_t cr0 = register_cr0_read();
+	cr0 &= ~CR0_FLAG_PG;
+	register_cr0_write(cr0);
 }
 
 void paging_init(uint32_t som, uint32_t eom) {
@@ -295,8 +273,8 @@ void paging_init(uint32_t som, uint32_t eom) {
 
 	/* @todo Base this on the actual used memory */
 	for(size_t i = 0; i < N_INIT_TABLES; i++) {
-		// Identity-map first N_INIT_TABLES * 4 MiB for kernel use. (flags: present, writable, global)
-		fill_pagetable((void *)init_tbls[i], i * (PAGE_SZ * PGTBL_ENTRIES), 0x103);
+		// Identity-map first N_INIT_TABLES * 4 MiB for kernel use. (flags: present, writable)
+		fill_pagetable((void *)init_tbls[i], i * (PAGE_SZ * PGTBL_ENTRIES), 0x003);
 		pagedir[i] = (uint32_t)init_tbls[i] | 3;
 	}
 
@@ -307,8 +285,19 @@ void paging_init(uint32_t som, uint32_t eom) {
 
 	kerror(ERR_INFO, "  -> Enabling paging");
 
+	uint32_t tmp;
+
+	/* Enable write protect in supervisor mode */
+	tmp = register_cr0_read();
+	tmp |= CR0_FLAG_WP;
+	register_cr0_write(tmp);
+
+	/* Enable global pages */
+	tmp = register_cr4_read();
+	tmp |= CR4_FLAG_PGE;
+	register_cr4_write(tmp);
+
 	enable_paging();
-	enable_global_pages();
 
 	block_page(0x00000000); // Catch NULL pointers and jumps
 

@@ -6,6 +6,13 @@
 #include <proc/proc.h>
 
 /**
+ * @brief Sets up page mapping on kernel sections
+ *
+ * @return int 0 on success, else non-zero
+ */
+int mm_init_kernel_map(void);
+
+/**
  * \brief Check if memory address is valid.
  * 
  * @param addr Address to check

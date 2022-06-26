@@ -4,9 +4,6 @@
 .global seg_reload
 .global load_tss
 
-gdtr: .word 0 # For limit storage
-	  .long 0 # For base storage
-
 # Load the new GDT
 load_gdt:
 	movl   4(%esp), %eax
@@ -33,3 +30,7 @@ load_tss:
    movw $0x4B, %ax
    ltr %ax
    ret
+
+.section .data
+gdtr: .word 0 # For limit storage
+	  .long 0 # For base storage

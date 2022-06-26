@@ -7,6 +7,7 @@
 #include <fs/stream.h>
 #include <proc/elf.h>
 #include <mm/alloc.h>
+#include <mm/mm.h>
 #include <string.h>
 #include <fs/fs.h>
 #include <video.h>
@@ -402,9 +403,11 @@ static int kterm_mod(int argc, char **argv) {
 	return 0;
 }
 
+const uint32_t _const_test = 0x98765432;
+
 static int kterm_dbgc(int argc, char **argv) {
 	if(argc < 2) {
-		kprintf("No command specified!");
+		kprintf("No command specified!\n");
 		return 1;
 	}
 
@@ -412,7 +415,8 @@ static int kterm_dbgc(int argc, char **argv) {
 		kprintf("dbgc help\n"
 		        "  help:      Displays this help message\n"
 		        "  divzero:   Force divide by zero exception\n"
-				"  pagefault: Force page fault by attempting to write to 0x00000004 and 0xFFFFFFFC\n");
+				"  pagefault: Force page fault by attempting to write to 0x00000004 and 0xFFFFFFFC\n"
+				"  mmprot:    Test that certain memory regions cannot be written to\n");
 	} else if (!strcmp(argv[1], "divzero")) {
 		kprintf("divzero\n");
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
@@ -430,6 +434,25 @@ static int kterm_dbgc(int argc, char **argv) {
 #pragma GCC diagnostic pop
 		kprintf("pagefault (0xFFFFFFFC)\n");
 		*(uint32_t *)0xFFFFFFFC = 0xFFFFFFFF;
+	} else if (!strcmp(argv[1], "mmprot")) {
+		if(argc < 3) {
+			kprintf("mmprot subcommand requires test argument!\n");
+			return 1;
+		}
+		if(!strcmp(argv[2], "1")) {
+			/* Write to text */
+			uint32_t *ptr = (uint32_t *)kterm_dbgc;
+			*ptr = 0x12345678;
+			kprintf("mm_check_addr: %d\n", mm_check_addr(ptr));
+		} else if(!strcmp(argv[2], "2")) {
+			/* Write to rodata */
+			uint32_t *ptr = (uint32_t *)&_const_test;
+			*ptr = 0x12345678;
+			kprintf("mm_check_addr: %d\n", mm_check_addr(ptr));
+		} else {
+			kprintf("Invalid test!\n");
+		}
+		return 1;
 	} else {
 		kprintf("Unknown dbgc command!\n");
 		return 1;

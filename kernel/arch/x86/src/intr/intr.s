@@ -3,10 +3,6 @@
 
 .extern stub_error
 
-
-idtr: .word 0 # For limit storage
-	  .long 0 # For base storage
-
 # Set the interrupt descriptor table
 load_idt:
 	movl 4(%esp), %eax
@@ -111,3 +107,7 @@ call_syscall_int:
 
 	popa
 	ret
+
+.section .data
+idtr: .word 0 # For limit storage
+	  .long 0 # For base storage

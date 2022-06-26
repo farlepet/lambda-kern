@@ -24,7 +24,7 @@ static const file_hand_ops_t _file_hand_ops = {
 	.readdir = NULL
 };
 
-static struct header_old_cpio *cpio = NULL;
+static const struct header_old_cpio *cpio = NULL;
 
 static size_t initrd_n_files = 0;
 
@@ -92,32 +92,37 @@ static int _open(kfile_t *f, kfile_hand_t *hand) {
 
 
 void initrd_mount(kfile_t *mntpoint, uintptr_t initrd, size_t __unused len) {
-	cpio = (struct header_old_cpio *)initrd;
+	cpio = (const struct header_old_cpio *)initrd;
 
 	if(cpio->c_magic != 070707) {
 		kdebug(DEBUGSRC_FS, ERR_CRIT, "  -> Invalid CPIO magic number");
 		return;
 	}
 
-	struct header_old_cpio *cfile = (struct header_old_cpio *)cpio;
+	/* cpio data is read-only, so we need to copy the filename to get the basename */
+	char *fname = (char *)kmalloc(FILE_NAME_MAX + 1);
+
+	const struct header_old_cpio *cfile = cpio;
 
 	while (1) {
 		if(cfile->c_magic != 070707) {
 			kdebug(DEBUGSRC_FS, ERR_CRIT, "  -> Invalid or corrupt InitCPIO!\n");
+			kfree(fname);
 			return;
 		}
 
-		cfile->c_mtime    = CPIO2LE(cfile->c_mtime);
-		cfile->c_filesize = CPIO2LE(cfile->c_filesize);
 
-		char *filename = (char *)((uintptr_t)cfile + sizeof(struct header_old_cpio));
+		const char *filename = (const char *)((uintptr_t)cfile + sizeof(struct header_old_cpio));
 		
 		if (!strcmp(filename, "TRAILER!!!")) {
 			/* End of file list. */
+			kfree(fname);
 			return;
 		}
 
 		uintptr_t data = ((uint32_t)cfile + sizeof(struct header_old_cpio) + cfile->c_namesize + (cfile->c_namesize & 1));
+
+		uint32_t filesize = CPIO2LE(cfile->c_filesize);
 
 		kfile_t *file = (kfile_t *)kmalloc(sizeof(kfile_t));
 		if(!file) {
@@ -125,10 +130,13 @@ void initrd_mount(kfile_t *mntpoint, uintptr_t initrd, size_t __unused len) {
 		}
 		memset(file, 0, sizeof(kfile_t));
 
-		char *name = basename(filename);
+		memset(fname, 0, FILE_NAME_MAX + 1);
+		strncpy(fname, filename, FILE_NAME_MAX);
+
+		char *name = basename(fname);
 		memcpy(file->name, name, strlen(name));
 
-		char *path = dirname(filename);
+		char *path = dirname(fname);
 
 		kfile_t *dir = fs_find_file(mntpoint, path);
 		if(dir == NULL) {
@@ -136,8 +144,8 @@ void initrd_mount(kfile_t *mntpoint, uintptr_t initrd, size_t __unused len) {
 			kdebug(DEBUGSRC_FS, ERR_WARN, "initrd: Could not find directory for file `%s`, defaulting to root.", path);
 			dir = fs_get_root();
 		}
-		
-		file->length     = cfile->c_filesize;
+
+		file->length     = filesize;
 		file->impl       = dir->inode;
 		file->uid        = cfile->c_uid;
 		file->gid        = cfile->c_gid;
@@ -176,17 +184,20 @@ void initrd_mount(kfile_t *mntpoint, uintptr_t initrd, size_t __unused len) {
 
 		/* CPIO only gives us modification time. */
 		file->atime      = 0;              /* Start access time afresh at each mount. */
-		file->mtime      = cfile->c_mtime;
-		file->ctime      = cfile->c_mtime;
+		file->mtime      = CPIO2LE(cfile->c_mtime);
+		file->ctime      = CPIO2LE(cfile->c_mtime);
 		
 		file->ops       = &_file_ops;
 
 		file->info      = (void *)data;
 
-		cfile->c_ino    = fs_add_file(file, dir);
+		//cfile->c_ino    = fs_add_file(file, dir);
+		fs_add_file(file, dir);
 
-		cfile = (struct header_old_cpio *)(data + cfile->c_filesize + (cfile->c_filesize & 1));
+		cfile = (const struct header_old_cpio *)(data + filesize + (filesize & 1));
 
 		initrd_n_files++;
 	}
+
+	kfree(fname);
 }

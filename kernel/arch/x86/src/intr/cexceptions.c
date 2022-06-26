@@ -71,7 +71,7 @@ static void dump_iregs(struct iret_regs *iregs);
  */
 int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *iregs) {
     kthread_t *curr_thread = mtask_get_curr_thread();
-    kproc_t   *curr_proc   = curr_thread->process;
+    kproc_t   *curr_proc   = mtask_get_curr_process();
 	
 	uint32_t *cr3 = get_pagedir();
 
@@ -150,9 +150,8 @@ int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_reg
 static char *gpf_table_names[] = { "GDT", "IDT", "LDT", "IDT" };
 
 int handle_gpf(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *iregs) {
-    kthread_t *curr_thread = mtask_get_curr_thread();
-    kproc_t   *curr_proc   = curr_thread->process;
-	
+    kproc_t *curr_proc  = mtask_get_curr_process();
+
 	kerror(ERR_WARN, "<===============================[GPF]==============================>");
 	kerror(ERR_WARN, "General Protection Fault at 0x%08X, code seg selector %02X", iregs->eip, iregs->cs);
 	kerror(ERR_WARN, "  -> Error code: 0x%08X", errcode);
@@ -161,13 +160,13 @@ int handle_gpf(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *ireg
 		gpf_table_names[(errcode >> 1) & 0b11],
 		(errcode >> 3) & 0b1111111111111
 	);
-	
+
 	dump_iregs(iregs);
 	dump_regs(regs);
 
 	if(curr_proc) {
 		kerror(ERR_WARN, "  -> Caused by process %d [%s]", curr_proc->pid, curr_proc->name);
-	
+
 		if(regs->ebp != 0) {
 			stack_trace(15, (uint32_t *)regs->ebp, iregs->eip, curr_proc->symbols);
 		}
@@ -180,8 +179,7 @@ int handle_gpf(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *ireg
 
 
 void handle_exception(uint8_t exception, struct pusha_regs regs, uint32_t errcode, struct iret_regs iregs) {
-    kthread_t *curr_thread = mtask_get_curr_thread();
-    kproc_t   *curr_proc   = curr_thread->process;
+    kproc_t *curr_proc = mtask_get_curr_process();
 	
 	if(exception < (sizeof(exception_handlers) / sizeof(exception_handlers[0]))) {
 		const struct exception_handler *hand = &exception_handlers[exception];
@@ -194,7 +192,7 @@ void handle_exception(uint8_t exception, struct pusha_regs regs, uint32_t errcod
 					exit(1);
 				}
 				
-				kpanic("Halting");
+				kpanic("Multitasking not enabled - halting");
 			}
 		} else {
 			if(hand->has_errcode) {

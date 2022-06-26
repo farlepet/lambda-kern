@@ -20,6 +20,7 @@
 #include <intr/intr.h>
 
 #include <mm/alloc.h>
+#include <mm/mm.h>
 
 #include <video.h>
 
@@ -59,8 +60,6 @@ extern void exceptions_init(void); //!< Initializes basic exception handlers. Fo
 static void interrupts_init(void) {
 	kerror(ERR_INFO, "Enabling Interrupts");
 	
-    kerror(ERR_INFO, "  -> GDT");
-	gdt_init();
 	kerror(ERR_INFO, "  -> IDT");
 	idt_init();
 	kerror(ERR_INFO, "  -> Exceptions");
@@ -95,8 +94,12 @@ static void mm_init(const mboot_t *head) {
 		upper_mem -= (mods_end - 0x100000);
 	}
 
+    kerror(ERR_INFO, "  -> GDT");
+	gdt_init();
+	
 	kerror(ERR_INFO, "  -> Paging");
 	paging_init(mods_end, upper_mem);
+	mm_init_kernel_map();
 
 	kerror(ERR_INFO, "Memory management enabled");
 }

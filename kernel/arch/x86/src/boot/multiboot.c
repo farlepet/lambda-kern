@@ -3,6 +3,7 @@
 #include <err/error.h>
 #include <fs/initrd.h>
 #include <main/main.h>
+#include <mm/mmu.h>
 #include <string.h>
 #include <video.h>
 
@@ -11,11 +12,7 @@
 
 
 static int _handle_module(uintptr_t start, uintptr_t end, const char *name) {
-    uint32_t b = ((start - (uint32_t)firstframe) / 0x1000);
-    for(; b < ((end - (uint32_t)firstframe) / 0x1000) + 1; b++) {
-        set_frame(b, 1); // Make sure that the module is not overwritten
-        map_page((b * 0x1000) + firstframe, (b * 0x1000) + firstframe, 3);
-    }
+    mmu_map(start, start, (end - start), MMU_FLAG_READ);
 
 #if (!FEATURE_INITRD_EMBEDDED)
     if(!strcmp(name, (const char *)boot_options.init_ramdisk_name)) {
