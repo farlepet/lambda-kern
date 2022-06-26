@@ -14,7 +14,9 @@ Platform support:
      - x86 PC (platform with the most support)
   - ARMv7
      - Cortex-A9
-        - Versatile Express A9 (early stages)
+        - Versatile Express A9 (early stages; partially dropped)
+     - Cortex-A53
+        - Broadcom BCM2836/7 (Raspberry Pi) (early stages)
 
 Building
 --------
