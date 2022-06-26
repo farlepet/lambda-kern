@@ -71,7 +71,7 @@ __noreturn void kinput_task() {
 		llist_iterator_init(&idevs, &iter);
 		while(llist_iterate(&iter, (void **)&idev)) {
 			if(idev->iev_buff) {
-				while(!(cbuff_read((uint8_t *)&iev, sizeof(struct input_event), idev->iev_buff) & CBUFF_ERRMSK)) {
+				while(!(cbuff_read((uint8_t *)&iev, sizeof(struct input_event), idev->iev_buff) & CBUFF_ERR_MASK)) {
 #if DEBUGGER
 					if(iev.type == EVENT_KEYPRESS &&
 					iev.data == 0x01) { // ESC -> DEBUG for now

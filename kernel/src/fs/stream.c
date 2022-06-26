@@ -28,14 +28,12 @@ kfile_t *stream_create(int length) {
     if(length < 1) return NULL;
 
     kfile_t *file = (kfile_t *)kmalloc(sizeof(kfile_t));
-    memset(file, 0, sizeof(struct kfile));
+    memset(file, 0, sizeof(kfile_t));
 
-    struct cbuff *buff = (struct cbuff *)kmalloc(sizeof(struct cbuff) + length);
-    buff->buff  = (uint8_t *)((ptr_t)buff + sizeof(struct cbuff));
-    buff->head  = 0;
-    buff->tail  = 0;
-    buff->count = 0;
-    buff->size  = length;
+    cbuff_t *buff = (cbuff_t *)kmalloc(sizeof(cbuff_t) + length);
+    memset(buff, 0, sizeof(cbuff_t));
+    buff->buff = (uint8_t *)((ptr_t)buff + sizeof(cbuff_t));
+    buff->size = length;
 
     file->info = buff;
 
@@ -60,7 +58,7 @@ static ssize_t _read(kfile_hand_t *hand, size_t off, size_t sz, void *buff) {
     uint32_t count = 0;
     int ret;
 
-    while((count < sz) && !((ret = cbuff_get((struct cbuff *)f->info)) & CBUFF_ERRMSK)) {
+    while((count < sz) && !((ret = cbuff_get((cbuff_t *)f->info)) & CBUFF_ERR_MASK)) {
         ((uint8_t *)buff)[count] = (uint8_t)ret;
         count++;
     }
@@ -77,7 +75,7 @@ static ssize_t _write(kfile_hand_t *hand, size_t off, size_t sz, const void *buf
     kfile_t *f = hand->file;
     uint32_t count = 0;
 
-    while((count < sz) && !(cbuff_put(((uint8_t *)buff)[count], (struct cbuff *)f->info) & CBUFF_ERRMSK)) {
+    while((count < sz) && !(cbuff_put(((uint8_t *)buff)[count], (cbuff_t *)f->info) & CBUFF_ERR_MASK)) {
         count++;
     }
 

@@ -1,68 +1,61 @@
 #include <lambda/export.h>
 #include <data/cbuff.h>
 
-int cbuff_put(uint8_t data, struct cbuff *buff) {
-	if(!buff || !buff->buff) return CBUFF_INVAL; // Invalid buffer
-	if(buff->count >= buff->size) return CBUFF_FULL; // Not enough room in cbuff
+#define WRAP(N, M) (((N) >= (M)) ? ((N) - (M)) : (N))
 
-	buff->buff[buff->head] = data;
+int cbuff_put(uint8_t data, cbuff_t *buff) {
+    if(!buff || !buff->buff) return CBUFF_ERR_INVAL; // Invalid buffer
+    if(buff->count >= buff->size) return CBUFF_ERR_FULL; // Not enough room in cbuff
 
-	buff->head++;
-	if(buff->head == buff->size) buff->head = 0;
+    buff->buff[WRAP(buff->begin + buff->count, buff->size)] = data;
 
-	buff->count++;
+    buff->count++;
 
-	return 0;
+    return 0;
 }
 EXPORT_FUNC(cbuff_put);
 
-int cbuff_get(struct cbuff *buff) {
-	if(!buff || !buff->buff) return CBUFF_INVAL; // Invalid buffer
-	if(buff->count == 0) return CBUFF_EMPTY; // No data to be read
+int cbuff_get(cbuff_t *buff) {
+    if(!buff || !buff->buff) return CBUFF_ERR_INVAL; // Invalid buffer
+    if(buff->count == 0) return CBUFF_ERR_EMPTY; // No data to be read
 
-	uint8_t d = buff->buff[buff->tail];
+    uint8_t d = buff->buff[buff->begin];
 
-	buff->tail++;
-	if(buff->tail == buff->size) buff->tail = 0;
+    buff->begin = WRAP(buff->begin + 1, buff->size);
+    buff->count--;
 
-	buff->count--;
-
-	return d;
+    return d;
 }
 EXPORT_FUNC(cbuff_get);
 
 
-int cbuff_write(uint8_t *data, int size, struct cbuff *buff) {
-	//kerror(ERR_INFO, "write_cbuff: count = %d size = %d", buff->count, size);
-	if(!data) return CBUFF_INVLD; // Invalid data
-	if(!buff || !buff->buff) return CBUFF_INVAL; // Invalid buffer
-	if(size > buff->size) return CBUFF_FULL; // Not enough room in buffer
-	if(size > (buff->size - buff->count)) return CBUFF_FULL; // Also not enough room in the buffer
+int cbuff_write(const uint8_t *data, size_t size, cbuff_t *buff) {
+    if(!data) return CBUFF_ERR_INVLD; // Invalid data
+    if(!buff || !buff->buff) return CBUFF_ERR_INVAL; // Invalid buffer
+    if(size > (buff->size - buff->count)) return CBUFF_ERR_FULL; // Also not enough room in the buffer
 
-	int i = 0;
-	while(size--) {
-		int err = cbuff_put(data[i++], buff);
-		if(err) return err;
-	}
+    int i = 0;
+    while(size--) {
+        int err = cbuff_put(data[i++], buff);
+        if(err) return err;
+    }
 
-	return 0;
+    return 0;
 }
 EXPORT_FUNC(cbuff_write);
 
-int cbuff_read(uint8_t *data, int size, struct cbuff *buff) {
-	//kerror(ERR_INFO, "read_cbuff: count = %d size = %d", buff->count, size);
-	if(!data) return CBUFF_INVLD; // Invalid data
-	if(!buff || !buff->buff) return CBUFF_INVAL; // Invalid buffer
-	if(size > buff->size) return CBUFF_NENOD; // Not enough readable data
-	if(size > buff->count) return CBUFF_NENOD; // Not enough readable data
+int cbuff_read(uint8_t *data, size_t size, cbuff_t *buff) {
+    if(!data) return CBUFF_ERR_INVLD; // Invalid data
+    if(!buff || !buff->buff) return CBUFF_ERR_INVAL; // Invalid buffer
+    if(size > buff->count) return CBUFF_ERR_NENOD; // Not enough readable data
 
-	int i = 0;
-	while(size--) {
-		int err = cbuff_get(buff);
-		if((uint32_t)err & 0xFFFFFF00) return err;
-		data[i++] = (uint8_t)err;
-	}
+    int i = 0;
+    while(size--) {
+        int err = cbuff_get(buff);
+        if((uint32_t)err & 0xFFFFFF00) return err;
+        data[i++] = (uint8_t)err;
+    }
 
-	return 0;
+    return 0;
 }
 EXPORT_FUNC(cbuff_read);
