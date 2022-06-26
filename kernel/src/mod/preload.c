@@ -35,7 +35,7 @@ int modules_preload(const char *path) {
 
         kdebug(DEBUGSRC_MODULE, ERR_INFO, "Attempting to load module `%s`", mod_path);
 
-        kfile_t *mod_file = fs_find_file(fs_root, mod_path);
+        kfile_t *mod_file = fs_find_file(NULL, mod_path);
         if(mod_file == NULL) {
             kdebug(DEBUGSRC_MODULE, ERR_ERROR, "Could not access module `%s`", mod_path);
             kfree(mod_path);

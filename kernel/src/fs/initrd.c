@@ -130,34 +130,12 @@ void initrd_mount(kfile_t *mntpoint, uintptr_t initrd, size_t __unused len) {
 
 		char *path = dirname(filename);
 
-		kfile_t *dir = mntpoint;
-		if(path[0] != '.') {
-			while(1) {
-				for(uint32_t i = 0; i < strlen(path); i++) {
-					if(path[i] == '/') {
-						char *nextPath = &path[i+1];
-						path[i] = '\0';
-
-						dir = fs_finddir(dir, path);
-						if(dir == NULL) { // Default to '/'
-							dir = fs_root;
-							break;
-						}
-
-						if(*nextPath) {
-							path = nextPath;
-							continue;
-						}
-					}
-				}
-				dir = fs_finddir(dir, path);
-				if(dir == NULL) {
-					dir = fs_root;
-				}
-				break;
-			}
+		kfile_t *dir = fs_find_file(mntpoint, path);
+		if(dir == NULL) {
+			/* TODO: Skip the file, or halt processing of mounting */
+			kdebug(DEBUGSRC_FS, ERR_WARN, "initrd: Could not find directory for file `%s`, defaulting to root.", path);
+			dir = fs_get_root();
 		}
-		
 		
 		file->length     = cfile->c_filesize;
 		file->impl       = dir->inode;

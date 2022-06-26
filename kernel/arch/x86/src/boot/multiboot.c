@@ -19,7 +19,7 @@ static int _handle_module(uintptr_t start, uintptr_t end, const char *name) {
 
 #if (!FEATURE_INITRD_EMBEDDED)
     if(!strcmp(name, (const char *)boot_options.init_ramdisk_name)) {
-        initrd_mount(fs_root, start, end - start);
+        initrd_mount(fs_get_root(), start, end - start);
     }
 #else
     (void)name;

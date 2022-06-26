@@ -81,7 +81,7 @@ kproc_t *proc_create(char *name, int kernel, arch_task_params_t *arch_params) {
 
 	llist_init(&process->threads);
 
-	process->cwd = fs_root;
+	process->cwd = fs_get_root();
 
 	/* TODO: Move to arch */
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)

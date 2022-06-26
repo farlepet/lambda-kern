@@ -7,13 +7,13 @@
 #include <string.h>
 #include <sys/stat.h>
 
-kfile_t *fs_root = NULL;
+static kfile_t *_fs_root = NULL;
 
 static uint32_t c_inode = 1;
 
 int fs_add_file(kfile_t *file, kfile_t *parent) {
 #if CHECK_STRICTNESS(LAMBDA_STRICTNESS_LOWIMPACT)
-	if (!fs_root) {
+	if (!_fs_root) {
 		kpanic("VFS not yet initialized!");
 	}
 	if (!file) {
@@ -24,7 +24,7 @@ int fs_add_file(kfile_t *file, kfile_t *parent) {
 	file->inode     = c_inode++;
 	file->file_lock = 0;
 
-	if(parent == NULL) parent = fs_root;
+	if(parent == NULL) parent = _fs_root;
 
 	file->list_item.data = file;
 
@@ -206,7 +206,7 @@ kfile_t *fs_find_file(kfile_t *f, const char *path) {
 	if(*path == 0)   return NULL; // No path given
 
 	if(f == NULL) {
-		f = fs_root;
+		f = _fs_root;
 	}
 
 	if(path[0] == '.') {
@@ -229,9 +229,9 @@ kfile_t *fs_find_file(kfile_t *f, const char *path) {
 		} 
 	} else if(path[0] == '/') {
 		if(strlen(path) > 1) {
-			return fs_find_file(fs_root, path + 1);
+			return fs_find_file(_fs_root, path + 1);
 		} else {
-			return fs_root;
+			return _fs_root;
 		}
 	} else {
 		char *dir_sep = strchr(path, '/');
@@ -340,7 +340,7 @@ int fs_read_file_by_path(const char *path, kfile_t *cwd, void **buff, size_t *sz
 	}
 	
 	if(cwd == NULL) {
-		cwd = fs_root;
+		cwd = _fs_root;
 	}
 	kfile_t *f = fs_find_file(cwd, path);
 	if(f == NULL) {
@@ -359,30 +359,33 @@ int fs_read_file_by_path(const char *path, kfile_t *cwd, void **buff, size_t *sz
 	return ret;
 }
 
+kfile_t *fs_get_root(void) {
+	return _fs_root;
+}
 
 void fs_init() {
-	fs_root = (kfile_t *)kmalloc(sizeof(kfile_t));
-	if(!fs_root) {
+	_fs_root = (kfile_t *)kmalloc(sizeof(kfile_t));
+	if(!_fs_root) {
     	kerror(ERR_EMER, "fs_init(): Failed to allocate memory for root!");
 		return;
 	}
 
-	memset(fs_root, 0, sizeof(kfile_t));
+	memset(_fs_root, 0, sizeof(kfile_t));
 
 	time_t time = 0; // TODO: Find actual time
 
-	fs_root->name[0]    = '\0'; // The root directory has no name
-	fs_root->length     = 0;
-	fs_root->impl       = 0;
-	fs_root->inode      = 0;
-	fs_root->uid        = 0;
-	fs_root->gid        = 0;
-	fs_root->link       = NULL;
-	fs_root->pflags     = PERMISSIONS(PERM_RWE, PERM_RE, PERM_RE); // rwxr-xr-x
-	fs_root->flags      = FS_DIR;
-	fs_root->atime      = time;
-	fs_root->mtime      = time;
-	fs_root->ctime      = time;
+	_fs_root->name[0]    = '\0'; // The root directory has no name
+	_fs_root->length     = 0;
+	_fs_root->impl       = 0;
+	_fs_root->inode      = 0;
+	_fs_root->uid        = 0;
+	_fs_root->gid        = 0;
+	_fs_root->link       = NULL;
+	_fs_root->pflags     = PERMISSIONS(PERM_RWE, PERM_RE, PERM_RE); // rwxr-xr-x
+	_fs_root->flags      = FS_DIR;
+	_fs_root->atime      = time;
+	_fs_root->mtime      = time;
+	_fs_root->ctime      = time;
 
-	llist_init(&fs_root->children);
+	llist_init(&_fs_root->children);
 }

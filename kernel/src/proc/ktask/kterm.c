@@ -264,14 +264,14 @@ static int kterm_ls(int argc, char **argv) {
 	struct dirent *d;
 
 	if(argc > 1) {
-		f = fs_find_file(fs_root, argv[1]);
+		f = fs_find_file(NULL, argv[1]);
 		if(!f) {
 			kprintf("Could not find directory: %s\n", argv[1]);
 			return 1;
 		}
 		dir = fs_opendir(f);
 	} else  {
-		dir = fs_opendir(fs_root);
+		dir = fs_opendir(fs_get_root());
 	}
 
 	//kprintf("ls: dir: {%08X, %08X, %08X}\n", dir->dir, dir->current, dir->prev);
@@ -311,7 +311,7 @@ static int kterm_mod(int argc, char **argv) {
 			return 1;
 		}
 
-		kfile_t *mod_file = fs_find_file(fs_root, argv[2]);
+		kfile_t *mod_file = fs_find_file(NULL, argv[2]);
 		if(!mod_file) {
 			kprintf("Could not find %s\n", argv[2]);
 			return 1;
@@ -376,7 +376,7 @@ static int kterm_mod(int argc, char **argv) {
 			return 1;
 		}
 
-		kfile_t *mod_file = fs_find_file(fs_root, argv[2]);
+		kfile_t *mod_file = fs_find_file(NULL, argv[2]);
 		if(!mod_file) {
 			kprintf("Could not find %s\n", argv[2]);
 			return 1;

@@ -7,9 +7,6 @@
 
 #define PERMISSIONS(u, g, w) ((u << 6) | (g << 3) | (w << 0))
 
-
-extern kfile_t *fs_root;
-
 int fs_add_file(kfile_t *file, kfile_t *parent);
 
 ssize_t        fs_read   (kfile_hand_t *f, uint32_t off, uint32_t sz, void *buff);
@@ -39,6 +36,13 @@ int fs_read_file_by_path(const char *path, kfile_t *cwd, void **buff, size_t *sz
  * @return kfile representing requested file/directory, NULL if not found
  */
 kfile_t *fs_find_file(kfile_t *f, const char *path);
+
+/**
+ * @brief Returns root node of virtual filesystem
+ *
+ * @return kfile_t* Pointer to root node
+ */
+kfile_t *fs_get_root(void);
 
 void fs_init(void);
 

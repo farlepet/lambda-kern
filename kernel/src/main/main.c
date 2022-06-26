@@ -102,7 +102,7 @@ void kernel_task(void)
 __noreturn
 static void spawn_init(void) {
 	kerror(ERR_INFO, "Loading init executable (%s)", boot_options.init_executable);
-	struct kfile *exec = fs_find_file(fs_root, (const char *)boot_options.init_executable);
+	struct kfile *exec = fs_find_file(NULL, (const char *)boot_options.init_executable);
 	if(!exec) {
 		kpanic("Could not open init executable! (%s)\n", boot_options.init_executable);
 	}
