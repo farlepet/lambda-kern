@@ -119,6 +119,7 @@ int load_elf(void *file, uint32_t length) {
 	arch_task_params_t arch_params;
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 	arch_params.pgdir = (uint32_t *)mmu_table;
+	arch_params.ring  = 3;
 #endif
 
 	symbol_t                 *symbols;
@@ -134,7 +135,7 @@ int load_elf(void *file, uint32_t length) {
 	kdebug(DEBUGSRC_EXEC, ERR_TRACE, "Entrypoint: %08X", entrypoint);
 	
 	// Old way of creating new process:
-	int pid = add_user_task_arch((void *)entrypoint, "UNNAMED_ELF", 0, PRIO_USERPROG, &arch_params);
+	int pid = add_task((void *)entrypoint, "UNNAMED_ELF", 0, PRIO_USERPROG, 0, &arch_params);
 
 	struct kproc *proc = proc_by_pid(pid);
 	proc->symbols   = symbols;

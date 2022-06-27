@@ -85,7 +85,15 @@ int proc_create_kernel_stack(kthread_t *thread) {
 
 
 int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel, arch_task_params_t *arch_params) {
-	// TODO: Remove reference to ring
+	// TODO: Remove reference to ring, maybe arch_params entirely
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
+	arch_task_params_t __arch_params;
+	if(arch_params == NULL) {
+		__arch_params.pgdir = (uint32_t *)mmu_clone_table(mmu_get_kernel_table());
+		__arch_params.ring  = (kernel ? 0 : 3);
+		arch_params = &__arch_params;
+	}
+#endif
 
 	lock(&creat_task);
 
@@ -186,13 +194,11 @@ void init_multitasking(void *process, char *name) {
 	llist_init(&procs);
 	sched_idle_init();
 
-	int tid = add_kernel_task(process, name, 0x2000, PRIO_KERNEL);
+	int tid = add_task(process, name, 0x2000, PRIO_KERNEL, 1, NULL);
 	kthread_t *thread = thread_by_tid(tid);
 	if(thread == NULL) {
 		kpanic("Could not find initial kernel thread!");
 	}
-
-	//thread->flags &= (uint32_t)~(KTHREAD_FLAG_RANONCE); // Don't save registers right away for the first task
 
 	arch_multitasking_init();
 
