@@ -33,7 +33,7 @@ int arch_proc_create_stack(kthread_t *thread) {
 		kpanic("arch_proc_create_stack: Thread has no associated process!");
 	}
 
-	int kernel = thread->process->type & TYPE_KERNEL;
+	int kernel = thread->process->domain != PROC_DOMAIN_USERSPACE;
 	
 	uint32_t virt_stack_begin = 0x7F000000;
 	
@@ -98,7 +98,7 @@ static void _thread_entrypoint(void) {
 	}
 
 	if(!(curr_thread->flags & KTHREAD_FLAG_STACKSETUP)) {
-		if(curr_proc->type & TYPE_KERNEL) {	
+		if(curr_proc->domain != PROC_DOMAIN_USERSPACE) {
 			STACK_PUSH(curr_thread->arch.stack_entry, curr_thread->thread_data);
 		} else {
 			/* Empty args and env for CRT0 w/ user applications */
@@ -110,7 +110,10 @@ static void _thread_entrypoint(void) {
 		}
 	}
 
-	enter_ring_newstack(curr_proc->arch.ring, (void *)curr_thread->entrypoint, (void *)curr_thread->arch.stack_entry);
+	uint8_t ring = (curr_proc->domain == PROC_DOMAIN_KERNEL) ? 0 :
+	               (curr_proc->domain == PROC_DOMAIN_MODULE) ? 0 : 3;
+
+	enter_ring_newstack(ring, (void *)curr_thread->entrypoint, (void *)curr_thread->arch.stack_entry);
 	
 	exit(1);
 }

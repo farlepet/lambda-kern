@@ -84,13 +84,12 @@ int proc_create_kernel_stack(kthread_t *thread) {
 }
 
 
-int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel, arch_task_params_t *arch_params) {
-	// TODO: Remove reference to ring, maybe arch_params entirely
+int add_task(void *process, char* name, uint32_t stack_size, int pri, int domain, arch_task_params_t *arch_params) {
+	// TODO: Remove reference to pgdir, maybe arch_params entirely
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 	arch_task_params_t __arch_params;
 	if(arch_params == NULL) {
 		__arch_params.pgdir = (uint32_t *)mmu_clone_table(mmu_get_kernel_table());
-		__arch_params.ring  = (kernel ? 0 : 3);
 		arch_params = &__arch_params;
 	}
 #endif
@@ -105,7 +104,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 	 * Create process
 	 */
 
-	kproc_t *proc = proc_create(name, kernel, arch_params);
+	kproc_t *proc = proc_create(name, domain, arch_params);
 	if(!proc) {
 		kdebug(DEBUGSRC_PROC, ERR_CRIT, "mtask:add_task: Could not create process.");
 		return -1;
@@ -123,12 +122,9 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel
 	proc->gid  = 0;
 	proc->type = TYPE_RUNNABLE;
 
-	if(kernel) proc->type |= TYPE_KERNEL;
-
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 	/* TODO: Move MMU table outside of arch-specific params */
 	proc->mmu_table = (mmu_table_t *)arch_params->pgdir;
-	proc->arch.ring = arch_params->ring;
 #endif
 	
 	arch_setup_process(proc);
@@ -194,7 +190,7 @@ void init_multitasking(void *process, char *name) {
 	llist_init(&procs);
 	sched_idle_init();
 
-	int tid = add_task(process, name, 0x2000, PRIO_KERNEL, 1, NULL);
+	int tid = add_task(process, name, 0x2000, PRIO_KERNEL, PROC_DOMAIN_KERNEL, NULL);
 	kthread_t *thread = thread_by_tid(tid);
 	if(thread == NULL) {
 		kpanic("Could not find initial kernel thread!");

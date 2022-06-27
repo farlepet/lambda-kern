@@ -41,12 +41,12 @@ int proc_add_child(struct kproc *parent, struct kproc *child);
  * \brief Allocate and initialize a process structure 
  * 
  * @param name Name of the process
- * @param kernel Whether this is a kernel process
+ * @param domain Which domain this process runs in
  * @param arch_params Architecture-specific parameters
  * 
  * @return Null on error, else pointer to newly created process
  */
-kproc_t *proc_create(char *name, int kernel, arch_task_params_t *arch_params);
+kproc_t *proc_create(char *name, int domain, arch_task_params_t *arch_params);
 
 /**
  * \brief Initialize scheduler

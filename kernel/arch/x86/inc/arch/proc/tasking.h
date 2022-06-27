@@ -30,13 +30,11 @@ typedef struct {
 } kthread_arch_t;
 
 typedef struct {
-	uint8_t  ring; /** Ring to run in (0-3) */
 } kproc_arch_t;
 
 /* Architecture-specific task creation parameters */
 typedef struct {
     uint32_t *pgdir; //!< Page directory
-	uint8_t   ring;  //!< Ring
 } arch_task_params_t;
 
 #include <intr/intr.h>

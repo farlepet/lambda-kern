@@ -41,18 +41,15 @@ void init_multitasking(void *process, char *name);
 /**
  * \brief Create and add a task
  * 
- * TODO: Remove x86-specific page directory and ring references
- * 
  * @param process Entrypoint of process
  * @param name Name of process
  * @param stack_size Size of stack to allocate to process
  * @param pri Priority level of process
- * @param pagedir Page directory of process
- * @param kernel Whether not process is a kernel process
- * @param ring Ring to run process in
+ * @param domain Which domain this process runs in
+ * @param arch_params Architecture-specific parameters
  * @return int PID of process on success, else <=0
  */
-int add_task(void *process, char* name, uint32_t stack_size, int pri, int kernel, arch_task_params_t *arch_params);
+int add_task(void *process, char* name, uint32_t stack_size, int pri, int domain, arch_task_params_t *arch_params);
 
 /**
  * \brief Get process pointer given PID

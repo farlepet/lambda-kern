@@ -217,6 +217,7 @@ static void _exec_replace_process_image(exec_data_t *exec_data) {
     curr_proc->uid    = tmp_proc.uid;
     curr_proc->gid    = tmp_proc.gid;
     curr_proc->type   = tmp_proc.type;
+    curr_proc->domain = tmp_proc.domain;
     curr_proc->parent = tmp_proc.parent;
     curr_proc->cwd    = tmp_proc.cwd;
 
@@ -234,12 +235,6 @@ static void _exec_replace_process_image(exec_data_t *exec_data) {
     memcpy(curr_proc->open_files,    tmp_proc.open_files,    sizeof(curr_proc->open_files));
     memcpy(curr_proc->file_position, tmp_proc.file_position, sizeof(curr_proc->file_position));
 
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-    /* TODO: Ring can probably be abstracted to some sort of priviledge level that
-     * will let us take it out of the arch-specific params. */
-    curr_proc->arch.ring = tmp_proc.arch.ring;
-    // TODO: Free unused frames
-#endif
     /*
      * Thread
      */

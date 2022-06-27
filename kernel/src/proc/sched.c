@@ -45,7 +45,7 @@ void sched_idle_init(void) {
     kdebug(DEBUGSRC_PROC, ERR_INFO, "sched_idle_init(): Setting up idle threads for %d CPUs", _n_cpus);
 
     /* TODO: Do we need a separate process per CPU? */
-    kproc_t *proc = proc_create("idle", 1, NULL);
+    kproc_t *proc = proc_create("idle", PROC_DOMAIN_KERNEL, NULL);
     if(proc == NULL) {
         kpanic("sched_idle_init: Could not create idle process!");
     }

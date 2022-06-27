@@ -64,7 +64,7 @@ int proc_add_child(kproc_t *parent, kproc_t *child) {
 	return 1;
 }
 
-kproc_t *proc_create(char *name, int kernel, arch_task_params_t *arch_params) {
+kproc_t *proc_create(char *name, int domain, arch_task_params_t *arch_params) {
 	kproc_t *process = kmalloc(sizeof(kproc_t));
 	if(process == NULL) {
 		return NULL;
@@ -75,9 +75,7 @@ kproc_t *proc_create(char *name, int kernel, arch_task_params_t *arch_params) {
 	strncpy(process->name, name, KPROC_NAME_MAX);
 	process->pid = get_next_pid();
 	
-	if(kernel) {
-		process->type |= TYPE_KERNEL;
-	}
+	process->domain = domain;
 
 	llist_init(&process->threads);
 
@@ -89,9 +87,6 @@ kproc_t *proc_create(char *name, int kernel, arch_task_params_t *arch_params) {
 		process->mmu_table = (mmu_table_t *)arch_params->pgdir;
 	} else {
 		process->mmu_table = mmu_clone_table(mmu_get_kernel_table());
-	}
-	if(arch_params) {
-		process->arch.ring = arch_params->ring;
 	}
 #else
 	(void)arch_params;

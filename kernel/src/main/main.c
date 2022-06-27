@@ -143,7 +143,7 @@ static void _spawn_init(const char *path) {
 	}
 
 	kerror(ERR_INFO, "Creating task");
-	int pid = add_task(&_exec_init, "init", PROC_KERN_STACK_SIZE, PRIO_KERNEL, 1, NULL);
+	int pid = add_task(&_exec_init, "init", PROC_KERN_STACK_SIZE, PRIO_KERNEL, PROC_DOMAIN_KERNEL, NULL);
 	if(pid <= 0) {
 		kpanic("Failed to parse init executable or spawn task!");
 	}
@@ -157,10 +157,7 @@ static void _spawn_init(const char *path) {
 	 * to enter user mode after execve. */
     /* Task needs to run at least once before we change it to a user process */
 	while(_run_ok != 1) { delay(1); };
-	proc->type &= ~(TYPE_KERNEL);
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	proc->arch.ring = 3;
-#endif
+	proc->domain = PROC_DOMAIN_USERSPACE;
 
 	proc->open_files[0] = stdin_user;
 	proc->open_files[1] = stdout_user;

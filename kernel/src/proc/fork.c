@@ -101,22 +101,15 @@ static int __no_inline fork_clone_process(kproc_t *child, kproc_t *parent) {
 
     strncpy(child->name, parent->name, KPROC_NAME_MAX);
 
-    child->pid = get_next_pid();
-    child->uid = parent->uid;
-    child->gid = parent->gid;
-    child->cwd = parent->cwd;
-
-    if(parent->type & TYPE_KERNEL) {
-        child->type |= TYPE_KERNEL;
-    }
+    child->pid    = get_next_pid();
+    child->uid    = parent->uid;
+    child->gid    = parent->gid;
+    child->cwd    = parent->cwd;
+    child->domain = parent->domain;
 
     /* Copy open file descriptors: */
     memcpy(child->open_files,    parent->open_files,    sizeof(child->open_files));
     memcpy(child->file_position, parent->file_position, sizeof(child->file_position));
-
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-    child->arch.ring    = parent->arch.ring;
-#endif
 
     child->mmu_table    = mmu_clone_table(parent->mmu_table);
 
