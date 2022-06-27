@@ -151,8 +151,6 @@ static int kterm_help(int argc, char **argv) {
 
 
 
-#define EXEC_STREAM_LEN 256
-
 static int kterm_exec(int argc, char **argv) {
 	/* TODO: Update to use execve if this is still useful. */
 	(void)argc; (void)argv;
@@ -197,6 +195,8 @@ static int kterm_exec(int argc, char **argv) {
 		kerror(ERR_WARN, "kterm: Could not find spawned process!");
 		return 1;
 	}
+
+#define EXEC_STREAM_LEN 256
 
 	struct kfile *stdin = stream_create(EXEC_STREAM_LEN);
 	if(!stdin) {
@@ -407,7 +407,7 @@ static int kterm_mod(int argc, char **argv) {
 	return 0;
 }
 
-const uint32_t _const_test = 0x98765432;
+static const uint32_t _const_test = 0x98765432;
 
 static int kterm_dbgc(int argc, char **argv) {
 	if(argc < 2) {

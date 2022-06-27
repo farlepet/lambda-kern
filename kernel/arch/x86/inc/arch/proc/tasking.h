@@ -30,6 +30,7 @@ typedef struct {
 } kthread_arch_t;
 
 typedef struct {
+	uint8_t __dummy; /** To prevent clang warning on empty struct. */
 } kproc_arch_t;
 
 /* Architecture-specific task creation parameters */

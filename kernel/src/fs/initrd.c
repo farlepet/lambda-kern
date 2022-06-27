@@ -198,6 +198,4 @@ void initrd_mount(kfile_t *mntpoint, uintptr_t initrd, size_t __unused len) {
 
 		initrd_n_files++;
 	}
-
-	kfree(fname);
 }
