@@ -295,8 +295,6 @@ int elf_check_header(void *data);
 
 int elf_load_symbols(const Elf32_Ehdr *elf, symbol_t **symbols);
 
-int load_elf(void *file, uint32_t length);
-
 int exec_elf(exec_data_t *exec_data);
 
 #endif

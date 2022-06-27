@@ -108,42 +108,6 @@ static uintptr_t elf_exec_common(void *data, uint32_t length, mmu_table_t *mmu_t
 	return head->e_entry;
 }
 
-
-int load_elf(void *file, uint32_t length) {
-	if(elf_check_header(file)) {
-		return -1;
-	}
-
-	mmu_table_t *mmu_table = mmu_clone_table(mmu_get_kernel_table());
-
-	arch_task_params_t arch_params;
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	arch_params.pgdir = (uint32_t *)mmu_table;
-	arch_params.ring  = 3;
-#endif
-
-	symbol_t                 *symbols;
-	struct kproc_mem_map_ent *mmap_entries;
-	proc_elf_data_t           elf_data;
-
-	uintptr_t entrypoint = elf_exec_common(file, length, mmu_table, &symbols, &mmap_entries, &elf_data);
-	if(entrypoint == 0) {
-		return -1;
-	}
-
-
-	kdebug(DEBUGSRC_EXEC, ERR_TRACE, "Entrypoint: %08X", entrypoint);
-	
-	// Old way of creating new process:
-	int pid = add_task((void *)entrypoint, "UNNAMED_ELF", 0, PRIO_USERPROG, 0, &arch_params);
-
-	struct kproc *proc = proc_by_pid(pid);
-	proc->symbols   = symbols;
-	proc_add_mmap_ents(proc, mmap_entries);
-	
-	return pid;
-}
-
 int exec_elf(exec_data_t *exec_data) {
 	if(elf_check_header(exec_data->file_data)) {
 		return -1;

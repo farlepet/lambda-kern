@@ -77,7 +77,9 @@ __noreturn void kmain(void) {
 }
 
 __noreturn
-static void spawn_init(void);
+static void _spawn_init(const char *path);
+__noreturn
+static void _exec_init(void);
 
 #define INIT_STREAM_LEN 512
 /**
@@ -93,32 +95,23 @@ void kernel_task(void)
 	modules_preload("/etc/modules.preload");
 
 	if(strlen((const char *)boot_options.init_executable)) {
-		spawn_init();
+		_spawn_init((const char *)boot_options.init_executable);
 	}
 
 	for(;;) busy_wait();
 }
 
+static const char  *_init_file = NULL;
+static volatile int _run_ok    = 0;
+
 __noreturn
-static void spawn_init(void) {
-	kerror(ERR_INFO, "Loading init executable (%s)", boot_options.init_executable);
-	struct kfile *exec = fs_find_file(NULL, (const char *)boot_options.init_executable);
-	if(!exec) {
-		kpanic("Could not open init executable! (%s)\n", boot_options.init_executable);
-	}
+static void _spawn_init(const char *path) {
+	_init_file = path;
 
-	kerror(ERR_INFO, "Opening executable");
-
-	void  *exec_data;
-	size_t exec_size;
-
-	/* TODO: Execution should all be handled by another function, or even plain execve */
-	if(fs_read_file_by_path((const char *)boot_options.init_executable, NULL, &exec_data, &exec_size, 0)) {
-		kpanic("Could not open %s for init!\n", boot_options.init_executable);
-	}
-	
-	if(*(uint32_t *)exec_data != ELF_IDENT) {
-		kpanic("Unsupported init executable file type!");
+	kerror(ERR_INFO, "Loading init executable (%s)", path);
+	kfile_t *file = fs_find_file(NULL, path);
+	if(!file) {
+		kpanic("Could not find init executable! (%s)\n", path);
 	}
 
 	/* Setup standard streams for child */
@@ -147,18 +140,27 @@ static void spawn_init(void) {
 	   !stdout_user ||
 	   !stderr_user) {
 		kpanic("Could not create stream handle(s) for init!");
-	   }
+	}
 
-	kerror(ERR_INFO, "Loading ELF");
-	int pid = load_elf(exec_data, exec_size);
-	if(!pid) {
+	kerror(ERR_INFO, "Creating task");
+	int pid = add_task(&_exec_init, "init", PROC_KERN_STACK_SIZE, PRIO_KERNEL, 1, NULL);
+	if(pid <= 0) {
 		kpanic("Failed to parse init executable or spawn task!");
 	}
-	
+
 	struct kproc *proc = proc_by_pid(pid);
 	if(!proc) {
 		kpanic("Could not find spawned init process!");
 	}
+
+	/* Sort of a hack. We want to start the task in kernel mode, but we need it
+	 * to enter user mode after execve. */
+    /* Task needs to run at least once before we change it to a user process */
+	while(_run_ok != 1) { delay(1); };
+	proc->type &= ~(TYPE_KERNEL);
+#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
+	proc->arch.ring = 3;
+#endif
 
 	proc->open_files[0] = stdin_user;
 	proc->open_files[1] = stdout_user;
@@ -166,6 +168,9 @@ static void spawn_init(void) {
 
 	/* Route input to init process */
 	kinput_dest = stdin_kern;
+
+	/* Allow task to execute */
+	_run_ok = 2;
 
 	char buffer[INIT_STREAM_LEN];
 
@@ -183,6 +188,20 @@ static void spawn_init(void) {
 
 		delay(1);
 	}
-		
+
 	kpanic("Init process exited!");
+}
+
+__noreturn
+static void _exec_init(void) {
+	_run_ok = 1; /* Task has run once */
+
+	/* Wait for _spawn_init to set us up */
+	while(_run_ok != 2) { delay(1); }
+
+	char *argv[] = { "init", NULL }; /* TODO */
+	char *envp[] = { NULL };
+	execve(_init_file, (const char **)argv, (const char **)envp);
+
+	kpanic("execve failed!");
 }

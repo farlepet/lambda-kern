@@ -154,6 +154,9 @@ static int kterm_help(int argc, char **argv) {
 #define EXEC_STREAM_LEN 256
 
 static int kterm_exec(int argc, char **argv) {
+	/* TODO: Update to use execve if this is still useful. */
+	(void)argc; (void)argv;
+#if 0
 	if(argc < 2) {
 		kprintf("No executable specified\n");
 		return 1;
@@ -250,8 +253,9 @@ static int kterm_exec(int argc, char **argv) {
 		kput(buffer[i]);
 	}
 
-
 	return 0;
+#endif
+	return -1;
 }
 
 
