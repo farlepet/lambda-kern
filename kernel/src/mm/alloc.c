@@ -348,15 +348,12 @@ size_t alloc_get_free() {
  * @param base base of the usable memory
  * @param size amount of usable memory
  */
-void init_alloc(uint32_t base, uint32_t size)
-{
-	// Initialized before multitasking, this shouldn't be needed
-	//lock(&alloc_lock);
-
+void init_alloc(uint32_t base, uint32_t size) {
 	struct alcent ae = { .valid = 1, .used = 0, .addr = base, .size = size };
 
 	// Add a free allocation block encompasing all the usable memory
 	add_alloc(&ae);
 
-	unlock(&alloc_lock);
+	/* Default to all pages r/w and identity-mapped */
+	mmu_map(base, base, size, MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_KERNEL);
 }

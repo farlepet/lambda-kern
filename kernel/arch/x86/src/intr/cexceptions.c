@@ -88,13 +88,6 @@ int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_reg
 	dump_iregs(iregs);
 	dump_regs(regs);
 
-	if(cr2 >= (uint32_t)firstframe)
-	{
-		int frame = (cr2 - (uint32_t)firstframe) / 0x1000;
-		kerror(ERR_WARN, "  -> On frame %08X(%d)", frame, frame);
-	}
-	else kerror(ERR_WARN, "  -> Occurred in kernel-space, not in the page frames");
-
 	kerror(ERR_WARN, "  -> Page flags:  0x%03X", pgdir_get_page_entry(cr3, (void *)cr2) & 0xFFF);
 	kerror(ERR_WARN, "  -> Table flags: 0x%03X", pgdir_get_page_table(cr3, (void *)cr2) & 0xFFF);
 	kerror(ERR_WARN, "  -> Page Directory: 0x%08X", cr3);

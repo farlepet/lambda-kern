@@ -147,12 +147,13 @@ int mtask_remove_proc(kproc_t *proc);
  * @see add_task
  */
 static inline int add_kernel_task(void *process, char *name, uint32_t stack_size, int pri) {
-	arch_task_params_t arch_params;
+    arch_task_params_t arch_params;
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	arch_params.ring  = 0;
-	arch_params.pgdir = clone_kpagedir();
+    arch_params.ring  = 0;
+    /* TODO: Make generic for all platforms */
+    arch_params.pgdir = (uint32_t *)mmu_clone_table(mmu_get_kernel_table());
 #endif
-	return add_task(process, name, stack_size, pri, 1, &arch_params);
+    return add_task(process, name, stack_size, pri, 1, &arch_params);
 }
 
 /**
@@ -162,9 +163,9 @@ static inline int add_kernel_task(void *process, char *name, uint32_t stack_size
  */
 static inline int add_kernel_task_arch(void *process, char *name, uint32_t stack_size, int pri, arch_task_params_t *arch_params) {
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	arch_params->ring = 0;
+    arch_params->ring = 0;
 #endif
-	return add_task(process, name, stack_size, pri, 1, arch_params);
+    return add_task(process, name, stack_size, pri, 1, arch_params);
 }
 
 /**
@@ -173,12 +174,12 @@ static inline int add_kernel_task_arch(void *process, char *name, uint32_t stack
  * @see add_task
  */
 static inline int add_user_task(void *process, char *name, uint32_t stack_size, int pri) {
-	arch_task_params_t arch_params;
+    arch_task_params_t arch_params;
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	arch_params.ring = 3;
-	arch_params.pgdir = clone_kpagedir();
+    arch_params.ring = 3;
+    arch_params.pgdir = (uint32_t *)mmu_clone_table(mmu_get_kernel_table());
 #endif
-	return add_task(process, name, stack_size, pri, 0, &arch_params);
+    return add_task(process, name, stack_size, pri, 0, &arch_params);
 }
 
 /**
@@ -188,9 +189,9 @@ static inline int add_user_task(void *process, char *name, uint32_t stack_size, 
  */
 static inline int add_user_task_arch(void *process, char *name, uint32_t stack_size, int pri, arch_task_params_t *arch_params) {
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	arch_params->ring = 3;
+    arch_params->ring = 3;
 #endif
-	return add_task(process, name, stack_size, pri, 0, arch_params);
+    return add_task(process, name, stack_size, pri, 0, arch_params);
 }
 
 #endif
