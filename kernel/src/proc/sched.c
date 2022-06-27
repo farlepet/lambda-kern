@@ -214,7 +214,8 @@ kthread_t *sched_next_process(unsigned cpu) {
 
     _curr_thread[cpu] = thread;
 
-    _curr_thread[cpu]->process->book.schedule_count++;
+    _curr_thread[cpu]->stats.sched_count++;
+    /* TODO: Schedule time */
 
     return _curr_thread[cpu];
 }

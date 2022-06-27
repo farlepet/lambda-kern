@@ -34,17 +34,6 @@ typedef struct kproc_mem_map_ent kproc_mem_map_ent_t;
 #include <proc/elf.h>
 #include <fs/kfile.h>
 
-struct proc_book { //!< Structure for process `book-keeping`
-	uint32_t sent_msgs;   //!< Number of sent messages
-	uint32_t sent_bytes;  //!< Number of sent bytes
-
-	uint32_t recvd_msgs;  //!< Number of received messages
-	uint32_t recvd_bytes; //!< Number of received bytes
-
-	uint32_t schedule_count; //!< Number of times this process has been scheduled
-	uint32_t syscall_count;  //!< Number of times this process has invoked a syscall
-};
-
 struct kproc_mem_map_ent { //!< Memory-map entry
 	uintptr_t virt_address; //!< Virtual address of memory location
 	uintptr_t phys_address; //!< Physical address of memory location
@@ -95,8 +84,6 @@ struct kproc { //!< Structure of a process as seen by the kernel
 	proc_elf_data_t *elf_data; //!< Data specific for ELF executables
 
 	int           exitcode;  //!< Exit code
-
-	struct        proc_book book; //!< Bookkeeping stuff
 
 	kproc_mem_map_ent_t *mmap; //!< Memory map
 

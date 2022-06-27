@@ -1,7 +1,8 @@
 #ifndef PROC_TYPES_KTHREAD_H
 #define PROC_TYPES_KTHREAD_H
 
-typedef struct kthread kthread_t;
+typedef struct kthread       kthread_t;
+typedef struct kthread_stats kthread_stats_t;
 
 #define PRIO_IDLE       0 //!< Only idle processes use this priority
 #define PRIO_USERPROG   1 //!< Priority for user programs
@@ -18,6 +19,11 @@ typedef struct kthread kthread_t;
 #include <arch/proc/tasking.h>
 #include <data/llist.h>
 
+struct kthread_stats {
+	time_t   sched_time;  /** For how long has this thread ran since its creation? */
+	uint32_t sched_count; /** How many times has this thread been scheduled? */
+};
+
 struct kthread {
 	char              name[KPROC_NAME_MAX+1];   /** Name of thread */
 	uint32_t          tid;        /** Thread ID */
@@ -33,8 +39,10 @@ struct kthread {
 	size_t            stack_size;  /** Size of stack */
 	void             *thread_data; /** Data to be provided to thread as an argument */
 	
-	llist_item_t      list_item;
-	llist_item_t      sched_item;
+	kthread_stats_t   stats;       /** Thread statistics */
+
+	llist_item_t      list_item;   /** List item for owning process */
+	llist_item_t      sched_item;  /** List item for scheduling */
 };
 
 #endif
