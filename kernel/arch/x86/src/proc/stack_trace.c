@@ -3,7 +3,12 @@
 
 #include <video.h>
 
+#define PRINT_STACK_DATA 0
+
+#if (PRINT_STACK_DATA)
 static void stack_trace_print_data(uint32_t *ebp, uint32_t len);
+#endif
+
 static int stack_trace_print_func(uint32_t addr, symbol_t *symbols);
 static int find_function(uint32_t addr, symbol_t *symbols);
 extern void start(void);
@@ -32,7 +37,9 @@ void stack_trace(uint32_t max_frames, uint32_t *ebp, uint32_t saved_eip, symbol_
         uint32_t frame_size = (uint32_t)(ebp - oebp);
         
         if(frame_size > 32) frame_size = 32;
+#if (PRINT_STACK_DATA)
         stack_trace_print_data(ebp, frame_size);
+#endif
     }
 }
 
@@ -59,6 +66,7 @@ static int stack_trace_print_func(uint32_t eip, symbol_t *symbols) {
     return 0;
 }
 
+#if (PRINT_STACK_DATA)
 static void stack_trace_print_data(uint32_t *ebp, uint32_t len) {
     len >>= 2;
     kprintf("  -> ");
@@ -75,6 +83,7 @@ static void stack_trace_print_data(uint32_t *ebp, uint32_t len) {
     }
     kprintf("\n");
 }
+#endif /* (PRINT_STACK_DATA) */
 
 static int find_function(uint32_t addr, symbol_t *symbols) {
     if(symbols == sym_functions) {
