@@ -3,7 +3,7 @@ KERNEL     = $(MAINDIR)/kernel
 BUILDDIR   = $(MAINDIR)/build/$(ARCH)/$(CPU)/$(HW)
 
 VERBOSE     = 0
-EMBEDINITRD = 1
+EMBEDINITRD = 0
 
 ifeq ($(VERBOSE), 1)
 Q =

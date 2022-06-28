@@ -31,8 +31,8 @@ void multiboot_check_commandline(const mboot_t *head) {
         kerror(ERR_INFO, "No commandline provided");
         return;
     }
-    
-    cmdline_set(head->cmdline);
+
+    cmdline_set((const char *)head->cmdline);
 }
 
 void multiboot_check_modules(const mboot_t *head) {

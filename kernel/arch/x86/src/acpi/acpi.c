@@ -20,6 +20,7 @@ static void _locate_rsdp(const mboot_t *head) {
     }
 #else
     /* Alternate methods not currently supported */
+    (void)head;
     _rsdp = NULL;
 #endif
 }
