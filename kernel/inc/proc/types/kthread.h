@@ -20,8 +20,9 @@ typedef struct kthread_stats kthread_stats_t;
 #include <data/llist.h>
 
 struct kthread_stats {
-	time_t   sched_time;  /** For how long has this thread ran since its creation? */
-	uint32_t sched_count; /** How many times has this thread been scheduled? */
+	uint64_t sched_time_last;  /** Time at which thread was last scheduled */
+	uint64_t sched_time_accum; /** Accumulated time for which this thread has been scheduled, in nanoseconds */
+	uint32_t sched_count;      /** Number of times this thread has been scheduled */
 };
 
 struct kthread {

@@ -14,11 +14,11 @@ struct llist {
 };
 """
 
-class LListPrintCommand(gdb.Command):
+class ThreadPrintCommand(gdb.Command):
     MAX_DEPTH = 64
 
     def __init__(self):
-        super(LListPrintCommand, self).__init__("list-threads",
+        super(ThreadPrintCommand, self).__init__("list-threads",
                                                 gdb.COMMAND_DATA, gdb.COMPLETE_SYMBOL)
 
     def invoke(self, argument, from_tty):
@@ -49,7 +49,7 @@ class LListPrintCommand(gdb.Command):
         depth = 0
         node  = head
 
-        print("thread[IDX]: Name             Blocked    Instruction")
+        print("thread[IDX]: TID Name             Blocked    Instruction  Time(s)")
 
         while depth < max_depth:
             thread_expr = "*(kthread_t *){}".format(node['data'])
@@ -57,18 +57,23 @@ class LListPrintCommand(gdb.Command):
             # NOTE: Only supports x86 at the moment
             # NOTE: Does not currently work with kernel threads, as they do not
             # change stack on interrupt
+            thread_tid     = int(thread['tid'])
             thread_name    = thread['name'].string().ljust(16)
             thread_blocked = thread['blocked'].format_string(format='x').ljust(10)
 
             thread_stack     = thread['arch']['stack_kern']['begin']
             thread_iret_eval = "*(arch_iret_regs_t *)({} - sizeof(arch_iret_regs_t))".format(thread_stack)
             thread_iret      = gdb.parse_and_eval(thread_iret_eval)
-            thread_eip       = thread_iret['eip'].format_string(format='x').ljust(10)
+            thread_eip       = thread_iret['eip'].format_string(format='x').ljust(12)
+            thread_time    = float(thread['stats']['sched_time_accum']) / 1000000000.0
 
-            print("thread[{: 3d}]: {} {} {}".format(depth,
-                                                    thread_name,
-                                                    thread_blocked,
-                                                    thread_eip))
+            print("thread[{: 3d}]: {: 3d} {} {} {} {:03.3f}"
+                  .format(depth,
+                          thread_tid,
+                          thread_name,
+                          thread_blocked,
+                          thread_eip,
+                          thread_time))
 
             if node['next'] == head:
                 break
@@ -77,4 +82,4 @@ class LListPrintCommand(gdb.Command):
             depth += 1
 
 
-LListPrintCommand()
+ThreadPrintCommand()

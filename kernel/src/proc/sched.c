@@ -188,6 +188,10 @@ kthread_t *sched_next_process(unsigned cpu) {
 
     kthread_t *thread = _curr_thread[cpu];
 
+    uint64_t time = kerneltime;
+
+    thread->stats.sched_time_accum += (time - thread->stats.sched_time_last);
+
     llist_iterator_t iter = {
         .first = (llist_item_t *)0xFFFFFFFF,
         .curr  = &thread->sched_item
@@ -215,7 +219,7 @@ kthread_t *sched_next_process(unsigned cpu) {
     _curr_thread[cpu] = thread;
 
     _curr_thread[cpu]->stats.sched_count++;
-    /* TODO: Schedule time */
+    _curr_thread[cpu]->stats.sched_time_last = time;
 
     return _curr_thread[cpu];
 }
