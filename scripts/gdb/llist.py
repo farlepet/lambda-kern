@@ -15,6 +15,49 @@ struct llist {
 """
 
 # Adapted from http://jk.ozlabs.org/blog/post/156/linked-list-debugging-gdb/
+class LList():
+    def __init__(self, _list):
+        self.llist = _list
+        
+        fnames = [ f.name for f in self.llist.type.fields() ]
+
+        if 'list' in fnames:
+            # llist_t
+            self.head = self.llist['list']
+        elif 'next' in fnames:
+            # llist_item_t
+            self.head = self.llist
+        else:
+            print("Unknown llist type!")
+            return
+    
+    def get(self, idx):
+        depth = 0
+        node  = self.head
+
+        while depth < idx:
+            if node['next'] == self.head:
+                return None
+            node = node['next']
+
+            depth += 1
+        
+        return node['data']
+    
+    def iterate(self, callback, max = 0):
+        depth = 0
+        node  = self.head
+
+        while (max == 0) or (depth < max):
+            callback(depth, node['data'])
+
+            if node['next'] == self.head:
+                break
+            node = node['next']
+
+            depth += 1
+
+
 
 class LListPrintCommand(gdb.Command):
     MAX_DEPTH = 64
@@ -28,44 +71,25 @@ class LListPrintCommand(gdb.Command):
         if (len(args) < 1) or (len(args) > 3):
             print("USAGE: llist-print <llist> [max-depth] [data-type]")
             return
-        
+
         expr      = args[0]
         max_depth = self.MAX_DEPTH
-        data_type = ""
+        self.data_type = ""
         if len(args) >= 2:
             max_depth = int(args[1])
         if len(args) >= 3:
-            data_type = args[2]
+            self.data_type = args[2]
 
-        llist  = gdb.parse_and_eval(expr)
-        fnames = [ f.name for f in llist.type.fields() ]
+        llist = LList(gdb.parse_and_eval(expr))
+        llist.iterate(self.printItemCallback, max_depth)
 
-        if 'list' in fnames:
-            # llist_t
-            head = llist['list']
-        elif 'next' in fnames:
-            # llist_item_t
-            head = llist
+    def printItemCallback(self, idx, item):
+        if len(self.data_type) > 0 and item:
+            data_expr = "*({} *){}".format(self.data_type, item)
+            data      = gdb.parse_and_eval(data_expr)
+            print("llist[{}] {} -> {}".format(idx, item, data))
         else:
-            print("Unknown llist type!")
-            return
-
-        depth = 0
-        node  = head
-
-        while depth < max_depth:
-            if len(data_type) > 0 and node['data']:
-                data_expr = "*({} *){}".format(data_type, node['data'])
-                data      = gdb.parse_and_eval(data_expr)
-                print("llist[{}] {} -> {}".format(depth, node['data'], data))
-            else:
-                print("llist[{}]: {}".format(depth, node['data']))
-
-            if node['next'] == head:
-                break
-            node = node['next']
-
-            depth += 1
+            print("llist[{}]: {}".format(idx, item))
 
 
 LListPrintCommand()

@@ -1,18 +1,6 @@
 #!/usr/bin/env python
 import gdb
-
-"""
-struct llist_item {
-    void         *data; /** Data represented by list item */
-    llist_item_t *prev; /** Previous item in list */
-    llist_item_t *next; /** Next item in list */
-};
-
-struct llist {
-    llist_item_t *list; /** Pointer to first item in list */
-    lock_t        lock; /** Lock to ensure only a single thread touches the list at a time */
-};
-"""
+from llist import LList
 
 class ThreadPrintCommand(gdb.Command):
     MAX_DEPTH = 64
@@ -33,29 +21,16 @@ class ThreadPrintCommand(gdb.Command):
         if len(args) >= 1:
             max_depth = int(args[0])
 
-        llist  = gdb.parse_and_eval(thread_list)
-        fnames = [ f.name for f in llist.type.fields() ]
-
-        if 'list' in fnames:
-            # llist_t
-            head = llist['list']
-        elif 'next' in fnames:
-            # llist_item_t
-            head = llist
-        else:
-            print("Unknown llist type!")
-            return
-
-        depth = 0
-        node  = head
+        llist = LList(gdb.parse_and_eval(thread_list))
 
         print("thread[IDX]: TID Name             Blocked    Instruction  Time(s)")
 
-        while depth < max_depth:
-            thread_expr = "*(kthread_t *){}".format(node['data'])
-            thread      = gdb.parse_and_eval(thread_expr)
+        llist.iterate(self.printItemCallback, max_depth)
+
+    def printItemCallback(self, idx, item):
+            thread  = gdb.parse_and_eval("*(kthread_t *){}".format(item))
             # NOTE: Only supports x86 at the moment
-            # NOTE: Does not currently work with kernel threads, as they do not
+            # NOTE: EIP does not currently work with kernel threads, as they do not
             # change stack on interrupt
             thread_tid     = int(thread['tid'])
             thread_name    = thread['name'].string().ljust(16)
@@ -68,18 +43,12 @@ class ThreadPrintCommand(gdb.Command):
             thread_time    = float(thread['stats']['sched_time_accum']) / 1000000000.0
 
             print("thread[{: 3d}]: {: 3d} {} {} {} {:03.3f}"
-                  .format(depth,
+                  .format(idx,
                           thread_tid,
                           thread_name,
                           thread_blocked,
                           thread_eip,
                           thread_time))
-
-            if node['next'] == head:
-                break
-            node = node['next']
-
-            depth += 1
 
 
 ThreadPrintCommand()
