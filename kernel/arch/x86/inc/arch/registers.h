@@ -30,6 +30,16 @@ static inline void register_cr0_write(uint32_t val) {
 #define CR3_FLAG_PWT        (1UL <<  3) /** Page-level Write-Through */
 #define CR3_FLAG_PCD        (1UL <<  4) /** Page-level Cache Disable */
 
+static inline uint32_t register_cr3_read(void) {
+    uint32_t val;
+    asm volatile("mov %%cr3, %0": "=b"(val));
+    return val;
+}
+
+static inline void register_cr3_write(uint32_t val) {
+    asm volatile("mov %0, %%cr3":: "b"(val));
+}
+
 /* CR4 */
 #define CR4_FLAG_VME        (1UL <<  0) /** v8086 Mode Extensions */
 #define CR4_FLAG_PVI        (1UL <<  1) /** Protected-Mode Virtual Interrupts */

@@ -11,18 +11,29 @@ extern int __kernel_rodata_begin, __kernel_rodata_end;
 extern int __kernel_data_begin,   __kernel_data_end;
 extern int __kernel_bss_begin,    __kernel_bss_end;
 
+#define HIGHER_HALF 1 /* TODO - Clean this up */
+
+#if (HIGHER_HALF)
+extern int VIRT_OFFSET;
+#endif
+
 int mm_init_kernel_map(void) {
+#if (HIGHER_HALF)
+	uintptr_t off = (uintptr_t)&VIRT_OFFSET;
+#else
+	uintptr_t off = 0;
+#endif
 	/* @note This assumes that all sections are page-aligned */
-	mmu_map((uintptr_t)&__kernel_text_begin, (uintptr_t)&__kernel_text_begin,
+	mmu_map((uintptr_t)&__kernel_text_begin, (uintptr_t)&__kernel_text_begin - off,
 	        (size_t)&__kernel_text_end - (size_t)&__kernel_text_begin,
 			MMU_FLAG_READ | MMU_FLAG_EXEC | MMU_FLAG_KERNEL);
-	mmu_map((uintptr_t)&__kernel_rodata_begin, (uintptr_t)&__kernel_rodata_begin,
+	mmu_map((uintptr_t)&__kernel_rodata_begin, (uintptr_t)&__kernel_rodata_begin - off,
 	        (size_t)&__kernel_rodata_end - (size_t)&__kernel_rodata_begin,
 			MMU_FLAG_READ | MMU_FLAG_KERNEL);
-	mmu_map((uintptr_t)&__kernel_data_begin, (uintptr_t)&__kernel_data_begin,
+	mmu_map((uintptr_t)&__kernel_data_begin, (uintptr_t)&__kernel_data_begin - off,
 	        (size_t)&__kernel_data_end - (size_t)&__kernel_data_begin,
 			MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_KERNEL);
-	mmu_map((uintptr_t)&__kernel_bss_begin, (uintptr_t)&__kernel_bss_begin,
+	mmu_map((uintptr_t)&__kernel_bss_begin, (uintptr_t)&__kernel_bss_begin - off,
 	        (size_t)&__kernel_bss_end - (size_t)&__kernel_bss_begin,
 			MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_KERNEL);
 

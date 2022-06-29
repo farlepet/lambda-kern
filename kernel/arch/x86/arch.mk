@@ -8,7 +8,7 @@ HWDIR      = $(MAINDIR)/kernel/arch/$(ARCH)/hw/$(HW)
 HWSRC      = $(HWDIR)/src
 HWINC      = $(HWDIR)/inc
 
-CFLAGS    += -m32 -march=i586
+CFLAGS    += -m32 -march=i586 -fno-pic
 LDARCH     = -melf_i386
 LDFLAGS    = $(LDARCH)
 

@@ -11,7 +11,7 @@
 #include <types.h>
 #include <video.h>
 
-#define N_INIT_TABLES     1 /* 1 * 1024 * 1024 = 1 MiB */
+#define N_INIT_TABLES     2 /* ident + offset */
 
 static uint32_t pagedir[PGDIR_ENTRIES]                  __align(0x1000); //!< Main kernel pagedirectory
 static uint32_t init_tbls[N_INIT_TABLES][PGTBL_ENTRIES] __align(0x1000); //!< First n page tables
@@ -126,19 +126,26 @@ void paging_init(uint32_t som, uint32_t eom) {
 
 	memset(pagedir, 0, sizeof(pagedir));
 
-	kdebug(DEBUGSRC_MM, ERR_INFO, "  -> Filling first 4 page tables");
+	kdebug(DEBUGSRC_MM, ERR_INFO, "  -> Filling first page tables");
 
-	/* This is temporary, it will later by updated based on the kernel memory map, and the memory given to alloc */
-	for(size_t i = 0; i < N_INIT_TABLES; i++) {
-		// Identity-map first N_INIT_TABLES * 4 MiB for kernel use. (flags: present, writable)
-		fill_pagetable((void *)init_tbls[i], i * (PAGE_SZ * PGTBL_ENTRIES), 0x003);
-		pagedir[i] = (uint32_t)init_tbls[i] | 3;
-	}
+	uint32_t kern_off  = ((uint32_t)&kern_start) & 0xFFC00000;
+	uint32_t start_dir = ((uint32_t)&kern_start) >> 22;
+
+	/* Temporary - map low 4 MiB both identity and higher-half. Will be re-mapped
+	 * more accurately later. */
+	fill_pagetable((void *)init_tbls[0], 0x00000000, 0x003);
+	fill_pagetable((void *)init_tbls[1], 0x00000000, 0x003);
+
+
+	pagedir[0] = ((uint32_t)init_tbls[0] - kern_off) | PAGE_DIRECTORY_FLAG_PRESENT |
+										  PAGE_DIRECTORY_FLAG_WRITABLE;
+	pagedir[start_dir] = ((uint32_t)init_tbls[1] - kern_off) | PAGE_DIRECTORY_FLAG_PRESENT |
+										          PAGE_DIRECTORY_FLAG_WRITABLE;
 
 	kdebug(DEBUGSRC_MM, ERR_INFO, "  -> Setting page directory");
 
-	kernel_cr3 = (uint32_t)pagedir;
-	set_pagedir(pagedir);
+	kernel_cr3 = (uint32_t)pagedir - kern_off;
+	register_cr3_write(kernel_cr3);
 
 	kdebug(DEBUGSRC_MM, ERR_INFO, "  -> Enabling paging");
 

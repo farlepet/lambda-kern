@@ -1,23 +1,33 @@
 ENTRY (start)
 
+PHYS_ENTRYPOINT = 0x00100000;
+VIRT_OFFSET     = 0xC0000000;
+
 SECTIONS
 {
-        . = 1M;
+        . = PHYS_ENTRYPOINT;
+
+
+        .boot BLOCK(4K) : ALIGN(4K) {
+                __kernel_boot_begin = .;
+                *(.mboot)
+                *(.boot.*)
+                __kernel_boot_end = .;
+        }
+
+        . += VIRT_OFFSET;
 
         kern_start = .;
         
-        .text BLOCK(4K) : ALIGN(4K)
-        {
+        .text ALIGN(4K) : AT(ADDR(.text) - VIRT_OFFSET) {
                 __kernel_text_begin = .;
-                *(.mboot)
-                *(.text .text.*)
+                *(.text.*)
                 __kernel_text_end = .;
         }
         
-        .rodata BLOCK(4K) : ALIGN(4K)
-        {
+        .rodata ALIGN(4K) : AT(ADDR(.rodata) - VIRT_OFFSET) {
                 __kernel_rodata_begin = .;
-                *(.rodata .rodata.*)
+                *(.rodata.*)
 
                 . = ALIGN(8);
                 __lambda_symbols_begin = .;
@@ -32,18 +42,16 @@ SECTIONS
                 __kernel_rodata_end = .;
         }
         
-        .data BLOCK(4K) : ALIGN(4K)
-        {
+        .data ALIGN(4K) : AT(ADDR(.data) - VIRT_OFFSET) {
                 __kernel_data_begin = .;
-                *(.data .data.*)
+                *(.data.*)
                 __kernel_data_end = .;
         }
         
-        .bss BLOCK(4K) : ALIGN(4K)
-        {
+        .bss ALIGN(4K) : AT(ADDR(.bss) - VIRT_OFFSET) {
                 __kernel_bss_begin = .;
                 *(COMMON)
-                *(.bss .bss.*)
+                *(.bss.*)
                 __kernel_bss_end = .;
         }
         
