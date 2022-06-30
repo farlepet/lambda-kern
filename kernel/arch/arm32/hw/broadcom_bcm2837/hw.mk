@@ -2,8 +2,11 @@
 
 CPU        = cortex_a53
 
+KERNEL_OFFSET = 0x00000000
+
 #CFLAGS    += -march=armv8-a -marm
-CFLAGS    += -march=armv7-a -marm
+CFLAGS    += -march=armv7-a -marm \
+             -DKERNEL_OFFSET=${KERNEL_OFFSET}
 LDFLAGS   += -T $(HWDIR)/hw.ld
 
 CFLAGS    += -D__LAMBDA_PLATFORM_CPU__=PLATFORM_CPU_ARM_CORTEX_A53 \

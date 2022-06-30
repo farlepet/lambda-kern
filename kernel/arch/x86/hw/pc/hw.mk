@@ -2,7 +2,10 @@
 
 HW         = pc
 
-CFLAGS    += -march=i586
+KERNEL_OFFSET = 0xC0000000
+
+CFLAGS    += -march=i586 \
+             -DKERNEL_OFFSET=${KERNEL_OFFSET}
 LDFLAGS   += -T $(HWDIR)/hw.ld
 
 CFLAGS    += -D__LAMBDA_PLATFORM_CPU__=PLATFORM_CPU_IA32 \

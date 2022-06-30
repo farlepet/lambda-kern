@@ -2,7 +2,10 @@
 
 CPU        = cortex_a9
 
-CFLAGS    += -march=armv7-a
+KERNEL_OFFSET = 0x00000000
+
+CFLAGS    += -march=armv7-a \
+             -DKERNEL_OFFSET=${KERNEL_OFFSET}
 LDFLAGS   += -T $(HWDIR)/hw.ld
 
 # TODO: Make this command-line selectable:

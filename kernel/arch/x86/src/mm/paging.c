@@ -128,8 +128,8 @@ void paging_init(uint32_t som, uint32_t eom) {
 
 	kdebug(DEBUGSRC_MM, ERR_INFO, "  -> Filling first page tables");
 
-	uint32_t kern_off  = ((uint32_t)&kern_start) & 0xFFC00000;
-	uint32_t start_dir = ((uint32_t)&kern_start) >> 22;
+	uint32_t kern_off  = KERNEL_OFFSET;
+	uint32_t start_dir = kern_off >> 22;
 
 	/* Temporary - map low 4 MiB both identity and higher-half. Will be re-mapped
 	 * more accurately later. */
@@ -138,9 +138,9 @@ void paging_init(uint32_t som, uint32_t eom) {
 
 
 	pagedir[0] = ((uint32_t)init_tbls[0] - kern_off) | PAGE_DIRECTORY_FLAG_PRESENT |
-										  PAGE_DIRECTORY_FLAG_WRITABLE;
+										               PAGE_DIRECTORY_FLAG_WRITABLE;
 	pagedir[start_dir] = ((uint32_t)init_tbls[1] - kern_off) | PAGE_DIRECTORY_FLAG_PRESENT |
-										          PAGE_DIRECTORY_FLAG_WRITABLE;
+										                       PAGE_DIRECTORY_FLAG_WRITABLE;
 
 	kdebug(DEBUGSRC_MM, ERR_INFO, "  -> Setting page directory");
 
