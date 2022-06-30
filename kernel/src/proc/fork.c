@@ -6,8 +6,8 @@
 
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
 #  include <arch/proc/user.h>
-#  include <arch/proc/stack.h>
 #endif
+#include <arch/proc/stack.h>
 
 
 /**
