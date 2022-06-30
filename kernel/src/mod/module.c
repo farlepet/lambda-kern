@@ -18,7 +18,7 @@
 static llist_t loaded_modules;
 
 /* TODO: Better method for choosing where to place module */
-static uintptr_t _current_base = 0x80000000;
+static uintptr_t _current_base = KERNEL_OFFSET + 0x10000000;
 
 static lambda_mod_head_t *_module_place(const Elf32_Ehdr *elf, const lambda_mod_head_t *mod_head, uintptr_t baseaddr, module_entry_t *mod_ent, symbol_t *symbols);
 
