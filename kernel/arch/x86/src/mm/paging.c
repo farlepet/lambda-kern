@@ -54,13 +54,6 @@ uint32_t pgdir_get_page_table(uint32_t *pgdir, const void *virtaddr) {
 
 void map_page(void *physaddr, void *virtualaddr, uint32_t flags) {
 	uint32_t *pgdir = get_pagedir();
-	
-	if(flags & PAGE_TABLE_FLAG_GLOBAL && pgdir != pagedir) {
-		/* Include global pages in the kernel source-of-truth page directory */
-		pgdir_map_page(pagedir, physaddr, virtualaddr, flags);
-	
-	}
-
 	pgdir_map_page(pgdir, physaddr, virtualaddr, flags);
 	__invlpg(virtualaddr);
 }
@@ -69,19 +62,29 @@ void pgdir_map_page(uint32_t *pgdir, void *physaddr, void *virtualaddr, uint32_t
 	virtualaddr = (void *)((uint32_t)virtualaddr & 0xFFFFF000);
 	physaddr    = (void *)((uint32_t)physaddr    & 0xFFFFF000);
 
+	/* Enforce that any page >= KERNEL_OFFSET is global */
+	uint32_t *_pgdir;
+	if(((uintptr_t)virtualaddr >= KERNEL_OFFSET) && (pgdir != pagedir)) {
+		_pgdir = pagedir;
+	} else {
+		_pgdir = pgdir;
+	}
+
 	uint32_t pdindex = (uint32_t)virtualaddr >> 22;
 	uint32_t ptindex = (uint32_t)virtualaddr >> 12 & 0x03FF;
 
-	if(!(pgdir[pdindex] & 0x01)) {
-		pgdir[pdindex] = (uint32_t)kamalloc(0x1000, 0x1000) | 0x03;
-
-		int i = 0;
-		for(; i < 1024; i++)
-			((uint32_t *)(pgdir[pdindex] & 0xFFFFF000))[i] = 0x00000000;
+	if(!(_pgdir[pdindex] & PAGE_DIRECTORY_FLAG_PRESENT)) {
+		_pgdir[pdindex] = (uint32_t)kamalloc(0x1000, 0x1000) | PAGE_DIRECTORY_FLAG_PRESENT |
+															   PAGE_DIRECTORY_FLAG_WRITABLE;
+		memset((void *)(_pgdir[pdindex] & 0xFFFFF000), 0, PGTBL_ENTRIES * sizeof(uint32_t));
 	}
 
-	pgdir[pdindex] |= flags & 0x04;
-	((uint32_t *)(pgdir[pdindex] & 0xFFFFF000))[ptindex] = ((uint32_t)physaddr) | (flags & 0xFFF) | 0x01;	
+	_pgdir[pdindex] |= flags & PAGE_DIRECTORY_FLAG_USER;
+	((uint32_t *)(_pgdir[pdindex] & 0xFFFFF000))[ptindex] = ((uint32_t)physaddr) | (flags & 0xFFF) | 0x01;
+
+	if(_pgdir != pgdir) {
+		pgdir[pdindex] = _pgdir[pdindex];
+	}
 }
 
 void fill_pagetable(uint32_t *table, uint32_t addr, uint32_t flags) {

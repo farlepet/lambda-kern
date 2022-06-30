@@ -114,6 +114,8 @@ int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_reg
     uint32_t cr2;
     asm volatile("movl %%cr2, %0": "=a"(cr2));
 
+    /* @todo Don't print anything if fault is handled w/o killing the task */
+
     kerror(ERR_WARN, "Page fault at 0x%08X --> 0x%08X (%s%s%s%s%s)", cr2, pgdir_get_page_entry(cr3, (void *)cr2) & 0xFFFFF000,
                 ((errcode & 0x01) ? "present"                   : "non-present"),
                 ((errcode & 0x02) ? ", write"                   : ", read"),
@@ -145,6 +147,22 @@ int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_reg
         return 1;
     } else if (curr_proc && !mm_check_addr(curr_proc)) {
         kerror(ERR_WARN, "  -> curr_proc is corrupted: %p", curr_proc);
+    }
+
+    if(cr2 >= KERNEL_OFFSET && !(errcode & 0x01)) {
+        /* Exception in shared kernel pages */
+        uint32_t didx = cr2 >> 22;
+        
+        uint32_t *pgdir  = (uint32_t *)cr3;
+        uint32_t *kpgdir = (uint32_t *)kernel_cr3;
+        if(!(pgdir[didx] & PAGE_DIRECTORY_FLAG_PRESENT) &&
+           (kpgdir[didx] & PAGE_DIRECTORY_FLAG_PRESENT)) {
+            kerror(ERR_WARN, "  -> Mapping kernel page");
+            pgdir[didx] = kpgdir[didx];
+            return 0;
+        } else {
+            kerror(ERR_WARN, "  -> In kernel range, but not a missing mapping");
+        }
     }
 
     return 1;
