@@ -57,9 +57,10 @@ typedef struct {
 
 static inline void run_sched(void) {
 	/* TODO: Force scheduler to run */
-    if(!interrupts_enabled()) {
-        kpanic("run_sched: Interrupts not enabled!");
-    }
+    /* @note There are some situations where interrupts may be disabled prior to
+     * calling run_sched in order to ensure certain operations get completed
+     * before the scheduler runs. */
+    enable_interrupts();
     /* Wait for timer interrupt to fire: */
     interrupt_halt();
 }
