@@ -2,9 +2,11 @@
 #include <arch/intr/int.h>
 
 #include <proc/mtask.h>
+#include <proc/cond.h>
 #include <proc/exec.h>
 #include <err/error.h>
 #include <err/panic.h>
+#include <mm/alloc.h>
 
 /**
  * Find the first dead child process of the given parent.
@@ -47,16 +49,20 @@ int wait(int *stat_loc) {
         return -1;
     }
 
+    disable_interrupts();
     // Check if a dead child process already exists:
     chidx = _find_dead_child(curr_proc);
     if(chidx >= 0) {
         goto CHILD_FOUND;
     }
 
+    if(!curr_proc->wait_cond) {
+        curr_proc->wait_cond = kmalloc(sizeof(cond_t));
+        cond_init(curr_proc->wait_cond);
+    }
+
     // Block and wait for scheduler
-    curr_thread->blocked |= BLOCK_WAIT;
-    //interrupt_halt();
-    run_sched();
+    cond_wait(curr_proc->wait_cond);
 
     // When process is re-entered here, a child has exited
     chidx = _find_dead_child(curr_proc);
@@ -65,6 +71,8 @@ int wait(int *stat_loc) {
 	    kpanic("wait(): Child missing");
     }
 CHILD_FOUND:
+    enable_interrupts();
+
     child = curr_proc->children[chidx];
 
     (void)stat_loc; // TODO: Modify stat_loc

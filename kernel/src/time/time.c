@@ -10,25 +10,26 @@ static time_block_t _time_blocks[MAX_TIME_BLOCKS] = { 0 }; //!< Array of timeblo
 uint64_t kerneltime = 0;
 
 static void _do_time_block_timeup(uint32_t n) {
-    int pid = _time_blocks[n].pid;
-    void (*event)(int) = _time_blocks[n].event;
-    
+    void (*event)(void *) = _time_blocks[n].event;
+    void  *data           = _time_blocks[n].data;
+
     _time_blocks[n].event = NULL;
     _time_blocks[n].end   = 0;
-    _time_blocks[n].pid   = 0;
+    _time_blocks[n].tid   = 0;
     
-    event(pid);
+    event(data);
 }
 
-void add_time_block(void (*func)(int), uint64_t off, int pid) {
+void add_time_block(void (*func)(void *), void *data, uint64_t off, int tid) {
     int i = 0;
     for(; i < MAX_TIME_BLOCKS; i++)
     {
         if(_time_blocks[i].event) continue;
         /* TODO: Add a mutex lock here */
         _time_blocks[i].event = func;
+        _time_blocks[i].data  = data;
         _time_blocks[i].end   = (kerneltime + off);
-        _time_blocks[i].pid   = pid;
+        _time_blocks[i].tid   = tid;
         return;
     }
     kpanic("No free time blocks");

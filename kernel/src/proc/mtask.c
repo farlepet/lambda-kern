@@ -3,6 +3,7 @@
 
 #include <proc/atomic.h>
 #include <proc/mtask.h>
+#include <proc/cond.h>
 #include <proc/thread.h>
 #include <proc/proc.h>
 #include <err/error.h>
@@ -215,12 +216,12 @@ __noreturn void exit(int code) {
 
 	// If parent process is waiting for child to exit, allow it to continue execution:
 	if(curr_proc->parent) {
-		struct kproc *parent = proc_by_pid(curr_proc->parent);
-		/* @todo Unblock the exact thread waiting on exit */
-		kthread_t *thread = (kthread_t *)parent->threads.list->data;
-
-		kdebug(DEBUGSRC_PROC, ERR_TRACE, "  -> Unblocking (%d, %s) -> (%d, %s)", parent->pid, parent->name, thread->tid, thread->name);
-		thread->blocked &= (uint32_t)~(BLOCK_WAIT);
+		kproc_t *parent = proc_by_pid(curr_proc->parent);
+		if(parent->wait_cond) {
+			cond_signal(parent->wait_cond);
+			kfree(parent->wait_cond);
+			parent->wait_cond = NULL;
+		}
 	}
 
 	for(;;) {

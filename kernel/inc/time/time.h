@@ -30,11 +30,11 @@ struct timespec {
  * be decremented by 1. When count reaches 0, event() is called.
  * @see do_time_block_timeup
  */
-typedef struct time_block
-{
-	void     (*event)(int pid); //!< Called when `count` = 0
-	uint64_t end;               //!< Value of kerneltime at which timer expires
-	int      pid;               //!< PID of the process using this block
+typedef struct time_block {
+	void   (*event)(void *data); /** Called when `count` = 0 */
+    void    *data;               /** Data passed into event() */
+	uint64_t end;                /** Value of kerneltime at which timer expires */
+	int      tid;                /** TID of the thread using this block */
 } time_block_t;
 
 #define MAX_TIME_BLOCKS 64 //!< Maximum number of timer blocks able to be used. We cannot let this get too high, or we will experience slowdown.
@@ -43,10 +43,11 @@ typedef struct time_block
  * \brief Adds a time block to time_blocks[].
  * Finds the first free time_block and sets its values to the ones supplied.
  * @param func the function to call when count reaches 0
+ * @param data value to pass into func()
  * @param off the number of nanoseconds to wait before calling func()
- * @param pid the pid of the process that is using this time_block
+ * @param tid the tid of the thread that is using this time_block
  */
-void add_time_block(void (*func)(int), uint64_t off, int pid);
+void add_time_block(void (*func)(void *), void *data, uint64_t off, int tid);
 
 /**
  * \brief Waits for a specified amount of time.

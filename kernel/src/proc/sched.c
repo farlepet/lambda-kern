@@ -214,7 +214,7 @@ kthread_t *sched_next_process(unsigned cpu) {
         }
     } while(!(thread->process->type & TYPE_RUNNABLE)         ||
             !(thread->flags         & KTHREAD_FLAG_RUNNABLE) ||
-            thread->blocked);
+            thread->cond);
 
     _curr_thread[cpu] = thread;
 

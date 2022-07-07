@@ -18,11 +18,6 @@ typedef struct kproc_mem_map_ent kproc_mem_map_ent_t;
 #define TYPE_RUNNABLE (1UL <<  0) //!< Is this process runnable?
 #define TYPE_ZOMBIE   (1UL <<  1) //!< Has this task been killed?
 
-#define BLOCK_DELAY       (1UL << 0) //!< Process is blocked waiting for a delay
-#define BLOCK_MESSAGE     (1UL << 1) //!< Process is blocked waiting for a message
-#define BLOCK_IPC_MESSAGE (1UL << 2) //!< Process is blocked waiting for a message (mew IPC style)
-#define BLOCK_WAIT        (1UL << 3) //!< Process is blocked waiting for a child process to exit
-
 #define PROC_DOMAIN_KERNEL    0 /** In-kernel processes */
 #define PROC_DOMAIN_MODULE    1 /** Processes originating from external modules */
 #define PROC_DOMAIN_USERSPACE 2 /** Processes in userspace */
@@ -86,6 +81,8 @@ struct kproc { //!< Structure of a process as seen by the kernel
 	int           exitcode;  //!< Exit code
 
 	kproc_mem_map_ent_t *mmap; //!< Memory map
+
+	cond_t *wait_cond; /** Conditional to use when waiting on child to exit */
 
 	llist_item_t list_item;
 };
