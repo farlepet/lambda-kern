@@ -18,6 +18,10 @@ class ThreadPrintCommand(gdb.Command):
             print("USAGE: list-threads [max-depth]")
             return
         
+        # Determine target architecture
+        frame     = gdb.selected_frame()
+        self.arch = frame.architecture()
+        
         thread_list = "_cpu_threads[0]"
 
         max_depth = self.MAX_DEPTH
@@ -26,7 +30,7 @@ class ThreadPrintCommand(gdb.Command):
 
         llist = LList(gdb.parse_and_eval(thread_list))
 
-        print("thread[IDX]: TID Name             Blocked    Instruction  Time(s)")
+        print("thread[IDX]: TID Name             Blocked Instruction  Time(s)")
 
         llist.iterate(self.printItemCallback, max_depth)
 
@@ -37,20 +41,25 @@ class ThreadPrintCommand(gdb.Command):
         # change stack on interrupt
         thread_tid     = int(thread['tid'])
         thread_name    = thread['name'].string().ljust(16)
-        thread_blocked = thread['blocked'].format_string(format='x').ljust(10)
+        thread_blocked = thread['cond'] != 0
 
-        thread_stack     = thread['arch']['stack_kern']['begin']
-        thread_iret_eval = "*(arch_iret_regs_t *)({} - sizeof(arch_iret_regs_t))".format(thread_stack)
-        thread_iret      = gdb.parse_and_eval(thread_iret_eval)
-        thread_eip       = thread_iret['eip'].format_string(format='x').ljust(12)
+        if self.arch.name() == "i386":
+            thread_stack     = thread['arch']['stack_kern']['begin']
+            thread_iret_eval = "*(arch_iret_regs_t *)({} - sizeof(arch_iret_regs_t))".format(thread_stack)
+            thread_iret      = gdb.parse_and_eval(thread_iret_eval)
+            thread_ip       = thread_iret['eip'].format_string(format='x').ljust(12)
+        else:
+            # TODO
+            thread_ip = 0
+
         thread_time    = float(thread['stats']['sched_time_accum']) / 1000000000.0
 
-        print("thread[{: 3d}]: {: 3d} {} {} {} {:03.3f}"
+        print("thread[{: 3d}]: {: 3d} {} {: 7d} {} {:03.3f}"
               .format(idx,
                       thread_tid,
                       thread_name,
                       thread_blocked,
-                      thread_eip,
+                      thread_ip,
                       thread_time))
 
 class ProcessPrintCommand(gdb.Command):
