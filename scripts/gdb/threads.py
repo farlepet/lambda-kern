@@ -41,20 +41,24 @@ class ThreadPrintCommand(gdb.Command):
         # change stack on interrupt
         thread_tid     = int(thread['tid'])
         thread_name    = thread['name'].string().ljust(16)
-        thread_blocked = thread['cond'] != 0
+        thread_blocked = str(thread['cond'] != 0)
 
         if self.arch.name() == "i386":
             thread_stack     = thread['arch']['stack_kern']['begin']
             thread_iret_eval = "*(arch_iret_regs_t *)({} - sizeof(arch_iret_regs_t))".format(thread_stack)
             thread_iret      = gdb.parse_and_eval(thread_iret_eval)
-            thread_ip       = thread_iret['eip'].format_string(format='x').ljust(12)
+            thread_ip        = thread_iret['eip'].format_string(format='x').ljust(12)
+        elif self.arch.name() == "armv7":
+            thread_stack   = thread['arch']['stack_kern']['begin']
+            thread_ip_eval = "((uint32_t *){})[-1]".format(thread_stack)
+            thread_ip      = gdb.parse_and_eval(thread_ip_eval).format_string(format='x').ljust(12)
         else:
             # TODO
             thread_ip = 0
 
         thread_time    = float(thread['stats']['sched_time_accum']) / 1000000000.0
 
-        print("thread[{: 3d}]: {: 3d} {} {: 7d} {} {:03.3f}"
+        print("thread[{: 3d}]: {: 3d} {} {:7s} {} {:03.3f}"
               .format(idx,
                       thread_tid,
                       thread_name,
