@@ -6,6 +6,7 @@
 #include <arch/io/bcm2835_gpio.h>
 #include <arch/io/bcm2835_mailbox.h>
 #include <arch/proc/tasking.h>
+#include <arch/proc/stacktrace.h>
 
 #include <proc/mtask.h>
 #include <err/error.h>
@@ -145,6 +146,8 @@ int hw_init_mm(void) {
 
 /* TODO: Move */
 void arch_kpanic_hook(void) {
+    stacktrace_here(16);
+
     kthread_t *thread = mtask_get_curr_thread();
     if(thread) {
         kprintf("\n--------- REGISTERS ---------\n");

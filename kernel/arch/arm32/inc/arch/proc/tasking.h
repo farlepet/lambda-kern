@@ -83,6 +83,16 @@ int arch_setup_process(kproc_t *proc);
 int arch_setup_thread(kthread_t *thread);
 
 /**
+ * @brief Setup user thread stack to contain arguments and environment
+ *
+ * @param thread Thread to setup
+ * @param argc Argument count
+ * @param argv Pointer to argument list
+ * @param envp Pointer to environment list
+ */
+void arch_setup_user_stack(kthread_t *thread, int argc, char **argv, char **envp);
+
+/**
  * \brief Architecture-specific multitasking initialization.
  */
 void arch_multitasking_init(void);
@@ -93,5 +103,13 @@ void arch_multitasking_init(void);
  * Switches context into next task, doesn't return within the same context
  */
 void do_task_switch(void);
+
+/**
+ * @brief Architecture-specific thread setup after data is copied for a fork
+ *
+ * @param parent Parent thread
+ * @param child Child thread
+ */
+int arch_postfork_setup(const kthread_t *parent, kthread_t *child);
 
 #endif

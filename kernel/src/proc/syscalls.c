@@ -1,9 +1,3 @@
-// TODO: Abstraction:
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-#include <arch/intr/idt.h>
-#include <arch/proc/stack_trace.h>
-#endif
-
 #include <proc/syscalls.h>
 #include <intr/intr.h>
 #include <err/error.h>
@@ -122,26 +116,14 @@ int service_syscall(uint32_t scn, syscallarg_t *args) {
 
 
 extern void syscall_int(void);
-void init_syscalls(void)
-{
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	set_idt(INTR_SYSCALL, 0x08, IDT_ATTR(1, 3, 0, int32), &syscall_int);
-#elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARM32)
-	set_interrupt(INTR_SYSCALL, &syscall_int);
-#endif
+void init_syscalls(void) {
+	arch_set_interrupt_handler_user(INTR_SYSCALL, &syscall_int);
 }
 
-extern void call_syscall_int(uint32_t, syscallarg_t *);
 void call_syscall(uint32_t scn, uint32_t *args)
 {
 	kdebug(DEBUGSRC_SYSCALL, ERR_TRACE, "call_syscall: %d, %08X", scn, args);
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	call_syscall_int(scn, args);
-#elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARM32)
-	(void)scn;
-	(void)args;
-	asm volatile("swi #1");
-#endif
+	arch_call_syscall(scn, args);
 }
 
 static const char *_syscall_stringify(uint32_t scn) {

@@ -84,8 +84,24 @@ int arch_setup_process(kproc_t __unused *thread) {
     return 0;
 }
 
+void arch_setup_user_stack(kthread_t *thread, int argc, char **argv, char **envp) {
+    /* @todo */
+    (void)thread;
+    (void)argc;
+    (void)argv;
+    (void)envp;
+}
+
 void arch_multitasking_init(void) {
-    /* TODO */
+    /* @todo */
+}
+
+int arch_postfork_setup(const kthread_t *parent, kthread_t *child) {
+    /* @todo */
+    (void)parent;
+    (void)child;
+
+    return -1;
 }
 
 __hot

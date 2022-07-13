@@ -4,9 +4,6 @@
 #include <mm/alloc.h>
 #include <string.h>
 
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-#  include <arch/proc/user.h>
-#endif
 #include <arch/proc/stack.h>
 
 
@@ -137,29 +134,7 @@ static int __no_inline fork_clone_process(kproc_t *child, kproc_t *parent) {
 
     cthread->flags |= KTHREAD_FLAG_RANONCE;
 
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-    cthread->arch.ebp = pthread->arch.ebp;
-
-    // POPAD: 8 DWORDS, IRETD: 5 DWORDS
-    cthread->arch.esp = cthread->arch.stack_kern.begin - 52;
-    cthread->arch.eip = (uint32_t)return_from_fork;
-
-    arch_iret_regs_t  *iret_stack  = (arch_iret_regs_t *)(cthread->arch.stack_kern.begin - sizeof(arch_iret_regs_t));
-    arch_pusha_regs_t *pusha_stack = (arch_pusha_regs_t *)((uintptr_t)iret_stack - sizeof(arch_pusha_regs_t));
-
-    memcpy(iret_stack,  pthread->arch.syscall_regs.iret,  sizeof(arch_iret_regs_t));
-    memcpy(pusha_stack, pthread->arch.syscall_regs.pusha, sizeof(arch_pusha_regs_t));
-
-    uintptr_t syscall_args_virt = pusha_stack->ebx;
-
-    /* Return 0 indicating child process */
-    uint32_t zero = 0;
-    if(mmu_write_data(child->mmu_table, syscall_args_virt, &zero, 4)) {
-        return -1;
-    }
-
-    kdebug(DEBUGSRC_PROC, ERR_TRACE, " -- eip: %08X esp: %08X ebp: %08X cr3: %p", cthread->arch.eip, cthread->arch.esp, cthread->arch.ebp, child->mmu_table);
-#endif
+    arch_postfork_setup(pthread, cthread);
 
     return 0;
 }
@@ -190,10 +165,6 @@ int fork(void) {
     if(fork_clone_process(child, proc)) {
         return -1;
     }
-
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-    kdebug(DEBUGSRC_PROC, ERR_TRACE, " -- Child Stack: %08X %08X", cthread->arch.esp, cthread->arch.ebp);
-#endif
 
     child->type    |= TYPE_RUNNABLE;
     cthread->flags |= KTHREAD_FLAG_RUNNABLE;

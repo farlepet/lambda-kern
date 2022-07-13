@@ -11,10 +11,6 @@
 #include <video.h>
 #include <string.h>
 
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-#  include <arch/mm/paging.h>
-#endif
-
 static llist_t loaded_modules;
 
 /* TODO: Better method for choosing where to place module */
@@ -308,17 +304,9 @@ static int _module_apply_relocs(const Elf32_Ehdr *elf, const elf_reloc_t *relocs
 
 static void *_alloc_map(uintptr_t virt, size_t len) {
     void *paddr = kmamalloc(len, 0x1000);
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-    /* TODO: Create architecture-independant memory mapping mechanism. */
-    uintptr_t start_v =  virt & 0xFFFFF000;
-    uintptr_t start_p = (uintptr_t)paddr & 0xFFFFF000;
-    for(uintptr_t pg = 0; pg < len; pg += 0x1000) {
-        map_page((void *)(start_p + pg), (void *)(start_v + pg), 0x07);
-    }
-#else
-    /* TODO */
-    (void)virt;
-#endif
+    /* TODO: Possibly do not make all pages writable and executable */
+    mmu_map(virt, (uintptr_t)paddr, len, MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_EXEC | MMU_FLAG_KERNEL);
+
     return paddr;
 }
 

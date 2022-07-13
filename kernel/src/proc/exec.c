@@ -248,10 +248,6 @@ static void _exec_replace_process_image(exec_data_t *exec_data) {
     thread->tid        = old_thread->tid;
     thread->stack_size = old_thread->stack_size;
 
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-    thread->arch.eip  = thread->entrypoint;
-#endif
-
     llist_init(&curr_proc->threads);
     proc_add_thread(curr_proc, thread);
 
@@ -271,17 +267,7 @@ static void _exec_replace_process_image(exec_data_t *exec_data) {
 
     mmu_set_current_table(curr_proc->mmu_table);
 
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-    thread->arch.esp = thread->arch.ebp;
-
-    STACK_PUSH(thread->arch.esp, n_envp);
-    STACK_PUSH(thread->arch.esp, n_argv);
-    STACK_PUSH(thread->arch.esp, argc);
-
-    thread->arch.stack_entry = thread->arch.esp;
-
-    thread->flags |= KTHREAD_FLAG_STACKSETUP;
-#endif
+    arch_setup_user_stack(thread, argc, n_argv, n_envp);
 
     kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "exec_replace_process_image(): Jumping into process");
 

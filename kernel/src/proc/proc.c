@@ -64,7 +64,7 @@ int proc_add_child(kproc_t *parent, kproc_t *child) {
 	return 1;
 }
 
-kproc_t *proc_create(char *name, int domain, arch_task_params_t *arch_params) {
+kproc_t *proc_create(char *name, int domain, mmu_table_t *mmu_table) {
 	kproc_t *process = kmalloc(sizeof(kproc_t));
 	if(process == NULL) {
 		return NULL;
@@ -81,16 +81,11 @@ kproc_t *proc_create(char *name, int domain, arch_task_params_t *arch_params) {
 
 	process->cwd = fs_get_root();
 
-	/* TODO: Move to arch */
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	if(arch_params && arch_params->pgdir) {
-		process->mmu_table = (mmu_table_t *)arch_params->pgdir;
+	if(mmu_table) {
+		process->mmu_table = mmu_table;
 	} else {
 		process->mmu_table = mmu_clone_table(mmu_get_kernel_table());
 	}
-#else
-	(void)arch_params;
-#endif
 
 	return process;
 }

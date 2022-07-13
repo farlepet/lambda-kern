@@ -46,10 +46,10 @@ void init_multitasking(void *process, char *name);
  * @param stack_size Size of stack to allocate to process
  * @param pri Priority level of process
  * @param domain Which domain this process runs in
- * @param arch_params Architecture-specific parameters
+ * @param mmu_table MMU table to use, NULL to generate one
  * @return int PID of process on success, else <=0
  */
-int add_task(void *process, char* name, uint32_t stack_size, int pri, int domain, arch_task_params_t *arch_params);
+int add_task(void *process, char* name, uint32_t stack_size, int pri, int domain, mmu_table_t *mmu_table);
 
 /**
  * \brief Get process pointer given PID

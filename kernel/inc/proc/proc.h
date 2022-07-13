@@ -42,11 +42,11 @@ int proc_add_child(struct kproc *parent, struct kproc *child);
  * 
  * @param name Name of the process
  * @param domain Which domain this process runs in
- * @param arch_params Architecture-specific parameters
- * 
+ * @param mmu_table MMU table to use, NULL to create new one
+ *
  * @return Null on error, else pointer to newly created process
  */
-kproc_t *proc_create(char *name, int domain, arch_task_params_t *arch_params);
+kproc_t *proc_create(char *name, int domain, mmu_table_t *mmu_table);
 
 /**
  * \brief Initialize scheduler

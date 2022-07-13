@@ -85,27 +85,18 @@ int proc_create_kernel_stack(kthread_t *thread) {
 }
 
 
-int add_task(void *process, char* name, uint32_t stack_size, int pri, int domain, arch_task_params_t *arch_params) {
-	// TODO: Remove reference to pgdir, maybe arch_params entirely
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	arch_task_params_t __arch_params;
-	if(arch_params == NULL) {
-		__arch_params.pgdir = (uint32_t *)mmu_clone_table(mmu_get_kernel_table());
-		arch_params = &__arch_params;
-	}
-#endif
-
+int add_task(void *process, char* name, uint32_t stack_size, int pri, int domain, mmu_table_t *mmu_table) {
 	lock(&creat_task);
 
 	kproc_t *curr_proc = mtask_get_curr_process();
 	
-	kdebug(DEBUGSRC_PROC, ERR_TRACE, "mtask:add_task(%08X, %s, ...)", process, name);
+	kdebug(DEBUGSRC_PROC, ERR_TRACE, "mtask:add_task(%p, %s, ...)", process, name);
 
 	/*
 	 * Create process
 	 */
 
-	kproc_t *proc = proc_create(name, domain, arch_params);
+	kproc_t *proc = proc_create(name, domain, mmu_table);
 	if(!proc) {
 		kdebug(DEBUGSRC_PROC, ERR_CRIT, "mtask:add_task: Could not create process.");
 		return -1;
@@ -123,11 +114,6 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int domain
 	proc->gid  = 0;
 	proc->type = TYPE_RUNNABLE;
 
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	/* TODO: Move MMU table outside of arch-specific params */
-	proc->mmu_table = (mmu_table_t *)arch_params->pgdir;
-#endif
-	
 	arch_setup_process(proc);
 
 	/*
@@ -140,9 +126,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int domain
 
 	arch_setup_thread(thread);
 
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	kdebug(DEBUGSRC_PROC, ERR_TRACE, "PID: %d EIP: %08X CR3: %08X ESP: %08X", proc->pid, thread->arch.eip, proc->mmu_table, thread->arch.esp);
-#endif
+	kdebug(DEBUGSRC_PROC, ERR_TRACE, "PID: %d MMU: %08X", proc->pid, proc->mmu_table);
 
 	thread->flags |= KTHREAD_FLAG_RUNNABLE | KTHREAD_FLAG_RANONCE;
 	

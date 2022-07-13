@@ -423,11 +423,7 @@ static int kterm_dbgc(int argc, char **argv) {
 				"  mmprot:    Test that certain memory regions cannot be written to\n");
 	} else if (!strcmp(argv[1], "divzero")) {
 		kprintf("divzero\n");
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-		asm volatile("mov $0, %%ecx\n"
-		             "divl %%ecx\n"
-					 ::: "%eax", "%ecx");
-#endif
+		arch_div0();
 	} else if (!strcmp(argv[1], "pagefault")) {
 		kprintf("pagefault (0x00000004)\n");
 		/* GCC 12.1.0 is (incorrectly?) complaining about this line:

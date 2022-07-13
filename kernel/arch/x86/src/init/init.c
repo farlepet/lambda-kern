@@ -8,6 +8,7 @@
 #include <arch/intr/apic/apic.h>
 #include <arch/intr/idt.h>
 #include <arch/intr/pit.h>
+#include <arch/proc/stack_trace.h>
 
 #include <arch/mm/paging.h>
 #include <arch/mm/gdt.h>
@@ -102,4 +103,8 @@ static void mm_init(const mboot_t *head) {
 	mm_init_kernel_map();
 
 	kerror(ERR_INFO, "Memory management enabled");
+}
+
+void arch_kpanic_hook(void) {
+    stack_trace(16, __builtin_frame_address(0), (uint32_t)&stack_trace_here, NULL);
 }

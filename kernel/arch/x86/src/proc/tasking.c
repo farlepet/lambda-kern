@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include <arch/proc/tasking.h>
 #include <arch/proc/user.h>
 #include <arch/intr/int.h>
@@ -135,6 +137,43 @@ int arch_setup_process(kproc_t __unused *proc) {
     return 0;
 }
 
+void arch_setup_user_stack(kthread_t *thread, int argc, char **argv, char **envp) {
+    thread->arch.esp = thread->arch.ebp;
+
+    STACK_PUSH(thread->arch.esp, envp);
+    STACK_PUSH(thread->arch.esp, argv);
+    STACK_PUSH(thread->arch.esp, argc);
+
+    thread->arch.stack_entry = thread->arch.esp;
+
+    thread->flags |= KTHREAD_FLAG_STACKSETUP;
+}
+
+int arch_postfork_setup(const kthread_t *parent, kthread_t *child) {
+    child->arch.ebp = parent->arch.ebp;
+
+    // POPAD: 8 DWORDS, IRETD: 5 DWORDS
+    child->arch.esp = child->arch.stack_kern.begin - 52;
+    child->arch.eip = (uint32_t)return_from_fork;
+
+    arch_iret_regs_t  *iret_stack  = (arch_iret_regs_t *)(child->arch.stack_kern.begin - sizeof(arch_iret_regs_t));
+    arch_pusha_regs_t *pusha_stack = (arch_pusha_regs_t *)((uintptr_t)iret_stack - sizeof(arch_pusha_regs_t));
+
+    memcpy(iret_stack,  parent->arch.syscall_regs.iret,  sizeof(arch_iret_regs_t));
+    memcpy(pusha_stack, parent->arch.syscall_regs.pusha, sizeof(arch_pusha_regs_t));
+
+    uintptr_t syscall_args_virt = pusha_stack->ebx;
+
+    /* Return 0 indicating child process */
+    uint32_t zero = 0;
+    if(mmu_write_data(child->process->mmu_table, syscall_args_virt, &zero, 4)) {
+        return -1;
+    }
+
+    kdebug(DEBUGSRC_PROC, ERR_TRACE, " -- eip: %08X esp: %08X ebp: %08X cr3: %p", child->arch.eip, child->arch.esp, child->arch.ebp, child->process->mmu_table);
+
+	return 0;
+}
 
 __hot void do_task_switch(void) {
 	/* TODO: Select proper CPU */

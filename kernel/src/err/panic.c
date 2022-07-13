@@ -5,17 +5,8 @@
 #include <types.h>
 #include <video.h>
 
-/* TODO: Create unified stacktrace interface */
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-#  include <arch/proc/stack_trace.h>
-#elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARM32)
-#  include <arch/proc/stacktrace.h>
-#endif
-
 __weak
-void arch_kpanic_hook(void) {
-
-}
+void arch_kpanic_hook(void) {}
 
 __noreturn
 void _kpanic(char *msg, ...)
@@ -41,13 +32,6 @@ void _kpanic(char *msg, ...)
         }
     }
 
-    // Print regs here
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-    stack_trace(16, __builtin_frame_address(0), (uint32_t)&stack_trace_here, NULL);
-#elif (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_ARM32)
-    stacktrace_here(16);
-#endif
-    
     arch_kpanic_hook();
 
     for(;;) interrupt_halt();
