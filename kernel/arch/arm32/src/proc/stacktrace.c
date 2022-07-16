@@ -1,9 +1,10 @@
 #include <arch/proc/stacktrace.h>
+#include <mm/mm.h>
 
 #include <video.h>
 
 static int _next_frame(arch_stackframe_t *);
-static int _print_func(arch_stackframe_t *, const symbol_t *);
+static int _print_func(const arch_stackframe_t *, const symbol_t *);
 static void _print_data(uint32_t *, uint32_t);
 
 void arch_stacktrace(void *fp, uintptr_t pc, uint32_t max_frames, const symbol_t *symbols) {
@@ -58,7 +59,6 @@ static int _next_frame(arch_stackframe_t *frame) {
     return 0;
 }
 
-__inline
 static int _pc_valid(uintptr_t pc) {
     /* NOTE: Making this an inline function, as there will likely be more logic
      * here in the future */
@@ -69,8 +69,18 @@ static int _pc_valid(uintptr_t pc) {
     return 1;
 }
 
-static int _print_func(arch_stackframe_t *frame, const symbol_t *symbols __unused) {
-    if(!_pc_valid(frame->pc)) {
+static int _frame_valid(const arch_stackframe_t *frame) {
+    /* @todo Make this check a little cleaner, or just incorporate directly into
+     * _print_func() */
+    return (mm_check_addr(frame)                            &&
+            mm_check_addr((void *)frame->fp)                &&
+            mm_check_addr(*(uint32_t **)frame->fp)          &&
+            mm_check_addr(*(*(uint32_t ***)frame->fp - 16)) &&
+            _pc_valid(frame->pc));
+}
+
+static int _print_func(const arch_stackframe_t *frame, const symbol_t *symbols __unused) {
+    if(!_frame_valid(frame)) {
         return 1;
     }
 
