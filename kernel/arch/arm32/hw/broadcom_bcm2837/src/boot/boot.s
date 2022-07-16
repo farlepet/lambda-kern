@@ -47,6 +47,8 @@ _set_stacks:
     ldr sp, =fiq_stack_end
     msr cpsr_c, 0x12 /* IRQ mode */
     ldr sp, =irq_stack_end
+    msr cpsr_c, 0x17 /* ABT mode */
+    ldr sp, =irq_stack_end
     msr cpsr_c, 0x13 /* SVC mode */
     ldr sp, =new_stack_end
 
