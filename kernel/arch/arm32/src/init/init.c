@@ -13,7 +13,11 @@ void arch_init(void) {
     disable_interrupts();
     disable_fiqs();
 
+    /* Alloy for early exception debugging */
+    __WRITE_VBAR(0x8000);
+    
     armv7_mmu_init();
+    hw_init_mm();
 
     if(hw_init_console()) {
         /* Of course, if we fail to initialize the console, this message may
@@ -26,5 +30,4 @@ void arch_init(void) {
     hw_init_interrupts();
     kerror(ERR_INFO, "Interrupts Initialized");
 
-    hw_init_mm();
 }

@@ -141,6 +141,10 @@ int hw_init_mm(void) {
     /* TODO: Abstract this. Make memory map partially user-configurable. */
     init_alloc(ALLOC_BASE, ALLOC_SIZE);
 
+    /* @note The peripheral address space extends beyond this, but this should
+     * sufficient for now. */
+    mmu_map(_periphbase, _periphbase, 0x00300000, MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_KERNEL);
+
     return 0;
 }
 

@@ -6,6 +6,7 @@
 int armv7_mmu_init(void);
 
 /* Short descriptor translation table entry formats */
+#define MMU_DESCTYPE__MASK        (0x00000003) /*!< Descriptor type mask, not including supersection bit */
 #define MMU_DESCTYPE_INVALID      (0x00000000) /*!< Invalid descriptor */
 #define MMU_DESCTYPE_PAGETABLE    (0x00000001) /*!< Page table pointer - 4 KiB * 256 */
 #define MMU_DESCTYPE_SECTION      (0x00000002) /*!< Section            - 1 MiB */
@@ -26,10 +27,10 @@ int armv7_mmu_init(void);
 #define MMU_PTENTRYTYPE_SMALL    (0x00000002)
 
 /* Page Table entry fields */
-#define MMU_PTENTRY_B__POS       (         0) /*!< Bufferable */
-#define MMU_PTENTRY_C__POS       (         1) /*!< Cacheable */
-#define MMU_PTENTRY_AP0__POS     (         2) /*!< Access Permissions 0 */
-#define MMU_PTENTRY_AP1__POS     (         3) /*!< Access Permissions 1 */
+#define MMU_PTENTRY_B__POS       (         2) /*!< Bufferable */
+#define MMU_PTENTRY_C__POS       (         3) /*!< Cacheable */
+#define MMU_PTENTRY_AP0__POS     (         4) /*!< Access Permissions 0 */
+#define MMU_PTENTRY_AP1__POS     (         5) /*!< Access Permissions 1 */
 #define MMU_PTENTRY_AP2__POS     (         9) /*!< Access Permissions 2 */
 #define MMU_PTENTRY_S__POS       (        10) /*!< Shareable */
 #define MMU_PTENTRY_NG__POS      (        11) /*!< Not-Global */
@@ -64,7 +65,5 @@ int armv7_mmu_init(void);
 #define MMU_DESC_S_NS__POS             (        19) /*!< Not-secure */
 #define MMU_DESC_S_BASE__POS           (        20) /*!< Base address of memory region */
 #define MMU_DESC_S_BASE__MASK          (     0xFFF)
-
-
 
 #endif
