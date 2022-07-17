@@ -1,23 +1,22 @@
-ENTRY (reset)
+PHYS_ENTRYPOINT = 0x00008000;
+VIRT_OFFSET     = 0xC0000000;
+
+ENTRY(reset)
 
 SECTIONS
 {
-        . = 0x00008000;
+        . = PHYS_ENTRYPOINT + VIRT_OFFSET;
 
         kern_start = .;
-        
-        __text_begin = .;
-        .text : {
-                /* @todo Use __kernel_text_begin in place of __text_begin */
+
+        .text : AT(ADDR(.text) - VIRT_OFFSET) {
                 __kernel_text_begin = .;
                 *(.entryp)
                 *(.text.*)
                 __kernel_text_end = .;
         }
-        __text_end = .;
-        
-        __rodata_begin = .;
-        .rodata : {
+
+        .rodata : AT(ADDR(.rodata) - VIRT_OFFSET) {
                 __kernel_rodata_begin = .;
                 *(.rodata.*)
 
@@ -33,26 +32,21 @@ SECTIONS
 
                 __kernel_rodata_end = .;
         }
-        __rodata_end = .;
-        
-        __data_begin = .;
-        .data : {
+
+        .data : AT(ADDR(.data) - VIRT_OFFSET) {
                 __kernel_data_begin = .;
                 *(.data*)
                 __kernel_data_end = .;
 
         }
-        __data_end = .;
-        
-        __bss_begin = .;
-        .bss (NOLOAD) : {
+
+        .bss (NOLOAD) : AT(ADDR(.bss) - VIRT_OFFSET) {
                 __kernel_bss_begin = .;
                 *(COMMON)
                 *(.bss .bss.*)
                 __kernel_bss_end = .;
         }
-        __bss_end = .;
-        
+
         kern_end = .;
 
         new_stack_begin = .;

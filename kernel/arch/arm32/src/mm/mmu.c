@@ -8,7 +8,7 @@
 #include <mm/mmu.h>
 #include <mm/alloc.h>
 
-__align(4096)
+__align(16384)
 static uint32_t _mmu_table[4096];  /* Kernel MMU table */
 
 /** Map 1 MiB section */
@@ -55,7 +55,7 @@ static void _mmu_setup(uintptr_t base) {
     r = 0xFFFFFFFF;              /* Do not check permissions on all 16 domains */
     __mcr(r, p15, 0, c3, c0, 0); /* Domain Access Control Register*/
 
-    r = 0x00000002;              /* N = 2 -> 4 KiB alignment */
+    r = 0x00000000;              /* Only use TTBR0 */
     __mcr(r, p15, 0, c2, c0, 2); /* Translation Table Base Control Register */
 
     __mcr(base, p15, 0, c2, c0, 0); /* Set Translation Table 0 Base */
@@ -64,23 +64,24 @@ static void _mmu_setup(uintptr_t base) {
     /* System Control Register
      *  - MMU Enable */
     __mrc(r, p15, 0, c1, c0, 0);
-    r |= 0x00800001;
+    r |= 0x00000001;
     __mcr(r, p15, 0, c1, c0, 0);
 }
 
 int armv7_mmu_init(void) {
     memset(_mmu_table, 0, sizeof(_mmu_table));
-    /* Simple identity map for initial testing: */
-    /* For now, kernel memory is 0x00000000-0x20000000. This should be moved to
-     * the upper half of memory later */
-    for(uint32_t i = 0; i < 512; i++) {
+    /* Simple map for initial testing: */
+    for(uint32_t i = 0; i < 1024; i++) {
         uint32_t addr = i * 1024 * 1024;
+        /* @todo Do not hard-code kernel region start address. */
+        _mmu_map_section(_mmu_table, addr + 0xC0000000, addr, 0);
+        /* Temporary work-around for ident-mapping allocations */
         _mmu_map_section(_mmu_table, addr, addr, 0);
     }
     _mmu_map_section(_mmu_table, 0, 0, (1UL << MMU_DESC_S_B__POS) |
                                        (1UL << MMU_DESC_S_C__POS));
 
-    _mmu_setup((uintptr_t)_mmu_table);
+    _mmu_setup((uintptr_t)_mmu_table - 0xC0000000);
 
     return 0;
 }
@@ -111,7 +112,7 @@ int mmu_set_current_table(mmu_table_t *table) {
 }
 
 int mmu_map_table(mmu_table_t *table, uintptr_t virt, uintptr_t phys, size_t size, uint32_t flags) {
-    if(virt < 0x20000000) {
+    if(virt >= 0xC0000000) {
         /* @note Currently hard-coding kernel-space mapping to be ident. Should
          * be addressed in the future. */
         return 0;

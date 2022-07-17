@@ -16,7 +16,7 @@ __int_table:
 .extern irq_stack_end
 .extern fiq_stack_end
 
-.extern kentry
+.extern kern_premap
 .global reset
 .type reset, %function
 reset:
@@ -53,13 +53,12 @@ _set_stacks:
     ldr sp, =irq_stack_end
     msr cpsr_c, 0x13 /* SVC mode */
     ldr sp, =new_stack_end
+    sub sp, sp, #0xC0000000
 
-    bl kentry
+    bl kern_premap
 
 endloop:
     wfi
     b endloop
 
 .size reset, . - reset
-
-

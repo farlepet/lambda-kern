@@ -14,8 +14,8 @@ void arch_init(void) {
     disable_fiqs();
 
     /* Alloy for early exception debugging */
-    __WRITE_VBAR(0x8000);
-    
+    __WRITE_VBAR(0xC0008000);
+
     armv7_mmu_init();
     hw_init_mm();
 
@@ -29,5 +29,4 @@ void arch_init(void) {
     intr_init();
     hw_init_interrupts();
     kerror(ERR_INFO, "Interrupts Initialized");
-
 }
