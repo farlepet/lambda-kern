@@ -27,7 +27,7 @@ class KallocPrintCommand(gdb.Command):
             end_addr   = int(args[1], base=16)
 
 
-        print("BLK IDX: Used Address      Size")
+        print("BLK  IDX: Used Address      Size")
         for blk in range(0,512):
             alloc_block_eval = "{}[{}]".format(alloc_array, blk)
             alloc_block      = gdb.parse_and_eval(alloc_block_eval)
@@ -43,6 +43,6 @@ class KallocPrintCommand(gdb.Command):
                 used = int(alloc['used'])
                 addr = alloc['addr'].format_string(format='x').ljust(12)
                 size = alloc['size'].format_string(format='x').ljust(12)
-                print("{: 3d} {: 4d}: {} {} {}".format(blk, idx, used, addr, size))
+                print("{: 3d} {: 4d}:    {} {} {}".format(blk, idx, used, addr, size))
 
 KallocPrintCommand()
