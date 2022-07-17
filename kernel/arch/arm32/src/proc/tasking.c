@@ -46,7 +46,9 @@ static void _thread_entrypoint(void) {
 		kpanic("_proc_entrypoint: Thread is NULL!");
 	}
 
-    asm volatile("cps #0x13    \n"
+    /* @todo Support both user (0x10) and system (0x1F), possibly along with
+     * other present (IRQ,FIQ,SUP) modes. */
+    asm volatile("cps #0x1F    \n"
                  "mov sp,   %0 \n" /* Set user stack pointer */
                  "cps #0x12    \n"
                  
@@ -69,10 +71,10 @@ int arch_setup_thread(kthread_t *thread) {
     proc_create_stack(thread);
     proc_create_kernel_stack(thread);
 
-    /* TODO: Support multiple modes apart from supervisor */
+    /* TODO: Support multiple modes apart from system */
     //thread->arch.regs.cpsr = 0x60000113;
     thread->arch.regs.cpsr = 0x600001D2;
-    thread->arch.regs.spsr = 0x60000113;
+    thread->arch.regs.spsr = 0x6000011F;
     thread->arch.regs.ksp  = thread->arch.stack_kern.begin;
     thread->arch.regs.usp  = thread->arch.stack_user.begin;
     thread->arch.regs.lr   = (uint32_t)exit;
@@ -104,7 +106,7 @@ int arch_postfork_setup(const kthread_t *parent, kthread_t *child) {
     return -1;
 }
 
-__hot
+__hot __optimize_none
 void do_task_switch(void) {
 	kthread_t *thread = sched_get_curr_thread(0);
 
@@ -117,7 +119,7 @@ void do_task_switch(void) {
                      "str sp, %1  \n" /* Kernel stack pointer */
                      "str lr, %3  \n" /* Kernel LR */
 
-                     "cps #0x13   \n" /* Thread stack pointer */
+                     "cps #0x1F   \n" /* Thread stack pointer */
                      "str sp, %2  \n"
                      "cps #0x12   \n" :
                      "=r"(thread->arch.regs.cpsr),
@@ -140,8 +142,9 @@ void do_task_switch(void) {
             thread->arch.regs.spsr, thread->name);
 
 #if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
-        if((thread->arch.regs.usp > thread->arch.stack_user.begin) ||
-           (thread->arch.regs.usp < (thread->arch.stack_user.begin - thread->arch.stack_user.size))) {
+        if((thread->process->domain != PROC_DOMAIN_KERNEL) &&
+           ((thread->arch.regs.usp > thread->arch.stack_user.begin) ||
+            (thread->arch.regs.usp < (thread->arch.stack_user.begin - thread->arch.stack_user.size)))) {
             kpanic("User stack pointer out-of-bounds!");
         }
         if((thread->arch.regs.ksp > thread->arch.stack_kern.begin) ||
@@ -166,7 +169,7 @@ void do_task_switch(void) {
      * conterpart, is somewhat fragile. */
     register void *r0  asm("r0")  = (void *)&thread->arch.gpregs;
     register void *r12 asm("r12") = (void *)thread->arch.regs.pc;
-    asm volatile("cps #0x13          \n"
+    asm volatile("cps #0x1F          \n"
                  "ldr sp, %3         \n"
 
                  "msr cpsr, %0       \n"

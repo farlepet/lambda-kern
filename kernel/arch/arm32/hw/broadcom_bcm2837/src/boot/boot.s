@@ -51,7 +51,7 @@ _set_stacks:
     ldr sp, =irq_stack_end
     msr cpsr_c, 0x1B /* UND mode */
     ldr sp, =irq_stack_end
-    msr cpsr_c, 0x13 /* SVC mode */
+    msr cpsr_c, 0x1F /* SVC mode */
     ldr sp, =new_stack_end
     sub sp, sp, #0xC0000000
 
