@@ -5,10 +5,11 @@
 
 #include <arch/types/mmu.h>
 
-#define MMU_FLAG_READ   (0x00000001) /** Mapped memory can be read from */
-#define MMU_FLAG_WRITE  (0x00000002) /** Mapped memory can be written to */
-#define MMU_FLAG_EXEC   (0x00000004) /** Mapped memory can be executed */
-#define MMU_FLAG_KERNEL (0x00000010) /** Mapped memory belongs to the kernel, and cannot be accessed by user processes */
+#define MMU_FLAG_READ    (0x00000001) /** Mapped memory can be read from */
+#define MMU_FLAG_WRITE   (0x00000002) /** Mapped memory can be written to */
+#define MMU_FLAG_EXEC    (0x00000004) /** Mapped memory can be executed */
+#define MMU_FLAG_KERNEL  (0x00000010) /** Mapped memory belongs to the kernel, and cannot be accessed by user processes */
+#define MMU_FLAG_NOCACHE (0x00000020) /** Do not cache this memory */
 
 /**
  * @brief MMU entry

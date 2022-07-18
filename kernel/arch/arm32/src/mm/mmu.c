@@ -10,6 +10,8 @@
 
 __align(16384)
 static uint32_t _mmu_table[4096];  /* Kernel MMU table */
+__align(4096)
+static uint32_t _page_table0[256]; /* Mapping lower 1 MiB of memory */
 
 /** Map 1 MiB section */
 static void _mmu_map_section(uint32_t *table, uint32_t virt, uint32_t phys, uint32_t flags) {
@@ -76,10 +78,15 @@ int armv7_mmu_init(void) {
         /* @todo Do not hard-code kernel region start address. */
         _mmu_map_section(_mmu_table, addr + 0xC0000000, addr, 0);
         /* Temporary work-around for ident-mapping allocations */
-        _mmu_map_section(_mmu_table, addr, addr, 0);
+        _mmu_map_section(_mmu_table, addr, addr, (1UL << MMU_DESC_S_XN__POS));
     }
-    _mmu_map_section(_mmu_table, 0, 0, (1UL << MMU_DESC_S_B__POS) |
-                                       (1UL << MMU_DESC_S_C__POS));
+
+    _page_table0[0] = 0; /* Trap NULL pointers */
+    _mmu_table[0] = ((uint32_t)_page_table0 - 0xC0000000) | MMU_DESCTYPE_PAGETABLE;
+    for(uint32_t i = 1; i < 256; i++) {
+        uint32_t addr = i * 4096;
+        _mmu_map_page(_mmu_table, addr, addr, (1UL << MMU_PTENTRY_SMALL_XN__POS));
+    }
 
     _mmu_setup((uintptr_t)_mmu_table - 0xC0000000);
 
@@ -118,10 +125,14 @@ int mmu_map_table(mmu_table_t *table, uintptr_t virt, uintptr_t phys, size_t siz
         return 0;
     }
     /* @note Only supporting small pages at the moment */
-    uint32_t pflags = (1UL << MMU_PTENTRY_B__POS) |
-                      (1UL << MMU_PTENTRY_C__POS);
+    uint32_t pflags = 0;
     if(!(flags & MMU_FLAG_EXEC)) {
         pflags |= (1UL << MMU_PTENTRY_SMALL_XN__POS);
+    }
+    if(!(flags & MMU_FLAG_NOCACHE)) {
+        pflags |= (1UL << MMU_PTENTRY_B__POS) |
+                  (1UL << MMU_PTENTRY_C__POS);
+
     }
 
     virt &= 0xFFFFF000;
@@ -148,7 +159,9 @@ int mmu_map_get_table(mmu_table_t *table, uintptr_t virt, uintptr_t *phys) {
     /* TODO: Support non-identity-mapped data, and different tables */
     (void)table;
 
-    *phys = virt & 0xFFF00000;
+    if(phys) {
+        *phys = virt & 0xFFF00000;
+    }
 
     return (MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_EXEC);
 }

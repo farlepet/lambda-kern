@@ -143,7 +143,7 @@ int hw_init_mm(void) {
 
     /* @note The peripheral address space extends beyond this, but this should
      * sufficient for now. */
-    mmu_map(_periphbase, _periphbase, 0x00300000, MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_KERNEL);
+    mmu_map(_periphbase, _periphbase, 0x00300000, MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_KERNEL | MMU_FLAG_NOCACHE);
 
     return 0;
 }
