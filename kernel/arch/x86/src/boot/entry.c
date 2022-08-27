@@ -96,9 +96,9 @@ __noreturn void kentry(mboot_t *mboot_head, uint32_t magic) {
 
 /* @todo Clean all this up, once it is confirmed working */
 
-__section(".boot.bss") __align(PAGE_SZ)
+__section(.boot.bss) __align(PAGE_SZ)
 static uint32_t __init_pagedir[PGDIR_ENTRIES];
-__section(".boot.bss") __align(PAGE_SZ)
+__section(.boot.bss) __align(PAGE_SZ)
 static uint32_t __init_pagetables[PGTBL_ENTRIES];
 
 __used
@@ -109,7 +109,7 @@ static mboot_t *__mboot_head;
 __used
 static uint32_t __mboot_magic;
 
-__section(".boot.text")
+__section(.boot.text)
 __noreturn void kern_premap(mboot_t *mboot_head, uint32_t magic) {
 	uintptr_t virt_addr = (uintptr_t)&kern_start;
 
