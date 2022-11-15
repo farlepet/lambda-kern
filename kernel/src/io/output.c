@@ -6,82 +6,61 @@
 #include <proc/mtask.h>
 #include <math.h>
 
-hal_io_char_dev_t *kput_char_dev = NULL;
+static hal_io_char_dev_t *_kput_char_dev = NULL;
 
-/**
- * Prints a single character.
- * 
- * @param c the input character
- */
+void output_set_dev(hal_io_char_dev_t *dev) {
+    _kput_char_dev = dev;
+}
+
+
+static lock_t print_lock;
+
 void kput(char c) {
-    if(kput_char_dev) {
-        hal_io_char_dev_putc(kput_char_dev, c);
+    if(_kput_char_dev) {
+        hal_io_char_dev_putc(_kput_char_dev, c);
     }
 }
 
-/**
- * Prints a single wide character.
- * 
- * @param c the input character
- */
-void kwput(int c) {
-    if(kput_char_dev) {
-        hal_io_char_dev_putc(kput_char_dev, c);
-    }
-#if 0
-    if(boot_options.output_serial) {
-        serial_write((uint16_t)boot_options.output_serial, (char)c);
-    }
-    else vga_put((char)c);
-#endif
-}
-
-/**
- * Prints a string of characters.
- * 
- * @param str the input string
- * @see kput
- */
 void kprint(char *str) {
+    /* @todo Revisit this method of blocking on prints. Perhaps a print queue
+     * would work better. */
+    if(mtask_get_curr_thread() &&
+       interrupts_enabled()) lock_for(&print_lock, 100);
+
     while(*str) kput(*str++);
-}
 
-/**
- * Prints a string of wide characters.
- * 
- * @param str the input string
- * @see kwput
- */
-void kwprint(uint16_t *str) {
-    while(*str) kwput(*str++);
+    if(mtask_get_curr_thread() &&
+       interrupts_enabled()) unlock(&print_lock);
 }
-
 
 
 typedef unsigned long long arg_type_t;
 typedef signed long long   sarg_type_t;
 
+#define PRINTFLAG_UNSIGNED  (1UL << 0) /**< Treat value as unsigned */
+#define PRINTFLAG_PADZERO   (1UL << 1) /**< Pad value with zeros */
+#define PRINTFLAG_POSSIGN   (1UL << 2) /**< Precede positive numbers with + */
+#define PRINTFLAG_POSSPACE  (1UL << 3) /**< Precede positive numbers with a space */
+#define PRINTFLAG_UPPERCASE (1UL << 4) /**< Use uppercase for bases > 10 */
+#define PRINTFLAG_LEFTALIGN (1UL << 5) /**< Left align */
+
 /**
  * Converts an interger into a string and places the output into `out`
  * Used by `print` to make the code cleaner.
  * 
- * @param num the number to print
- * @param base the base in which to print the number
- * @param u wether the number is unsigned
- * @param pad how many characters of padding to give the number
- * @param padzero wether or not to pad the number with zeros instead of spaces
- * @param possign wether or not to place a positive sign in front of positive numbers
- * @param posspace wether or not to place a space in front of positive numbers
- * @param _case upper or lowercase (for bases above 10)
- * @param out the output string/buffer
- * @return the number of characters that have been put in `out`
- * @see print
+ * @param num The number to print
+ * @param base The base in which to print the number
+ * @param pad How many characters of padding to give the number
+ * @param flags Flags controling operation
+ * @param out The output string/buffer
+ * @return The number of characters that have been put in `out`
  */
-static int _print_int(arg_type_t num, uint8_t base, uint8_t u, uint8_t pad, uint8_t padzero, uint8_t possign, uint8_t posspace, uint8_t _case, char *out) {
-    int neg = (!u && (num & (1ULL << 63)));
+static int _print_int(arg_type_t num, uint8_t base, uint8_t pad, uint32_t flags, char *out) {
+    int neg = (!(flags & PRINTFLAG_UNSIGNED) && (num & (1ULL << 63)));
     if(neg) num = (~num) + 1;
 
-    const char *nums = _case ? "0123456789ABCDEF" : "0123456789abcdef";
+    const char *nums = (flags & PRINTFLAG_UPPERCASE) ? "0123456789ABCDEF" :
+                                                       "0123456789abcdef";
 
     int outidx = 0;
 
@@ -99,9 +78,9 @@ static int _print_int(arg_type_t num, uint8_t base, uint8_t u, uint8_t pad, uint
     if(neg) {
         out[outidx++] = '-';
     } else {
-        if(possign) {
+        if(flags & PRINTFLAG_POSSIGN) {
             out[outidx++] = '+';
-        } else if(posspace) {
+        } else if(flags & PRINTFLAG_POSSPACE) {
             out[outidx++] = ' ';
         }
     }
@@ -109,7 +88,7 @@ static int _print_int(arg_type_t num, uint8_t base, uint8_t u, uint8_t pad, uint
     int p = ((pad - i) > 0) ? (pad - i) : 0;
 
     while(p--) {
-        out[outidx++] = (padzero ? '0' : ' ');
+        out[outidx++] = ((flags & PRINTFLAG_PADZERO) ? '0' : ' ');
     }
     while(--i >= 0) {
         out[outidx++] = ans[i];
@@ -175,6 +154,17 @@ static arg_type_t _sign_extend(arg_type_t val, int size) {
     return val;
 }
 
+#define FMT_SPEC '%' //!< Format specifier character
+
+#define ZERO_ALL_VID()  \
+    do {                \
+        is_in_spec = 0; \
+        size       = 0; \
+        width      = 0; \
+        precision  = 0; \
+        flags      = 0; \
+    } while(0)
+
 /**
  * Takes a format string and a list of arguments as input, and produces a
  * string as output.
@@ -185,18 +175,15 @@ static arg_type_t _sign_extend(arg_type_t val, int size) {
  * @return the number of charactern placed in `out`
  */
 static int print(char *out, const char *format, __builtin_va_list varg) {
-    uint8_t is_in_spec = 0;
-    int8_t  size = 0;      // Size of the integer
-    uint32_t width = 0;     // Width of the number at minimum
+    uint8_t  is_in_spec = 0;
+    
+    int8_t   size      = 0; // Size of the integer
+    uint32_t width     = 0; // Width of the number at minimum
     uint32_t precision = 0; // Precision
-    uint8_t showsign = 0;  // Show the sign on positive numbers
-    uint8_t signspace = 0; // Place a space before positive numbers
-    uint8_t leftalign = 0; // Align to the left
-    uint8_t padzeros = 0;  // Use zeros instead of spaces for padding
+    int      nchars    = 0; // Number of chars printed so far
+    uint32_t flags     = 0;
     
-    int nchars = 0;    // Number of chars printed so far
-    
-    ptr_t      temp;
+    uintptr_t  temp;
     arg_type_t arg;
     
     for(; *format != 0; format++) {
@@ -230,16 +217,16 @@ static int print(char *out, const char *format, __builtin_va_list varg) {
             case 't': size = 0;
                       break;
         
-            case '+': showsign = 1;
+            case '+': flags |= PRINTFLAG_POSSIGN;
                       break;
             
-            case ' ': signspace = 1;
+            case ' ': flags |= PRINTFLAG_POSSPACE;
                       break;
             
-            case '-': leftalign = 1;
+            case '-': flags |= PRINTFLAG_LEFTALIGN;
                       break;
         
-            case '0': padzeros = 1;
+            case '0': flags |= PRINTFLAG_PADZERO;
                       break;
             
             case '1':
@@ -265,8 +252,12 @@ static int print(char *out, const char *format, __builtin_va_list varg) {
             case 'u':
             case 'd':
             case 'i': arg = _get_arg(&varg, size);
-                      if(*format != 'u') arg = _sign_extend(arg, size);
-                      temp = (ptr_t)_print_int(arg, 10, (*format == 'u'), width, padzeros, showsign, signspace, 0, out);
+                      if(*format != 'u') {
+                          arg = _sign_extend(arg, size);
+                      } else {
+                          flags |= PRINTFLAG_UNSIGNED;
+                      }
+                      temp = (uintptr_t)_print_int(arg, 10, width, flags, out);
                       nchars += temp;
                       out += temp;
                       ZERO_ALL_VID();
@@ -282,48 +273,44 @@ static int print(char *out, const char *format, __builtin_va_list varg) {
                       ZERO_ALL_VID();
                       break;
                       
-            case 'x':
-            case 'X': arg = _get_arg(&varg, size);
-                      temp = (ptr_t)_print_int(arg, 16, 1, width, padzeros, showsign, signspace, (*format == 'X'), out);
+            case 'X':
+            case 'x': flags |= PRINTFLAG_UNSIGNED;
+                      if(*format == 'X') {
+                          flags |= PRINTFLAG_UPPERCASE;
+                      }
+                      arg  = _get_arg(&varg, size);
+                      temp = (uintptr_t)_print_int(arg, 16, width, flags, out);
                       nchars += temp;
-                      out += temp;
+                      out    += temp;
                       ZERO_ALL_VID();
                       break;
             
-            case 'o': arg = _get_arg(&varg, size);
-                      temp = (ptr_t)_print_int(arg, 8, 1, width, padzeros, showsign, signspace, 0, out);
+            case 'o': flags |= PRINTFLAG_UNSIGNED;
+                      arg = _get_arg(&varg, size);
+                      temp = (uintptr_t)_print_int(arg, 8, width, flags, out);
                       nchars += temp;
                       out += temp;
                       ZERO_ALL_VID();
                       break;
                      
             case 's': if(!precision) precision = UINT_MAX;
-                      if(size > 0) {
-                          temp = (ptr_t)va_arg(varg, int16_t *);
-                          if(temp == 0) { temp = (ptr_t)L"(null)"; }
-                          else if(!mm_check_addr((void *)temp)) { temp = (ptr_t)L"(badaddr)"; }
-                          nchars += wcslen((int16_t *)temp);
-                          while(*(int16_t *)temp && precision--) *out++ = (char)*(int16_t *)temp++;
-                      } else {
-                          temp = (ptr_t)va_arg(varg, char *);
-                          if(temp == 0) { temp = (ptr_t)"(null)"; }
-                          else if(!mm_check_addr((void *)temp)) { temp = (ptr_t)"(badaddr)"; }
-                          nchars += strlen((char *)temp);
-                          while(*(char *)temp && precision--) *out++ = *(char *)temp++;
-                      }
+                      temp = (uintptr_t)va_arg(varg, char *);
+                      if(temp == 0) { temp = (uintptr_t)"(null)"; }
+                      nchars += strlen((char *)temp);
+                      while(*(char *)temp && precision--) *out++ = *(char *)temp++;
                       ZERO_ALL_VID();
                       break;
                     
             case 'c': arg = (arg_type_t)va_arg(varg, int);
-                      if(size > 0) *out++ = (char)arg; /* TODO: wchar */
-                      else         *out++ = (char)arg;
+                      *out++ = (char)arg;
                       nchars++;
                       ZERO_ALL_VID();
                       break;
                     
-            case 'p': if(!width) width = sizeof(void *) * 2;
+            case 'p': flags |= PRINTFLAG_UNSIGNED;
+                      if(!width) width = sizeof(void *) * 2;
                       arg = _get_arg(&varg, size);
-                      temp = (ptr_t)_print_int(arg, 16, 1, width, 1, 0, 0, 1 /* Should this be upper or lower case? */, out);
+                      temp = (uintptr_t)_print_int(arg, 16, width, flags, out);
                       nchars += temp;
                       out += temp;
                       ZERO_ALL_VID();
@@ -343,10 +330,6 @@ static int print(char *out, const char *format, __builtin_va_list varg) {
     
     *(out) = 0;
     
-    // These aren't used yet:
-    (void)precision;
-    (void)leftalign;
-    
     return nchars;
 }
 
@@ -363,14 +346,33 @@ static int print(char *out, const char *format, __builtin_va_list varg) {
 int sprintf(char *out, const char *format, ...) {
     __builtin_va_list varg;
     __builtin_va_start(varg, format);
+
     int ret = print(out, format, varg);
+
     __builtin_va_end(varg);
     return ret;
 }
 EXPORT_FUNC(sprintf);
 
 
-static lock_t print_lock;
+/**
+ * Uses `print` to convert the format string and any number of arguments in varg to
+ * a string then prints that string to the screen.
+ * 
+ * @param format format string
+ * @param varg argument list
+ * @return the number of characters printed
+ * @see print
+ */
+int kprintv(const char *format, __builtin_va_list varg) {
+    /* @todo Use shared memory here, allocating 1K on the stack is rediculous */
+    char temp[1024];
+    int ret = print(temp, format, varg);
+
+    kprint(temp);
+
+    return ret;
+}
 
 /**
  * Uses `print` to convert the format string and any number of arguments to
@@ -384,37 +386,10 @@ static lock_t print_lock;
 int kprintf(const char *format, ...) {
     __builtin_va_list varg;
     __builtin_va_start(varg, format);
-    char temp[1024];
-    int ret = print(temp, format, varg);
 
-    if(mtask_get_curr_thread() &&
-       interrupts_enabled()) lock_for(&print_lock, 100);
-    kprint(temp);
-    if(mtask_get_curr_thread() &&
-       interrupts_enabled()) unlock(&print_lock);
+    int ret = kprintv(format, varg);
 
     __builtin_va_end(varg);
     return ret;
 }
 
-/**
- * Uses `print` to convert the format string and any number of arguments in varg to
- * a string then prints that string to the screen.
- * 
- * @param format format string
- * @param varg argument list
- * @return the number of characters printed
- * @see print
- */
-int kprintv(const char *format, __builtin_va_list varg) {
-    char temp[1024];
-    int ret = print(temp, format, varg);
-
-    if(mtask_get_curr_thread() &&
-       interrupts_enabled()) lock_for(&print_lock, 100);
-    kprint(temp);
-    if(mtask_get_curr_thread() &&
-       interrupts_enabled()) unlock(&print_lock);
-
-    return ret;
-}

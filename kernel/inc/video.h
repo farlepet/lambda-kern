@@ -4,7 +4,13 @@
 #include <types.h>
 #include <hal/io/char/char.h>
 
-extern hal_io_char_dev_t *kput_char_dev;
+/**
+ * @brief Set I/O device to write kernel output to
+ *
+ * @param dev Character device
+ */
+void output_set_dev(hal_io_char_dev_t *dev);
+
 
 /**
  * \brief Prints a single character.
@@ -14,54 +20,23 @@ extern hal_io_char_dev_t *kput_char_dev;
 void kput(char c);
 
 /**
- * Prints a single wide character.
- * 
- * @param c the input character
- */
-void kwput(int c);
-
-/**
  * \brief Prints a string of characters.
  * Uses the current architecture's print function
  * @param str the input string
  */
 void kprint(char *str);
 
+
 /**
- * Prints a string of wide characters.
- * 
- * @param str the input string
- * @see kwput
+ * \brief Creates a string based on input format string and arguments.
+ * Uses `print` to convert the format string and any number of arguments to
+ * an output string.
+ * @param out output string
+ * @param format format string
+ * @param ... argument list
+ * @return the number of characters placed in `out`
+ * @see print
  */
-void kwprint(uint16_t *str);
-
-
-#define FMT_SPEC '%' //!< Format specifier character
-
-
-#define ZERO_ALL_VID()  \
-	do {                \
-		is_in_spec = 0; \
-		size       = 0; \
-		width      = 0; \
-		precision  = 0; \
-		showsign   = 0; \
-		signspace  = 0; \
-		leftalign  = 0; \
-		padzeros   = 0; \
-	} while(0)
-
-
-/**
-	* \brief Creates a string based on input format string and arguments.
-	* Uses `print` to convert the format string and any number of arguments to
-	* an output string.
-	* @param out output string
-	* @param format format string
-	* @param ... argument list
-	* @return the number of characters placed in `out`
-	* @see print
-	*/
 int sprintf(char *out, const char *format, ...);
 
 /**
@@ -87,3 +62,4 @@ int kprintf(const char *format, ...);
 int kprintv(const char *format, __builtin_va_list varg);
 
 #endif
+

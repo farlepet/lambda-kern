@@ -23,7 +23,7 @@ int hw_init_console(void) {
                     &_uartclock,
                     115200);
     uart_pl011_create_chardev(&_pl011, &_uart);
-    kput_char_dev = &_uart;
+    output_set_dev(&_uart);
 
     return 0;
 }

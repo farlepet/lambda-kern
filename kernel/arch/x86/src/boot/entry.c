@@ -70,8 +70,8 @@ __noreturn void kentry(mboot_t *mboot_head, uint32_t magic) {
 	
     serial_init(SERIAL_COM1);
 	serial_create_chardev(SERIAL_COM1, &serial1);
-	kput_char_dev = &serial1;
-	
+    output_set_dev(&serial1);
+
 	multiboot_check_commandline(mboot_head);
 
     arch_init(mboot_head);

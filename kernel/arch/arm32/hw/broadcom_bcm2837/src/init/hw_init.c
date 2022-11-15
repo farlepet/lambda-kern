@@ -78,8 +78,8 @@ int hw_init_console(void) {
                     115200);
     bcm2835_gpio_debug(0x4);
     uart_pl011_create_chardev(&_pl011, &_uart);
-    kput_char_dev = &_uart;
-    
+    output_set_dev(&_uart);
+
     bcm2835_gpio_debug(0x5);
 
     return 0;
