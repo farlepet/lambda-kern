@@ -1,5 +1,5 @@
-#ifndef VIDEO_H
-#define VIDEO_H
+#ifndef IO_OUTPUT_H
+#define IO_OUTPUT_H
 
 #include <types.h>
 #include <hal/io/char/char.h>

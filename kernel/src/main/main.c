@@ -15,7 +15,7 @@
 #include <fs/initrd.h>
 #include <fs/stream.h>
 #include <fs/fs.h>
-#include <video.h>
+#include <io/output.h>
 
 #include <sys/stat.h>
 #include <string.h>
@@ -29,7 +29,7 @@ boot_options_t boot_options = {
 	.init_executable   = "",
 #endif
 #if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
-	.output_serial     = 0X3f8,
+	.output_serial     = 0,
 #endif
 };
 

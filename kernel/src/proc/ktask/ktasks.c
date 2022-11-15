@@ -6,7 +6,7 @@
 #include <err/error.h>
 #include <err/panic.h>
 #include <time/time.h>
-#include <video.h>
+#include <io/output.h>
 #include <string.h>
 
 int ktask_pids[KTASK_SLOTS] = { 0 }; //!< PID's of these tasks

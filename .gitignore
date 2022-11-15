@@ -51,3 +51,8 @@ doc
 
 # Debug files
 .gdb_history
+__pycache__
+
+# ctags
+tags
+

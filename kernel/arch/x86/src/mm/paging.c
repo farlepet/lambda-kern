@@ -9,7 +9,7 @@
 #include <mm/alloc.h>
 #include <string.h>
 #include <types.h>
-#include <video.h>
+#include <io/output.h>
 
 #define N_INIT_TABLES     2 /* ident + offset */
 

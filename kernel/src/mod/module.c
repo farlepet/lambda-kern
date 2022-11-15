@@ -8,7 +8,7 @@
 #include <sys/stat.h>
 #include <mm/alloc.h>
 #include <fs/fs.h>
-#include <video.h>
+#include <io/output.h>
 #include <string.h>
 
 static llist_t loaded_modules;

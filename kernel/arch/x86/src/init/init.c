@@ -23,7 +23,7 @@
 #include <mm/alloc.h>
 #include <mm/mm.h>
 
-#include <video.h>
+#include <io/output.h>
 
 
 static void interrupts_init(void);

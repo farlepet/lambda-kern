@@ -2,7 +2,7 @@
 
 #include <arch/intr/timer/timer_sp804.h>
 
-#include <video.h>
+#include <io/output.h>
 
 static int _timerdev_setfreq(void *data, uint8_t idx, uint32_t freq);
 static int _timerdev_attach(void *data, uint8_t idx, void (*callback)(void));

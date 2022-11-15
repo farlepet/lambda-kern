@@ -4,7 +4,7 @@
 #include <mm/alloc.h>
 #include <mm/mmap.h>
 #include <fs/fs.h>
-#include <video.h>
+#include <io/output.h>
 #include <string.h>
 
 int modules_preload(const char *path) {

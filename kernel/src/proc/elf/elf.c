@@ -4,7 +4,7 @@
 #include <mm/alloc.h>
 #include <proc/elf.h>
 #include <string.h>
-#include <video.h>
+#include <io/output.h>
 
 int elf_find_section(const Elf32_Ehdr *elf, Elf32_Shdr **section, const char *section_name) {
 	Elf32_Shdr       *sections     = (Elf32_Shdr *)((uintptr_t)elf + elf->e_shoff);

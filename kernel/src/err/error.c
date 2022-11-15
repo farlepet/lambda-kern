@@ -3,7 +3,7 @@
 #include <err/error.h>
 #include <config.h>
 #include <types.h>
-#include <video.h>
+#include <io/output.h>
 #include <math.h>
 
 static uint8_t _err_level[DEBUGSRC_MAX] = {

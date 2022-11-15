@@ -6,7 +6,7 @@
 #include <err/error.h>
 #include <err/panic.h>
 #include <types.h>
-#include <video.h>
+#include <io/output.h>
 #include <mm/mm.h>
 
 struct exception_handler {

@@ -3,7 +3,7 @@
 #include <err/panic.h>
 #include <mm/mm.h>
 #include <types.h>
-#include <video.h>
+#include <io/output.h>
 
 __weak
 void arch_kpanic_hook(void) {}

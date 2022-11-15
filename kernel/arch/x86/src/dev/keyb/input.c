@@ -7,7 +7,7 @@
 #include <intr/intr.h>
 #include <err/error.h>
 #include <io/input.h>
-#include <video.h>
+#include <io/output.h>
 
 
 extern void keyb_int(void); //!< Assembly interrupt handler

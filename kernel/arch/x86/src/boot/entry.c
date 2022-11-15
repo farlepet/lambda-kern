@@ -1,7 +1,7 @@
 #include <types.h>
 #include <string.h>
 
-#include <video.h>
+#include <io/output.h>
 #include <kern/cmdline.h>
 #include <main/main.h>
 #include <err/panic.h>

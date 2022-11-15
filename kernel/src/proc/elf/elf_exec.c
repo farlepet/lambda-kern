@@ -4,7 +4,7 @@
 #include <mm/alloc.h>
 #include <proc/elf.h>
 #include <string.h>
-#include <video.h>
+#include <io/output.h>
 
 static void elf_read_phdr(const Elf32_Ehdr *elf, struct kproc_mem_map_ent **mmap_entries, proc_elf_data_t *elf_data, mmu_table_t *mmu_table) {
 	if(!mmap_entries || !elf_data) { return; }

@@ -2,7 +2,7 @@
 #include <err/error.h>
 #include <io/input.h>
 #include <fs/fs.h>
-#include <video.h>
+#include <io/output.h>
 
 #include <string.h>
 

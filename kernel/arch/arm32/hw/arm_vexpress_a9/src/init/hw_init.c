@@ -8,7 +8,7 @@
 
 #include <err/error.h>
 #include <mm/alloc.h>
-#include <video.h>
+#include <io/output.h>
 
 hal_intctlr_dev_t          intctlr;
 

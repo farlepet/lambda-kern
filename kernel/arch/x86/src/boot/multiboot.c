@@ -5,7 +5,7 @@
 #include <main/main.h>
 #include <mm/mmu.h>
 #include <string.h>
-#include <video.h>
+#include <io/output.h>
 
 #include <arch/boot/multiboot.h>
 #include <arch/mm/paging.h>

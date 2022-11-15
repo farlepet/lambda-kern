@@ -1,7 +1,7 @@
 #include <arch/proc/stacktrace.h>
 #include <mm/mm.h>
 
-#include <video.h>
+#include <io/output.h>
 
 static int _next_frame(arch_stackframe_t *);
 static int _print_func(const arch_stackframe_t *, const symbol_t *);

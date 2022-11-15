@@ -3,7 +3,7 @@
 #include <err/error.h>
 #include <mm/alloc.h>
 #include <config.h>
-#include <video.h>
+#include <io/output.h>
 
 #if DEBUGGER
 

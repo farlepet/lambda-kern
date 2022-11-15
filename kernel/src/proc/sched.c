@@ -5,7 +5,7 @@
 #include <mm/alloc.h>
 #include <err/error.h>
 #include <err/panic.h>
-#include <video.h>
+#include <io/output.h>
 
 static llist_t     _thread_queue;
 static llist_t    *_cpu_threads = NULL;

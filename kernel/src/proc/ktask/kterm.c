@@ -10,7 +10,7 @@
 #include <mm/mm.h>
 #include <string.h>
 #include <fs/fs.h>
-#include <video.h>
+#include <io/output.h>
 #include <sys/stat.h>
 #include <mod/module.h>
 

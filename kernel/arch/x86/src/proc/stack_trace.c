@@ -1,7 +1,7 @@
 #include <arch/proc/stack_trace.h>
 #include <mm/mm.h>
 
-#include <video.h>
+#include <io/output.h>
 
 #define PRINT_STACK_DATA 0
 

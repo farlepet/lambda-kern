@@ -11,7 +11,7 @@
 #include <proc/mtask.h>
 #include <err/error.h>
 #include <mm/alloc.h>
-#include <video.h>
+#include <io/output.h>
 
 static uart_pl011_handle_t _pl011;
 static hal_io_char_dev_t   _uart;

@@ -1,5 +1,5 @@
 #include <mm/mm.h>
-#include <video.h>
+#include <io/output.h>
 #include <err/panic.h>
 #include <err/error.h>
 #include <proc/proc.h>

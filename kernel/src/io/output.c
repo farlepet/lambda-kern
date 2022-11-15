@@ -1,5 +1,5 @@
 #include <lambda/export.h>
-#include <video.h>
+#include <io/output.h>
 #include <string.h>
 #include <mm/mm.h>
 #include <proc/atomic.h>
