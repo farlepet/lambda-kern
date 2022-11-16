@@ -93,6 +93,7 @@ else
         echo "FATAL: Could not install binutils!"
         exit 1
     fi
+    cd ../..
 fi
 
 if [ -f $PREFIX/bin/$TARGET-gcc ]; then
@@ -127,6 +128,7 @@ else
         echo "FATAL: Could not install GCC!"
         exit 1
     fi
+    cd ../..
 fi
 
 echo "Cross-compiler build complete!"
