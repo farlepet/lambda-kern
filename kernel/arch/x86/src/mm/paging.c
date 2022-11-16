@@ -1,5 +1,6 @@
 #include <arch/types/mmu.h>
 #include <arch/intr/int.h>
+#include <arch/io/cpuid.h>
 #include <arch/mm/paging.h>
 #include <arch/mm/mem.h>
 #include <arch/registers.h>
@@ -160,9 +161,14 @@ void paging_init(uint32_t som, uint32_t eom) {
 	register_cr0_write(tmp);
 
 	/* Enable global pages */
-	tmp = register_cr4_read();
-	tmp |= CR4_FLAG_PGE;
-	register_cr4_write(tmp);
+    if(cpuid_avail()) {
+        /* It is assumed that any CPU that supports CPUID will also support CR4,
+         * as both features were introduced in Pentium, and both were backported
+         * to i486. */
+        tmp = register_cr4_read();
+        tmp |= CR4_FLAG_PGE;
+        register_cr4_write(tmp);
+    }
 
 	enable_paging();
 

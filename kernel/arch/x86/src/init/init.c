@@ -33,7 +33,12 @@ void arch_init(mboot_t *mboot_head) {
     vga_clear();
     disable_interrupts();
 	
-	kerror(ERR_INFO, "Kernel occupies this memory space: %08X - %08X", &kern_start, &kern_end);
+	kerror(ERR_INFO, "Kernel occupies this memory space: %p - %p", &kern_start, &kern_end);
+
+    kerror(ERR_INFO, "  -> GDT");
+	gdt_init();
+	
+    interrupts_init();
 
 	mm_init(mboot_head);
 
@@ -43,8 +48,9 @@ void arch_init(mboot_t *mboot_head) {
 	acpi_init(mboot_head);
 	apic_init();
 
-    interrupts_init();
-
+	kerror(ERR_INFO, "  -> STI");
+	enable_interrupts();
+    
     // Initialize a second time to enable interrupts
     serial_init(SERIAL_COM1);
 
@@ -59,17 +65,12 @@ extern void exceptions_init(void); //!< Initializes basic exception handlers. Fo
  * Initializes based on the target architecture.
  */
 static void interrupts_init(void) {
-	kerror(ERR_INFO, "Enabling Interrupts");
+	kerror(ERR_INFO, "Configuring Interrupts");
 	
 	kerror(ERR_INFO, "  -> IDT");
 	idt_init();
 	kerror(ERR_INFO, "  -> Exceptions");
 	exceptions_init();
-	kerror(ERR_INFO, "  -> STI");
-	enable_interrupts();
-
-	kerror(ERR_INFO, "Interrupts enabled");
-
 }
 
 static uintptr_t mods_begin = UINTPTR_MAX;
@@ -95,9 +96,6 @@ static void mm_init(const mboot_t *head) {
 		upper_mem -= (mods_end - 0x100000);
 	}
 
-    kerror(ERR_INFO, "  -> GDT");
-	gdt_init();
-	
 	kerror(ERR_INFO, "  -> Paging");
 	paging_init(mods_end, upper_mem);
 	mm_init_kernel_map();

@@ -13,12 +13,30 @@ typedef enum {
 
 /**
  * @brief Check if CPU supports CPUID instruction
- * 
+ *
+ * @note This may inappropriately return 0 on certain old x86 clones
+ *
  * @return 1 if supported, else 0
  */
 static inline int cpuid_avail(void) {
-    /* TODO */
-    return 1;
+    uint32_t diff;
+
+    asm volatile("pushfl                   \n"
+                 /* Invert ID bit */
+                 "pushfl                   \n"
+                 "xorl $0x00200000, (%%esp)\n"
+                 "popfl                    \n"
+                 /* Check if ID was properly flipped */
+                 "pushfl                   \n"
+                 "popl %%eax               \n"
+                 "xorl %%eax, (%%esp)      \n"
+                 /* Enforce CPUID enable, for the few CPUs that require it */
+                 "orl  $0x00200000, (%%esp)\n"
+                 "popfl                    \n"
+                 : "=r"(diff));
+
+    /* If ID bit could be flipped, CPUID is supported */
+    return (diff & 0x00200000) ? 1 : 0;
 }
 
 /**
