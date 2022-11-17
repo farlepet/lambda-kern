@@ -4,7 +4,6 @@
 #include <mm/mm.h>
 #include <proc/atomic.h>
 #include <proc/mtask.h>
-#include <math.h>
 
 static hal_io_char_dev_t *_kput_char_dev = NULL;
 
@@ -69,8 +68,8 @@ static int _print_int(arg_type_t num, uint8_t base, uint8_t pad, uint32_t flags,
     char ans[25] = { '0', 0, };
     int i = 0;
     while(num) {
-        arg_type_t rem;
-        num = udiv64(num, base, &rem);
+        arg_type_t rem = num % base;
+        num            = num / base;
         ans[i++] = nums[rem];
     }
     if(i == 0) i++;

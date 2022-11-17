@@ -14,20 +14,31 @@ endif
 # Default architecture
 ARCH       = x86
 
-CROSS_COMPILE =
-CC            = $(CROSS_COMPILE)gcc
-AS            = $(CROSS_COMPILE)gcc
-LD            = $(CROSS_COMPILE)ld
-AR            = $(CROSS_COMPILE)ar
-STRIP         = $(CROSS_COMPILE)strip
-OBJCOPY       = $(CROSS_COMPILE)objcopy
+ifeq ($(CC),)
+	CC      := $(CROSS_COMPILE)gcc
+endif
+ifeq ($(AS),)
+	AS      := $(CROSS_COMPILE)gcc
+endif
+ifeq ($(LD),)
+	LD      := $(CROSS_COMPILE)ld
+endif
+ifeq ($(AR),)
+	AR      := $(CROSS_COMPILE)ar
+endif
+ifeq ($(STRIP),)
+	STRIP   := $(CROSS_COMPILE)strip
+endif
+ifeq ($(OBJCOPY),)
+	OBJCOPY := $(CROSS_COMPILE)objcopy
+endif
 
 
 GIT_VERSION := "$(shell git describe --abbrev=8 --dirty=\* --always --tags)"
 
 CFLAGS    += -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/$(ARCH)/inc/ \
-			 -nostdlib -nostdinc -ffreestanding -Wall -Wextra -Werror -O2 \
-			 -pipe -g -fno-stack-protector -fdata-sections -ffunction-sections \
+			 -nostdinc -ffreestanding -Wall -Wextra -Werror -O2 \
+			 -pipe -g -fdata-sections -ffunction-sections \
 			 -include "config.h" \
 			 -DKERNEL_GIT=\"$(GIT_VERSION)\"
 

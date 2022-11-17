@@ -22,7 +22,9 @@ Building
 --------
 
 To be able to build the Lambda kernel, you need the following tools:
-  - `gcc` or `clang` (Use cross-compiler if necessary)
+  - `gcc`
+    - If using `gcc`, you must use a cross-compiler. There is a convenience script for building one: `scripts/build-cross-compiler.sh`
+    - TODO: reintroduce clang support
   - `make`
   - `eu-readelf` (elfutils)
 
@@ -30,7 +32,7 @@ To be able to build the Lambda kernel, you need the following tools:
 To build kernel:
   - (If fisrt time) Clone the `lambda-kern` code repository
   - (If not first time) Run `git pull`
-  - Make: `make`
+  - Make: `make CROSS_COMPILE=<gcc prefix>`
      - Defaults to x86
      - For clang: `make CC=clang AS=clang`
      - For ARMv7: `make CROSS_COMPILE=<gcc prefix> ARCH=armv7`

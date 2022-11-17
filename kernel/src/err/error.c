@@ -4,7 +4,6 @@
 #include <config.h>
 #include <types.h>
 #include <io/output.h>
-#include <math.h>
 
 static uint8_t _err_level[DEBUGSRC_MAX] = {
     [0 ... (DEBUGSRC_MAX-1)] = ERR_INFO
@@ -27,9 +26,8 @@ void kdebug(debug_source_e src, error_level_e lvl, const char *msg, ...) {
     }
 
     /* NOTE: This is not very effecient. */
-    uint64_t sec;
-    uint64_t nano;
-    sec = udiv64(kerneltime, 1000000000, &nano);
+    uint64_t sec  = kerneltime / 1000000000;
+    uint64_t nano = kerneltime % 1000000000;
 
     /* TODO: Write to a buffer, rather than directly writing to the kernel's
      * output device. */
