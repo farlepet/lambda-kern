@@ -1,7 +1,10 @@
+#include <stddef.h>
+#include <stdint.h>
+
 #include <arch/dev/vga/print.h>
 
 #include <err/error.h>
-#include <types.h>
+
 
 static uint8_t bkgc = 0x00; //!< Background color to use in vga_put
 static uint8_t forc = 0x07; //!< Foreground color to use in vga_put

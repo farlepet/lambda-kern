@@ -1,7 +1,9 @@
-#include <time/time.h>
+#include <stddef.h>
+#include <stdint.h>
+
 #include <err/error.h>
 #include <err/panic.h>
-#include <types.h>
+#include <time/time.h>
 
 void rollover(int);
 

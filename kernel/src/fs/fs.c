@@ -1,10 +1,11 @@
+#include <string.h>
+
 #include <lambda/export.h>
 #include <err/error.h>
 #include <err/panic.h>
 #include <mm/alloc.h>
 #include <fs/fs.h>
 
-#include <string.h>
 #include <sys/stat.h>
 
 static kfile_t *_fs_root = NULL;

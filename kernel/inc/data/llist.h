@@ -1,6 +1,8 @@
 #ifndef DATA_LLIST_H
 #define DATA_LLIST_H
 
+#include <stddef.h>
+
 #include <proc/atomic.h>
 
 typedef struct llist_item     llist_item_t;

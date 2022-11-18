@@ -1,13 +1,15 @@
 #ifndef FS_KFILE_H
 #define FS_KFILE_H
 
-#include <types.h>
 #include <stdint.h>
-#include <time/time.h>
-#include <fs/dirent.h>
-#include <proc/atomic.h>
-#include <fs/dirstream.h>
+#include <stddef.h>
+#include <sys/types.h>
+
 #include <data/llist.h>
+#include <fs/dirent.h>
+#include <fs/dirstream.h>
+#include <proc/atomic.h>
+#include <time/time.h>
 
 /* NOTE: Some of these flags don't matter after the file is opened, it might be
  * useful to either map or simply mask off these flags. */
@@ -48,8 +50,8 @@ typedef struct kfile kfile_t;
 typedef struct kfile_hand kfile_hand_t;
 
 typedef int            (*fileop_close_f)  (kfile_hand_t *);
-typedef int            (*fileop_read_f)   (kfile_hand_t *, size_t, size_t, void *);
-typedef int            (*fileop_write_f)  (kfile_hand_t *, size_t, size_t, const void *);
+typedef ssize_t        (*fileop_read_f)   (kfile_hand_t *, size_t, size_t, void *);
+typedef ssize_t        (*fileop_write_f)  (kfile_hand_t *, size_t, size_t, const void *);
 typedef int            (*fileop_ioctl_f)  (kfile_hand_t *, int, void *);
 typedef struct dirent *(*fileop_readdir_f)(kfile_hand_t *, DIR *); // TODO: This probably shouldn't exist in this form
 
@@ -82,7 +84,7 @@ typedef struct {
 struct kfile
 {
 	char name[FILE_NAME_MAX]; //!< Filename [TODO: This could be moved elsewhere, else throw it at the end of the file with size zero]
-	uint32_t  length;         //!< Length of the file
+	size_t    length;         //!< Length of the file
 	uint32_t  impl;           //!< Owning i-node
 	uint32_t  inode;          //!< i-node
 	uint32_t  uid;            //!< User ID

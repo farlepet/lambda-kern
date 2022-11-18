@@ -1,7 +1,6 @@
 #ifndef KTASK_KINPUT_H
 #define KTASK_KINPUT_H
 
-#include <types.h>
 #include <fs/kfile.h>
 
 extern kfile_hand_t *kinput_dest;

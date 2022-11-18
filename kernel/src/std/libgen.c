@@ -1,6 +1,7 @@
-#include <lambda/export.h>
-
 #include <libgen.h>
+#include <stddef.h>
+
+#include <lambda/export.h>
 
 char *dirname(char *path) {
     char *p1 = path, *p2 = NULL;

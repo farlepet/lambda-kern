@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 
-#include <config.h>
+#include "config.h"
 
 typedef unsigned long long int max_ptr_t; //!< Maximum pointer size that can be used by an architecture
 
@@ -76,11 +76,11 @@ typedef unsigned long long int max_ptr_t; //!< Maximum pointer size that can be 
 #define __STR(X) #X
 #define   STR(X) __STR(X)
 
-#define NULL (void *)0x00000000
-
 typedef enum BOOL { FALSE, TRUE } bool;
 
 void __builtin_ia32_pause(void); //!< Energy-saving alternative to `nop`
+
+typedef uintptr_t syscallarg_t;
 
 typedef syscallarg_t (*func0_t)(void);
 typedef syscallarg_t (*func1_t)(syscallarg_t);

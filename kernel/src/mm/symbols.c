@@ -1,3 +1,5 @@
+#include <stddef.h>
+
 #include <mm/symbols.h>
 
 /* TODO: Load symbols from file */
@@ -19,3 +21,4 @@ symbol_t *sym_find_object(uint32_t addr, symbol_t *symbols) {
     }
     return NULL;
 }
+

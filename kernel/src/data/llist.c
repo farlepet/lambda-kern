@@ -1,11 +1,10 @@
-#include <lambda/export.h>
-
 #include <stdint.h>
 #include <string.h>
-#include <err/panic.h>
+
+#include <lambda/export.h>
 
 #include <data/llist.h>
-
+#include <err/panic.h>
 #include <mm/mm.h>
 
 void llist_init(llist_t *list) {

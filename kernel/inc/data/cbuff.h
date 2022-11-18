@@ -1,7 +1,8 @@
 #ifndef CBUFF_H
 #define CBUFF_H
 
-#include <types.h>
+#include <stddef.h>
+#include <stdint.h>
 
 /** FIFO cicular buffer */
 typedef struct {

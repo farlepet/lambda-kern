@@ -1,9 +1,10 @@
 #ifndef FS_H
 #define FS_H
 
-#include <types.h>
-#include <fs/kfile.h>
+#include <stdint.h>
+#include <sys/types.h>
 
+#include <fs/kfile.h>
 
 #define PERMISSIONS(u, g, w) ((u << 6) | (g << 3) | (w << 0))
 

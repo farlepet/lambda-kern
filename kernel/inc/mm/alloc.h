@@ -1,6 +1,9 @@
 #ifndef MM_ALLOC_H
 #define MM_ALLOC_H
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include <types.h>
 
 #define ALLOC_BLOCK  1024

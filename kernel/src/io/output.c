@@ -1,3 +1,7 @@
+#include <limits.h>
+#include <stdint.h>
+#include <string.h>
+
 #include <lambda/export.h>
 #include <io/output.h>
 #include <string.h>
@@ -105,14 +109,14 @@ static int _print_int(arg_type_t num, uint8_t base, uint8_t pad, uint32_t flags,
  * @return the number found
  * @see print
  */
-static int _get_dec(const char *str, ptr_t *out) {
+static int _get_dec(const char *str, uintptr_t *out) {
     int n = 0;
     while(*str >= '0' && *str <= '9') {
         n *= 10;
         n += (int)(*str - '0');
         str++;
     }
-    *out = (ptr_t)str;
+    *out = (uintptr_t)str;
     
     return n;
 }

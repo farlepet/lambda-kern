@@ -8,7 +8,8 @@
 #ifndef ARCH_BOOT_MULTIBOOT_H
 #define ARCH_BOOT_MULTIBOOT_H
 
-#include <types.h>
+#include <stddef.h>
+#include <stdint.h>
 
 #include <arch/acpi/acpi_data.h>
 

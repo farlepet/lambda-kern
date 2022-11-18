@@ -32,7 +32,7 @@ kfile_t *stream_create(int length) {
 
     cbuff_t *buff = (cbuff_t *)kmalloc(sizeof(cbuff_t) + length);
     memset(buff, 0, sizeof(cbuff_t));
-    buff->buff = (uint8_t *)((ptr_t)buff + sizeof(cbuff_t));
+    buff->buff = (uint8_t *)((uintptr_t)buff + sizeof(cbuff_t));
     buff->size = length;
 
     file->info = buff;
