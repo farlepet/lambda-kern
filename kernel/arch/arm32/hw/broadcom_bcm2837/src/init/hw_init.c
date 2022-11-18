@@ -106,29 +106,29 @@ int hw_init_interrupts(void) {
 
 __hot
 static void _clk_count() {
-	/* TODO: Determine from timer struct */
-	time_update(1000000);
+    /* TODO: Determine from timer struct */
+    time_update(1000000);
 }
 
 __hot
 static void _task_switch_handler() {
-	/* TODO: Make this more effecient */
-	sched_processes();
-	do_task_switch();
+    /* TODO: Make this more effecient */
+    sched_processes();
+    do_task_switch();
 }
 
 static hal_timer_dev_t           _timer;
 static bcm2835_systimer_handle_t _systimer;
 int hw_init_timer(uint32_t rate) {
     bcm2835_systimer_init(&_systimer, (void *)(_periphbase + BROADCOM_BCM2837_PERIPHBASE_OFF_SYSTIMER));
-	bcm2835_systimer_int_attach(&_systimer, &intctlr);
-	bcm2835_systimer_create_timerdev(&_systimer, &_timer);
-	/* Task switch timer: */
-	hal_timer_dev_setfreq(&_timer, 0, rate);
-	hal_timer_dev_attach(&_timer, 0, _task_switch_handler);
-	/* Kernel time timer: */
-	hal_timer_dev_setfreq(&_timer, 1, 1000);
-	hal_timer_dev_attach(&_timer, 1, _clk_count);
+    bcm2835_systimer_int_attach(&_systimer, &intctlr);
+    bcm2835_systimer_create_timerdev(&_systimer, &_timer);
+    /* Task switch timer: */
+    hal_timer_dev_setfreq(&_timer, 0, rate);
+    hal_timer_dev_attach(&_timer, 0, _task_switch_handler);
+    /* Kernel time timer: */
+    hal_timer_dev_setfreq(&_timer, 1, 1000);
+    hal_timer_dev_attach(&_timer, 1, _clk_count);
 
     return 0;
 }

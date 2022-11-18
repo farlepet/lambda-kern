@@ -28,7 +28,7 @@ int module_read(kfile_hand_t *file, lambda_mod_head_t **head, uintptr_t *base, E
         return 1;
     }
 
-	if(kfstat(file->file, &file_stat)) {
+    if(kfstat(file->file, &file_stat)) {
         return 1;
     }
     elf_data = (Elf32_Ehdr *)kmalloc((size_t)file_stat.size);
@@ -249,7 +249,7 @@ static int _module_apply_relocs(const Elf32_Ehdr *elf, const elf_reloc_t *relocs
        elf_find_section(elf, &elf_strtab, ".dynstr")) {
         return -1;
     }
-	Elf32_Sym *syms = (Elf32_Sym *)((uintptr_t)elf + elf_symtab->sh_offset);
+    Elf32_Sym *syms = (Elf32_Sym *)((uintptr_t)elf + elf_symtab->sh_offset);
     char      *strs = (char *)((uintptr_t)elf + elf_strtab->sh_offset);
 
     const Elf32_Shdr *sects = (Elf32_Shdr *)((uintptr_t)elf + elf->e_shoff);
@@ -312,7 +312,7 @@ static void *_alloc_map(uintptr_t virt, size_t len) {
 
 static lambda_mod_head_t *_module_place(const Elf32_Ehdr *elf, const lambda_mod_head_t *mod_head, uintptr_t baseaddr, module_entry_t *mod_ent, symbol_t *symbols) {
     Elf32_Phdr *prog = (Elf32_Phdr *)((uintptr_t)elf + elf->e_phoff);
-	
+    
     size_t n_loads = 0;
     for(size_t i = 0; i < elf->e_phnum; i++) {
         if(prog[i].p_type == PT_LOAD) {
@@ -351,20 +351,20 @@ static lambda_mod_head_t *_module_place(const Elf32_Ehdr *elf, const lambda_mod_
 
 
     for(size_t i = 0; i < elf->e_phnum; i++) {
-		switch(prog[i].p_type) {
-			case PT_LOAD: {
+        switch(prog[i].p_type) {
+            case PT_LOAD: {
                 void *phys = (void *)_translate_addr_phys(relocs, prog[i].p_vaddr);
 
-				/* Copy data and/or clear memory */
-				if(prog[i].p_filesz) {
-					memcpy(phys, (void *)((uintptr_t)elf + prog[i].p_offset), prog[i].p_filesz);
-				}
-				if(prog[i].p_filesz < prog[i].p_memsz) {
-					memset(phys + prog[i].p_filesz, 0, prog[i].p_memsz - prog[i].p_filesz);
-				}
+                /* Copy data and/or clear memory */
+                if(prog[i].p_filesz) {
+                    memcpy(phys, (void *)((uintptr_t)elf + prog[i].p_offset), prog[i].p_filesz);
+                }
+                if(prog[i].p_filesz < prog[i].p_memsz) {
+                    memset(phys + prog[i].p_filesz, 0, prog[i].p_memsz - prog[i].p_filesz);
+                }
             } break;
-		}
-	}
+        }
+    }
 
     if(_module_apply_relocs(elf, relocs, symbols, baseaddr)) {
         kfree(relocs);

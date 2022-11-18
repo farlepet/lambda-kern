@@ -65,8 +65,8 @@ static inline void bcm2835_gpio_setfunc(bcm2835_gpio_regmap_t *regmap, uint8_t p
 
 /* TODO: Define this elsewhere */
 static inline void _gpio_delay_cycles(int32_t cycles) {
-	asm volatile("__delay_%=: subs %[cycles], %[cycles], #1; bne __delay_%=\n"
-		         : "=r"(cycles)
+    asm volatile("__delay_%=: subs %[cycles], %[cycles], #1; bne __delay_%=\n"
+                 : "=r"(cycles)
                  : [cycles]"0"(cycles)
                  : "cc");
 }

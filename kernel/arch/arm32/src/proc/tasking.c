@@ -41,10 +41,10 @@ int arch_proc_create_kernel_stack(kthread_t *thread) {
 
 __noreturn
 static void _thread_entrypoint(void) {
-	kthread_t *curr_thread = sched_get_curr_thread(0);
-	if(curr_thread == NULL) {
-		kpanic("_proc_entrypoint: Thread is NULL!");
-	}
+    kthread_t *curr_thread = sched_get_curr_thread(0);
+    if(curr_thread == NULL) {
+        kpanic("_proc_entrypoint: Thread is NULL!");
+    }
 
     /* @todo Support both user (0x10) and system (0x1F), possibly along with
      * other present (IRQ,FIQ,SUP) modes. */
@@ -108,7 +108,7 @@ int arch_postfork_setup(const kthread_t *parent, kthread_t *child) {
 
 __hot __optimize_none
 void do_task_switch(void) {
-	kthread_t *thread = sched_get_curr_thread(0);
+    kthread_t *thread = sched_get_curr_thread(0);
 
     if(thread->flags & KTHREAD_FLAG_RANONCE) {
         /* Save the CPSR, stack pointers, and link register of the current thread */

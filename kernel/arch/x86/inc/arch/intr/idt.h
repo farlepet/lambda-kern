@@ -18,10 +18,10 @@
  * @param attr the IDT entry's attribute byte
  */
 #define IDT_ENTRY(off, sel, attr)    \
-	((((uint64_t)off  & 0xFFFF0000ULL) << 32) | \
-	 (((uint64_t)attr & 0x000000FFULL) << 40) |  \
-	 (((uint64_t)sel  & 0x0000FFFFULL) << 16) |   \
-	 (((uint64_t)off  & 0x0000FFFFULL) << 0))
+    ((((uint64_t)off  & 0xFFFF0000ULL) << 32) | \
+     (((uint64_t)attr & 0x000000FFULL) << 40) |  \
+     (((uint64_t)sel  & 0x0000FFFFULL) << 16) |   \
+     (((uint64_t)off  & 0x0000FFFFULL) << 0))
 
 /**
  * \brief Different IDT entry types.
@@ -29,11 +29,11 @@
  */
 enum idt_int_type
 {
-	task32 = 0x05, //!< 32-bit task gate
-	int16  = 0x06, //!< 16-bit interrupt gate
-	trap16 = 0x07, //!< 16-bit trap gate
-	int32  = 0x0E, //!< 32-bit interrupt gate
-	trap32 = 0x0F  //!< 32-bit trap gate
+    task32 = 0x05, //!< 32-bit task gate
+    int16  = 0x06, //!< 16-bit interrupt gate
+    trap16 = 0x07, //!< 16-bit trap gate
+    int32  = 0x0E, //!< 32-bit interrupt gate
+    trap32 = 0x0F  //!< 32-bit trap gate
 };
 
 /**
@@ -46,10 +46,10 @@ enum idt_int_type
  * @see idt_int_type
  */
 #define IDT_ATTR(present, dpl, storeseg, type) \
-	(((present & 0x01) << 7) | \
-	((dpl      & 0x03) << 5) |  \
-	((storeseg & 0x01) << 4) |   \
-	((type     & 0x0F) << 0))
+    (((present & 0x01) << 7) | \
+    ((dpl      & 0x03) << 5) |  \
+    ((storeseg & 0x01) << 4) |   \
+    ((type     & 0x0F) << 0))
 
 
 /**

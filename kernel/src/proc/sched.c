@@ -99,7 +99,7 @@ int sched_remove_thread(kthread_t *thread) {
     /* TODO: This is very inefficient */
     for(unsigned i = 0; i < _n_cpus; i++) {
         if(llist_get_position(&_cpu_threads[i], &thread->sched_item) >= 0) {
-	        kdebug(DEBUGSRC_PROC, ERR_TRACE, "Removing thread (%d, %s) from cpu %u", thread->tid, thread->name, i);
+            kdebug(DEBUGSRC_PROC, ERR_TRACE, "Removing thread (%d, %s) from cpu %u", thread->tid, thread->name, i);
             if(lock_for(&_cpu_threads[i].lock, 2000)) {
                 return -1;
             }
@@ -120,7 +120,7 @@ static inline size_t _cpu_thread_count(unsigned cpu) {
 }
 
 static inline void _cpu_add_thread(unsigned cpu, kthread_t *thread) {
-	kdebug(DEBUGSRC_PROC, ERR_TRACE, "Assigning thread (%u, %s) to cpu %u", thread->tid, thread->name, cpu);
+    kdebug(DEBUGSRC_PROC, ERR_TRACE, "Assigning thread (%u, %s) to cpu %u", thread->tid, thread->name, cpu);
 
     llist_append(&_cpu_threads[cpu], &thread->sched_item);
     if(!_curr_thread[cpu]) {

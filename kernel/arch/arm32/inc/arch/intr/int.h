@@ -90,7 +90,7 @@ static inline void arch_div0(void) {
 #if 0
     asm volatile("mov  r0, #0    \n"
                  "sdiv r0, r0, r0\n"
-				 ::: "%r0");
+                 ::: "%r0");
 #endif
 }
 

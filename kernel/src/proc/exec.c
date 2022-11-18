@@ -32,15 +32,15 @@ int execve(const char *filename, const char **argv, const char **envp) {
 
     exec_data_t *exec_data = (exec_data_t *)kmalloc(sizeof(exec_data_t));
     if(exec_data == NULL) {
-		kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "execve: Could not allocate exec_data struct!\n");
-		return -1;
+        kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "execve: Could not allocate exec_data struct!\n");
+        return -1;
     }
 
     if(fs_read_file_by_path(filename, NULL, &exec_data->file_data, &exec_data->file_size, 0)) {
-		kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "execve: Could not open %s!\n", filename);
+        kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "execve: Could not open %s!\n", filename);
         kfree(exec_data);
-		return -1;
-	}
+        return -1;
+    }
 
     exec_data->argv      = argv;
     exec_data->envp      = envp;
@@ -238,7 +238,7 @@ static void _exec_replace_process_image(exec_data_t *exec_data) {
     /*
      * Thread
      */
-	kthread_t *thread = (kthread_t *)kmalloc(sizeof(kthread_t));
+    kthread_t *thread = (kthread_t *)kmalloc(sizeof(kthread_t));
     memset(thread, 0, sizeof(kthread_t));
     strncpy(thread->name, curr_proc->name, KPROC_NAME_MAX);
 

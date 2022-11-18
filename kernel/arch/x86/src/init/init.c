@@ -32,24 +32,24 @@ static void mm_init(const mboot_t *);
 void arch_init(mboot_t *mboot_head) {
     vga_clear();
     disable_interrupts();
-	
-	kerror(ERR_INFO, "Kernel occupies this memory space: %p - %p", &kern_start, &kern_end);
+    
+    kerror(ERR_INFO, "Kernel occupies this memory space: %p - %p", &kern_start, &kern_end);
 
     kerror(ERR_INFO, "  -> GDT");
-	gdt_init();
-	
+    gdt_init();
+    
     interrupts_init();
 
-	mm_init(mboot_head);
+    mm_init(mboot_head);
 
-	cmdline_init();
-	cmdline_handle_common();
+    cmdline_init();
+    cmdline_handle_common();
 
-	acpi_init(mboot_head);
-	apic_init();
+    acpi_init(mboot_head);
+    apic_init();
 
-	kerror(ERR_INFO, "  -> STI");
-	enable_interrupts();
+    kerror(ERR_INFO, "  -> STI");
+    enable_interrupts();
     
     // Initialize a second time to enable interrupts
     serial_init(SERIAL_COM1);
@@ -65,12 +65,12 @@ extern void exceptions_init(void); //!< Initializes basic exception handlers. Fo
  * Initializes based on the target architecture.
  */
 static void interrupts_init(void) {
-	kerror(ERR_INFO, "Configuring Interrupts");
-	
-	kerror(ERR_INFO, "  -> IDT");
-	idt_init();
-	kerror(ERR_INFO, "  -> Exceptions");
-	exceptions_init();
+    kerror(ERR_INFO, "Configuring Interrupts");
+    
+    kerror(ERR_INFO, "  -> IDT");
+    idt_init();
+    kerror(ERR_INFO, "  -> Exceptions");
+    exceptions_init();
 }
 
 static uintptr_t mods_begin = UINTPTR_MAX;
@@ -82,25 +82,25 @@ static uintptr_t mods_end   = 0;
  * @param head the multiboot header location
  */
 static void mm_init(const mboot_t *head) {
-	kerror(ERR_INFO, "Initializing memory management");
+    kerror(ERR_INFO, "Initializing memory management");
 
-	if(!head)
-		kpanic("Multiboot header pointer is NULL!");
+    if(!head)
+        kpanic("Multiboot header pointer is NULL!");
 
-	multiboot_locate_modules(head, &mods_begin, &mods_end);
-	size_t upper_mem = multiboot_get_upper_memory(head);
-	if(upper_mem == 0) {
-		kpanic("Could not get amount of upper mem from multiboot!");
-	}
-	if(mods_end > 0x100000) {
-		upper_mem -= (mods_end - 0x100000);
-	}
+    multiboot_locate_modules(head, &mods_begin, &mods_end);
+    size_t upper_mem = multiboot_get_upper_memory(head);
+    if(upper_mem == 0) {
+        kpanic("Could not get amount of upper mem from multiboot!");
+    }
+    if(mods_end > 0x100000) {
+        upper_mem -= (mods_end - 0x100000);
+    }
 
-	kerror(ERR_INFO, "  -> Paging");
-	paging_init(mods_end, upper_mem);
-	mm_init_kernel_map();
+    kerror(ERR_INFO, "  -> Paging");
+    paging_init(mods_end, upper_mem);
+    mm_init_kernel_map();
 
-	kerror(ERR_INFO, "Memory management enabled");
+    kerror(ERR_INFO, "Memory management enabled");
 }
 
 void arch_kpanic_hook(void) {

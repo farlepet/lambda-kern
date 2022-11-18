@@ -8,13 +8,13 @@ static int timerdev_setfreq(void *data, uint8_t idx, uint32_t freq);
 static int timerdev_attach(void *data, uint8_t idx, void (*callback)(void));
 
 void armv7_gtimer_create_timerdev(hal_timer_dev_t *dev) {
-	memset(dev, 0, sizeof(hal_timer_dev_t));
+    memset(dev, 0, sizeof(hal_timer_dev_t));
 
-	dev->setfreq   = timerdev_setfreq;
-	dev->setperiod = NULL;
-	dev->attach    = timerdev_attach;
+    dev->setfreq   = timerdev_setfreq;
+    dev->setperiod = NULL;
+    dev->attach    = timerdev_attach;
 
-	dev->cap = HAL_TIMERDEV_CAP_VARFREQ | HAL_TIMERDEV_CAP_CALLBACK;
+    dev->cap = HAL_TIMERDEV_CAP_VARFREQ | HAL_TIMERDEV_CAP_CALLBACK;
 }
 
 int armv7_gtimer_init(uint32_t freq) {
@@ -41,26 +41,26 @@ int armv7_gtimer_init(uint32_t freq) {
 }
 
 static int timerdev_setfreq(void __unused *data, uint8_t idx, uint32_t freq) {
-	if(idx != 0) {
-		return -1;
-	}
+    if(idx != 0) {
+        return -1;
+    }
     
     __WRITE_CNTFRQ(freq);
 
-	return 0;
+    return 0;
 }
 
 static int timerdev_attach(void __unused *data, uint8_t idx, void (*callback)(void)) {
-	if(idx != 0) {
-		return -1;
-	}
-	
-	if(gtimer_callback) {
-		/* Presently only support a single callback */
-		return -1;
-	}
+    if(idx != 0) {
+        return -1;
+    }
+    
+    if(gtimer_callback) {
+        /* Presently only support a single callback */
+        return -1;
+    }
 
-	gtimer_callback = callback;
+    gtimer_callback = callback;
 
-	return 0;
+    return 0;
 }

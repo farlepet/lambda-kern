@@ -17,13 +17,13 @@ static int timerdev_setfreq(void *data, uint8_t idx, uint32_t freq);
 static int timerdev_attach(void *data, uint8_t idx, void (*callback)(void));
 
 void pit_create_timerdev(hal_timer_dev_t *dev) {
-	memset(dev, 0, sizeof(hal_timer_dev_t));
+    memset(dev, 0, sizeof(hal_timer_dev_t));
 
-	dev->setfreq   = timerdev_setfreq;
-	dev->setperiod = NULL;
-	dev->attach    = timerdev_attach;
+    dev->setfreq   = timerdev_setfreq;
+    dev->setperiod = NULL;
+    dev->attach    = timerdev_attach;
 
-	dev->cap = HAL_TIMERDEV_CAP_VARFREQ | HAL_TIMERDEV_CAP_CALLBACK;
+    dev->cap = HAL_TIMERDEV_CAP_VARFREQ | HAL_TIMERDEV_CAP_CALLBACK;
 }
 
 /**
@@ -33,14 +33,14 @@ void pit_create_timerdev(hal_timer_dev_t *dev) {
  */
 void pit_handler(void)
 {
-	/* TODO: Determine from timer settings. */
-	time_update(10);
-	
-	outb(0x20, 0x20);
+    /* TODO: Determine from timer settings. */
+    time_update(10);
+    
+    outb(0x20, 0x20);
 
-	if(pit_callback) {
-		pit_callback();
-	}
+    if(pit_callback) {
+        pit_callback();
+    }
 }
 
 /**
@@ -50,9 +50,9 @@ void pit_handler(void)
  */
 static __inline uint32_t get_reload(uint32_t freq)
 {
-	if(freq < 18)      return 0x10000;   // Is the frequency too small?
-	if(freq > 1193181) return 0x01;     // Is the frequency too large?
-	return (1193180 / freq);           // If not, compute the reload value
+    if(freq < 18)      return 0x10000;   // Is the frequency too small?
+    if(freq > 1193181) return 0x01;     // Is the frequency too large?
+    return (1193180 / freq);           // If not, compute the reload value
 }
 
 /**
@@ -62,40 +62,40 @@ static __inline uint32_t get_reload(uint32_t freq)
  */
 void pit_init(uint32_t freq)
 {
-	uint32_t reload = get_reload(freq);
-	outb(0x43, 0x34);
-	outb(0x40, (uint8_t)reload);
-	outb(0x40, (uint8_t)(reload >> 8));
-	set_interrupt(INTR_TIMER, &pit_int);
-	enable_irq(0);
+    uint32_t reload = get_reload(freq);
+    outb(0x43, 0x34);
+    outb(0x40, (uint8_t)reload);
+    outb(0x40, (uint8_t)(reload >> 8));
+    set_interrupt(INTR_TIMER, &pit_int);
+    enable_irq(0);
 }
 
 static int timerdev_setfreq(void __unused *data, uint8_t idx, uint32_t freq) {
-	if(idx != 0) {
-		return -1;
-	}
+    if(idx != 0) {
+        return -1;
+    }
 
-	if(freq < 18 || freq > 1193181) return -1;
+    if(freq < 18 || freq > 1193181) return -1;
 
-	uint32_t reload = get_reload(freq);
-	outb(0x43, 0x34);
-	outb(0x40, (uint8_t)reload);
-	outb(0x40, (uint8_t)(reload >> 8));
+    uint32_t reload = get_reload(freq);
+    outb(0x43, 0x34);
+    outb(0x40, (uint8_t)reload);
+    outb(0x40, (uint8_t)(reload >> 8));
 
-	return 0;
+    return 0;
 }
 
 static int timerdev_attach(void __unused *data, uint8_t idx, void (*callback)(void)) {
-	if(idx != 0) {
-		return -1;
-	}
-	
-	if(pit_callback) {
-		/* Presently only support a single callback */
-		return -1;
-	}
+    if(idx != 0) {
+        return -1;
+    }
+    
+    if(pit_callback) {
+        /* Presently only support a single callback */
+        return -1;
+    }
 
-	pit_callback = callback;
+    pit_callback = callback;
 
-	return 0;
+    return 0;
 }

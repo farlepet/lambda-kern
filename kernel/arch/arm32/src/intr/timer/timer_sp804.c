@@ -96,17 +96,17 @@ static int _timerdev_setfreq(void *data, uint8_t idx, uint32_t freq) {
 }
 
 static int _timerdev_attach(void *data, uint8_t idx, void (*callback)(void)) {
-	if(idx >= 2) {
-		return -1;
-	}
+    if(idx >= 2) {
+        return -1;
+    }
     
     timer_sp804_handle_t *hand = (timer_sp804_handle_t *)data;
 
     if(hand->callbacks[idx]) {
-		/* Presently only support a single callback per timer */
+        /* Presently only support a single callback per timer */
         return -1;
     }
-	
+    
     hand->callbacks[idx] = callback;
 
     timer_sp804_regmap_tspec_t *timer = (idx == 0) ?
@@ -115,5 +115,5 @@ static int _timerdev_attach(void *data, uint8_t idx, void (*callback)(void)) {
     
     timer->CTRL |= (1UL << TIMER_SP804_CTRL_INTEN__POS);
 
-	return 0;
+    return 0;
 }

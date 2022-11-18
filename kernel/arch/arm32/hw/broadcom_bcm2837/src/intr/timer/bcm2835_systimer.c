@@ -106,18 +106,18 @@ static int _timerdev_setfreq(void *data, uint8_t idx, uint32_t freq) {
 }
 
 static int _timerdev_attach(void *data, uint8_t idx, void (*callback)(void)) {
-	if(idx >= 2) {
-		return -1;
-	}
+    if(idx >= 2) {
+        return -1;
+    }
     
     bcm2835_systimer_handle_t *hand = (bcm2835_systimer_handle_t *)data;
 
     if(hand->callbacks[idx]) {
-		/* Presently only support a single callback per timer */
+        /* Presently only support a single callback per timer */
         return -1;
     }
-	
+    
     hand->callbacks[idx] = callback;
 
-	return 0;
+    return 0;
 }

@@ -16,53 +16,53 @@ typedef struct input_dev        input_dev_t;
 
 union input_id
 {
-	uint32_t n;
-	struct id
-	{
-		uint16_t driver;
-		uint16_t device;
-	} s;
+    uint32_t n;
+    struct id
+    {
+        uint16_t driver;
+        uint16_t device;
+    } s;
 };
 
 enum event_type
 {
-	EVENT_KEYPRESS, //!< A key was pressed (ex: keyboard)
-	EVENT_CHAR,     //!< A character was received (ex: serial)
-	EVENT_HWUPDATE, //!< The hardware was updated
-	EVENT_MOVEMENT  //!< Something was moved (ex: mouse)
+    EVENT_KEYPRESS, //!< A key was pressed (ex: keyboard)
+    EVENT_CHAR,     //!< A character was received (ex: serial)
+    EVENT_HWUPDATE, //!< The hardware was updated
+    EVENT_MOVEMENT  //!< Something was moved (ex: mouse)
 };
 
 enum builtin_idrivers //!< Input drivers recognized by the kernel
 {
-	IDRIVER_KEYBOARD = 0, //!< Keyboard driver
-	IDRIVER_MOUSE,        //!< Mouse driver
-	IDRIVER_SERIAL        //!< Serial driver
+    IDRIVER_KEYBOARD = 0, //!< Keyboard driver
+    IDRIVER_MOUSE,        //!< Mouse driver
+    IDRIVER_SERIAL        //!< Serial driver
 };
 
 enum keyb_idrv_state
 {
-	KEYB_STATE_SHIFT = 1,
-	KEYB_STATE_CTRL  = 2,
-	KEYB_STATE_ALT   = 4,
-	KEYB_STATE_SUPER = 5
+    KEYB_STATE_SHIFT = 1,
+    KEYB_STATE_CTRL  = 2,
+    KEYB_STATE_ALT   = 4,
+    KEYB_STATE_SUPER = 5
 };
 
 
 struct input_event
 {
-	union input_id origin; //!< From where the event originated
-	enum event_type type;  //!< What kind of event was it
-	uint32_t data;              //!< The data for the event (ex: the keycode)
+    union input_id origin; //!< From where the event originated
+    enum event_type type;  //!< What kind of event was it
+    uint32_t data;              //!< The data for the event (ex: the keycode)
 };
 
 
 struct input_dev
 {
-	union input_id id;        /** Device ID */
-	uint32_t       state;     /** State of the device, different for every device type */
-	char           name[64];  /** When mounted, it will be at /dev/name */
-	cbuff_t       *iev_buff;  /** Input event buffer */
-	llist_item_t   list_item; /** List item */
+    union input_id id;        /** Device ID */
+    uint32_t       state;     /** State of the device, different for every device type */
+    char           name[64];  /** When mounted, it will be at /dev/name */
+    cbuff_t       *iev_buff;  /** Input event buffer */
+    llist_item_t   list_item; /** List item */
 };
 
 extern llist_t idevs;

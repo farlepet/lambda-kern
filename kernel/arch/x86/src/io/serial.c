@@ -34,7 +34,7 @@ int serial_create_chardev(uint16_t port, hal_io_char_dev_t *chardev) {
 
     chardev->cap = HAL_IO_CHARDEV_CAP_OUTPUT | HAL_IO_CHARDEV_CAP_INPUT;
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -44,45 +44,45 @@ int serial_create_chardev(uint16_t port, hal_io_char_dev_t *chardev) {
  */
 void serial_init(uint16_t port)
 {
-	outb(port + 1, 0x00);
-	outb(port + 3, 0x80);
-	outb(port + 0, 0x01);
-	outb(port + 1, 0x00);
-	outb(port + 3, 0x03);
-	outb(port + 2, 0xC7);
-	outb(port + 4, 0x0B);
-	outb(port + 1, 0x01);
+    outb(port + 1, 0x00);
+    outb(port + 3, 0x80);
+    outb(port + 0, 0x01);
+    outb(port + 1, 0x00);
+    outb(port + 3, 0x03);
+    outb(port + 2, 0xC7);
+    outb(port + 4, 0x0B);
+    outb(port + 1, 0x01);
 
-	set_interrupt(INTR_SERIALA, &serial_interrupt);
-	set_interrupt(INTR_SERIALB, &serial_interrupt);
-	enable_irq(4);
-	enable_irq(3);
+    set_interrupt(INTR_SERIALA, &serial_interrupt);
+    set_interrupt(INTR_SERIALB, &serial_interrupt);
+    enable_irq(4);
+    enable_irq(3);
 
-	add_input_dev(&serial_dev, IDRIVER_SERIAL, "ser", 1, 0);
-	serial_dev.iev_buff = &_serial_buff;
+    add_input_dev(&serial_dev, IDRIVER_SERIAL, "ser", 1, 0);
+    serial_dev.iev_buff = &_serial_buff;
 }
 
 static void handle_input(char ch)
 {
-	struct input_event iev;
-	iev.origin.s.driver = IDRIVER_SERIAL;
-	iev.origin.s.device = serial_dev.id.s.device;
-	iev.type = EVENT_CHAR;
-	iev.data = ch;
-	cbuff_write((uint8_t *)&iev, sizeof(struct input_event), serial_dev.iev_buff);
+    struct input_event iev;
+    iev.origin.s.driver = IDRIVER_SERIAL;
+    iev.origin.s.device = serial_dev.id.s.device;
+    iev.type = EVENT_CHAR;
+    iev.data = ch;
+    cbuff_write((uint8_t *)&iev, sizeof(struct input_event), serial_dev.iev_buff);
 }
 
 // TODO: Add support for all 4 serial ports
 void serial_int_handle()
 {
-	if(serial_received(SERIAL_COM1))
-	{
-		char ch = (char)inb(SERIAL_COM1);
-		if(ch == 0x7F) ch = '\b';
+    if(serial_received(SERIAL_COM1))
+    {
+        char ch = (char)inb(SERIAL_COM1);
+        if(ch == 0x7F) ch = '\b';
 
-		handle_input(ch);
-	}
-	outb(0x20, 0x20);
+        handle_input(ch);
+    }
+    outb(0x20, 0x20);
 }
 
 /**
@@ -92,7 +92,7 @@ void serial_int_handle()
  */
 int serial_received(uint16_t port)
 {
-	return inb(port + 5) & 1;
+    return inb(port + 5) & 1;
 }
 
 /**
@@ -103,9 +103,9 @@ int serial_received(uint16_t port)
  */
 char serial_read(uint16_t port)
 {
-	while (serial_received(port) == 0);
-	
-	return (char)inb(port);
+    while (serial_received(port) == 0);
+    
+    return (char)inb(port);
 }
 
 /**
@@ -115,7 +115,7 @@ char serial_read(uint16_t port)
  */
 int is_transmit_empty(uint16_t port)
 {
-	return inb(port + 5) & 0x20;
+    return inb(port + 5) & 0x20;
 }
 
 /**
@@ -127,17 +127,17 @@ int is_transmit_empty(uint16_t port)
  */
 void serial_write(uint16_t port, char a)
 {
-	while (is_transmit_empty(port) == 0);
-	outb(port, (uint8_t)a);
+    while (is_transmit_empty(port) == 0);
+    outb(port, (uint8_t)a);
 }
 
 
 static void chardev_putc(void *data, int c) {
-	/* TODO: Make this configurable */
-	if(c == '\n') {
-		serial_write((uint16_t)(uint32_t)data, '\r');
-	}
-	serial_write((uint16_t)(uint32_t)data, (char)c);
+    /* TODO: Make this configurable */
+    if(c == '\n') {
+        serial_write((uint16_t)(uint32_t)data, '\r');
+    }
+    serial_write((uint16_t)(uint32_t)data, (char)c);
 }
 
 static int chardev_getc(void *data) {

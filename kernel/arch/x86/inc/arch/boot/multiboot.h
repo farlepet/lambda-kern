@@ -81,17 +81,17 @@ typedef struct {
 } mboot_t;
 
 typedef struct {
-	struct {
-		uint16_t type;
-		uint16_t flags;
-		uint32_t size;
-		uint32_t tags[6];
-	} inforeq;
-	struct {
-		uint16_t type;
-		uint16_t flags;
-		uint32_t size;
-	} end;
+    struct {
+        uint16_t type;
+        uint16_t flags;
+        uint32_t size;
+        uint32_t tags[6];
+    } inforeq;
+    struct {
+        uint16_t type;
+        uint16_t flags;
+        uint32_t size;
+    } end;
 } _tags_t;
 
 typedef struct {

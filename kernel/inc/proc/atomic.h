@@ -33,7 +33,7 @@ typedef int lock_t;
  * @param lock Lock to release
  */
 static inline void unlock(lock_t *lock) {
-	a_store(lock, 0, __ATOMIC_RELEASE);
+    a_store(lock, 0, __ATOMIC_RELEASE);
 }
 
 /**
@@ -59,11 +59,11 @@ int lock_for(lock_t *lock, uint32_t ms);
  * @return 0 on success, 1 on failure
  */
 static inline int lock_try(lock_t *lock) {
-	int old = 0;
-	if(a_cmp_chx_weak(lock, &old, 1, __ATOMIC_ACQUIRE, __ATOMIC_RELAXED)) {
-		return 0;
-	}
-	return 1;
+    int old = 0;
+    if(a_cmp_chx_weak(lock, &old, 1, __ATOMIC_ACQUIRE, __ATOMIC_RELAXED)) {
+        return 0;
+    }
+    return 1;
 }
 
 #endif

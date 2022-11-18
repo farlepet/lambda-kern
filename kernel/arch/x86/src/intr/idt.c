@@ -20,16 +20,16 @@ static uint64_t IDT[256]; //!< Interrupt Descriptor Table. Table of all interrup
  */
 static void remap_pic(uint8_t off1, uint8_t off2)
 {
-	outb(0x20, 0x11);
-  	outb(0xA0, 0x11);
-  	outb(0x21, off1);
-  	outb(0xA1, off2);
-  	outb(0x21, 0x04);
-  	outb(0xA1, 0x02);
-  	outb(0x21, 0x01);
-  	outb(0xA1, 0x01);
- 	outb(0x21, 0x0);
-  	outb(0xA1, 0x0);
+    outb(0x20, 0x11);
+    outb(0xA0, 0x11);
+    outb(0x21, off1);
+    outb(0xA1, off2);
+    outb(0x21, 0x04);
+    outb(0xA1, 0x02);
+    outb(0x21, 0x01);
+    outb(0xA1, 0x01);
+    outb(0x21, 0x0);
+    outb(0xA1, 0x0);
 }
 
 /**
@@ -40,10 +40,10 @@ static void remap_pic(uint8_t off1, uint8_t off2)
  */
 static void _reload_idt(void)
 {
-	kerror(ERR_INFO, "      -> Loading IDT");
-	load_idt(IDT, sizeof(IDT)-1);
-	kerror(ERR_INFO, "      -> Remapping IRQ's");
-	remap_pic(0x20, 0x28);
+    kerror(ERR_INFO, "      -> Loading IDT");
+    load_idt(IDT, sizeof(IDT)-1);
+    kerror(ERR_INFO, "      -> Remapping IRQ's");
+    remap_pic(0x20, 0x28);
 }
 
 /**
@@ -54,18 +54,18 @@ static void _reload_idt(void)
  */
 void idt_init(void)
 {
-	kerror(ERR_INFO, "      -> Setting dummy interrupt vectors");
-	int i = 0;
-	for(; i < 256; i++)
-	{
-		//kerror(ERR_INFO, "        -> INT %02X", i);
-		IDT[i] = IDT_ENTRY((uint32_t)&dummy_int, 0x08, 0x8E);
-	}
+    kerror(ERR_INFO, "      -> Setting dummy interrupt vectors");
+    int i = 0;
+    for(; i < 256; i++)
+    {
+        //kerror(ERR_INFO, "        -> INT %02X", i);
+        IDT[i] = IDT_ENTRY((uint32_t)&dummy_int, 0x08, 0x8E);
+    }
 
-	for(i = 0; i < 16; i++)
-		disable_irq(i);
+    for(i = 0; i < 16; i++)
+        disable_irq(i);
 
-	_reload_idt();
+    _reload_idt();
 }
 
 /**
@@ -78,7 +78,7 @@ void idt_init(void)
  */
 void set_idt(uint8_t intr, int sel, int flags, void *func)
 {
-	IDT[intr] = IDT_ENTRY((uint32_t)func, sel, flags);
+    IDT[intr] = IDT_ENTRY((uint32_t)func, sel, flags);
 }
 
 
@@ -92,10 +92,10 @@ void set_idt(uint8_t intr, int sel, int flags, void *func)
  */
 int disable_irq(uint8_t irq)
 {
-	if(irq > 16) return 1;
-	if(irq < 8)  outb(0x21, inb(0x21) | (1 >> irq));
-	else         outb(0xA1, inb(0xA1) | (uint8_t)(0x100 >> irq));
-	return 0;
+    if(irq > 16) return 1;
+    if(irq < 8)  outb(0x21, inb(0x21) | (1 >> irq));
+    else         outb(0xA1, inb(0xA1) | (uint8_t)(0x100 >> irq));
+    return 0;
 }
 EXPORT_FUNC(disable_irq);
 
@@ -107,9 +107,9 @@ EXPORT_FUNC(disable_irq);
  */
 int enable_irq(uint8_t irq)
 {
-	if(irq > 16) return 1;
-	if(irq < 8)  outb(0x21, inb(0x21) & ~(1 >> irq));
-	else         outb(0xA1, inb(0xA1) & ~(0x100 >> irq));
-	return 0;
+    if(irq > 16) return 1;
+    if(irq < 8)  outb(0x21, inb(0x21) & ~(1 >> irq));
+    else         outb(0xA1, inb(0xA1) & ~(0x100 >> irq));
+    return 0;
 }
 EXPORT_FUNC(enable_irq);

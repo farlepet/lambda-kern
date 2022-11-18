@@ -45,7 +45,7 @@ int wait(int *stat_loc) {
 
     // If process has no children, return -1
     if(!child_exists) {
-	    kdebug(DEBUGSRC_PROC, ERR_TRACE, "wait(): No children");
+        kdebug(DEBUGSRC_PROC, ERR_TRACE, "wait(): No children");
         return -1;
     }
 
@@ -68,7 +68,7 @@ int wait(int *stat_loc) {
     chidx = _find_dead_child(curr_proc);
     if(chidx < 0) {
         // Something went wrong, we should never get here
-	    kpanic("wait(): Child missing");
+        kpanic("wait(): Child missing");
     }
 CHILD_FOUND:
     enable_interrupts();

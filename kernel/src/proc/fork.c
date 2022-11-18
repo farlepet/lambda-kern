@@ -148,7 +148,7 @@ int fork(void) {
     kproc_t *proc = thread->process;
 
     lock(&creat_task);
-	
+    
     kdebug(DEBUGSRC_PROC, ERR_DEBUG, "mtask:fork()");
 
     kproc_t *child = (kproc_t *)kmalloc(sizeof(kproc_t));

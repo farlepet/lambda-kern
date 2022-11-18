@@ -41,11 +41,11 @@ __hot
 void time_update(uint64_t off) {
     kerneltime += off;
 
-	for(uint32_t i = 0; i < MAX_TIME_BLOCKS; i++) {
-		if(_time_blocks[i].event) {
+    for(uint32_t i = 0; i < MAX_TIME_BLOCKS; i++) {
+        if(_time_blocks[i].event) {
             if(kerneltime >= _time_blocks[i].end) {
-				_do_time_block_timeup(i);
-			}
-		}
-	}
+                _do_time_block_timeup(i);
+            }
+        }
+    }
 }

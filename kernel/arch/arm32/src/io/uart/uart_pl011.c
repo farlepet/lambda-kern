@@ -74,7 +74,7 @@ int uart_pl011_init(uart_pl011_handle_t *hand, void *base, hal_clock_dev_t *src_
                       (1UL << UART_PL011_CR_RXE__POS);
 
     add_input_dev(&_serial_dev, IDRIVER_SERIAL, "ser", 1, 0);
-	_serial_dev.iev_buff = &_serial_buff;
+    _serial_dev.iev_buff = &_serial_buff;
  
     return 0;
 }

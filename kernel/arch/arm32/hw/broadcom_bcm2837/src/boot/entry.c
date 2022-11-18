@@ -53,10 +53,10 @@ void kern_premap(uint32_t board, uint32_t machine, void *atags) {
 
     _data_init();
 
-	/* Clear out page directory */
-	for(int i = 0; i < 4096; i++) {
-		low_mmu_table[i] = 0;
-	}
+    /* Clear out page directory */
+    for(int i = 0; i < 4096; i++) {
+        low_mmu_table[i] = 0;
+    }
 
     /* Temporarially map lower 1 MiB low and high */
     low_mmu_table[0]    = MMU_DESCTYPE_SECTION | (1UL << MMU_DESC_S_B__POS) |
@@ -88,7 +88,7 @@ void kern_premap(uint32_t board, uint32_t machine, void *atags) {
 
     /* @note Not exactly the best way to do this, but since ARM uses relative-
      * addressing, and since we have both low and high mapped, it should work. */
-	asm volatile("add %sp, %sp, #0xC0000000\n"
+    asm volatile("add %sp, %sp, #0xC0000000\n"
                  "add %pc, %pc, #0xC0000000\n");
 
     kentry(board, machine, atags);

@@ -54,29 +54,29 @@ int hw_init_mm(void) {
 
 __hot
 static void _clk_count() {
-	/* TODO: Determine from timer struct */
-	time_update(10000000);
+    /* TODO: Determine from timer struct */
+    time_update(10000000);
 }
 
 __hot
 static void _task_switch_handler() {
-	/* TODO: Make this more effecient */
-	sched_processes();
-	do_task_switch();
+    /* TODO: Make this more effecient */
+    sched_processes();
+    do_task_switch();
 }
 
 static hal_timer_dev_t      _timer;
 static timer_sp804_handle_t _sp804;
 int hw_init_timer(uint32_t rate) {
     timer_sp804_init(&_sp804, VEXPRESS_A9_PERIPH_TIMER01_BASE);
-	timer_sp804_int_attach(&_sp804, &intctlr, VEXPRESSA9_INT_TIM01);
-	timer_sp804_create_timerdev(&_sp804, &_timer);
-	/* Task switch timer: */
-	hal_timer_dev_setfreq(&_timer, 0, rate);
-	hal_timer_dev_attach(&_timer, 0, _task_switch_handler);
-	/* Kernel time timer: */
-	hal_timer_dev_setfreq(&_timer, 1, 100);
-	hal_timer_dev_attach(&_timer, 1, _clk_count);
+    timer_sp804_int_attach(&_sp804, &intctlr, VEXPRESSA9_INT_TIM01);
+    timer_sp804_create_timerdev(&_sp804, &_timer);
+    /* Task switch timer: */
+    hal_timer_dev_setfreq(&_timer, 0, rate);
+    hal_timer_dev_attach(&_timer, 0, _task_switch_handler);
+    /* Kernel time timer: */
+    hal_timer_dev_setfreq(&_timer, 1, 100);
+    hal_timer_dev_attach(&_timer, 1, _clk_count);
 
     return 0;
 }

@@ -13,7 +13,7 @@ __noreturn void kentry(void);
  */
 __noreturn void kentry(void) {
     arch_init();
-	
+    
     fs_init();
 
     kmain();

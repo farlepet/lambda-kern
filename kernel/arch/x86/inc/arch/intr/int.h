@@ -42,15 +42,15 @@ int interrupts_enabled(void);
 
 
 typedef struct pusha_regs {
-	uint32_t edi, esi;
-	uint32_t ebp, esp;
-	uint32_t ebx, edx, ecx, eax;
+    uint32_t edi, esi;
+    uint32_t ebp, esp;
+    uint32_t ebx, edx, ecx, eax;
 } arch_pusha_regs_t;
 
 typedef struct iret_regs {
-	uint32_t eip, cs;
-	uint32_t eflags;
-	uint32_t esp, ds;
+    uint32_t eip, cs;
+    uint32_t eflags;
+    uint32_t esp, ds;
 } arch_iret_regs_t;
 
 /**
@@ -83,7 +83,7 @@ extern void call_syscall_int(uint32_t, syscallarg_t *);
  * @param args Pointer to arguments list
  */
 static inline void arch_call_syscall(uint32_t scn, syscallarg_t *args) {
-	call_syscall_int(scn, args);
+    call_syscall_int(scn, args);
 }
 
 /**
@@ -92,7 +92,7 @@ static inline void arch_call_syscall(uint32_t scn, syscallarg_t *args) {
 static inline void arch_div0(void) {
     asm volatile("mov $0, %%ecx\n"
                  "divl    %%ecx\n"
-				 ::: "%eax", "%ecx");
+                 ::: "%eax", "%ecx");
 }
 
 #endif

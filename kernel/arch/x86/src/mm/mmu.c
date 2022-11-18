@@ -28,7 +28,7 @@ int mmu_set_current_table(mmu_table_t *table) {
 }
 
 int mmu_map_table(mmu_table_t *table, uintptr_t virt, uintptr_t phys, size_t size, uint32_t flags) {
-	kdebug(DEBUGSRC_MM, ERR_TRACE, "Mapping %p[%u] to %p (%02X) in %p", virt, size, phys, flags, table);
+    kdebug(DEBUGSRC_MM, ERR_TRACE, "Mapping %p[%u] to %p (%02X) in %p", virt, size, phys, flags, table);
 
     uint32_t page_flags = PAGE_TABLE_FLAG_PRESENT;
 
@@ -55,7 +55,7 @@ int mmu_map_table(mmu_table_t *table, uintptr_t virt, uintptr_t phys, size_t siz
 int mmu_unmap_table(mmu_table_t *table, uintptr_t virt, size_t size) {
     for(uintptr_t off = 0; off < size; off += PAGE_SZ) {
         uint32_t pdindex = (uint32_t)(virt + off) >> 22;
-	    uint32_t ptindex = (uint32_t)(virt + off) >> 12 & 0x03FF;
+        uint32_t ptindex = (uint32_t)(virt + off) >> 12 & 0x03FF;
 
         if(table->pagedir_ents[pdindex] & 0x01) {
             uint32_t *pagetable = (uint32_t *)(table->pagedir_ents[pdindex] & 0xFFFFF000);

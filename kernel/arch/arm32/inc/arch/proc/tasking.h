@@ -40,7 +40,7 @@ typedef struct {
         uint32_t r12;
     } gpregs; /*!< Saved general-purpose registers */
 
-	arch_stack_t stack_kern; /*!< Kernel stack */
+    arch_stack_t stack_kern; /*!< Kernel stack */
     arch_stack_t stack_user; /*!< User stack */
 } kthread_arch_t;
 
@@ -56,7 +56,7 @@ typedef struct {
 #include <proc/proc.h>
 
 static inline void run_sched(void) {
-	/* TODO: Force scheduler to run */
+    /* TODO: Force scheduler to run */
     /* @note There are some situations where interrupts may be disabled prior to
      * calling run_sched in order to ensure certain operations get completed
      * before the scheduler runs. */

@@ -10,18 +10,18 @@ static int     _open (kfile_t *, kfile_hand_t *);
 static int     _close(kfile_hand_t *);
 
 static const file_ops_t _file_ops = {
-	.open    = &_open,
-	.mkdir   = NULL,
-	.create  = NULL,
-	.finddir = NULL
+    .open    = &_open,
+    .mkdir   = NULL,
+    .create  = NULL,
+    .finddir = NULL
 };
 
 static const file_hand_ops_t _file_hand_ops = {
-	.close   = &_close,
-	.read    = &_read,
-	.write   = &_write,
+    .close   = &_close,
+    .read    = &_read,
+    .write   = &_write,
     .ioctl   = NULL,
-	.readdir = NULL
+    .readdir = NULL
 };
 
 kfile_t *stream_create(int length) {
@@ -87,11 +87,11 @@ static ssize_t _write(kfile_hand_t *hand, size_t off, size_t sz, const void *buf
 static int _open(kfile_t *f, kfile_hand_t *hand)
 {
     /* TODO: Check open flags */
-	lock(&f->file_lock);
+    lock(&f->file_lock);
     hand->ops  = &_file_hand_ops;
     hand->file = f;
-	hand->open_flags |= OFLAGS_OPEN;
-	unlock(&f->file_lock);
+    hand->open_flags |= OFLAGS_OPEN;
+    unlock(&f->file_lock);
 
     return 0;
 }
@@ -100,10 +100,10 @@ static int _close(kfile_hand_t *hand)
 {
     /* TODO: Check if any other file handles reference the file */
 
-	lock(&hand->lock);
-	hand->open_flags = 0;
+    lock(&hand->lock);
+    hand->open_flags = 0;
     /*kfree(hand->file->info);*/
-	unlock(&hand->lock);
+    unlock(&hand->lock);
 
     return 0;
 }

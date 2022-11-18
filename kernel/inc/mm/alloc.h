@@ -11,10 +11,10 @@
 
 struct alcent //!< Describes a block of memory
 {
-	uint8_t  valid; //!< Is this a valid block? (If not, it can be replaced)
-	uint8_t  used;  //!< Is this describing used memory?
-	uint32_t addr;  //!< The address of the block of memory
-	uint32_t size;  //!< Size of the block of memory
+    uint8_t  valid; //!< Is this a valid block? (If not, it can be replaced)
+    uint8_t  used;  //!< Is this describing used memory?
+    uint32_t addr;  //!< The address of the block of memory
+    uint32_t size;  //!< Size of the block of memory
 };
 
 /**

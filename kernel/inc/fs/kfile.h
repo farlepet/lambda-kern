@@ -56,11 +56,11 @@ typedef int            (*fileop_ioctl_f)  (kfile_hand_t *, int, void *);
 typedef struct dirent *(*fileop_readdir_f)(kfile_hand_t *, DIR *); // TODO: This probably shouldn't exist in this form
 
 typedef struct {
-	fileop_close_f   close;
-	fileop_read_f    read;
-	fileop_write_f   write;
-	fileop_ioctl_f   ioctl;
-	fileop_readdir_f readdir;
+    fileop_close_f   close;
+    fileop_read_f    read;
+    fileop_write_f   write;
+    fileop_ioctl_f   ioctl;
+    fileop_readdir_f readdir;
 } file_hand_ops_t;
 
 
@@ -70,10 +70,10 @@ typedef int      (*fileop_create_f)(kfile_t *, const char *, uint32_t);
 typedef kfile_t *(*fileop_finddir_f)(kfile_t *, const char *); // TODO: This is unnecessary
 
 typedef struct {
-	fileop_open_f    open;
-	fileop_mkdir_f   mkdir;
-	fileop_create_f  create;
-	fileop_finddir_f finddir;
+    fileop_open_f    open;
+    fileop_mkdir_f   mkdir;
+    fileop_create_f  create;
+    fileop_finddir_f finddir;
 } file_ops_t;
 
 /**
@@ -83,32 +83,32 @@ typedef struct {
  */
 struct kfile
 {
-	char name[FILE_NAME_MAX]; //!< Filename [TODO: This could be moved elsewhere, else throw it at the end of the file with size zero]
-	size_t    length;         //!< Length of the file
-	uint32_t  impl;           //!< Owning i-node
-	uint32_t  inode;          //!< i-node
-	uint32_t  uid;            //!< User ID
-	uint32_t  gid;            //!< Group ID
+    char name[FILE_NAME_MAX]; //!< Filename [TODO: This could be moved elsewhere, else throw it at the end of the file with size zero]
+    size_t    length;         //!< Length of the file
+    uint32_t  impl;           //!< Owning i-node
+    uint32_t  inode;          //!< i-node
+    uint32_t  uid;            //!< User ID
+    uint32_t  gid;            //!< Group ID
 
-	kfile_t  *link;           //!< Used for symlinks
+    kfile_t  *link;           //!< Used for symlinks
 
-	uint32_t  pflags;         //!< Premissions: r/w/e
-	uint32_t  flags;          //!< File type, etc...
+    uint32_t  pflags;         //!< Premissions: r/w/e
+    uint32_t  flags;          //!< File type, etc...
 
-	time_t  atime;            //!< Access time
-	time_t  mtime;            //!< Modification time
-	time_t  ctime;            //!< Creation time
+    time_t  atime;            //!< Access time
+    time_t  mtime;            //!< Modification time
+    time_t  ctime;            //!< Creation time
 
-	const file_ops_t *ops;
+    const file_ops_t *ops;
 
-	void *info;               //!< Driver-specific information (eg: Hard-disk, partition, and offset for a file on a HDD)
+    void *info;               //!< Driver-specific information (eg: Hard-disk, partition, and offset for a file on a HDD)
 
-	lock_t file_lock;         //!< Make sure only one process can access this at a time
+    lock_t file_lock;         //!< Make sure only one process can access this at a time
 
-	kfile_t *parent;          //!< Pointer to parent directory
+    kfile_t *parent;          //!< Pointer to parent directory
 
-	llist_item_t list_item;   //!< Linked list item
-	llist_t      children;    //!< List of children
+    llist_item_t list_item;   //!< Linked list item
+    llist_t      children;    //!< List of children
 };
 
 /**
@@ -116,13 +116,13 @@ struct kfile
  * given kfile_t.
  */
 struct kfile_hand {
-	uint32_t open_flags; //!< Flags used for opening file
+    uint32_t open_flags; //!< Flags used for opening file
 
-	const file_hand_ops_t *ops;
-	
-	lock_t lock;         //!< Make sure only one process can access this at a time
+    const file_hand_ops_t *ops;
+    
+    lock_t lock;         //!< Make sure only one process can access this at a time
 
-	kfile_t *file;       //!< Pointer to file itself
+    kfile_t *file;       //!< Pointer to file itself
 };
 
 #endif

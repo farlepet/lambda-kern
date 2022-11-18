@@ -17,8 +17,8 @@
  * @param handler the location of the interrupt handler
  */
 void set_interrupt(interrupt_idx_e n, void *handler) {
-	arch_set_interrupt_handler(n, handler);
-	kerror(ERR_DEBUG, "Interrupt vector 0x%02X set", n);
+    arch_set_interrupt_handler(n, handler);
+    kerror(ERR_DEBUG, "Interrupt vector 0x%02X set", n);
 }
 EXPORT_FUNC(set_interrupt);
 
@@ -28,7 +28,7 @@ EXPORT_FUNC(set_interrupt);
  * @param quantum the speed in Hz
  */
 void timer_init(uint32_t quantum) {
-	hw_init_timer(quantum);
-	
-	kerror(ERR_INFO, "Timer initialized");
+    hw_init_timer(quantum);
+    
+    kerror(ERR_INFO, "Timer initialized");
 }

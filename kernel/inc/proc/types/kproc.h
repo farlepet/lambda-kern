@@ -30,61 +30,61 @@ typedef struct kproc_mem_map_ent kproc_mem_map_ent_t;
 #include <fs/kfile.h>
 
 struct kproc_mem_map_ent { //!< Memory-map entry
-	uintptr_t virt_address; //!< Virtual address of memory location
-	uintptr_t phys_address; //!< Physical address of memory location
-	size_t    length;       //!< Length of memory location
+    uintptr_t virt_address; //!< Virtual address of memory location
+    uintptr_t phys_address; //!< Physical address of memory location
+    size_t    length;       //!< Length of memory location
 
-	struct kproc_mem_map_ent *next; //!< Next memory map entnry in linked-list. NULL if this is the last element
+    struct kproc_mem_map_ent *next; //!< Next memory map entnry in linked-list. NULL if this is the last element
 };
 
 struct proc_elf_data {
-	/* Dynamic linker data: */
-	const Elf32_Dyn *dynamic;
-	const char      *dynamic_str;     //!< Dynamic string table
-	size_t           dynamic_str_len; //!< Dynamic string table length
-	const Elf32_Sym *dynamic_sym;     //!< Dynamic symbol table
+    /* Dynamic linker data: */
+    const Elf32_Dyn *dynamic;
+    const char      *dynamic_str;     //!< Dynamic string table
+    size_t           dynamic_str_len; //!< Dynamic string table length
+    const Elf32_Sym *dynamic_sym;     //!< Dynamic symbol table
 };
 
 
 /* TODO: Convert some static-size arrays in kproc to dynamically allocated memory. */
 struct kproc { //!< Structure of a process as seen by the kernel
-	char          name[KPROC_NAME_MAX+1]; //!< Name of the process
-	int           pid;      //!< Process ID
-	int           uid;      //!< User who `owns` the process
-	int           gid;      //!< Group who `owns` the process
+    char          name[KPROC_NAME_MAX+1]; //!< Name of the process
+    int           pid;      //!< Process ID
+    int           uid;      //!< User who `owns` the process
+    int           gid;      //!< Group who `owns` the process
 
-	/* TODO: Currently parent anc childred are completely different, perhaps
-	 * they should both be pointers? */
-	int           parent;   //!< PID of parent process
+    /* TODO: Currently parent anc childred are completely different, perhaps
+     * they should both be pointers? */
+    int           parent;   //!< PID of parent process
 
-	uint32_t      type;     //!< Type of process
+    uint32_t      type;     //!< Type of process
 
-	mmu_table_t  *mmu_table; /** MMU table for process */
+    mmu_table_t  *mmu_table; /** MMU table for process */
 
-	uint8_t       domain; /** Process domain, see PROC_DOMAIN_* */
+    uint8_t       domain; /** Process domain, see PROC_DOMAIN_* */
 
-	kproc_arch_t  arch;     /** Architecture-specific process data */
+    kproc_arch_t  arch;     /** Architecture-specific process data */
 
-	struct kproc *children[MAX_CHILDREN]; //!< Pointers to direct child processes (ex: NOT children's children)
+    struct kproc *children[MAX_CHILDREN]; //!< Pointers to direct child processes (ex: NOT children's children)
 
-	llist_t       threads;
+    llist_t       threads;
 
-	kfile_t      *cwd; //!< Current working directory
+    kfile_t      *cwd; //!< Current working directory
 
-	kfile_hand_t *open_files[MAX_OPEN_FILES]; //!< Open file descriptors
-	uint32_t      file_position[MAX_OPEN_FILES]; //!< Current position in open files
+    kfile_hand_t *open_files[MAX_OPEN_FILES]; //!< Open file descriptors
+    uint32_t      file_position[MAX_OPEN_FILES]; //!< Current position in open files
 
-	symbol_t     *symbols;   //!< Symbol names used to display a stack trace
+    symbol_t     *symbols;   //!< Symbol names used to display a stack trace
 
-	proc_elf_data_t *elf_data; //!< Data specific for ELF executables
+    proc_elf_data_t *elf_data; //!< Data specific for ELF executables
 
-	int           exitcode;  //!< Exit code
+    int           exitcode;  //!< Exit code
 
-	kproc_mem_map_ent_t *mmap; //!< Memory map
+    kproc_mem_map_ent_t *mmap; //!< Memory map
 
-	cond_t *wait_cond; /** Conditional to use when waiting on child to exit */
+    cond_t *wait_cond; /** Conditional to use when waiting on child to exit */
 
-	llist_item_t list_item;
+    llist_item_t list_item;
 };
 
 #endif

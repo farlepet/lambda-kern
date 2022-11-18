@@ -12,7 +12,7 @@ kthread_t *thread_create(uintptr_t entrypoint, void * data, const char *name, si
     if(thread == NULL) {
         return NULL;
     }
-	
+    
     if(!stack_size) stack_size = DEFAULT_STACK_SIZE;
     
     memset(thread, 0, sizeof(kthread_t));
@@ -33,7 +33,7 @@ int thread_spawn(uintptr_t entrypoint, void *data, const char *name, size_t stac
         return -1;
     }
  
-	kthread_t *thread = thread_create(entrypoint, data, name, stack_size, prio);
+    kthread_t *thread = thread_create(entrypoint, data, name, stack_size, prio);
     if(thread == NULL) {
         return -1;
     }
@@ -45,14 +45,14 @@ int thread_spawn(uintptr_t entrypoint, void *data, const char *name, size_t stac
     kdebug(DEBUGSRC_PROC, ERR_TRACE, "kthread_create [%s] @ %08X | TID: %d", name, entrypoint, thread->tid);
     
     thread->flags      = KTHREAD_FLAG_RUNNABLE | KTHREAD_FLAG_RANONCE;
-	
+    
     sched_enqueue_thread(thread);
     
     return thread->tid;
 }
 
 int thread_destroy(kthread_t *thread) {
-	kdebug(DEBUGSRC_PROC, ERR_TRACE, "thread_destroy: %d, %s", thread->tid, thread->name);
+    kdebug(DEBUGSRC_PROC, ERR_TRACE, "thread_destroy: %d, %s", thread->tid, thread->name);
     sched_remove_thread(thread);
 
     kfree(thread);

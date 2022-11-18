@@ -16,15 +16,15 @@ void apictimer_init(apictimer_handle_t *hand) {
 }
 
 void apictimer_create_timerdev(apictimer_handle_t *hand, hal_timer_dev_t *dev) {
-	memset(dev, 0, sizeof(hal_timer_dev_t));
+    memset(dev, 0, sizeof(hal_timer_dev_t));
 
     dev->data = hand;
 
-	dev->setfreq   = _timerdev_setfreq;
-	dev->setperiod = NULL;
-	dev->attach    = NULL;
+    dev->setfreq   = _timerdev_setfreq;
+    dev->setperiod = NULL;
+    dev->attach    = NULL;
 
-	dev->cap = HAL_TIMERDEV_CAP_VARFREQ;
+    dev->cap = HAL_TIMERDEV_CAP_VARFREQ;
 }
 
 static int _timerdev_setfreq(void *data, uint8_t idx, uint32_t freq) {

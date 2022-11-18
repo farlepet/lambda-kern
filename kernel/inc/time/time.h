@@ -31,10 +31,10 @@ struct timespec {
  * @see do_time_block_timeup
  */
 typedef struct time_block {
-	void   (*event)(void *data); /** Called when `count` = 0 */
+    void   (*event)(void *data); /** Called when `count` = 0 */
     void    *data;               /** Data passed into event() */
-	uint64_t end;                /** Value of kerneltime at which timer expires */
-	int      tid;                /** TID of the thread using this block */
+    uint64_t end;                /** Value of kerneltime at which timer expires */
+    int      tid;                /** TID of the thread using this block */
 } time_block_t;
 
 #define MAX_TIME_BLOCKS 64 //!< Maximum number of timer blocks able to be used. We cannot let this get too high, or we will experience slowdown.

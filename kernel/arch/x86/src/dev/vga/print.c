@@ -24,9 +24,9 @@ static uint8_t *vidmem = (uint8_t *)0xB8000; //!< Pointer to default VGA memory 
  */
 void vga_clear()
 {
-	int i = 0;
-	for(; i < xres*yres*2; i++)
-		*(vidmem + i) = 0x00;
+    int i = 0;
+    for(; i < xres*yres*2; i++)
+        *(vidmem + i) = 0x00;
 }
 
 /**
@@ -35,12 +35,12 @@ void vga_clear()
  */
 static void scrollup()
 {
-	int i = 0;
-	for(; i < (xres * (yres - 1) * 2); i++)
-		vidmem[i] = vidmem[i + xres*2];
-	
-	for(; i < (xres * (yres) * 2); i++)
-		vidmem[i] = 0x00;
+    int i = 0;
+    for(; i < (xres * (yres - 1) * 2); i++)
+        vidmem[i] = vidmem[i + xres*2];
+    
+    for(; i < (xres * (yres) * 2); i++)
+        vidmem[i] = 0x00;
 }
 
 static char buff[256];
@@ -56,48 +56,48 @@ void ansi_escape(void);
  */
 void vga_put(char c)
 {
-	if(is_esc != 0) {
-		if(is_esc == 3) {
-			if(c == '[') {
-				is_esc = 1;
-				return;
-			} else {
-				is_esc = 0;
-			}
-		} else {
-			buff[buff_loc++] = c;
-			if(is_esc == 2) {
-				//if(c == ';') is_esc = 1;
-			} else if(is_ansi(c)) {
-				ansi_escape();
-				return;
-			} else {
-				return;
-			}
-		}
-	}
-	
-	switch(c) {
-		case 0x00:	return;
+    if(is_esc != 0) {
+        if(is_esc == 3) {
+            if(c == '[') {
+                is_esc = 1;
+                return;
+            } else {
+                is_esc = 0;
+            }
+        } else {
+            buff[buff_loc++] = c;
+            if(is_esc == 2) {
+                //if(c == ';') is_esc = 1;
+            } else if(is_ansi(c)) {
+                ansi_escape();
+                return;
+            } else {
+                return;
+            }
+        }
+    }
+    
+    switch(c) {
+        case 0x00:  return;
 
-		case '\t':	xpos = (xpos + 8) & ~(8);
-					break;
+        case '\t':  xpos = (xpos + 8) & ~(8);
+                    break;
 
-		case '\n':	xpos = 0;
-					ypos++;
-					break;
+        case '\n':  xpos = 0;
+                    ypos++;
+                    break;
 
-		case '\e':	is_esc = 3;
-					buff_loc = 0;
-					return;
+        case '\e':  is_esc = 3;
+                    buff_loc = 0;
+                    return;
 
-		default:	*(vidmem + (xpos+ypos*xres)*2)     = (uint8_t)c;
-					*(vidmem + (xpos+ypos*xres)*2 + 1) = (uint8_t)((bkgc << 4) | forc);
-					xpos++;
-					break;
-	}
-	if(xpos >= xres) { xpos = 0; ypos++; }
-	if(ypos >= yres) { ypos = yres - 1; scrollup(); }
+        default:    *(vidmem + (xpos+ypos*xres)*2)     = (uint8_t)c;
+                    *(vidmem + (xpos+ypos*xres)*2 + 1) = (uint8_t)((bkgc << 4) | forc);
+                    xpos++;
+                    break;
+    }
+    if(xpos >= xres) { xpos = 0; ypos++; }
+    if(ypos >= yres) { ypos = yres - 1; scrollup(); }
 }
 
 /**
@@ -109,9 +109,9 @@ void vga_put(char c)
  */
 void vga_print(char *str)
 {
-	int i = 0;
-	while(str[i] != 0)
-		vga_put(str[i++]);
+    int i = 0;
+    while(str[i] != 0)
+        vga_put(str[i++]);
 }
 
 /**
@@ -122,23 +122,23 @@ void vga_print(char *str)
  * @see vga_print
  */
 void vga_printnum(uint32_t n, uint32_t base) {
-	if(base == 0) {
-		return;
-	}
+    if(base == 0) {
+        return;
+    }
 
-	const char nums[16] = "0123456789ABCDEF";
-	char ans[16] = { '0' };
-	int i = 0;
-	while(n)
-	{
-		ans[i++] = nums[n % base];
-		n /= base;
-	}
-	
-	if(!i) i = 1;
+    const char nums[16] = "0123456789ABCDEF";
+    char ans[16] = { '0' };
+    int i = 0;
+    while(n)
+    {
+        ans[i++] = nums[n % base];
+        n /= base;
+    }
+    
+    if(!i) i = 1;
 
-	for(i--; i >= 0; i--)
-		vga_put(ans[i]);
+    for(i--; i >= 0; i--)
+        vga_put(ans[i]);
 }
 
 
@@ -158,23 +158,23 @@ void vga_printnum(uint32_t n, uint32_t base) {
  */
 static int get_dec(char *str, char **out)
 {
-	int n = 0;
-	while(*str >= '0' && *str <= '9')
-	{
-		n *= 10;
-		n += (int)(*str - '0');
-		str++;
-	}
-	if(out) *out = str;
-	
-	return n;
+    int n = 0;
+    while(*str >= '0' && *str <= '9')
+    {
+        n *= 10;
+        n += (int)(*str - '0');
+        str++;
+    }
+    if(out) *out = str;
+    
+    return n;
 }
 
 
 static uint8_t ansi_to_vga[16] = //!< Convert an ansi color to a VGA color
 {
-	0, 4,  2,  6,  1, 5,  3,  7,
-	8, 12, 10, 14, 9, 13, 11, 15
+    0, 4,  2,  6,  1, 5,  3,  7,
+    8, 12, 10, 14, 9, 13, 11, 15
 };
 
 /**
@@ -182,70 +182,70 @@ static uint8_t ansi_to_vga[16] = //!< Convert an ansi color to a VGA color
  */
 static void m_escape()
 {
-	int n = get_dec(buff, NULL);
+    int n = get_dec(buff, NULL);
 
-	switch(n)
-	{
-		case  0:	bkgc = 0;
-					forc = 7;
-					break;
+    switch(n)
+    {
+        case  0:    bkgc = 0;
+                    forc = 7;
+                    break;
 
-		case  1:	forc |= 8;
-					break;
+        case  1:    forc |= 8;
+                    break;
 
-		case  2:	forc &= ~8;
-					break;
+        case  2:    forc &= ~8;
+                    break;
 
-		case  3:	// En Italic
-		case  4:	// En Underline
-		case  5:	// En Blink
-		case  6:	// En Fast Blink
-					break;
+        case  3:    // En Italic
+        case  4:    // En Underline
+        case  5:    // En Blink
+        case  6:    // En Fast Blink
+                    break;
 
-		case  7:	n = forc;
-					forc = bkgc;
-					bkgc = (uint8_t)n;
-					break;
+        case  7:    n = forc;
+                    forc = bkgc;
+                    bkgc = (uint8_t)n;
+                    break;
 
-		case  8:	// En Hidden
-		case  9:	// En Strike-through
-		case 20:	// En Fraktur
-					break;
+        case  8:    // En Hidden
+        case  9:    // En Strike-through
+        case 20:    // En Fraktur
+                    break;
 
-		case 21:	forc &= ~8;
-					break;
+        case 21:    forc &= ~8;
+                    break;
 
-		case 22:	bkgc = 0;
-					forc = 7;
-					break;
+        case 22:    bkgc = 0;
+                    forc = 7;
+                    break;
 
-		case 23:	// Dis Italic & Fraktur
-		case 24:	// Dis Underline
-		case 25:	// Dis Blink
-		case 26:	// Reserved
-					break;
+        case 23:    // Dis Italic & Fraktur
+        case 24:    // Dis Underline
+        case 25:    // Dis Blink
+        case 26:    // Reserved
+                    break;
 
-		case 27:	n    = forc;
-					forc = bkgc;
-					bkgc = n;
-					break;
+        case 27:    n    = forc;
+                    forc = bkgc;
+                    bkgc = n;
+                    break;
 
-		case 28:	// Dis Hide
-		case 29:	// Dis Strike-through
-					break;
+        case 28:    // Dis Hide
+        case 29:    // Dis Strike-through
+                    break;
 
-		case 39:	forc = 7;
-					break;
+        case 39:    forc = 7;
+                    break;
 
-		case 49:	bkgc = 0;
-					break;
+        case 49:    bkgc = 0;
+                    break;
 
-		default:	if(n >= 30  && n <= 37)  forc = ansi_to_vga[n - 30];
-					if(n >= 40  && n <= 47)  bkgc = ansi_to_vga[n - 40];
-					if(n >= 90  && n <= 97)  forc = ansi_to_vga[n - 90  + 8];
-					if(n >= 100 && n <= 107) bkgc = ansi_to_vga[n - 100 + 8];
-					break;
-	}
+        default:    if(n >= 30  && n <= 37)  forc = ansi_to_vga[n - 30];
+                    if(n >= 40  && n <= 47)  bkgc = ansi_to_vga[n - 40];
+                    if(n >= 90  && n <= 97)  forc = ansi_to_vga[n - 90  + 8];
+                    if(n >= 100 && n <= 107) bkgc = ansi_to_vga[n - 100 + 8];
+                    break;
+    }
 }
 
 /**
@@ -253,10 +253,10 @@ static void m_escape()
  */
 void ansi_escape()
 {
-	is_esc = 2;
-	switch(buff[buff_loc - 1])
-	{
-		case 'm':	m_escape();
-					break;
-	}
+    is_esc = 2;
+    switch(buff[buff_loc - 1])
+    {
+        case 'm':   m_escape();
+                    break;
+    }
 }

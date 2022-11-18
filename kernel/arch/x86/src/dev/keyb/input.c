@@ -25,28 +25,28 @@ static cbuff_t _keyb_buff = STATIC_CBUFF(sizeof(struct input_event) * KEYB_BUFF_
  */
 static void process_code(uint32_t keycode)
 {
-	switch(keycode)
-	{
-		case 0x2A:
-		case 0x36:	keyb_dev.state |= KEYB_STATE_SHIFT;
-					break;
+    switch(keycode)
+    {
+        case 0x2A:
+        case 0x36:  keyb_dev.state |= KEYB_STATE_SHIFT;
+                    break;
 
-		case 0xAA:
-		case 0xB6:	keyb_dev.state &= (uint32_t)~KEYB_STATE_SHIFT;
-					break;
+        case 0xAA:
+        case 0xB6:  keyb_dev.state &= (uint32_t)~KEYB_STATE_SHIFT;
+                    break;
 
-		case 0x1D:	keyb_dev.state |= KEYB_STATE_CTRL;
-					break;
+        case 0x1D:  keyb_dev.state |= KEYB_STATE_CTRL;
+                    break;
 
-		case 0x9D:	keyb_dev.state &= (uint32_t)~KEYB_STATE_CTRL;
-					break;
+        case 0x9D:  keyb_dev.state &= (uint32_t)~KEYB_STATE_CTRL;
+                    break;
 
-		case 0x38:	keyb_dev.state |= KEYB_STATE_ALT;
-					break;
+        case 0x38:  keyb_dev.state |= KEYB_STATE_ALT;
+                    break;
 
-		case 0xB8:	keyb_dev.state &= (uint32_t)~KEYB_STATE_ALT;
-					break;
-	}
+        case 0xB8:  keyb_dev.state &= (uint32_t)~KEYB_STATE_ALT;
+                    break;
+    }
 }
 
 /**
@@ -59,15 +59,15 @@ static void process_code(uint32_t keycode)
  */
 void keyb_handle(uint32_t keycode)
 {
-	// Doesn't do a whole lot... YET...
-	process_code(keycode);
-	
-	struct input_event iev;
-	iev.origin.s.driver = IDRIVER_KEYBOARD;
-	iev.origin.s.device = keyb_dev.id.s.device;
-	iev.type = EVENT_KEYPRESS;
-	iev.data = keycode;
-	cbuff_write((uint8_t *)&iev, sizeof(struct input_event), keyb_dev.iev_buff);
+    // Doesn't do a whole lot... YET...
+    process_code(keycode);
+    
+    struct input_event iev;
+    iev.origin.s.driver = IDRIVER_KEYBOARD;
+    iev.origin.s.device = keyb_dev.id.s.device;
+    iev.type = EVENT_KEYPRESS;
+    iev.data = keycode;
+    cbuff_write((uint8_t *)&iev, sizeof(struct input_event), keyb_dev.iev_buff);
 }
 
 /**
@@ -75,9 +75,9 @@ void keyb_handle(uint32_t keycode)
  */
 static inline void kbd_wait(void)
 {
-	asm("1: inb $0x64,%al\n"
-		"testb  $0x02,%al\n"
-		"jne    1b");
+    asm("1: inb $0x64,%al\n"
+        "testb  $0x02,%al\n"
+        "jne    1b");
 }
 
 /**
@@ -89,31 +89,31 @@ static inline void kbd_wait(void)
  */
 void keyb_init()
 {
-	inb(0x60);
-	kbd_wait();
-	outb(0x60, 0xFF);
-	kbd_wait();
-	uint8_t val = 0;
-	while((val = inb(0x60)) != 0xAA)
-	{
-		if(val == 0xFE)
-		{
-			inb(0x60);
-			kbd_wait();
-			outb(0x60, 0xFF);
-			kbd_wait();
-			continue;
-		}
-		if(val == 0xFC || val == 0xFD)
-		{
-			kerror(ERR_ERROR, "Keyboard self-test failed");
-			return;
-		}
-	}
+    inb(0x60);
+    kbd_wait();
+    outb(0x60, 0xFF);
+    kbd_wait();
+    uint8_t val = 0;
+    while((val = inb(0x60)) != 0xAA)
+    {
+        if(val == 0xFE)
+        {
+            inb(0x60);
+            kbd_wait();
+            outb(0x60, 0xFF);
+            kbd_wait();
+            continue;
+        }
+        if(val == 0xFC || val == 0xFD)
+        {
+            kerror(ERR_ERROR, "Keyboard self-test failed");
+            return;
+        }
+    }
 
-	set_interrupt(INTR_KEYBOARD, (void *)&keyb_int);
-	enable_irq(1);
+    set_interrupt(INTR_KEYBOARD, (void *)&keyb_int);
+    enable_irq(1);
 
-	add_input_dev(&keyb_dev, IDRIVER_KEYBOARD, "keyb", 0, 0);
-	keyb_dev.iev_buff = &_keyb_buff;
+    add_input_dev(&keyb_dev, IDRIVER_KEYBOARD, "keyb", 0, 0);
+    keyb_dev.iev_buff = &_keyb_buff;
 }
