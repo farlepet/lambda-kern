@@ -1,23 +1,23 @@
-#ifndef INTERRUPT_H
-#define INTERRUPT_H
+#ifndef INTR_INTR_H
+#define INTR_INTR_H
 
-#include <arch/intr/int.h>
+#include <stdint.h>
 
-#include <types.h>
+#include <intr/types/intr.h>
 
 /* TODO: Add platform-agnosting interrupt_enable/_disable functions */
 
 /**
- * \brief Attaches an interrupt handler to an interrupt.
- * Attaches an interrupt handler to the specified interrupt.
- * @param n number of the interrupt
- * @param handler the location of the interrupt handler
+ * @brief Attaches an interrupt handler to an interrupt.
+ *
+ * @param n Interrupt ID
+ * @param hdlr Interrupt handler handle
  */
-void set_interrupt(interrupt_idx_e n, void *handler);
+void interrupt_attach(interrupt_idx_e n, intr_handler_hand_t *hdlr);
 
 /**
- * \brief Initializes the system timer.
- * Initializes the timer used by the target architecture.
+ * @brief Initializes the system timer.
+ *
  * @param quantum the speed in Hz
  */
 void timer_init(uint32_t quantum);

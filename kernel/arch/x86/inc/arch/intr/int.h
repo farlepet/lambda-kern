@@ -1,7 +1,10 @@
 #ifndef INT_FUNCS_H
 #define INT_FUNCS_H
 
+#include <stdint.h>
+
 #include <types.h>
+#include <intr/types/intr.h>
 
 #include <arch/intr/idt.h>
 
@@ -13,25 +16,6 @@
 #define INTERRUPT(int_n) __INTERRUPT(int_n) //!< Call interrupt
 #define __INTERRUPT(int_n) asm volatile("int $" #int_n)
 
-typedef enum {
-    INTR_TIMER        = 32,
-    INTR_KEYBOARD     = 33,
-    INTR_SERIALA      = 35,
-    INTR_SERIALB      = 36,
-    INTR_PARALLELB    = 37,
-    INTR_FLOPPY       = 38,
-    INTR_PARALLELA    = 39,
-    INTR_RTC          = 40,
-    INTR_IRQ9         = 41,
-    INTR_IRQ10        = 42,
-    INTR_IRQ11        = 43,
-    INTR_PS2          = 44,
-    INTR_COPROCESSOR  = 45,
-    INTR_ATAPRIMARY   = 46,
-    INTR_ATASECONDARY = 47,
-    INTR_SCHED        = 64,
-    INTR_SYSCALL      = 255
-} interrupt_idx_e;
 
 /**
  * @brief Checks if interrupts are currently enabled
@@ -40,28 +24,14 @@ typedef enum {
  */
 int interrupts_enabled(void);
 
-
-typedef struct pusha_regs {
-    uint32_t edi, esi;
-    uint32_t ebp, esp;
-    uint32_t ebx, edx, ecx, eax;
-} arch_pusha_regs_t;
-
-typedef struct iret_regs {
-    uint32_t eip, cs;
-    uint32_t eflags;
-    uint32_t esp, ds;
-} arch_iret_regs_t;
-
 /**
- * @brief Setup handler for interrupt
+ * @brief Attach handler for interrupt
  *
  * @param idx Interrupt ID
- * @param handler Handler
+ * @param hdlr Interrupt handler handle
  */
-static inline void arch_set_interrupt_handler(interrupt_idx_e idx, void *handler) {
-    /* @todo Allow using regular functions with a standard interface as a handler */
-    set_idt((uint8_t)idx, 0x08, IDT_ATTR(1, 0, 0, int32), handler);
+static inline void arch_interrupt_attach(interrupt_idx_e n, intr_handler_hand_t *hdlr) {
+    idt_add_callback((uint8_t)n, hdlr);
 }
 
 /**
@@ -70,10 +40,7 @@ static inline void arch_set_interrupt_handler(interrupt_idx_e idx, void *handler
  * @param idx Interrupt ID
  * @param handler Handler
  */
-static inline void arch_set_interrupt_handler_user(interrupt_idx_e idx, void *handler) {
-    /* @todo Allow using regular functions with a standard interface as a handler */
-    set_idt((uint8_t)idx, 0x08, IDT_ATTR(1, 3, 0, int32), handler);
-}
+void arch_set_interrupt_handler_user(interrupt_idx_e idx, void *handler);
 
 extern void call_syscall_int(uint32_t, syscallarg_t *);
 /**
@@ -96,3 +63,4 @@ static inline void arch_div0(void) {
 }
 
 #endif
+

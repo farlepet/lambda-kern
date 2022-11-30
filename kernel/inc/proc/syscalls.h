@@ -35,10 +35,10 @@ enum syscalls {
 };
 
 
-void init_syscalls(void);
+void syscalls_init(void);
 
-void call_syscall(uint32_t scn, syscallarg_t *arg);
-int service_syscall(uint32_t scn, syscallarg_t *args);
+void syscall_call(uint32_t scn, syscallarg_t *arg);
+int syscall_service(uint32_t scn, syscallarg_t *args);
 
 extern void return_from_syscall(void);
 

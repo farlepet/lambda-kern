@@ -1,14 +1,95 @@
+#include <string.h>
+
 #include <lambda/export.h>
 #include <arch/io/ioport.h>
 #include <arch/intr/idt.h>
+#include <arch/intr/int.h>
 
 #include <types.h>
 #include <err/error.h>
 
 extern void load_idt(uint64_t *, uint32_t); //!< Use `lidt` to set the IDT pointer.
-extern void dummy_int(void); //!< Dummy interrupt se all IRQ's can function, even if not setup.
+extern void idt_setup_exceptions(void); /**< Sets up handlers for all exception interrupts */
+extern void idt_setup_handlers(void);   /**< Sets up handlers for all non-exception interrupts */
 
-static uint64_t IDT[256]; //!< Interrupt Descriptor Table. Table of all interrupt handlers and settings.
+static void _pic_remap(uint8_t off1, uint8_t off2);
+static void _idt_reload(void);
+
+static x86_idt_handle_t _idt_hand = { 0 };
+
+#define IDT_SETATTR(ENTRY, ATTR) ((ENTRY) = (((ENTRY) & 0xFFFF00FFFFFFFFFFULL) | ((uint64_t)(ATTR) << 40)))
+
+void idt_init(void) {
+    memset(&_idt_hand, 0, sizeof(_idt_hand));
+
+    kerror(ERR_INFO, "      -> Setting exception vectors");
+    idt_setup_exceptions();
+    kerror(ERR_INFO, "      -> Setting interrupt vectors");
+    idt_setup_handlers();
+
+    kerror(ERR_INFO, "      -> Disabling IRQs");
+    for(unsigned i = 0; i < 16; i++) {
+        disable_irq(i);
+    }
+
+    /* @todo Add generic API to allow interrupts to be called, this is just a temporary hack */
+    IDT_SETATTR(_idt_hand.idt[INTR_SYSCALL], IDT_ATTR(1, 3, 0, int32));
+    IDT_SETATTR(_idt_hand.idt[INTR_SCHED],   IDT_ATTR(1, 3, 0, int32));
+
+    kerror(ERR_INFO, "      -> Reloading IDT");
+    _idt_reload();
+}
+
+
+void idt_set_entry(uint8_t intr, int sel, int flags, void *func) {
+    _idt_hand.idt[intr] = IDT_ENTRY((uint32_t)func, sel, flags);
+}
+
+int idt_add_callback(uint8_t int_n, intr_handler_hand_t *hdlr) {
+    for(unsigned i = 0; i < X86_IDT_MAX_CALLBACKS; i++) {
+        if(_idt_hand.callbacks[i].hdlr == NULL) {
+            _idt_hand.callbacks[i].int_n = int_n;
+            _idt_hand.callbacks[i].hdlr  = hdlr;
+
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
+void idt_handle_interrupt(uint8_t int_n, x86_pusha_regs_t pregs, x86_iret_regs_t iregs) {
+    for(unsigned i = 0; i < X86_IDT_MAX_CALLBACKS; i++) {
+        if((_idt_hand.callbacks[i].hdlr  != NULL) &&
+           (_idt_hand.callbacks[i].int_n == int_n)) {
+            if(_idt_hand.callbacks[i].hdlr->callback != NULL) {
+                _idt_hand.callbacks[i].hdlr->arch.iregs = &iregs;
+                _idt_hand.callbacks[i].hdlr->arch.pregs = &pregs;
+                _idt_hand.callbacks[i].hdlr->callback(_idt_hand.callbacks[i].hdlr);
+            }
+        }
+    }
+}
+
+
+
+
+int disable_irq(uint8_t irq) {
+    if(irq > 16) return 1;
+    if(irq < 8)  outb(0x21, inb(0x21) | (1 >> irq));
+    else         outb(0xA1, inb(0xA1) | (uint8_t)(0x100 >> irq));
+    return 0;
+}
+EXPORT_FUNC(disable_irq);
+
+
+int enable_irq(uint8_t irq) {
+    if(irq > 16) return 1;
+    if(irq < 8)  outb(0x21, inb(0x21) & ~(1 >> irq));
+    else         outb(0xA1, inb(0xA1) & ~(0x100 >> irq));
+    return 0;
+}
+EXPORT_FUNC(enable_irq);
 
 /**
  * Remaps the PIC so when an IRQ fires, it adds `offx` to the IRQ number.
@@ -18,8 +99,7 @@ static uint64_t IDT[256]; //!< Interrupt Descriptor Table. Table of all interrup
  * @param off1 the offset for the master PIC
  * @param off2 the offset for the slave PIC
  */
-static void remap_pic(uint8_t off1, uint8_t off2)
-{
+static void _pic_remap(uint8_t off1, uint8_t off2) {
     outb(0x20, 0x11);
     outb(0xA0, 0x11);
     outb(0x21, off1);
@@ -38,78 +118,10 @@ static void remap_pic(uint8_t off1, uint8_t off2)
  * @see load_idt
  * @see remap_pic
  */
-static void _reload_idt(void)
-{
+static void _idt_reload(void) {
     kerror(ERR_INFO, "      -> Loading IDT");
-    load_idt(IDT, sizeof(IDT)-1);
+    load_idt(_idt_hand.idt, sizeof(_idt_hand.idt)-1);
     kerror(ERR_INFO, "      -> Remapping IRQ's");
-    remap_pic(0x20, 0x28);
+    _pic_remap(0x20, 0x28);
 }
 
-/**
- * Initializes the IDT by first setting every IDT entry to use the dummy
- * interrupt then loads the IDT pointer and remaps the PIC.
- *
- * @see reload_idt
- */
-void idt_init(void)
-{
-    kerror(ERR_INFO, "      -> Setting dummy interrupt vectors");
-    int i = 0;
-    for(; i < 256; i++)
-    {
-        //kerror(ERR_INFO, "        -> INT %02X", i);
-        IDT[i] = IDT_ENTRY((uint32_t)&dummy_int, 0x08, 0x8E);
-    }
-
-    for(i = 0; i < 16; i++)
-        disable_irq(i);
-
-    _reload_idt();
-}
-
-/**
- * Sets the information in an IDT entry.
- *
- * @param intr the interrupt number
- * @param sel the GDT selector
- * @param flags the entrys flags (@see IDT_ATTR)
- * @param func the interrupt handler function
- */
-void set_idt(uint8_t intr, int sel, int flags, void *func)
-{
-    IDT[intr] = IDT_ENTRY((uint32_t)func, sel, flags);
-}
-
-
-
-
-/**
- * Disable an IRQ line
- * 
- * @param irq the IRQ to be disabled
- * @return returns 0 if success
- */
-int disable_irq(uint8_t irq)
-{
-    if(irq > 16) return 1;
-    if(irq < 8)  outb(0x21, inb(0x21) | (1 >> irq));
-    else         outb(0xA1, inb(0xA1) | (uint8_t)(0x100 >> irq));
-    return 0;
-}
-EXPORT_FUNC(disable_irq);
-
-/**
- * Enable an IRQ line
- * 
- * @param irq the IRQ to be enabled
- * @return returns 0 if success
- */
-int enable_irq(uint8_t irq)
-{
-    if(irq > 16) return 1;
-    if(irq < 8)  outb(0x21, inb(0x21) & ~(1 >> irq));
-    else         outb(0xA1, inb(0xA1) & ~(0x100 >> irq));
-    return 0;
-}
-EXPORT_FUNC(enable_irq);

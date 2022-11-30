@@ -1,8 +1,9 @@
+.altmacro
+
+.extern idt_set_entry
+
+
 .global load_idt
-.global dummy_int
-
-.extern stub_error
-
 # Set the interrupt descriptor table
 load_idt:
 	movl 4(%esp), %eax
@@ -12,47 +13,58 @@ load_idt:
 	lidt (idtr)        # Load the IDT pointer.
 	ret
 
-# Dummy interrupt, so all interrupts can be enables, with no immediate problems
-dummy_int:
-	cli
+
+.macro gen_int_handler num
+int_handler_\num:
 	pusha
-	call stub_error
+	push $\num
+	call idt_handle_interrupt
+
+.if \num < 40
 	movb $0x20, %al
 	outb %al, $0x20
+.elseif \num < 48
+	movb $0x20, %al
 	outb %al, $0xA0
+.endif
 
+	addl $4, %esp # Int number
 	popa
 	iret
+.endm
+
+.set n, 32
+.rept (256 - 32)
+    gen_int_handler %n
+    .set n, n+1
+.endr
 
 
-
-
-.global pit_int
-.extern pit_handler
-.extern do_task_switch
-# Interrupt handler called by the PIT
-pit_int:
-	cli
+.macro setidt intr, sel, flags, func
 	pusha
-
-	call pit_handler
-
-	#call do_task_switch
-
+	pushl \func
+	pushl \flags
+	pushl \sel
+	pushl \intr
+	call idt_set_entry
+	addl $16, %esp
 	popa
-	iret
+.endm
+
+.macro setidt_intr num
+    setidt $\num $0x08 $0x8E $int_handler_\num
+.endm
+
+.global idt_setup_handlers
+idt_setup_handlers:
+.set n, 32
+.rept (256 - 32)
+    setidt_intr %n
+    .set n, n+1
+.endr
+    ret
 
 
-.global sched_run
-# This is an interrupt that forces the scheduler to run
-sched_run:
-	cli
-	pusha
-
-	call do_task_switch
-
-	popa
-	iret
 
 
 .global interrupts_enabled
@@ -65,28 +77,6 @@ interrupts_enabled:
 	ret
 
 
-
-
-
-
-
-.extern handle_syscall
-.global syscall_int
-# Interrupt used when issuing a syscall
-syscall_int:
-	pusha
-
-	#push ebx ; Arguments pointer
-	#push eax ; Syscall number
-	#push esp
-
-	call handle_syscall
-
-	#add esp, 8
-	#add esp, 4
-
-	popa
-	iret
 
 .extern restore_syscall_regs
 .global return_from_syscall

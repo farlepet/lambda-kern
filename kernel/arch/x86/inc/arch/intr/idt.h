@@ -5,10 +5,12 @@
  *  of the IDT and interrupts in general.
  */
 
-#ifndef IDT_H
-#define IDT_H
+#ifndef ARCH_INTR_IDT_H
+#define ARCH_INTR_IDT_H
 
-#include <types.h>
+#include <stdint.h>
+
+#include <intr/intr.h>
 
 /**
  * \brief Allows for easy creation of an IDT entry.
@@ -52,6 +54,28 @@ enum idt_int_type
     ((type     & 0x0F) << 0))
 
 
+/* @note It would be more efficient to have just an array of 256 items, but this
+ * does not allow the flexibility of having multiple callbacks per interrupt.
+ * This is currently used for timekeeping + scheduling. */
+
+typedef struct {
+    uint8_t  int_n;            /**< Interrupt ID this callback is associated with */
+    uint8_t  _reserved[3];
+
+    intr_handler_hand_t *hdlr; /**< Pointer to interrupt handler handle */
+} x86_idt_callback_t;
+
+typedef struct {
+    uint8_t master_off;        /**< Master PIC interrupt ID offset */
+    uint8_t slave_off;         /**< Slave PIC interrupt ID offset */
+
+#define X86_IDT_MAX (256)
+    uint64_t idt[X86_IDT_MAX]; /**< Interrupt descriptor table */
+#define X86_IDT_MAX_CALLBACKS (16)
+    x86_idt_callback_t callbacks[X86_IDT_MAX_CALLBACKS];
+} x86_idt_handle_t;
+
+
 /**
  * \brief Initializes the IDT
  * Initializes the IDT by first setting every IDT entry to use the dummy
@@ -69,7 +93,17 @@ void idt_init(void);
  * @param func the interrupt handler function
  * @see IDT_ATTR
  */
-void set_idt(uint8_t intr, int sel, int flags, void *func);
+void idt_set_entry(uint8_t intr, int sel, int flags, void *func);
+
+/**
+ * @brief Add callback for interrupt
+ *
+ * @param int_n Interrupt number
+ * @param hdlr Interrupt handler handle
+ *
+ * @return 0 on success, else < 0
+ */
+int idt_add_callback(uint8_t int_n, intr_handler_hand_t *hdlr);
 
 /**
  * Disable an IRQ line
@@ -88,3 +122,4 @@ int disable_irq(uint8_t irq);
 int enable_irq(uint8_t irq);
 
 #endif
+

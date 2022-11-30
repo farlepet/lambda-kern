@@ -12,8 +12,6 @@
 
 #include "config.h"
 
-typedef unsigned long long int max_ptr_t; //!< Maximum pointer size that can be used by an architecture
-
 
 #define __error(E)       __attribute__((__error__(#E)))           //!< Throws an error is this is reached in preprocessing
 #define __warning(E)     __attribute__((__warning__(#E)))         //!< Throws a warning is this is reached in preprocessing
@@ -75,8 +73,6 @@ typedef unsigned long long int max_ptr_t; //!< Maximum pointer size that can be 
 
 #define __STR(X) #X
 #define   STR(X) __STR(X)
-
-typedef enum BOOL { FALSE, TRUE } bool;
 
 void __builtin_ia32_pause(void); //!< Energy-saving alternative to `nop`
 

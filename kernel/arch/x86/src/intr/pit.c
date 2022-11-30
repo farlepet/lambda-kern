@@ -8,9 +8,6 @@
 #include <intr/intr.h>
 #include <time/time.h>
 
-extern void pit_int(void); //!< The PIT interrupt handler
-void pit_handler(void); //!< Assembly PIT interrupt handler
-
 static void (*pit_callback)(void) = NULL;
 
 static int timerdev_setfreq(void *data, uint8_t idx, uint32_t freq);
@@ -31,8 +28,9 @@ void pit_create_timerdev(hal_timer_dev_t *dev) {
  * The main part of the PIT interrupt handler, called from pit_int().
  * @see pit_int
  */
-void pit_handler(void)
-{
+static void _pit_handler(intr_handler_hand_t *hdlr) {
+    (void)hdlr;
+
     /* TODO: Determine from timer settings. */
     time_update(10);
     
@@ -55,18 +53,19 @@ static __inline uint32_t get_reload(uint32_t freq)
     return (1193180 / freq);           // If not, compute the reload value
 }
 
-/**
- * \brief Initialize the PIT.
- * Initialized the PIT using the supplied frequency if possible.
- * @param freq frequency in Hz
- */
-void pit_init(uint32_t freq)
-{
+/* @todo Possibly make this dynamically allocated */
+static intr_handler_hand_t _pit_int_hdlr = {
+    .callback = _pit_handler,
+    .data     = NULL
+};
+
+void pit_init(uint32_t freq) {
     uint32_t reload = get_reload(freq);
     outb(0x43, 0x34);
     outb(0x40, (uint8_t)reload);
     outb(0x40, (uint8_t)(reload >> 8));
-    set_interrupt(INTR_TIMER, &pit_int);
+
+    interrupt_attach(INTR_TIMER, &_pit_int_hdlr);
     enable_irq(0);
 }
 

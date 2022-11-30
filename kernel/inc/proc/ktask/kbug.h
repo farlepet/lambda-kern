@@ -29,15 +29,15 @@ struct kbug_type_msg //!< Message containing type of next message
 
 struct kbug_proc_msg //!< Message containing type of process info it requests
 {
-    int pid;  //!< PID of the process whose information is wanted (not always used)
+    int      pid;  //!< PID of the process whose information is wanted (not always used)
     uint8_t  type; //!< Type of information it requests
     uint32_t info; //!< Extra required information (not always used)
 };
 
 struct kbug_mem_msg //!< Message containing memory request
 {
-    max_ptr_t mem_addr; //!< Address of memory to request
-    uint32_t       mem_len;  //!< Length of memory request
+    uintptr_t mem_addr; //!< Address of memory to request
+    uint32_t  mem_len;  //!< Length of memory request
 };
 
 

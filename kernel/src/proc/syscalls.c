@@ -1,15 +1,18 @@
-#include <proc/syscalls.h>
-#include <intr/intr.h>
-#include <err/error.h>
-#include <err/panic.h>
 #include <string.h>
 
+#include <err/error.h>
+#include <err/panic.h>
+#include <intr/intr.h>
+#include <proc/syscalls.h>
+
+#include <arch/intr/syscall.h>
+
 // Includes that include syscalls
-#include <proc/ktasks.h>
-#include <proc/mtask.h>
-#include <proc/exec.h>
 #include <fs/procfs.h>
 #include <mm/mmap.h>
+#include <proc/exec.h>
+#include <proc/ktasks.h>
+#include <proc/mtask.h>
 
 #if 1
 #  define syscall_debug(...) kdebug(DEBUGSRC_SYSCALL, __VA_ARGS__)
@@ -24,7 +27,7 @@ typedef struct {
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-function-type"
-static syscall_desc_t syscalls[] = {
+static const syscall_desc_t _syscalls[] = {
     [SYSCALL_EXIT]      = { (func0_t)exit,         1 },
     
     [SYSCALL_MMAP]      = { (func0_t)mmap,         6 },
@@ -54,22 +57,22 @@ static syscall_desc_t syscalls[] = {
 
 static const char *_syscall_stringify(uint32_t);
 
-int service_syscall(uint32_t scn, syscallarg_t *args) {
+int syscall_service(uint32_t scn, syscallarg_t *args) {
     kthread_t *curr_thread = mtask_get_curr_thread();
     
     syscall_debug(ERR_TRACE, "Syscall %d [%s] called by %d with args at %08X", scn, _syscall_stringify(scn), curr_thread->tid, args);
-    if((scn >= ARRAY_SZ(syscalls)) ||
-       !syscalls[scn].func) {
+    if((scn >= ARRAY_SZ(_syscalls)) ||
+       !_syscalls[scn].func) {
         kdebug(DEBUGSRC_SYSCALL, ERR_INFO, "Thread %d (%s) has tried to call an invalid syscall: %u Args: %08X", curr_thread->tid, curr_thread->name, scn, args);
         return -1;
     }
 
-    func0_t func = syscalls[scn].func;
+    func0_t func = _syscalls[scn].func;
 
     // This could be made better, but it is more complicated if another architecture is supported
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-function-type"
-    switch(syscalls[scn].nargs) {
+    switch(_syscalls[scn].nargs) {
         case 0:
             args[0] = func();
             break;
@@ -105,7 +108,7 @@ int service_syscall(uint32_t scn, syscallarg_t *args) {
             break;
 
         default:
-            kpanic("Syscall error (%d): %d arguments not handled! Kernel programming error!", scn, syscalls[scn].nargs);
+            kpanic("Syscall error (%d): %d arguments not handled! Kernel programming error!", scn, _syscalls[scn].nargs);
     }
 #pragma GCC diagnostic pop
 
@@ -115,13 +118,16 @@ int service_syscall(uint32_t scn, syscallarg_t *args) {
 }
 
 
-extern void syscall_int(void);
-void init_syscalls(void) {
-    arch_set_interrupt_handler_user(INTR_SYSCALL, &syscall_int);
+static intr_handler_hand_t _syscall_int_hdlr = {
+    .callback = arch_syscall_interrupt,
+    .data     = NULL
+};
+
+void syscalls_init(void) {
+    interrupt_attach(INTR_SYSCALL, &_syscall_int_hdlr);
 }
 
-void call_syscall(uint32_t scn, uint32_t *args)
-{
+void syscall_call(uint32_t scn, uint32_t *args) {
     kdebug(DEBUGSRC_SYSCALL, ERR_TRACE, "call_syscall: %d, %08X", scn, args);
     arch_call_syscall(scn, args);
 }
@@ -147,3 +153,4 @@ static const char *_syscall_stringify(uint32_t scn) {
            (scn == SYSCALL_WAIT)          ? "WAIT"        :
            (scn == SYSCALL_TASK_SWITCH)   ? "TASK_SWITCH" : "UNKNOWN";
 }
+

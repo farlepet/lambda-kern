@@ -6,8 +6,8 @@
 #include <arch/intr/int.h>
 
 typedef struct {
-    arch_pusha_regs_t *pusha;
-    arch_iret_regs_t  *iret;
+    x86_pusha_regs_t *pusha;
+    x86_iret_regs_t  *iret;
 } kproc_arch_syscall_regs_t;
 
 /** Kernel representation of a stack allocated to a thread */

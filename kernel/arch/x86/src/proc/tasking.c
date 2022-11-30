@@ -17,11 +17,21 @@
 
 extern lock_t creat_task; // From proc/mtask.c
 
-extern void sched_run(void);
 extern void *get_eip(void);  //!< Get the EIP value of the instruction after the call to this function
 
+static void _sched_int(intr_handler_hand_t *hdlr) {
+    (void)hdlr;
+    do_task_switch();
+}
+
+/* @todo Possibly make this dynamically allocated */
+static intr_handler_hand_t _sched_int_hdlr = {
+    .callback = _sched_int,
+    .data     = NULL
+};
+
 void arch_multitasking_init(void) {
-    set_interrupt(INTR_SCHED, sched_run);
+    interrupt_attach(INTR_SCHED, &_sched_int_hdlr);
 }
 
 int arch_proc_create_stack(kthread_t *thread) {
@@ -156,11 +166,11 @@ int arch_postfork_setup(const kthread_t *parent, kthread_t *child) {
     child->arch.esp = child->arch.stack_kern.begin - 52;
     child->arch.eip = (uint32_t)return_from_fork;
 
-    arch_iret_regs_t  *iret_stack  = (arch_iret_regs_t *)(child->arch.stack_kern.begin - sizeof(arch_iret_regs_t));
-    arch_pusha_regs_t *pusha_stack = (arch_pusha_regs_t *)((uintptr_t)iret_stack - sizeof(arch_pusha_regs_t));
+    x86_iret_regs_t  *iret_stack  = (x86_iret_regs_t *)(child->arch.stack_kern.begin - sizeof(x86_iret_regs_t));
+    x86_pusha_regs_t *pusha_stack = (x86_pusha_regs_t *)((uintptr_t)iret_stack - sizeof(x86_pusha_regs_t));
 
-    memcpy(iret_stack,  parent->arch.syscall_regs.iret,  sizeof(arch_iret_regs_t));
-    memcpy(pusha_stack, parent->arch.syscall_regs.pusha, sizeof(arch_pusha_regs_t));
+    memcpy(iret_stack,  parent->arch.syscall_regs.iret,  sizeof(x86_iret_regs_t));
+    memcpy(pusha_stack, parent->arch.syscall_regs.pusha, sizeof(x86_pusha_regs_t));
 
     uintptr_t syscall_args_virt = pusha_stack->ebx;
 

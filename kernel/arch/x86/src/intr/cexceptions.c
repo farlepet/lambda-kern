@@ -13,57 +13,57 @@ struct exception_handler {
     /** Name of exception */
     char *name;
     /** Exception handler function, if applicable. If return value is non-zero, halt or exit. */
-    int (*handler)(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *iregs);
+    int (*handler)(x86_pusha_regs_t *regs, uint32_t errcode, x86_iret_regs_t *iregs);
     /** Whether exception generates errcode (for unhandled exceptions) */
     int has_errcode;
     /** Whether or not to terminate task (or halt), if there is no exception handler */
     int kill;
 };
 
-int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *iregs);
-int handle_gpf(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *iregs);
-void handle_exception(uint8_t exception, struct pusha_regs regs, uint32_t errcode, struct iret_regs iregs);
-void stub_error(void);
+static int  _handle_page_fault(x86_pusha_regs_t *regs, uint32_t errcode, x86_iret_regs_t *iregs);
+static int  _handle_gpf       (x86_pusha_regs_t *regs, uint32_t errcode, x86_iret_regs_t *iregs);
 
-static const struct exception_handler exception_handlers[32] = {
-    { .name = "Divide by Zero",                .handler = NULL,              .has_errcode = 0, .kill = 1 },
-    { .name = "Debug",                         .handler = NULL,              .has_errcode = 0, .kill = 0 },
-    { .name = "Non Maskable Interrupt",        .handler = NULL,              .has_errcode = 0, .kill = 0 },
-    { .name = "Breakpoint",                    .handler = NULL,              .has_errcode = 0, .kill = 0 },
-    { .name = "Overflow",                      .handler = NULL,              .has_errcode = 0, .kill = 1 },
-    { .name = "Bound Range Exceeded",          .handler = NULL,              .has_errcode = 0, .kill = 1 },
-    { .name = "Invalid Opcode",                .handler = NULL,              .has_errcode = 0, .kill = 1 },
-    { .name = "Device Not Available",          .handler = NULL,              .has_errcode = 0, .kill = 1 },
-    { .name = "Double Fault",                  .handler = NULL,              .has_errcode = 1, .kill = 1 },
-    { .name = "Coprocessor Segment Overrun",   .handler = NULL,              .has_errcode = 0, .kill = 1 },
-    { .name = "Invalid TSS",                   .handler = NULL,              .has_errcode = 1, .kill = 1 },
-    { .name = "Segment Not Present",           .handler = NULL,              .has_errcode = 1, .kill = 1 },
-    { .name = "Stack Segment Fault",           .handler = NULL,              .has_errcode = 1, .kill = 1 },
-    { .name = "General Protection Fault",      .handler = handle_gpf       , .has_errcode = 1, .kill = 1 },
-    { .name = "Page Fault",                    .handler = handle_page_fault, .has_errcode = 1, .kill = 1 },
-    { .name = "RESERVED[0F]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
-    { .name = "x87 Floating Point Exception",  .handler = NULL,              .has_errcode = 0, .kill = 1 },
-    { .name = "Alignment Check",               .handler = NULL,              .has_errcode = 1, .kill = 1 },
-    { .name = "Machine Check",                 .handler = NULL,              .has_errcode = 0, .kill = 1 },
-    { .name = "SIMD Floating Point Exception", .handler = NULL,              .has_errcode = 0, .kill = 1 },
-    { .name = "Virtualization Exception",      .handler = NULL,              .has_errcode = 0, .kill = 1 },
-    { .name = "RESERVED[15]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
-    { .name = "RESERVED[16]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
-    { .name = "RESERVED[17]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
-    { .name = "RESERVED[18]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
-    { .name = "RESERVED[19]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
-    { .name = "RESERVED[1A]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
-    { .name = "RESERVED[1B]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
-    { .name = "RESERVED[1C]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
-    { .name = "RESERVED[1D]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
-    { .name = "Security Exception",            .handler = NULL,              .has_errcode = 1, .kill = 1 },
-    { .name = "RESERVED[1F]",                  .handler = NULL,              .has_errcode = 0, .kill = 0 },
+void handle_exception(uint8_t exception, x86_pusha_regs_t regs, uint32_t errcode, x86_iret_regs_t iregs);
+
+static const struct exception_handler _exception_handlers[32] = {
+    { .name = "Divide by Zero",                .handler = NULL,               .has_errcode = 0, .kill = 1 },
+    { .name = "Debug",                         .handler = NULL,               .has_errcode = 0, .kill = 0 },
+    { .name = "Non Maskable Interrupt",        .handler = NULL,               .has_errcode = 0, .kill = 0 },
+    { .name = "Breakpoint",                    .handler = NULL,               .has_errcode = 0, .kill = 0 },
+    { .name = "Overflow",                      .handler = NULL,               .has_errcode = 0, .kill = 1 },
+    { .name = "Bound Range Exceeded",          .handler = NULL,               .has_errcode = 0, .kill = 1 },
+    { .name = "Invalid Opcode",                .handler = NULL,               .has_errcode = 0, .kill = 1 },
+    { .name = "Device Not Available",          .handler = NULL,               .has_errcode = 0, .kill = 1 },
+    { .name = "Double Fault",                  .handler = NULL,               .has_errcode = 1, .kill = 1 },
+    { .name = "Coprocessor Segment Overrun",   .handler = NULL,               .has_errcode = 0, .kill = 1 },
+    { .name = "Invalid TSS",                   .handler = NULL,               .has_errcode = 1, .kill = 1 },
+    { .name = "Segment Not Present",           .handler = NULL,               .has_errcode = 1, .kill = 1 },
+    { .name = "Stack Segment Fault",           .handler = NULL,               .has_errcode = 1, .kill = 1 },
+    { .name = "General Protection Fault",      .handler = _handle_gpf,        .has_errcode = 1, .kill = 1 },
+    { .name = "Page Fault",                    .handler = _handle_page_fault, .has_errcode = 1, .kill = 1 },
+    { .name = "RESERVED[0F]",                  .handler = NULL,               .has_errcode = 0, .kill = 0 },
+    { .name = "x87 Floating Point Exception",  .handler = NULL,               .has_errcode = 0, .kill = 1 },
+    { .name = "Alignment Check",               .handler = NULL,               .has_errcode = 1, .kill = 1 },
+    { .name = "Machine Check",                 .handler = NULL,               .has_errcode = 0, .kill = 1 },
+    { .name = "SIMD Floating Point Exception", .handler = NULL,               .has_errcode = 0, .kill = 1 },
+    { .name = "Virtualization Exception",      .handler = NULL,               .has_errcode = 0, .kill = 1 },
+    { .name = "RESERVED[15]",                  .handler = NULL,               .has_errcode = 0, .kill = 0 },
+    { .name = "RESERVED[16]",                  .handler = NULL,               .has_errcode = 0, .kill = 0 },
+    { .name = "RESERVED[17]",                  .handler = NULL,               .has_errcode = 0, .kill = 0 },
+    { .name = "RESERVED[18]",                  .handler = NULL,               .has_errcode = 0, .kill = 0 },
+    { .name = "RESERVED[19]",                  .handler = NULL,               .has_errcode = 0, .kill = 0 },
+    { .name = "RESERVED[1A]",                  .handler = NULL,               .has_errcode = 0, .kill = 0 },
+    { .name = "RESERVED[1B]",                  .handler = NULL,               .has_errcode = 0, .kill = 0 },
+    { .name = "RESERVED[1C]",                  .handler = NULL,               .has_errcode = 0, .kill = 0 },
+    { .name = "RESERVED[1D]",                  .handler = NULL,               .has_errcode = 0, .kill = 0 },
+    { .name = "Security Exception",            .handler = NULL,               .has_errcode = 1, .kill = 1 },
+    { .name = "RESERVED[1F]",                  .handler = NULL,               .has_errcode = 0, .kill = 0 },
 };
 
-static void dump_regs(struct pusha_regs *regs);
-static void dump_iregs(struct iret_regs *iregs);
+static void _dump_regs(x86_pusha_regs_t *regs);
+static void _dump_iregs(x86_iret_regs_t *iregs);
 
-static void _do_stack_trace(arch_pusha_regs_t *pusha, arch_iret_regs_t *iret) {
+static void _do_stack_trace(x86_pusha_regs_t *pusha, x86_iret_regs_t *iret) {
     kproc_t   *proc   = mtask_get_curr_process();
     kthread_t *thread = mtask_get_curr_thread();
     
@@ -72,10 +72,10 @@ static void _do_stack_trace(arch_pusha_regs_t *pusha, arch_iret_regs_t *iret) {
         stack_trace(15, (uint32_t *)pusha->ebp, iret->eip, syms);
     }
     if(proc && thread && (proc->domain == PROC_DOMAIN_USERSPACE)) {
-        arch_iret_regs_t  *uiret  = (arch_iret_regs_t  *)(thread->arch.stack_kern.begin - sizeof(arch_iret_regs_t));
+        x86_iret_regs_t  *uiret  = (x86_iret_regs_t  *)(thread->arch.stack_kern.begin - sizeof(x86_iret_regs_t));
         if(uiret != iret) {
             /* Print userspace stack prior to kernel entry */
-            arch_pusha_regs_t *upusha = (arch_pusha_regs_t *)((uintptr_t)uiret - sizeof(arch_pusha_regs_t));
+            x86_pusha_regs_t *upusha = (x86_pusha_regs_t *)((uintptr_t)uiret - sizeof(x86_pusha_regs_t));
             stack_trace(15, (void *)upusha->ebp, iret->eip, proc->symbols);
         }
     }
@@ -105,7 +105,7 @@ static void _do_stack_trace(arch_pusha_regs_t *pusha, arch_iret_regs_t *iret) {
  * @param errcode errorcode pushed on stack by the fault
  * @param cr3 value of cr3 register (location of fault)
  */
-int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *iregs) {
+static int _handle_page_fault(x86_pusha_regs_t *regs, uint32_t errcode, x86_iret_regs_t *iregs) {
     kthread_t *curr_thread = mtask_get_curr_thread();
     kproc_t   *curr_proc   = mtask_get_curr_process();
     
@@ -123,8 +123,8 @@ int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_reg
                 ((errcode & 0x08) ? ", modified reserved field" : ""),
                 ((errcode & 0x10) ? ", instruction fetch"       : ""));
 
-    dump_iregs(iregs);
-    dump_regs(regs);
+    _dump_iregs(iregs);
+    _dump_regs(regs);
 
     kerror(ERR_WARN, "  -> Page flags:  0x%03X", pgdir_get_page_entry(cr3, (void *)cr2) & 0xFFF);
     kerror(ERR_WARN, "  -> Table flags: 0x%03X", pgdir_get_page_table(cr3, (void *)cr2) & 0xFFF);
@@ -168,9 +168,9 @@ int handle_page_fault(struct pusha_regs *regs, uint32_t errcode, struct iret_reg
     return 1;
 }
 
-static char *gpf_table_names[] = { "GDT", "IDT", "LDT", "IDT" };
+static const char *gpf_table_names[] = { "GDT", "IDT", "LDT", "IDT" };
 
-int handle_gpf(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *iregs) {
+static int _handle_gpf(x86_pusha_regs_t *regs, uint32_t errcode, x86_iret_regs_t *iregs) {
     kproc_t *curr_proc  = mtask_get_curr_process();
 
     kerror(ERR_WARN, "<===============================[GPF]==============================>");
@@ -182,8 +182,8 @@ int handle_gpf(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *ireg
         (errcode >> 3) & 0b1111111111111
     );
 
-    dump_iregs(iregs);
-    dump_regs(regs);
+    _dump_iregs(iregs);
+    _dump_regs(regs);
 
     if(curr_proc) {
         kerror(ERR_WARN, "  -> Caused by process %d [%s]", curr_proc->pid, curr_proc->name);
@@ -193,12 +193,11 @@ int handle_gpf(struct pusha_regs *regs, uint32_t errcode, struct iret_regs *ireg
 }
 
 
-
-void handle_exception(uint8_t exception, struct pusha_regs regs, uint32_t errcode, struct iret_regs iregs) {
+void handle_exception(uint8_t exception, x86_pusha_regs_t regs, uint32_t errcode, x86_iret_regs_t iregs) {
     kproc_t *curr_proc = mtask_get_curr_process();
     
-    if(exception < (sizeof(exception_handlers) / sizeof(exception_handlers[0]))) {
-        const struct exception_handler *hand = &exception_handlers[exception];
+    if(exception < (sizeof(_exception_handlers) / sizeof(_exception_handlers[0]))) {
+        const struct exception_handler *hand = &_exception_handlers[exception];
         kerror(ERR_WARN, "EXCEPTION OCCURED: %s", hand->name);
 
         int do_kill = 0;
@@ -209,8 +208,8 @@ void handle_exception(uint8_t exception, struct pusha_regs regs, uint32_t errcod
             if(hand->has_errcode) {
                 kerror(ERR_WARN, "  -> errcode: %08X", errcode);
             }
-            dump_iregs(&iregs);
-            dump_regs(&regs);
+            _dump_iregs(&iregs);
+            _dump_regs(&regs);
 
             do_kill = hand->kill;
         }
@@ -232,25 +231,17 @@ void handle_exception(uint8_t exception, struct pusha_regs regs, uint32_t errcod
     kpanic("Unhandled exception ID: 0x%02X", exception);
 }
 
-
-void stub_error()
-{
-    kerror(ERR_WARN, "stub_error() has been called");
-
-    //for(;;);
-}
-
-
-static void dump_regs(struct pusha_regs *regs) {
+static void _dump_regs(x86_pusha_regs_t *regs) {
     kerror(ERR_WARN, "  -> EAX: %08X EBX: %08X ECX: %08X EDX: %08X",
         regs->eax, regs->ebx, regs->ecx, regs->edx);
     kerror(ERR_WARN, "  -> ESP: %08X EBP: %08X EDI: %08X ESI: %08X",
         regs->esp, regs->ebp, regs->edi, regs->esi);
 }
 
-static void dump_iregs(struct iret_regs *iregs) {
+static void _dump_iregs(x86_iret_regs_t *iregs) {
     kerror(ERR_WARN, "  -> EIP: %08X CS: %02X EFLAGS: %08X",
         iregs->eip, iregs->cs, iregs->eflags);
     kerror(ERR_WARN, "  -> ESP: %08X DS: %02X",
         iregs->esp, iregs->ds);
 }
+

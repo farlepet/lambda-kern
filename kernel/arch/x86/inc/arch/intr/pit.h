@@ -5,6 +5,7 @@
 
 #include <hal/timer/timer.h>
 
+
 /**
  * \brief Initialize the PIT.
  * Initialized the PIT using the supplied frequency if possible.

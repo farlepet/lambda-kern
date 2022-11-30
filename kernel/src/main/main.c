@@ -63,7 +63,7 @@ __noreturn void kmain(void) {
 
     timer_init(100);
 
-    init_syscalls();
+    syscalls_init();
 
     disable_interrupts();
 

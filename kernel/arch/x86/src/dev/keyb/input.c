@@ -10,9 +10,6 @@
 #include <io/output.h>
 
 
-extern void keyb_int(void); //!< Assembly interrupt handler
-void keyb_handle(uint32_t);
-
 static input_dev_t keyb_dev; //!< Device struct for the keyboard input handler
 
 #define KEYB_BUFF_CNT 16
@@ -23,10 +20,8 @@ static cbuff_t _keyb_buff = STATIC_CBUFF(sizeof(struct input_event) * KEYB_BUFF_
  *
  * @param keycode code that the keyboard has given us
  */
-static void process_code(uint32_t keycode)
-{
-    switch(keycode)
-    {
+static void _process_keycode(uint32_t keycode) {
+    switch(keycode) {
         case 0x2A:
         case 0x36:  keyb_dev.state |= KEYB_STATE_SHIFT;
                     break;
@@ -57,10 +52,8 @@ static void process_code(uint32_t keycode)
  * 
  * @param keycode key code passed in by assembly interrupt handler
  */
-void keyb_handle(uint32_t keycode)
-{
-    // Doesn't do a whole lot... YET...
-    process_code(keycode);
+static void _keyb_handle(uint32_t keycode) {
+    _process_keycode(keycode);
     
     struct input_event iev;
     iev.origin.s.driver = IDRIVER_KEYBOARD;
@@ -73,12 +66,23 @@ void keyb_handle(uint32_t keycode)
 /**
  * Waits so writing to keyboard I/O ports too fast doesn't cause a problem
  */
-static inline void kbd_wait(void)
-{
+static inline void _keyb_wait(void) {
     asm("1: inb $0x64,%al\n"
         "testb  $0x02,%al\n"
         "jne    1b");
 }
+
+static void _keyb_int(intr_handler_hand_t *hdlr) {
+    (void)hdlr;
+    uint8_t keycode = inb(0x60);
+    _keyb_handle(keycode);
+}
+
+/* @todo Possibly make this dynamically allocated */
+static intr_handler_hand_t _keyb_int_hdlr = {
+    .callback = _keyb_int,
+    .data     = NULL
+};
 
 /**
  * Initializes the keyboard.
@@ -87,21 +91,20 @@ static inline void kbd_wait(void)
  *  * Enables the keyboard IRQ
  *  * Creates and adds an input device driver entry corresponding to this keyboard
  */
-void keyb_init()
-{
+void keyb_init() {
     inb(0x60);
-    kbd_wait();
+    _keyb_wait();
     outb(0x60, 0xFF);
-    kbd_wait();
+    _keyb_wait();
     uint8_t val = 0;
     while((val = inb(0x60)) != 0xAA)
     {
         if(val == 0xFE)
         {
             inb(0x60);
-            kbd_wait();
+            _keyb_wait();
             outb(0x60, 0xFF);
-            kbd_wait();
+            _keyb_wait();
             continue;
         }
         if(val == 0xFC || val == 0xFD)
@@ -111,9 +114,10 @@ void keyb_init()
         }
     }
 
-    set_interrupt(INTR_KEYBOARD, (void *)&keyb_int);
+    interrupt_attach(INTR_KEYBOARD, &_keyb_int_hdlr);
     enable_irq(1);
 
     add_input_dev(&keyb_dev, IDRIVER_KEYBOARD, "keyb", 0, 0);
     keyb_dev.iev_buff = &_keyb_buff;
 }
+

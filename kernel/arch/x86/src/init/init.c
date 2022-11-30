@@ -69,8 +69,6 @@ static void interrupts_init(void) {
     
     kerror(ERR_INFO, "  -> IDT");
     idt_init();
-    kerror(ERR_INFO, "  -> Exceptions");
-    exceptions_init();
 }
 
 static uintptr_t mods_begin = UINTPTR_MAX;
