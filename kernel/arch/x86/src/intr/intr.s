@@ -3,16 +3,6 @@
 .extern idt_set_entry
 
 
-.global load_idt
-# Set the interrupt descriptor table
-load_idt:
-	movl 4(%esp), %eax
-	movl %eax, (idtr + 2)
-	movw 8(%esp), %ax
-	movw %ax, (idtr) 
-	lidt (idtr)        # Load the IDT pointer.
-	ret
-
 
 .macro gen_int_handler num
 int_handler_\num:
@@ -98,6 +88,3 @@ call_syscall_int:
 	popa
 	ret
 
-.section .data
-idtr: .word 0 # For limit storage
-	  .long 0 # For base storage

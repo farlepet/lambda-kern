@@ -17,7 +17,6 @@ static void _idt_reload(void);
 
 static x86_idt_handle_t _idt_hand = { 0 };
 
-#define IDT_SETATTR(ENTRY, ATTR) ((ENTRY) = (((ENTRY) & 0xFFFF00FFFFFFFFFFULL) | ((uint64_t)(ATTR) << 40)))
 
 void idt_init(void) {
     memset(&_idt_hand, 0, sizeof(_idt_hand));
@@ -33,16 +32,20 @@ void idt_init(void) {
     }
 
     /* @todo Add generic API to allow interrupts to be called, this is just a temporary hack */
-    IDT_SETATTR(_idt_hand.idt[INTR_SYSCALL], IDT_ATTR(1, 3, 0, int32));
-    IDT_SETATTR(_idt_hand.idt[INTR_SCHED],   IDT_ATTR(1, 3, 0, int32));
+    _idt_hand.idt[INTR_SYSCALL].flags = IDT_ATTR(1, 3, 0, IDT_ENTRY_TYPE_INT32);
+    _idt_hand.idt[INTR_SCHED].flags   = IDT_ATTR(1, 3, 0, IDT_ENTRY_TYPE_INT32);
 
     kerror(ERR_INFO, "      -> Reloading IDT");
     _idt_reload();
 }
 
 
-void idt_set_entry(uint8_t intr, int sel, int flags, void *func) {
-    _idt_hand.idt[intr] = IDT_ENTRY((uint32_t)func, sel, flags);
+void idt_set_entry(uint8_t intr, uint16_t sel, uint8_t flags, void *func) {
+    _idt_hand.idt[intr].offset_low  = (uint16_t)(uintptr_t)func;
+    _idt_hand.idt[intr].segment     = sel;
+    _idt_hand.idt[intr]._reserved   = 0;
+    _idt_hand.idt[intr].flags       = flags;
+    _idt_hand.idt[intr].offset_high = (uint16_t)((uintptr_t)func >> 16);
 }
 
 int idt_add_callback(uint8_t int_n, intr_handler_hand_t *hdlr) {
@@ -112,6 +115,10 @@ static void _pic_remap(uint8_t off1, uint8_t off2) {
     outb(0xA1, 0x0);
 }
 
+
+__attribute__((used))
+static x86_idt_idtr_t  _idtr;
+
 /**
  * Loads the IDT pointer, then remaps the PIC.
  *
@@ -120,7 +127,10 @@ static void _pic_remap(uint8_t off1, uint8_t off2) {
  */
 static void _idt_reload(void) {
     kerror(ERR_INFO, "      -> Loading IDT");
-    load_idt(_idt_hand.idt, sizeof(_idt_hand.idt)-1);
+    _idtr.base  = (uint32_t)&_idt_hand.idt;
+    _idtr.limit = sizeof(_idt_hand.idt)-1;
+    asm volatile("lidt (_idtr)");
+    
     kerror(ERR_INFO, "      -> Remapping IRQ's");
     _pic_remap(0x20, 0x28);
 }
