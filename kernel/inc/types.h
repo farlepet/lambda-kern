@@ -45,8 +45,11 @@
 #define __vector_size(S) __attribute__ ((vector_size(S)))       //!< Create a vector
 
 /* General Attributes */
+#ifndef __section
+#  define __section(S)     __attribute__((__section__(#S)))       //!< Sets the section of the data
+#endif
+
 #define __alias(N)       __attribute__((__weak__, __alias__(#N))) //!< Create an alias to another object
-#define __section(S)     __attribute__((__section__(#S)))         //!< Sets the section of the data
 #define __unused         __attribute__((__unused__))              //!< This is unused data
 #define __used           __attribute__((__used__))                //!< Mark data/function as used
 #define __cold           __attribute__((__cold__))                //!< This data isn't used much

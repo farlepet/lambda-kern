@@ -19,7 +19,7 @@ static hal_io_char_dev_t   _uart;
 static bcm2835_intctlr_handle_t _bcm2835_intctlr;
 hal_intctlr_dev_t               intctlr;
 
-static ptr_t _periphbase = (ptr_t)BROADCOM_BCM2837_PERIPHBASE_PI2;
+static uintptr_t _periphbase = (uintptr_t)BROADCOM_BCM2837_PERIPHBASE_PI2;
 
 static hal_clock_dev_t _uartclock;
 

@@ -10,7 +10,7 @@ HWINC      = $(HWDIR)/inc
 
 CFLAGS    += -marm -mapcs-frame -mpoke-function-name
 LDARCH     = -marmelf
-LDFLAGS    = -marm
+LDFLAGS    = -marm -nostartfiles
 
 ASFLAGS    = -marm
 
@@ -38,3 +38,4 @@ $(BUILDDIR)/lambda.o: $(OBJS)
 	@echo -e "\033[33m  \033[1mLinking sources\033[0m"
 	$(Q) $(LD) -r -o $@ $(OBJS)
 endif
+

@@ -24,9 +24,6 @@ SRCS      += $(wildcard $(HWSRC)/*.s)   $(wildcard $(HWSRC)/*/*.s)   $(wildcard 
 SRCS      += $(wildcard $(ARCHSRC)/*.c) $(wildcard $(ARCHSRC)/*/*.c) $(wildcard $(ARCHSRC)/*/*/*.c)
 SRCS      += $(wildcard $(ARCHSRC)/*.s) $(wildcard $(ARCHSRC)/*/*.s) $(wildcard $(ARCHSRC)/*/*/*.s)
 
-# TODO: Just use CC to link in the first place
-LIBGCC     = $(shell $(CC) --print-file-name=libc.a)
-
 include $(HWDIR)/hw.mk
 
 ifeq ($(EMBEDINITRD), 1)

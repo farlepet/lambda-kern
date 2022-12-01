@@ -28,7 +28,7 @@ $(BUILDDIR)/lambda.shared: $(BUILDDIR)/lambda.o
 
 $(BUILDDIR)/lambda.kern: $(BUILDDIR)/lambda.o $(HWDIR)/hw.ld
 	@echo -e "\033[33m  \033[1mProducing kernel executable\033[0m"
-	$(Q) $(CC) $(CFLAGS) $(LDFLAGS) -o $@ $< -lgcc
+	$(Q) $(CC) $(CFLAGS) $(LDFLAGS) -o $@ $< -nostdlib -lgcc
 
 $(BUILDDIR)/kernel7.img: $(BUILDDIR)/lambda.kern
 	@echo -e "\033[33m  \033[1mProducing RPi binary\033[0m"

@@ -155,7 +155,7 @@ void *memcpy(void *dest, const void *src, size_t n) {
 EXPORT_FUNC(memcpy);
 
 
-void *memset(void *s, int c, uint32_t n) {
+void *memset(void *s, int c, size_t n) {
 #if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
     if(!mm_check_addr(s)) {
         kpanic("Bad address: %p", s);
@@ -198,3 +198,4 @@ void *memmove(void *dst, const void *src, size_t n) {
     return dst;
 }
 EXPORT_FUNC(memmove);
+

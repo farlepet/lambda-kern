@@ -127,7 +127,7 @@ void syscalls_init(void) {
     interrupt_attach(INTR_SYSCALL, &_syscall_int_hdlr);
 }
 
-void syscall_call(uint32_t scn, uint32_t *args) {
+void syscall_call(uint32_t scn, syscallarg_t *args) {
     kdebug(DEBUGSRC_SYSCALL, ERR_TRACE, "call_syscall: %d, %08X", scn, args);
     arch_call_syscall(scn, args);
 }
