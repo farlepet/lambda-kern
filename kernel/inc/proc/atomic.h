@@ -1,31 +1,15 @@
 #ifndef ATOMIC_H
 #define ATOMIC_H
 
-#ifdef __clang__
-typedef _Atomic(int) lock_t;
-#else
-typedef int lock_t;
-#endif
+#include <stdatomic.h>
 
 #include <arch/intr/int.h>
 
 #include <time/time.h>
 #include <types.h>
 
-// Compatibility between clang and GCC
-#if __has_builtin(__c11_atomic_store)
-#  define a_store __c11_atomic_store
-#else
-#  define a_store __atomic_store_n
-#endif
+typedef atomic_int lock_t;
 
-#if __has_builtin(__c11_atomic_compare_exchange_weak) && __has_builtin(__c11_atomic_compare_exchange_strong)
-#  define a_cmp_chx_weak   __c11_atomic_compare_exchange_weak
-#  define a_cmp_chx_strong __c11_atomic_compare_exchange_strong
-#else
-#  define a_cmp_chx_weak(ptr, exp, des, smm, emm)   __atomic_compare_exchange_n(ptr, exp, des, 1, smm, emm)
-#  define a_cmp_chx_strong(ptr, exp, des, smm, emm) __atomic_compare_exchange_n(ptr, exp, des, 0, smm, emm)
-#endif
 
 /**
  * \brief Release an atomic lock
@@ -33,7 +17,7 @@ typedef int lock_t;
  * @param lock Lock to release
  */
 static inline void unlock(lock_t *lock) {
-    a_store(lock, 0, __ATOMIC_RELEASE);
+    atomic_store_explicit(lock, 0, memory_order_release);
 }
 
 /**
@@ -59,11 +43,9 @@ int lock_for(lock_t *lock, uint32_t ms);
  * @return 0 on success, 1 on failure
  */
 static inline int lock_try(lock_t *lock) {
-    int old = 0;
-    if(a_cmp_chx_weak(lock, &old, 1, __ATOMIC_ACQUIRE, __ATOMIC_RELAXED)) {
-        return 0;
-    }
-    return 1;
+    int test = 1;
+    return (atomic_exchange_explicit(lock, test, memory_order_acquire) ? 0 : 1);
 }
 
 #endif
+
