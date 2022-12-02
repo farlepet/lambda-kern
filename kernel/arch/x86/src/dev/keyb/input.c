@@ -1,6 +1,7 @@
 #include <arch/dev/keyb/input.h>
 #include <arch/io/ioport.h>
 #include <arch/intr/idt.h>
+#include <arch/intr/pic.h>
 
 #include <proc/ktasks.h>
 #include <data/cbuff.h>
@@ -115,7 +116,7 @@ void keyb_init() {
     }
 
     interrupt_attach(INTR_KEYBOARD, &_keyb_int_hdlr);
-    enable_irq(1);
+    pic_irq_enable(PIC_IRQ_KEYBOARD);
 
     add_input_dev(&keyb_dev, IDRIVER_KEYBOARD, "keyb", 0, 0);
     keyb_dev.iev_buff = &_keyb_buff;

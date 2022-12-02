@@ -3,6 +3,7 @@
 #include <arch/io/ioport.h>
 #include <arch/io/serial.h>
 #include <arch/intr/idt.h>
+#include <arch/intr/pic.h>
 
 #include <proc/ktasks.h>
 #include <data/cbuff.h>
@@ -80,8 +81,8 @@ void serial_init(uint16_t port) {
 
     interrupt_attach(INTR_SERIALA, &_serial_int_hdlr);
     interrupt_attach(INTR_SERIALB, &_serial_int_hdlr);
-    enable_irq(4);
-    enable_irq(3);
+    pic_irq_enable(PIC_IRQ_SERIALA);
+    pic_irq_enable(PIC_IRQ_SERIALB);
 
     add_input_dev(&serial_dev, IDRIVER_SERIAL, "ser", 1, 0);
     serial_dev.iev_buff = &_serial_buff;

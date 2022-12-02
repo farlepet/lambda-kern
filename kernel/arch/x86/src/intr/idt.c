@@ -4,19 +4,18 @@
 #include <arch/io/ioport.h>
 #include <arch/intr/idt.h>
 #include <arch/intr/int.h>
+#include <arch/intr/pic.h>
 
 #include <types.h>
 #include <err/error.h>
 
-extern void load_idt(uint64_t *, uint32_t); //!< Use `lidt` to set the IDT pointer.
 extern void idt_setup_exceptions(void); /**< Sets up handlers for all exception interrupts */
 extern void idt_setup_handlers(void);   /**< Sets up handlers for all non-exception interrupts */
 
-static void _pic_remap(uint8_t off1, uint8_t off2);
-static void _idt_reload(void);
-
 static x86_idt_handle_t _idt_hand = { 0 };
 
+__attribute__((used))
+static x86_idt_idtr_t  _idtr;
 
 void idt_init(void) {
     memset(&_idt_hand, 0, sizeof(_idt_hand));
@@ -27,16 +26,21 @@ void idt_init(void) {
     idt_setup_handlers();
 
     kerror(ERR_INFO, "      -> Disabling IRQs");
-    for(unsigned i = 0; i < 16; i++) {
-        disable_irq(i);
+    for(unsigned i = 0; i < PIC_IRQ_MAX; i++) {
+        pic_irq_disable(i);
     }
 
     /* @todo Add generic API to allow interrupts to be called, this is just a temporary hack */
     _idt_hand.idt[INTR_SYSCALL].flags = IDT_ATTR(1, 3, 0, IDT_ENTRY_TYPE_INT32);
     _idt_hand.idt[INTR_SCHED].flags   = IDT_ATTR(1, 3, 0, IDT_ENTRY_TYPE_INT32);
 
-    kerror(ERR_INFO, "      -> Reloading IDT");
-    _idt_reload();
+    kerror(ERR_INFO, "      -> Loading IDT");
+    _idtr.base  = (uint32_t)&_idt_hand.idt;
+    _idtr.limit = sizeof(_idt_hand.idt)-1;
+    asm volatile("lidt (_idtr)");
+
+    kerror(ERR_INFO, "      -> Remapping IRQ's");
+    pic_remap(PIC_OFFSET_MASTER, PIC_OFFSET_SLAVE);
 }
 
 
@@ -72,66 +76,5 @@ void idt_handle_interrupt(uint8_t int_n, x86_pusha_regs_t pregs, x86_iret_regs_t
             }
         }
     }
-}
-
-
-
-
-int disable_irq(uint8_t irq) {
-    if(irq > 16) return 1;
-    if(irq < 8)  outb(0x21, inb(0x21) | (1 >> irq));
-    else         outb(0xA1, inb(0xA1) | (uint8_t)(0x100 >> irq));
-    return 0;
-}
-EXPORT_FUNC(disable_irq);
-
-
-int enable_irq(uint8_t irq) {
-    if(irq > 16) return 1;
-    if(irq < 8)  outb(0x21, inb(0x21) & ~(1 >> irq));
-    else         outb(0xA1, inb(0xA1) & ~(0x100 >> irq));
-    return 0;
-}
-EXPORT_FUNC(enable_irq);
-
-/**
- * Remaps the PIC so when an IRQ fires, it adds `offx` to the IRQ number.
- * Which offset is used depends on wether the IRQ came from the master or
- * the slave PIC.
- *
- * @param off1 the offset for the master PIC
- * @param off2 the offset for the slave PIC
- */
-static void _pic_remap(uint8_t off1, uint8_t off2) {
-    outb(0x20, 0x11);
-    outb(0xA0, 0x11);
-    outb(0x21, off1);
-    outb(0xA1, off2);
-    outb(0x21, 0x04);
-    outb(0xA1, 0x02);
-    outb(0x21, 0x01);
-    outb(0xA1, 0x01);
-    outb(0x21, 0x0);
-    outb(0xA1, 0x0);
-}
-
-
-__attribute__((used))
-static x86_idt_idtr_t  _idtr;
-
-/**
- * Loads the IDT pointer, then remaps the PIC.
- *
- * @see load_idt
- * @see remap_pic
- */
-static void _idt_reload(void) {
-    kerror(ERR_INFO, "      -> Loading IDT");
-    _idtr.base  = (uint32_t)&_idt_hand.idt;
-    _idtr.limit = sizeof(_idt_hand.idt)-1;
-    asm volatile("lidt (_idtr)");
-    
-    kerror(ERR_INFO, "      -> Remapping IRQ's");
-    _pic_remap(0x20, 0x28);
 }
 

@@ -41,21 +41,5 @@ void idt_set_entry(uint8_t intr, uint16_t sel, uint8_t flags, void *func);
  */
 int idt_add_callback(uint8_t int_n, intr_handler_hand_t *hdlr);
 
-/**
- * @brief Disable an IRQ line
- * 
- * @param irq the IRQ to be disabled
- * @return returns 0 if success
- */
-int disable_irq(uint8_t irq);
-
-/**
- * @brief Enable an IRQ line
- * 
- * @param irq the IRQ to be enabled
- * @return returns 0 if success
- */
-int enable_irq(uint8_t irq);
-
 #endif
 

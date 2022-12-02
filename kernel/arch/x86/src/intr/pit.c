@@ -2,6 +2,7 @@
 
 #include <arch/io/ioport.h>
 #include <arch/intr/idt.h>
+#include <arch/intr/pic.h>
 #include <arch/intr/pit.h>
 
 #include <proc/mtask.h>
@@ -66,7 +67,7 @@ void pit_init(uint32_t freq) {
     outb(0x40, (uint8_t)(reload >> 8));
 
     interrupt_attach(INTR_TIMER, &_pit_int_hdlr);
-    enable_irq(0);
+    pic_irq_enable(PIC_IRQ_TIMER);
 }
 
 static int timerdev_setfreq(void __unused *data, uint8_t idx, uint32_t freq) {
