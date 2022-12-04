@@ -22,6 +22,7 @@ int armv7_mmu_init(void);
 #define MMU_DESC_PT_ADDR__MASK   (0x3FFFFF)
 
 /* Page Table entry types */
+#define MMU_PTENTRYTYPE__MASK    (0x00000003)
 #define MMU_PTENTRYTYPE_INVALID  (0x00000000)
 #define MMU_PTENTRYTYPE_LARGE    (0x00000001)
 #define MMU_PTENTRYTYPE_SMALL    (0x00000002)

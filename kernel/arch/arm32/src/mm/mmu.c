@@ -156,14 +156,48 @@ int mmu_unmap_table(mmu_table_t *table, uintptr_t virt, size_t size) {
 }
 
 int mmu_map_get_table(mmu_table_t *table, uintptr_t virt, uintptr_t *phys) {
-    /* TODO: Support non-identity-mapped data, and different tables */
-    (void)table;
+    unsigned tidx = (virt >> 20);
 
-    if(phys) {
-        *phys = virt & 0xFFF00000;
+    if((table->mmu_table[tidx] & MMU_DESCTYPE__MASK) == 0) {
+        return 0;
+    } else if ((table->mmu_table[tidx] & MMU_DESCTYPE__MASK) == MMU_DESCTYPE_PAGETABLE) {
+        uint32_t pidx = (virt >> 12) & 0xFF;
+        uint32_t *ptable = (uint32_t *)(table->mmu_table[tidx] & (MMU_DESC_PT_ADDR__MASK << MMU_DESC_PT_ADDR__POS));
+
+        if((ptable[pidx] & MMU_PTENTRYTYPE__MASK) == 0) {
+            return 0;
+        } else if((ptable[pidx] & MMU_PTENTRYTYPE__MASK) == MMU_PTENTRYTYPE_LARGE) {
+            if(phys) {
+                *phys = ptable[pidx] & (MMU_PTENTRY_LARGE_BASE__MASK << MMU_PTENTRY_LARGE_BASE__POS);
+            }
+
+            if(!(ptable[pidx] & (1UL << MMU_PTENTRY_LARGE_XN__POS))) {
+                return (MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_EXEC);
+            } else {
+                return (MMU_FLAG_READ | MMU_FLAG_WRITE);
+            }
+        } else {
+            if(phys) {
+                *phys = ptable[pidx] & (MMU_PTENTRY_SMALL_BASE__MASK << MMU_PTENTRY_SMALL_BASE__POS);
+            }
+
+            if(!(ptable[pidx] & (1UL << MMU_PTENTRY_SMALL_XN__POS))) {
+                return (MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_EXEC);
+            } else {
+                return (MMU_FLAG_READ | MMU_FLAG_WRITE);
+            }
+        }
+    } else {
+        if(phys) {
+            *phys = (table->mmu_table[tidx] & (MMU_DESC_S_BASE__MASK << MMU_DESC_S_BASE__POS));
+        }
+
+        if(!(table->mmu_table[tidx] & (1UL << MMU_DESC_S_XN__POS))) {
+            return (MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_EXEC);
+        } else {
+            return (MMU_FLAG_READ | MMU_FLAG_WRITE);
+        }
     }
-
-    return (MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_EXEC);
 }
 
 mmu_table_t *mmu_clone_table(mmu_table_t *src) {

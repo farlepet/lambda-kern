@@ -52,6 +52,12 @@ static int _next_frame(arch_stackframe_t *frame) {
     if(frame == NULL) return 1;
 
     uintptr_t fp = frame->fp;
+
+    if(!mm_check_addr((void *)(fp - 12)) ||
+       !mm_check_addr((void *)(fp - 4))) {
+        return 1;
+    }
+
     frame->fp = *(uint32_t *)(fp - 12);
     frame->sp = *(uint32_t *)(fp - 8);
     frame->pc = *(uint32_t *)(fp - 4);
