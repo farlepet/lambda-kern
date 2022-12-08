@@ -4,13 +4,14 @@
 #include <time/time.h>
 #include <err/error.h>
 #include <err/panic.h>
+#include <proc/mtask.h>
 
 #include <arch/intr/int.h>
 #include <arch/intr/gtimer.h>
 
 extern uint32_t __int_table[];
 
-void intr_handler(uint32_t, uintptr_t);
+void intr_handler(uint32_t, arm32_intr_frame_t *);
 
 static struct {
     intr_handler_hand_t *hdlrs[INTR_MAX];
@@ -65,22 +66,27 @@ static void _intr_stub_handler(intr_handler_hand_t *hdlr) {
     unsigned intn = hdlr->arch.int_n;
 
     if(intn < INTR_MAX) {
-        kpanic("intr_stub_handler(%s, %08X)\n", int_name[intn], hdlr->arch.lr);
+        kpanic("intr_stub_handler(%s, %08X)\n", int_name[intn], hdlr->arch.frame->lr);
     } else {
-        kpanic("intr_stub_handler(%d, %08X)\n", intn, hdlr->arch.lr);
+        kpanic("intr_stub_handler(%d, %08X)\n", intn, hdlr->arch.frame->lr);
     }
 }
 
 __hot
-void intr_handler(uint32_t intn, uintptr_t lr) {
+void intr_handler(uint32_t intn, arm32_intr_frame_t *frame) {
     if(intn >= INTR_MAX) {
         kpanic("intr_handler(): intn out of range: %u", intn);
+    }
+
+    kthread_t *thread = mtask_get_curr_thread();
+    if(thread) {
+        thread->arch.int_frame = frame;
     }
 
     if(_intr_state.hdlrs[intn] &&
        _intr_state.hdlrs[intn]->callback) {
         _intr_state.hdlrs[intn]->arch.int_n = intn;
-        _intr_state.hdlrs[intn]->arch.lr    = lr;
+        _intr_state.hdlrs[intn]->arch.frame = frame;
         _intr_state.hdlrs[intn]->callback(_intr_state.hdlrs[intn]);
     }
 }

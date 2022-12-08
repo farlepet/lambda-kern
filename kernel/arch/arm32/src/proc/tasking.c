@@ -66,8 +66,6 @@ static void _thread_entrypoint(void) {
 }
 
 int arch_setup_thread(kthread_t *thread) {
-    thread->arch.regs.pc = (uint32_t)_thread_entrypoint;
-
     proc_create_stack(thread);
     proc_create_kernel_stack(thread);
 
@@ -77,7 +75,8 @@ int arch_setup_thread(kthread_t *thread) {
     thread->arch.regs.spsr = 0x6000011F;
     thread->arch.regs.ksp  = thread->arch.stack_kern.begin;
     thread->arch.regs.usp  = thread->arch.stack_user.begin;
-    thread->arch.regs.lr   = (uint32_t)exit;
+    thread->arch.regs.klr  = (uint32_t)_thread_entrypoint;
+    thread->arch.regs.ulr  = (uint32_t)exit;
 
     return 0;
 }
@@ -106,44 +105,76 @@ int arch_postfork_setup(const kthread_t *parent, kthread_t *child) {
     return -1;
 }
 
+__naked
+static int _thread_save(kthread_arch_t *arch __unused) {
+    asm volatile("add r12, r0, %0\n"
+                 "stm r12, {r1-r11}\n" /* Kernel R1-R11 */
+
+                 "mrs r12, cpsr\n"     /* Kernel CPSR */
+                 "str r12, [r0, %1]\n"
+                 "str sp,  [r0, %2]\n" /* Kernel stack pointer */
+                 "str lr,  [r0, %3]\n" /* Kernel link register */
+
+                 "cps #0x1F\n"
+                 "str sp, [r0, %4]\n"  /* Thread stack pointer */
+                 "str lr, [r0, %5]\n"  /* Thread link register */
+                 "msr cpsr, r12\n"
+
+                 "mov r0, #0\n"
+                 "bx lr\n"
+                 ::
+                 "i"(offsetof(kthread_arch_t, gpregs)),
+                 "i"(offsetof(kthread_arch_t, regs.cpsr)),
+                 "i"(offsetof(kthread_arch_t, regs.ksp)),
+                 "i"(offsetof(kthread_arch_t, regs.klr)),
+                 "i"(offsetof(kthread_arch_t, regs.usp)),
+                 "i"(offsetof(kthread_arch_t, regs.ulr)));
+}
+
+__naked
+static void _thread_load(kthread_arch_t *arch __unused) {
+    asm volatile("ldr r12, [r0, %2]\n"
+
+                 "cps #0x1F\n"
+                 "ldr sp, [r0, %0]\n"  /* Thread stack pointer */
+                 "ldr lr, [r0, %1]\n"  /* Thread link register */
+
+                 "msr cpsr, r12\n"     /* Kernel CPSR */
+
+                 "ldr sp, [r0, %3]\n"  /* Kernel stack pointer */
+                 "ldr lr, [r0, %4]\n"  /* Kernel link register */
+
+                 "add r12, r0, %5\n"
+                 "ldm r12, {r1-r11}\n" /* Kernel R1-R11 */
+
+                 "mov r0, #1\n"        /* Return 1 from _thread_save */
+                 "bx lr\n"
+                 ::
+                 "i"(offsetof(kthread_arch_t, regs.usp)),
+                 "i"(offsetof(kthread_arch_t, regs.ulr)),
+                 "i"(offsetof(kthread_arch_t, regs.cpsr)),
+                 "i"(offsetof(kthread_arch_t, regs.ksp)),
+                 "i"(offsetof(kthread_arch_t, regs.klr)),
+                 "i"(offsetof(kthread_arch_t, gpregs)));
+}
+
 __hot __optimize_none
 void do_task_switch(void) {
     kthread_t *thread = sched_get_curr_thread(0);
 
     if(thread->flags & KTHREAD_FLAG_RANONCE) {
-        /* Save the CPSR, stack pointers, and link register of the current thread */
-        register void *r0 asm("r0") = (void *)&thread->arch.gpregs;
-        asm volatile("stm %4, {r1-r11}\n"
-            
-                     "mrs %0, cpsr\n" /* Kernel Program Status Register */
-                     "str sp, %1  \n" /* Kernel stack pointer */
-                     "str lr, %3  \n" /* Kernel LR */
-
-                     "cps #0x1F   \n" /* Thread stack pointer */
-                     "str sp, %2  \n"
-                     "cps #0x12   \n" :
-                     "=r"(thread->arch.regs.cpsr),
-                     "=m"(thread->arch.regs.ksp),
-                     "=m"(thread->arch.regs.usp),
-                     "=m"(thread->arch.regs.lr) :
-                     "r"(r0));
-
-        uint32_t pc = get_pc();
-        if(pc == 0xFFFFFFFF) {
-            /* We just came here from the bx at the end of this function, so we
-             * are ready to exit and continue executing on the new thread */
+        if(_thread_save(&thread->arch)) {
             return;
         }
-        thread->arch.regs.pc = pc;
 
-        kdebug(DEBUGSRC_PROC, ERR_ALL, "-TID: %02d | PC: %p | SP: [%p,%p] | CPSR: %08X | NAME: %s",
-            thread->tid, ((uint32_t *)thread->arch.stack_kern.begin)[-1],
+        kdebug(DEBUGSRC_PROC, ERR_ALL, "-TID: %02d | PC: %p | LR: [%p,%p] | SP: [%p,%p] | CPSR: %08x | NAME: %s",
+            thread->tid, (thread->arch.int_frame ? thread->arch.int_frame->lr : 0),
+            thread->arch.regs.ulr, thread->arch.regs.klr,
             thread->arch.regs.usp, thread->arch.regs.ksp,
             thread->arch.regs.spsr, thread->name);
 
 #if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
-        if((thread->process->domain != PROC_DOMAIN_KERNEL) &&
-           ((thread->arch.regs.usp > thread->arch.stack_user.begin) ||
+        if(((thread->arch.regs.usp > thread->arch.stack_user.begin) ||
             (thread->arch.regs.usp < (thread->arch.stack_user.begin - thread->arch.stack_user.size)))) {
             kpanic("User stack pointer out-of-bounds!");
         }
@@ -157,35 +188,16 @@ void do_task_switch(void) {
         thread = sched_next_process(0);
     }
 
-    kdebug(DEBUGSRC_PROC, ERR_ALL, "+TID: %02d | PC: %p | SP: [%p,%p] | CPSR: %08X | NAME: %s",
-           thread->tid, ((uint32_t *)thread->arch.stack_kern.begin)[-1],
+    kdebug(DEBUGSRC_PROC, ERR_ALL, "+TID: %02d | PC: %p | LR: [%p,%p] | SP: [%p,%p] | CPSR: %08x | NAME: %s",
+           thread->tid, (thread->arch.int_frame ? thread->arch.int_frame->lr : 0),
+            thread->arch.regs.ulr, thread->arch.regs.klr,
            thread->arch.regs.usp, thread->arch.regs.ksp,
            thread->arch.regs.spsr, thread->name);
 
     thread->flags |= KTHREAD_FLAG_RANONCE;
 
-    /* TODO: Using specific registers here is not desired, there is likely a
-     * better way to go about this. As-is, this portion of code, and the above
-     * conterpart, is somewhat fragile. */
-    register void *r0  asm("r0")  = (void *)&thread->arch.gpregs;
-    register void *r12 asm("r12") = (void *)thread->arch.regs.pc;
-    asm volatile("cps #0x1F          \n"
-                 "ldr sp, %3         \n"
-
-                 "msr cpsr, %0       \n"
-                 "ldr lr,   %1       \n"
-                 "ldr sp,   %2       \n"
-
-                 "ldm %5, {r1-r11}   \n"
-
-                 "mov r0, #0xFFFFFFFF\n"
-                 "bx  %4             \n" ::
-                 "r"(thread->arch.regs.cpsr),
-                 "m"(thread->arch.regs.lr),
-                 "m"(thread->arch.regs.ksp),
-                 "m"(thread->arch.regs.usp),
-                 "r"(r12),
-                 "r"(r0));
+    _thread_load(&thread->arch);
     
     __builtin_unreachable();
 }
+

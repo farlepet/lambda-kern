@@ -5,7 +5,7 @@
 
 #include <err/panic.h>
 
-#include <arch/intr/int.h>
+#include <arch/intr/types/intr.h>
 
 /** Kernel representation of a stack allocated to a thread */
 typedef struct {
@@ -17,8 +17,8 @@ typedef struct {
     struct {
         uint32_t ksp;  /*!< Kernel stack pointer */
         uint32_t usp;  /*!< User stack pointer */
-        uint32_t lr;   /*!< Link register */
-        uint32_t pc;   /*!< Program counter */
+        uint32_t klr;  /*!< Kernel link register */
+        uint32_t ulr;  /*!< User link register */
         uint32_t cpsr; /*!< Current program status register */
         uint32_t spsr; /*!< Saved program status register - only used in _thread_entrypoint() */
     } regs;                  /*!< Saved registers */
@@ -42,6 +42,8 @@ typedef struct {
 
     arch_stack_t stack_kern; /*!< Kernel stack */
     arch_stack_t stack_user; /*!< User stack */
+
+    arm32_intr_frame_t *int_frame; /**< Pointer to last interrupt frame - for debugging */
 } kthread_arch_t;
 
 typedef struct {

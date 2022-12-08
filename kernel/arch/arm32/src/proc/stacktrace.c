@@ -22,7 +22,7 @@ void arch_stacktrace(void *fp, uintptr_t pc, uint32_t max_frames, const symbol_t
         //_print_func(pc, symbols);
         /* TODO */
     }
-    kprintf("  FP: %08X\n", fp);
+    kprintf("  FP: %08x\n", fp);
 
     arch_stackframe_t frame;
     frame.fp = (uintptr_t)fp;
@@ -32,7 +32,7 @@ void arch_stacktrace(void *fp, uintptr_t pc, uint32_t max_frames, const symbol_t
 
     for(uint32_t i = 0; i < max_frames; i++) {
         /* TODO: Check if frame is valid */
-        kprintf("  SP: %08X, FP: %08X\n", frame.sp, frame.fp);
+        kprintf("  SP: %08x, FP: %08x\n", frame.sp, frame.fp);
         if(!frame.fp) {
             break;
         }
@@ -115,7 +115,7 @@ static void _print_data(uint32_t *sp, uint32_t len) {
             kprintf("\n     ");
         }
         /* TODO: Check if address is valid */
-        kprintf("%08X ", sp[-(i+1)]);
+        kprintf("%08x ", sp[-(i+1)]);
     }
     kprintf("\n");
 }

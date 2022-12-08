@@ -155,15 +155,36 @@ void arch_kpanic_hook(void) {
     kthread_t *thread = mtask_get_curr_thread();
     if(thread) {
         kprintf("\n--------- REGISTERS ---------\n");
-        kprintf("r0:   xxxxxxxx r1:   %08X\n", thread->arch.gpregs.r1);
-        kprintf("r2:   %08X r3:   %08X\n", thread->arch.gpregs.r2, thread->arch.gpregs.r3);
-        kprintf("r4:   %08X r5:   %08X\n", thread->arch.gpregs.r4, thread->arch.gpregs.r5);
-        kprintf("r6:   %08X r7:   %08X\n", thread->arch.gpregs.r6, thread->arch.gpregs.r7);
-        kprintf("r8:   %08X r9:   %08X\n", thread->arch.gpregs.r8, thread->arch.gpregs.r9);
-        kprintf("r10:  %08X r11:  %08X\n", thread->arch.gpregs.r10, thread->arch.gpregs.r11);
-        kprintf("r12:  %08X\n", thread->arch.gpregs.r12);
-        kprintf("ksp:  %08X usp:  %08X\n", thread->arch.regs.ksp, thread->arch.regs.usp);
-        kprintf("cpsr: %08X spsr: %08X\n", thread->arch.regs.cpsr, thread->arch.regs.spsr);
+        kprintf("r0:   xxxxxxxx r1:   %08x\n", thread->arch.gpregs.r1);
+        kprintf("r2:   %08x r3:   %08x\n", thread->arch.gpregs.r2, thread->arch.gpregs.r3);
+        kprintf("r4:   %08x r5:   %08x\n", thread->arch.gpregs.r4, thread->arch.gpregs.r5);
+        kprintf("r6:   %08x r7:   %08x\n", thread->arch.gpregs.r6, thread->arch.gpregs.r7);
+        kprintf("r8:   %08x r9:   %08x\n", thread->arch.gpregs.r8, thread->arch.gpregs.r9);
+        kprintf("r10:  %08x r11:  %08x\n", thread->arch.gpregs.r10, thread->arch.gpregs.r11);
+        kprintf("r12:  %08x\n", thread->arch.gpregs.r12);
+        kprintf("ksp:  %08x usp:  %08x\n", thread->arch.regs.ksp, thread->arch.regs.usp);
+        kprintf("klr:  %08x ulr:  %08x\n", thread->arch.regs.klr, thread->arch.regs.ulr);
+        kprintf("cpsr: %08x spsr: %08x\n", thread->arch.regs.cpsr, thread->arch.regs.spsr);
+
+        if(thread->arch.int_frame) {
+            kprintf("--------- INTERRUPT ---------\n");
+            kprintf("r0:   %08x r1:   %08x\n", thread->arch.int_frame->r[0],  thread->arch.int_frame->r[1]);
+            kprintf("r2:   %08x r3:   %08x\n", thread->arch.int_frame->r[2],  thread->arch.int_frame->r[3]);
+            kprintf("r4:   %08x r5:   %08x\n", thread->arch.int_frame->r[4],  thread->arch.int_frame->r[5]);
+            kprintf("r6:   %08x r7:   %08x\n", thread->arch.int_frame->r[6],  thread->arch.int_frame->r[7]);
+            kprintf("r8:   %08x r9:   %08x\n", thread->arch.int_frame->r[8],  thread->arch.int_frame->r[9]);
+            kprintf("r10:  %08x r11:  %08x\n", thread->arch.int_frame->r[10], thread->arch.int_frame->r[11]);
+            kprintf("r12:  %08x\n",            thread->arch.int_frame->r[12]);
+            kprintf("lr:   %08x cpsr: %08x\n", thread->arch.int_frame->lr,    thread->arch.int_frame->cpsr);
+
+            uint32_t lr_sys;
+            asm volatile("cps #0x1F\n"
+                         "mov %0, lr\n"
+                         "cps #0x12\n" : "=r"(lr_sys));
+            kprintf("lr_sys: %08x\n", lr_sys);
+
+        }
+
         kprintf("-----------------------------\n");
     }
 

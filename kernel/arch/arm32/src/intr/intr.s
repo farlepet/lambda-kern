@@ -6,8 +6,9 @@
     mrs  r0, spsr
     push {r0}
     sub  sp, sp, #4 /* Padding to 8-byte align stack */
-    mov  r0, \intn
-    mov  r1, lr
+
+    mov  r0, \intn  /* ARG0: Interrupt number */
+    mov  r1, sp     /* ARG1: Pointer to data just pushed to the stack */
 .endm
 
 .macro __INTR_END
@@ -38,11 +39,18 @@ __int_wrap_undefined:
 __int_wrap_syscall:
     push {lr}
     push {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12}
-    mov  r0, #2
-    mov  r1, lr
+    mrs  r0, cpsr
+    push {r0}
+    sub  sp, sp, #4 /* Padding to 8-byte align stack */
+
+    mov  r0, #2 /* ARG0: Interrupt Number */
+    mov  r1, sp /* ARG1: Pointer to data just pushed to the stack */
 
     bl intr_handler
 
+    add sp, sp, #4 /* Pop padding byte */
+    pop {r0}
+    msr cpsr, r0
     pop {r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12}
     ldm sp!, {pc}^
 
