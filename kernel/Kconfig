@@ -1,0 +1,3 @@
+source "kernel/arch/Kconfig"
+source "kernel/src/Kconfig"
+

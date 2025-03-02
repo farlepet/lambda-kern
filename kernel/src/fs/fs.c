@@ -1,5 +1,6 @@
 #include <string.h>
 
+#include <lambda/config_defs.h>
 #include <lambda/export.h>
 #include <err/error.h>
 #include <err/panic.h>

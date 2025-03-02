@@ -1,0 +1,7 @@
+
+config KTASK_DEBUGGER
+    bool "Enable debugger ktask"
+    default n
+    help
+      Enables the debugger ktak. Note that this is not well-supported at the
+      moment.

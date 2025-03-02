@@ -14,18 +14,18 @@
 static int _handle_module(uintptr_t start, uintptr_t end, const char *name) {
     mmu_map(start, start, (end - start), MMU_FLAG_READ);
 
-#if (!FEATURE_INITRD_EMBEDDED)
+#ifndef CONFIG_EMBEDDED_INITRD
     if(!strcmp(name, (const char *)boot_options.init_ramdisk_name)) {
         initrd_mount(fs_get_root(), start, end - start);
     }
 #else
     (void)name;
-#endif /* (!FEATURE_INITRD_EMBEDDED) */
+#endif
 
     return 0;
 }
 
-#if (FEATURE_MULTIBOOT == 1)
+#if (CONFIG_MULTIBOOT_VERSION == 1)
 void multiboot_check_commandline(const mboot_t *head) {
     if(!(head->flags & MBOOT_CMDLINE)) {
         kerror(ERR_INFO, "No commandline provided");
@@ -97,7 +97,7 @@ size_t multiboot_get_upper_memory(const mboot_t *head) {
 
     return head->mem_upper * 1024;
 }
-#elif (FEATURE_MULTIBOOT == 2)
+#elif (CONFIG_MULTIBOOT_VERSION == 2)
 const mboot_tag_t *multiboot_find_tag(const mboot_t *head, uint32_t type, uint32_t idx) {
     const mboot_tag_t *tag = (const mboot_tag_t *)&head->tags;
     uintptr_t end = ((uintptr_t)head->tags + head->size);

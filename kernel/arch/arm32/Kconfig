@@ -1,0 +1,36 @@
+menu "ARM32 architecture"
+    depends on ARCH_ARM32
+
+choice
+    prompt "CPU family"
+
+config ARCH_CPU_CORTEX_A7
+    bool "Cortex A7"
+
+config ARCH_CPU_CORTEX_A9
+    bool "Cortex A9"
+
+config ARCH_CPU_CORTEX_A53
+    bool "Cortex A53"
+
+endchoice # CPU family
+
+choice
+    prompt "Hardware platform"
+
+config ARCH_HW_ARM_VEXPRESS_A9
+    bool "ARM Versatile Express A9"
+    select ARCH_CPU_CORTEX_A9
+
+config ARCH_HW_ALLWINNER_V3S
+    bool "Allwinner V3s (unsupported)"
+    select ARCH_CPU_CORTEX_A7
+
+config ARCH_HW_BROADCOM_BCM2837
+    bool "Broadcom BCM2837"
+    select ARCH_CPU_CORTEX_A53
+
+endchoice # Hardware platform
+
+endmenu # ARM32 architecture
+

@@ -19,7 +19,7 @@ void init_ktasks() {
         }
     }
 
-#if DEBUGGER
+#ifdef CONFIG_KTASK_DEBUGGER
     kerror(ERR_INFO, "Starting kernel debug thread");
     if((ktask_pids[KBUG_TASK_SLOT] = thread_spawn((uintptr_t)kbug_task, NULL, "kbug", 0x1000, PRIO_DRIVER)) < 0) {
         kpanic("init_ktask: Could not spawn kernel debug task");

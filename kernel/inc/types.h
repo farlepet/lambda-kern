@@ -10,8 +10,6 @@
 
 #include <stdint.h>
 
-#include "config.h"
-
 
 #define __error(E)       __attribute__((__error__(#E)))           //!< Throws an error is this is reached in preprocessing
 #define __warning(E)     __attribute__((__warning__(#E)))         //!< Throws a warning is this is reached in preprocessing
@@ -60,10 +58,10 @@
  * Allows the disabling of these checks for potential performance, at the cost
  * of kernel safety/stability. Not to be used in a system that is not completely
  * locked down. */
-#ifdef CONFIG_DISABLE_SAFETY_CHECKS
-#  define SAFETY_CHECK(X) (1)
-#else
+#ifdef CONFIG_SAFETY_CHECKS
 #  define SAFETY_CHECK(X) (X)
+#else
+#  define SAFETY_CHECK(X) (1)
 #endif
 
 

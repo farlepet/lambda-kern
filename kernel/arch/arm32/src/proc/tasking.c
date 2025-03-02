@@ -1,5 +1,6 @@
 #include <arch/proc/tasking.h>
 
+#include <lambda/config_defs.h>
 #include <proc/atomic.h>
 #include <proc/mtask.h>
 #include <err/error.h>

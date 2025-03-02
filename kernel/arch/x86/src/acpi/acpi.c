@@ -9,7 +9,7 @@
 static const acpi_rsdp_desc_t *_rsdp; /** Pointer to copy of RSDP structure */
 
 static void _locate_rsdp(const mboot_t *head) {
-#if (FEATURE_MULTIBOOT == 2)
+#if (CONFIG_MULTIBOOT_VERSION == 2)
     const mboot_tag_acpi_rsdp_t *tag;
     if((tag = (const mboot_tag_acpi_rsdp_t *)multiboot_find_tag(head, MBOOT_TAGTYPE_ACPI_NEW, 0))) {
         _rsdp = &tag->rsdp;

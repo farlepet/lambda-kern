@@ -22,13 +22,13 @@
 
 boot_options_t boot_options = {
     .init_ramdisk_name = "",
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
+#ifdef CONFIG_ARCH_X86
     .init_executable   = "/bin/linit",
 #else
     /* TODO: FS not fully implemented on other platforms. */
     .init_executable   = "",
 #endif
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
+#ifdef CONFIG_ARCH_X86
     .output_serial     = 0,
 #endif
 };
@@ -56,8 +56,9 @@ __noreturn void kmain(void) {
     kerror(ERR_INFO, "Built on:       "__DATE__" at "__TIME__);
     kerror(ERR_INFO, "---------------------------------------");
 
-#if (FEATURE_INITRD_EMBEDDED)
+#ifdef CONFIG_EMBEDDED_INITRD
     kerror(ERR_INFO, "Embedded initrd: %08X-%08X", &_binary_initrd_cpio_start, &_binary_initrd_cpio_end);
+    kfile_t *fs_root = fs_get_root();
     initrd_mount(fs_root, (uintptr_t)&_binary_initrd_cpio_start, &_binary_initrd_cpio_end - &_binary_initrd_cpio_start);
 #endif
 

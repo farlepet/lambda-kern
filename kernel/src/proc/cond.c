@@ -1,5 +1,6 @@
 #include <string.h>
 
+#include <lambda/config_defs.h>
 #include <lambda/export.h>
 #include <proc/cond.h>
 #include <proc/mtask.h>

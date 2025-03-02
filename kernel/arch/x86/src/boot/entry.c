@@ -14,7 +14,7 @@
 #include <arch/types/mmu.h>
 #include <arch/registers.h>
 
-#if (FEATURE_MULTIBOOT == 2)
+#if (CONFIG_MULTIBOOT_VERSION == 2)
 __section(.mboot)
 __align(8)
 __used
@@ -44,7 +44,7 @@ static mboot_head_t _boot_head = {
         }
     }
 };
-#elif (FEATURE_MULTIBOOT == 1)
+#elif (CONFIG_MULTIBOOT_VERSION == 1)
 __section(.mboot)
 __align(8)
 __used

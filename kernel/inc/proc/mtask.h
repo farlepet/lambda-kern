@@ -6,7 +6,7 @@
 #include <types.h>
 #include <proc/proc.h>
 
-#if (__LAMBDA_PLATFORM_ARCH__ == PLATFORM_ARCH_X86)
+#ifdef CONFIG_ARCH_X86
 #  include <arch/mm/paging.h>
 #endif
 

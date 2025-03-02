@@ -30,7 +30,7 @@ int hw_init_console(void) {
 
 static armv7_gic_handle_t _gic;
 int hw_init_interrupts(void) {
-    ptr_t mpcore;
+    uintptr_t mpcore;
     __READ_PERIPHBASE(mpcore);
     kerror(ERR_INFO, "PERIPHBASE: %08X", mpcore);
 

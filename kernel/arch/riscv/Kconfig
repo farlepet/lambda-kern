@@ -1,0 +1,21 @@
+menu "RISC-V architecture"
+    depends on ARCH_RISCV
+
+choice
+    prompt "CPU family"
+
+config ARCH_CPU_RV64I
+    prompt "RISC-V RV64I"
+
+endchoice # CPU family
+
+choice
+    prompt "Hardware platform"
+
+config ARCH_HW_KENDRYTE_K210
+    bool "Kendryte k210"
+    select ARCH_CPU_RV64I
+
+endchoice # Hardware platform
+
+endmenu # RISC-V architecture

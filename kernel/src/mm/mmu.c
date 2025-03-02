@@ -1,5 +1,6 @@
 #include <string.h>
 
+#include <lambda/config_defs.h>
 #include <types.h>
 #include <mm/mmu.h>
 

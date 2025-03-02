@@ -1,0 +1,36 @@
+menu "x86 architecture"
+    depends on ARCH_X86
+
+choice
+    prompt "CPU family"
+
+config ARCH_CPU_IA32
+    bool "IA32"
+
+endchoice # CPU family
+
+choice
+    prompt "Hardware target"
+
+config ARCH_HW_PC
+    bool "PC"
+
+endchoice # Hardware target
+
+config MULTIBOOT
+    bool "Enable Multiboot support (do not disable)"
+    default y
+    help
+      Enables Multiboot support for the kernel. Currently, this is the only
+      supported boot method, so it must remain enabled.
+
+config MULTIBOOT_VERSION
+    int "Select Multiboot version"
+    range 1 2
+    default 2
+    help
+      Select Multiboot speicification version to use. Note that LBoot only
+      supports version 2.
+
+endmenu # x86 Architecture Config
+

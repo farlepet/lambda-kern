@@ -1,12 +1,10 @@
 #ifndef INITRD_H
 #define INITRD_H
 
-#include <config.h>
-
 #include <stdint.h>
 #include <fs/fs.h>
 
-#if (FEATURE_INITRD_EMBEDDED)
+#ifdef CONFIG_EMBEDDED_INITRD
 /* Linked in through initrd.o */
 extern int _binary_initrd_cpio_start;
 extern int _binary_initrd_cpio_end;
