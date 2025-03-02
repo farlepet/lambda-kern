@@ -21,6 +21,13 @@ ldflags-y += $(LDARCH)
 cflags-y  += -DCONFIG_ARCH_X86 \
              -I$(HWINC)
 
+ifeq ($(CONFIG_BUILD_USE_CLANG),y)
+    cflags-y  += -target i486
+    asflags-y += -target i486
+    ldoflags-y += -melf_i386
+    ldkflags-y += -target i486 -static
+endif
+
 include $(MDIR)src/module.mk
 include $(HWDIR)/module.mk
 

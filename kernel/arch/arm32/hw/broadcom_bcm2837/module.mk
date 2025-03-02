@@ -6,20 +6,17 @@ CPU        = cortex_a53
 
 KERNEL_OFFSET = 0x00000000
 
-#CFLAGS    += -march=armv8-a -marm
 cflags-y  += -march=armv7-a -marm \
              -DKERNEL_OFFSET=${KERNEL_OFFSET}
-ldflags-y += -T $(HWDIR)/hw.ld
 
 cflags-y  += -DCONFIG_ARCH_CPU_CORTEX_A53 \
              -DCONFIG_ARCH_HW_BROADCOM_BCM2837
 
-#ASFLAGS    = -march=armv8-a
 asflags-y += -march=armv7-a
 
 ifeq ($(CONFIG_BUILD_USE_CLANG),y)
-    cflags-y += -target armv8--eabi -mcpu=cortex-a53
-    cflags-y += -target armv8--eabi -mcpu=cortex-a53
+    cflags-y  += -target armv8--eabi -mcpu=cortex-a53
+    asflags-y += -target armv8--eabi -mcpu=cortex-a53
 endif
 
 include $(MDIR)src/module.mk

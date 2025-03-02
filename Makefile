@@ -15,10 +15,21 @@ endif
 GIT_VERSION := "$(shell git describe --abbrev=8 --dirty=\* --always --tags)"
 
 # Make sure these variables are empty and setup to be immediate
+# Output object file list
 obj-y     :=
+# Assembler flags
 asflags-y :=
+# C compiler flags
 cflags-y  :=
+# Linker flags
 ldflags-y :=
+
+# Shared library linking step flags
+ldsflags-y :=
+# Relocatable object linking step flags
+ldoflags-y :=
+# Final kernel output linking step flags
+ldkflags-y :=
 
 ifeq ($(CONFIG_BUILD_USE_CLANG),y)
     CC := clang
@@ -65,24 +76,10 @@ BUILDDIR   = $(MAINDIR)/build/$(ARCH)/$(CPU)/$(HW)
 OBJS := $(filter %.o,$(patsubst %.o,$(BUILDDIR)/%.o,$(obj-y)))
 DEPS := $(filter %.d,$(patsubst %.o,%.d,$(OBJS)))
 
-ASFLAGS += $(asflags-y)
-CFLAGS  += $(cflags-y)
-LDFLAGS += $(ldflags-y)
-
-#$(info $(CFLAGS))
-#$(info $(obj-y))
-#$(info $(OBJS))
-#$(info $(CC))
-
-CFLAGS    += -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/$(ARCH)/inc/ \
-			 -ffreestanding -Wall -Wextra -O2 \
-			 -pipe -g -fdata-sections -ffunction-sections \
-			 -DKERNEL_GIT=\"$(GIT_VERSION)\"
-
-
-#KERNSRC    = $(KERNEL)/src
-#ARCHSRC    = $(MAINDIR)/kernel/arch/$(ARCH)/src
-#ARCHINC    = $(MAINDIR)/kernel/arch/$(ARCH)/inc
+cflags-y += -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/$(ARCH)/inc/ \
+            -ffreestanding -Wall -Wextra -O2 \
+            -pipe -g -fdata-sections -ffunction-sections \
+            -DKERNEL_GIT=\"$(GIT_VERSION)\"
 
 
 .PHONY: clean documentation cppcheck
@@ -93,7 +90,7 @@ CFLAGS    += -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/$(ARC
 $(BUILDDIR)/symbols.o: $(BUILDDIR)/lambda.o
 	@echo -e "\033[33m  \033[1mCreating symbol table\033[0m"
 	$(Q) scripts/symbols > $(BUILDDIR)/symbols.c
-	$(Q) $(CC) $(CFLAGS) -c -o $(BUILDDIR)/symbols.o $(BUILDDIR)/symbols.c
+	$(Q) $(CC) $(cflags-y) -c -o $(BUILDDIR)/symbols.o $(BUILDDIR)/symbols.c
 
 # TODO: Only include this if FEATURE_INITRD_EMBEDDED
 $(BUILDDIR)/initrd.o: initrd.cpio
@@ -103,15 +100,15 @@ $(BUILDDIR)/initrd.o: initrd.cpio
 
 $(BUILDDIR)/lambda.o: $(OBJS)
 	@echo -e "\033[33m  \033[1mLinking sources\033[0m"
-	$(Q) $(LD) -r -o $@ $(OBJS)
+	$(Q) $(LD) $(ldoflags-y) -r -o $@ $(OBJS)
 
 $(BUILDDIR)/lambda.shared: $(BUILDDIR)/lambda.o
 	@echo -e "\033[33m  \033[1mLinking kernel\033[0m"
-	$(Q) $(CC) -shared -o $@ $< -T $(HWDIR)/hw.ld
+	$(Q) $(CC) $(ldsflags-y) -shared -o $@ $< -T $(HWDIR)/hw.ld
 
 $(BUILDDIR)/lambda.kern: $(BUILDDIR)/lambda.o
 	@echo -e "\033[33m  \033[1mProducing kernel executable\033[0m"
-	$(Q) $(CC) -o $@ $< -T $(HWDIR)/hw.ld -nostdlib -lgcc
+	$(Q) $(CC) $(ldkflags-y) -o $@ $< -T $(HWDIR)/hw.ld -nostdlib -lgcc
 
 
 clean:
@@ -137,12 +134,12 @@ scan-build:
 $(BUILDDIR)/%.o: %.c
 	@echo -e "\033[32m    \033[1mCC\033[21m    \033[34m$<\033[0m"
 	$(Q) mkdir -p $(dir $@)
-	$(Q) $(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
+	$(Q) $(CC) $(cflags-y) -MMD -MP -c -o $@ $<
 
 $(BUILDDIR)/%.o: %.s
 	@echo -e "\033[32m    \033[1mAS\033[21m    \033[34m$<\033[0m"
 	$(Q) mkdir -p $(dir $@)
-	$(Q) $(AS) $(ASFLAGS) -c -o $@ $<
+	$(Q) $(AS) $(asflags-y) -c -o $@ $<
 
 .config: | .defconfig
 	@echo -e "\033[32m\033[1mCopying default .config\033[0m"
