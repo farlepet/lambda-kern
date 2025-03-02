@@ -144,7 +144,7 @@ static void _spawn_init(const char *path) {
     }
 
     kerror(ERR_INFO, "Creating task");
-    int pid = add_task(&_exec_init, "init", PROC_KERN_STACK_SIZE, PRIO_KERNEL, PROC_DOMAIN_KERNEL, NULL);
+    int pid = add_task(&_exec_init, "init", CONFIG_PROC_KERN_STACK_SIZE, PRIO_KERNEL, PROC_DOMAIN_KERNEL, NULL);
     if(pid <= 0) {
         kpanic("Failed to parse init executable or spawn task!");
     }

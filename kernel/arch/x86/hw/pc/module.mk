@@ -9,8 +9,7 @@ KERNEL_OFFSET = 0xC0000000
 cflags-y    += -DKERNEL_OFFSET=${KERNEL_OFFSET}
 ldflags-y   += -T $(HWDIR)/hw.ld
 
-cflags-y    += -DCONFIG_ARCH_CPU_IA32 \
-               -DCONFIG_ARCH_HW_PC
+cflags-y    += -DCONFIG_ARCH_HW_PC
 
 asflags-y   +=
 

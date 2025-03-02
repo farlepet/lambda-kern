@@ -131,12 +131,12 @@ scan-build:
 	@scan-build --use-cc=$(CC) -analyze-headers $(MAKE)
 
 
-$(BUILDDIR)/%.o: %.c
+$(BUILDDIR)/%.o: %.c .config
 	@echo -e "\033[32m    \033[1mCC\033[21m    \033[34m$<\033[0m"
 	$(Q) mkdir -p $(dir $@)
 	$(Q) $(CC) $(cflags-y) -MMD -MP -c -o $@ $<
 
-$(BUILDDIR)/%.o: %.s
+$(BUILDDIR)/%.o: %.s .config
 	@echo -e "\033[32m    \033[1mAS\033[21m    \033[34m$<\033[0m"
 	$(Q) mkdir -p $(dir $@)
 	$(Q) $(AS) $(asflags-y) -c -o $@ $<

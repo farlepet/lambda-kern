@@ -35,12 +35,6 @@ void arch_multitasking_init(void) {
 }
 
 int arch_proc_create_stack(kthread_t *thread) {
-/*#ifdef STACK_PROTECTOR
-    stack_begin = (uintptr_t)kmalloc(stack_size + 0x2000);
-#else // STACK_PROTECTOR
-    stack_begin = (uintptr_t)kmalloc(stack_size);
-#endif // !STACK_PROTECTOR*/
-
     if(!SAFETY_CHECK(thread->process)) {
         kpanic("arch_proc_create_stack: Thread has no associated process!");
     }
@@ -51,7 +45,11 @@ int arch_proc_create_stack(kthread_t *thread) {
     
     /* @todo Find better scheme to separate thread stacks. */
     int tpos = llist_get_position(&thread->process->threads, &thread->list_item);
-    virt_stack_begin -= tpos * 0x10000;
+#ifdef CONFIG_PROC_STACK_GUARD
+    virt_stack_begin -= tpos * (CONFIG_PROC_USER_STACK_SIZE_MAX + 0x2000);
+#else
+    virt_stack_begin -= tpos * CONFIG_PROC_USER_STACK_SIZE_MAX;
+#endif
 
     uintptr_t stack_begin = (uintptr_t)kmamalloc(thread->stack_size, 4096);
 
@@ -67,26 +65,25 @@ int arch_proc_create_stack(kthread_t *thread) {
     thread->arch.stack_user.size  = thread->stack_size;
     thread->arch.stack_user.begin = virt_stack_begin + thread->stack_size;
 
-#ifdef STACK_PROTECTOR
-// TODO: Fix stack guarding:
-    block_page(thread->stack_end - 0x1000);
-    block_page(thread->stack_beg);
-#endif // STACK_PROTECTOR
-    
+#ifdef CONFIG_PROC_STACK_GUARD
+    map_page(0, (void *)thread->arch.stack_user.begin, 0);
+    map_page(0, (void *)(thread->arch.stack_user.begin - thread->arch.stack_user.size - 0x1000), 0);
+#endif
+
     thread->arch.ebp = thread->arch.stack_user.begin;
 
     return 0;
 }
 
 int arch_proc_create_kernel_stack(kthread_t *thread) {
-    thread->arch.stack_kern.size  = PROC_KERN_STACK_SIZE;
+    thread->arch.stack_kern.size  = CONFIG_PROC_KERN_STACK_SIZE;
     thread->arch.stack_kern.begin = (uint32_t)kmamalloc(thread->arch.stack_kern.size, 4096);
 
     kdebug(DEBUGSRC_PROC, ERR_TRACE, "arch_proc_create_kernel_stack [size: %d] [end: %08X, beg: %08X]",
-        PROC_KERN_STACK_SIZE, thread->arch.stack_kern.begin, thread->arch.stack_kern.begin + thread->arch.stack_kern.size
+        CONFIG_PROC_KERN_STACK_SIZE, thread->arch.stack_kern.begin, thread->arch.stack_kern.begin + thread->arch.stack_kern.size
     );
 
-    mmu_map_table(thread->process->mmu_table, thread->arch.stack_kern.begin, thread->arch.stack_kern.begin, PROC_KERN_STACK_SIZE,
+    mmu_map_table(thread->process->mmu_table, thread->arch.stack_kern.begin, thread->arch.stack_kern.begin, CONFIG_PROC_KERN_STACK_SIZE,
                   (MMU_FLAG_READ | MMU_FLAG_WRITE | MMU_FLAG_KERNEL));
 
     thread->arch.stack_kern.begin += thread->arch.stack_kern.size;

@@ -13,7 +13,12 @@ kthread_t *thread_create(uintptr_t entrypoint, void * data, const char *name, si
         return NULL;
     }
     
-    if(!stack_size) stack_size = DEFAULT_STACK_SIZE;
+    if(!stack_size) {
+        stack_size = CONFIG_PROC_USER_STACK_SIZE;
+    } else if(stack_size > CONFIG_PROC_USER_STACK_SIZE_MAX) {
+        kpanic("Stack size requested (%u) is too large (> %u)", stack_size,
+               CONFIG_PROC_USER_STACK_SIZE_MAX);
+    }
     
     memset(thread, 0, sizeof(kthread_t));
 

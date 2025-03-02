@@ -1,3 +1,39 @@
+menu "Processes and threads"
+
+config PROC_KERN_STACK_SIZE
+    int "Kernel stack size"
+    range 2048 65536
+    default 4096
+    help
+      Stack size to use for kernel stacks
+
+config PROC_USER_STACK_SIZE
+    int "Default user stack size"
+    range 2048 1048576
+    default 32768
+    help
+      Default stack size to allocate for a userspace thread if none is specified
+
+config PROC_USER_STACK_SIZE_MAX
+    int "Maximum user stack size"
+    range 4096 1048576
+    default 65536
+    help
+      Maximum size of a user thread stack, this is the size used to separate
+      thread stacks from eachother (plus two page sizes, if PROC_STACK_GUARD is
+      enabled). Must be greater than or equal to PROC_USER_STACK_SIZE
+
+config PROC_STACK_GUARD
+    bool "Enable stack guard (experimental)"
+    default n
+    help
+      This enables guards at the beginning and end of the stack, each being one
+      page large. With the current (naive) implementation, this will increase
+      the memory utilization of each stack by two page sizes (currently only K).
+      If a thread attempts to read or write beyond the stack, it will trigger a
+      page fault.
+
+      Not all targets support this feature.
 
 config KTASK_DEBUGGER
     bool "Enable debugger ktask"
@@ -5,3 +41,6 @@ config KTASK_DEBUGGER
     help
       Enables the debugger ktak. Note that this is not well-supported at the
       moment.
+
+endmenu # Processes and threads
+

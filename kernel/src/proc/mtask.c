@@ -20,8 +20,6 @@ static int next_pid = 1;
 
 lock_t creat_task = 0; //!< Lock used when creating tasks
 
-void proc_jump_to_ring(void);
-
 struct kproc *proc_by_pid(int pid) {
     if(!procs.list) {
         return NULL;

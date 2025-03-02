@@ -27,9 +27,9 @@ int proc_copy_kernel_stack(kthread_t *dest, const kthread_t *src) {
         dest->arch.stack_kern.begin, (pgdir_get_page_entry((uint32_t *)dest->process->mmu_table, (void *)(dest->arch.stack_kern.begin - 4096)) & (~0xFFF)) + 4096
     );
 
-    mmu_copy_data(dest->process->mmu_table, (dest->arch.stack_kern.begin - PROC_KERN_STACK_SIZE),
-                  src->process->mmu_table,  (src->arch.stack_kern.begin  - PROC_KERN_STACK_SIZE),
-                  PROC_KERN_STACK_SIZE);
+    mmu_copy_data(dest->process->mmu_table, (dest->arch.stack_kern.begin - CONFIG_PROC_KERN_STACK_SIZE),
+                  src->process->mmu_table,  (src->arch.stack_kern.begin  - CONFIG_PROC_KERN_STACK_SIZE),
+                  CONFIG_PROC_KERN_STACK_SIZE);
 
     return 0;
 }

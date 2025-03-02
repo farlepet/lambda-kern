@@ -420,7 +420,7 @@ int module_start_thread(module_entry_t *mod, void (*entry)(void *), void *data, 
     }
 
     /* TODO: Allow configuration of stack size and priority? */
-    int tid = thread_spawn((uintptr_t)entry, data, name, PROC_KERN_STACK_SIZE, PRIO_DRIVER);
+    int tid = thread_spawn((uintptr_t)entry, data, name, CONFIG_PROC_KERN_STACK_SIZE, PRIO_DRIVER);
     if(tid < 0) {
         return -1;
     }

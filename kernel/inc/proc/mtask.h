@@ -12,10 +12,6 @@
 
 extern lock_t creat_task; //!< Lock used when creating tasks
 
-#define DEFAULT_STACK_SIZE 0x8000 //!< Size of user stack or if kernel task has a unspecified stack size
-
-//#define STACK_PROTECTOR //!< Whether or not to enable stack protectors (currently broken?)
-
 int get_pid(void); //!< Get the PID of the currently running task
 
 /**

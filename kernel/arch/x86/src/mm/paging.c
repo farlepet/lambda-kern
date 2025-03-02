@@ -153,22 +153,26 @@ void paging_init(uint32_t som, uint32_t eom) {
 
     kdebug(DEBUGSRC_MM, ERR_INFO, "  -> Enabling paging");
 
-    uint32_t tmp;
+#ifdef CONFIG_X86_PAGING_KERNEL_WP
+    {
+        /* Enable write protect in supervisor mode */
+        uint32_t tmp = register_cr0_read();
+        tmp |= CR0_FLAG_WP;
+        register_cr0_write(tmp);
+    }
+#endif
 
-    /* Enable write protect in supervisor mode */
-    tmp = register_cr0_read();
-    tmp |= CR0_FLAG_WP;
-    register_cr0_write(tmp);
-
+#ifdef CONFIG_X86_PAGING_GLOBAL_PAGES
     /* Enable global pages */
     if(cpuid_avail()) {
         /* It is assumed that any CPU that supports CPUID will also support CR4,
          * as both features were introduced in Pentium, and both were backported
          * to i486. */
-        tmp = register_cr4_read();
+        uint32_t tmp = register_cr4_read();
         tmp |= CR4_FLAG_PGE;
         register_cr4_write(tmp);
     }
+#endif
 
     enable_paging();
 

@@ -33,7 +33,7 @@ int arch_proc_create_stack(kthread_t *thread) {
 }
 
 int arch_proc_create_kernel_stack(kthread_t *thread) {
-    if(_allocate_stack(&thread->arch.stack_kern, PROC_KERN_STACK_SIZE)) {
+    if(_allocate_stack(&thread->arch.stack_kern, CONFIG_PROC_KERN_STACK_SIZE)) {
         return -1;
     }
 

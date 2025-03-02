@@ -1,8 +1,6 @@
 #ifndef PROC_H
 #define PROC_H
 
-#define PROC_KERN_STACK_SIZE 4096 //!< Size of kernel stack allocated to process
-
 #include <stdint.h>
 
 #include <proc/types/kproc.h>

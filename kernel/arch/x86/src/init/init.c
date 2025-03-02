@@ -46,11 +46,13 @@ void arch_init(mboot_t *mboot_head) {
     cmdline_handle_common();
 
     acpi_init(mboot_head);
+#ifdef CONFIG_X86_APIC
     apic_init();
+#endif
 
     kerror(ERR_INFO, "  -> STI");
     enable_interrupts();
-    
+
     // Initialize a second time to enable interrupts
     serial_init(SERIAL_COM1);
 
