@@ -88,8 +88,8 @@ void kern_premap(uint32_t board, uint32_t machine, void *atags) {
 
     /* @note Not exactly the best way to do this, but since ARM uses relative-
      * addressing, and since we have both low and high mapped, it should work. */
-    asm volatile("add %sp, %sp, #0xC0000000\n"
-                 "add %pc, %pc, #0xC0000000\n");
+    asm volatile("add sp, sp, #0xC0000000\n"
+                 "add pc, pc, #0xC0000000\n");
 
     kentry(board, machine, atags);
 }

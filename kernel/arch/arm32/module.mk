@@ -23,7 +23,7 @@ endif
 HWDIR     := $(MDIR)hw/$(HW)
 HWINC     := $(HWDIR)/inc
 
-cflags-y  += -marm -mapcs-frame -mpoke-function-name
+cflags-y  += -marm
 LDARCH     = -marmelf
 ldflags-y += -marm -nostartfiles
 
@@ -33,7 +33,8 @@ cflags-y  += -DCONFIG_ARCH_ARM32 \
              -I$(HWINC)
 
 ifneq ($(CONFIG_BUILD_USE_CLANG),y)
-    cflags-y += -Wno-unknown-pragmas
+    cflags-y += -Wno-unknown-pragmas  \
+                -mapcs-frame -mpoke-function-name
 endif
 
 include $(MDIR)src/module.mk
