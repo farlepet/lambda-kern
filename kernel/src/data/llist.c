@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include <lambda/config_defs.h>
 #include <lambda/export.h>
 
 #include <data/llist.h>

@@ -1,34 +1,30 @@
 # HW-specific Makefile options for the Broadcom BCM2837
 
+MDIR = $(dir $(lastword $(MAKEFILE_LIST)))
+
 CPU        = cortex_a53
 
 KERNEL_OFFSET = 0x00000000
 
 #CFLAGS    += -march=armv8-a -marm
-CFLAGS    += -march=armv7-a -marm \
+cflags-y  += -march=armv7-a -marm \
              -DKERNEL_OFFSET=${KERNEL_OFFSET}
-LDFLAGS   += -T $(HWDIR)/hw.ld
+ldflags-y += -T $(HWDIR)/hw.ld
 
-CFLAGS    += -D__LAMBDA_PLATFORM_CPU__=PLATFORM_CPU_ARM_CORTEX_A53 \
-             -D__LAMBDA_PLATFORM_HW__=PLATFORM_HW_BROADCOM_BCM2837
+cflags-y  += -DCONFIG_ARCH_CPU_CORTEX_A53 \
+             -DCONFIG_ARCH_HW_BROADCOM_BCM2837
 
 #ASFLAGS    = -march=armv8-a
-ASFLAGS   += -march=armv7-a
+asflags-y += -march=armv7-a
 
-ifeq ($(CC), clang)
-CFLAGS  += -target armv8--eabi -mcpu=cortex-a53
-ASFLAGS += -target armv8--eabi -mcpu=cortex-a53
+ifeq ($(CONFIG_BUILD_USE_CLANG),y)
+    cflags-y += -target armv8--eabi -mcpu=cortex-a53
+    cflags-y += -target armv8--eabi -mcpu=cortex-a53
 endif
 
+include $(MDIR)src/module.mk
+
 .DEFAULT_GOAL=$(BUILDDIR)/kernel7.img
-
-$(BUILDDIR)/lambda.shared: $(BUILDDIR)/lambda.o
-	@echo -e "\033[33m  \033[1mLinking kernel\033[0m"
-	$(Q) $(CC) -shared -o $@ $< -T kernel/arch/arm32/arch.ld
-
-$(BUILDDIR)/lambda.kern: $(BUILDDIR)/lambda.o $(HWDIR)/hw.ld
-	@echo -e "\033[33m  \033[1mProducing kernel executable\033[0m"
-	$(Q) $(CC) $(CFLAGS) $(LDFLAGS) -o $@ $< -nostdlib -lgcc
 
 $(BUILDDIR)/kernel7.img: $(BUILDDIR)/lambda.kern
 	@echo -e "\033[33m  \033[1mProducing RPi binary\033[0m"

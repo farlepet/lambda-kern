@@ -1,0 +1,21 @@
+# Architecture config
+
+choice
+    prompt "Target arhitecture"
+    default ARCH_X86
+
+config ARCH_X86
+    bool "X86 (32-bit)"
+
+config ARCH_ARM32
+    bool "ARM (32-bit)"
+
+config ARCH_RISCV
+    bool "RISCV (32-bit)"
+
+endchoice # Target architecture
+
+source "kernel/arch/x86/Kconfig"
+source "kernel/arch/arm32/Kconfig"
+source "kernel/arch/riscv/Kconfig"
+

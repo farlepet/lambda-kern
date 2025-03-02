@@ -1,9 +1,10 @@
+
+include .config
+
 MAINDIR    = .
 KERNEL     = $(MAINDIR)/kernel
-BUILDDIR   = $(MAINDIR)/build/$(ARCH)/$(CPU)/$(HW)
 
 VERBOSE     = 0
-EMBEDINITRD = 0
 
 ifeq ($(VERBOSE), 1)
 Q =
@@ -11,66 +12,82 @@ else
 Q = @
 endif
 
-# Default architecture
-ARCH       = x86
-
-ifneq ($(CROSS_COMPILE),)
-	CC      := $(CROSS_COMPILE)gcc
-	AS      := $(CROSS_COMPILE)gcc
-	LD      := $(CROSS_COMPILE)ld
-	AR      := $(CROSS_COMPILE)ar
-	STRIP   := $(CROSS_COMPILE)strip
-	OBJCOPY := $(CROSS_COMPILE)objcopy
-endif
-
-
 GIT_VERSION := "$(shell git describe --abbrev=8 --dirty=\* --always --tags)"
 
+# Make sure these variables are empty and setup to be immediate
+obj-y     :=
+asflags-y :=
+cflags-y  :=
+ldflags-y :=
+
+ifeq ($(CONFIG_BUILD_USE_CLANG),y)
+    CC := clang
+    AS := clang
+
+    ifeq ($(CONFIG_BUILD_USE_WEVERYTHING),y)
+        cflags-y += -Weverything                 \
+                    -Wno-reserved-id-macro       \
+                    -Wno-newline-eof             \
+                    -Wno-padded                  \
+                    -Wno-sign-conversion         \
+                    -Wno-documentation           \
+                    -Wno-cast-qual               \
+                    -Wno-pedantic                \
+                    -Wno-implicit-int-conversion \
+                    -Wno-atomic-implicit-seq-cst \
+                    -Wno-bad-function-cast       \
+                    -Wno-cast-align              \
+                    -Wno-packed                  \
+                    -Wno-unknown-warning-option  \
+                    -Wno-date-time               \
+                    -Wno-reserved-identifier     \
+                    -Wno-extra-semi-stmt
+    endif
+else
+    ifneq ($(CROSS_COMPILE),)
+        CC      := $(CROSS_COMPILE)gcc
+        AS      := $(CROSS_COMPILE)gcc
+        LD      := $(CROSS_COMPILE)ld
+        AR      := $(CROSS_COMPILE)ar
+        STRIP   := $(CROSS_COMPILE)strip
+        OBJCOPY := $(CROSS_COMPILE)objcopy
+    endif
+endif
+
+cflags-$(CONFIG_BUILD_USE_WERROR) += -Werror
+
+include kernel/module.mk
+
+obj-$(CONFIG_EMBEDDED_INITRD) += initrd.o
+
+BUILDDIR   = $(MAINDIR)/build/$(ARCH)/$(CPU)/$(HW)
+
+OBJS := $(filter %.o,$(patsubst %.o,$(BUILDDIR)/%.o,$(obj-y)))
+DEPS := $(filter %.d,$(patsubst %.o,%.d,$(OBJS)))
+
+ASFLAGS += $(asflags-y)
+CFLAGS  += $(cflags-y)
+LDFLAGS += $(ldflags-y)
+
+#$(info $(CFLAGS))
+#$(info $(obj-y))
+#$(info $(OBJS))
+#$(info $(CC))
+
 CFLAGS    += -I$(MAINDIR)/kernel/inc -I$(MAINDIR) -I$(MAINDIR)/kernel/arch/$(ARCH)/inc/ \
-			 -ffreestanding -Wall -Wextra -Werror -O2 \
+			 -ffreestanding -Wall -Wextra -O2 \
 			 -pipe -g -fdata-sections -ffunction-sections \
-			 -include "config.h" \
 			 -DKERNEL_GIT=\"$(GIT_VERSION)\"
 
-KERNSRC    = $(KERNEL)/src
-ARCHSRC    = $(MAINDIR)/kernel/arch/$(ARCH)/src
-ARCHINC    = $(MAINDIR)/kernel/arch/$(ARCH)/inc
+
+#KERNSRC    = $(KERNEL)/src
+#ARCHSRC    = $(MAINDIR)/kernel/arch/$(ARCH)/src
+#ARCHINC    = $(MAINDIR)/kernel/arch/$(ARCH)/inc
 
 
 .PHONY: clean documentation cppcheck
 
 .DEFAULT_GOAL=$(BUILDDIR)/lambda.kern
-
-# TODO: Allow selecting of specific source files in a smart way
-SRCS       = $(wildcard $(KERNSRC)/*.c) $(wildcard $(KERNSRC)/*/*.c) $(wildcard $(KERNSRC)/*/*/*.c)
-
-OBJS       = $(filter %.o,$(patsubst $(KERNEL)/%.c,$(BUILDDIR)/%.o,$(SRCS)) \
-                          $(patsubst $(KERNEL)/%.s,$(BUILDDIR)/%.o,$(SRCS)))
-DEPS       = $(filter %.d,$(patsubst $(KERNEL)/%.c,$(BUILDDIR)/%.d,$(SRCS)))
-
-# Architecture-specific makefile options
-include kernel/arch/$(ARCH)/arch.mk
-
-
-ifeq ($(CC), clang)
-CFLAGS += -Weverything                \
-		  -Wno-reserved-id-macro       \
-		  -Wno-newline-eof             \
-		  -Wno-padded                  \
-		  -Wno-sign-conversion         \
-		  -Wno-documentation           \
-		  -Wno-cast-qual               \
-		  -Wno-pedantic                \
-		  -Wno-implicit-int-conversion \
-		  -Wno-atomic-implicit-seq-cst \
-		  -Wno-bad-function-cast       \
-		  -Wno-cast-align              \
-		  -Wno-packed                  \
-		  -Wno-unknown-warning-option  \
-		  -Wno-date-time               \
-		  -Wno-reserved-identifier     \
-		  -Wno-extra-semi-stmt
-endif
 
 
 $(BUILDDIR)/symbols.o: $(BUILDDIR)/lambda.o
@@ -83,6 +100,18 @@ $(BUILDDIR)/initrd.o: initrd.cpio
 	@echo -e "\033[33m  \033[1mGenerating embedded InitRD object\033[0m"
 	$(Q) mkdir -p $(dir $@)
 	$(Q) $(LD) $(LDARCH) -r -b binary $< -o $@
+
+$(BUILDDIR)/lambda.o: $(OBJS)
+	@echo -e "\033[33m  \033[1mLinking sources\033[0m"
+	$(Q) $(LD) -r -o $@ $(OBJS)
+
+$(BUILDDIR)/lambda.shared: $(BUILDDIR)/lambda.o
+	@echo -e "\033[33m  \033[1mLinking kernel\033[0m"
+	$(Q) $(CC) -shared -o $@ $< -T $(HWDIR)/hw.ld
+
+$(BUILDDIR)/lambda.kern: $(BUILDDIR)/lambda.o
+	@echo -e "\033[33m  \033[1mProducing kernel executable\033[0m"
+	$(Q) $(CC) -o $@ $< -T $(HWDIR)/hw.ld -nostdlib -lgcc
 
 
 clean:
@@ -105,14 +134,18 @@ scan-build:
 	@scan-build --use-cc=$(CC) -analyze-headers $(MAKE)
 
 
-$(BUILDDIR)/%.o: $(KERNEL)/%.c
+$(BUILDDIR)/%.o: %.c
 	@echo -e "\033[32m    \033[1mCC\033[21m    \033[34m$<\033[0m"
 	$(Q) mkdir -p $(dir $@)
 	$(Q) $(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
 
-$(BUILDDIR)/%.o: $(KERNEL)/%.s
+$(BUILDDIR)/%.o: %.s
 	@echo -e "\033[32m    \033[1mAS\033[21m    \033[34m$<\033[0m"
 	$(Q) mkdir -p $(dir $@)
 	$(Q) $(AS) $(ASFLAGS) -c -o $@ $<
+
+.config: | .defconfig
+	@echo -e "\033[32m\033[1mCopying default .config\033[0m"
+	$(Q) cp $| $@
 
 -include $(DEPS)

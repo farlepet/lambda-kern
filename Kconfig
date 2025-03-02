@@ -1,0 +1,31 @@
+mainmenu "Lambda Kernel Configuration"
+
+source "kernel/Kconfig"
+
+menu "General build options"
+
+config BUILD_USE_WERROR
+    bool "Enable -Werror"
+    default y
+    help
+      Passes the -Werror flag to the compiler, treating any warning as an error.
+      This should typically be enabled, except during active development, as
+      builds should be warning-free.
+
+config BUILD_USE_CLANG
+    bool "Use Clang as the compiler"
+    default n
+    help
+      Configures the build system to use Clang rather than GCC (or compatible)
+      as the compiler. Note that this may not be well-supported for all targets.
+
+config BUILD_USE_WEVERYTHING
+    bool "Enable -Weverything"
+    depends on BUILD_USE_CLANG
+    default n
+    help
+      Passes the -Weverything flag to Clang, enabling many more warnings. Note
+      that some warnings are explicitly disabled while this is enabled. Do not
+      expect -Weverything + -Werror to succeed after a Clang update.
+
+endmenu # General build options

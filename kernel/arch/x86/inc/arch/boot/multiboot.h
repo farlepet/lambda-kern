@@ -15,7 +15,7 @@
 
 #pragma pack (push, 1)
 
-#if (FEATURE_MULTIBOOT == 1)
+#if (CONFIG_MULTIBOOT_VERSION == 1)
 #  define MBOOT_MAGIC (0x2BADB002UL)
 
 #  define MBOOT_MEMINFO 1
@@ -71,7 +71,7 @@ typedef struct {
     uint32_t checksum;
 } mboot_head_t;
 
-#elif (FEATURE_MULTIBOOT == 2)
+#elif (CONFIG_MULTIBOOT_VERSION == 2)
 #  define MBOOT_MAGIC (0x36D76289UL)
 
 typedef struct {
@@ -182,7 +182,7 @@ void multiboot_locate_modules(const mboot_t *head, uintptr_t *start, uintptr_t *
 
 size_t multiboot_get_upper_memory(const mboot_t *head);
 
-#if (FEATURE_MULTIBOOT == 2)
+#if (CONFIG_MULTIBOOT_VERSION == 2)
 const mboot_tag_t *multiboot_find_tag(const mboot_t *head, uint32_t type, uint32_t idx);
 #endif
 

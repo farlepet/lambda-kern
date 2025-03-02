@@ -1,7 +1,6 @@
 #include <lambda/export.h>
 #include <time/time.h>
 #include <err/error.h>
-#include <config.h>
 #include <types.h>
 #include <io/output.h>
 
@@ -32,7 +31,7 @@ void kdebug(debug_source_e src, error_level_e lvl, const char *msg, ...) {
     /* TODO: Write to a buffer, rather than directly writing to the kernel's
      * output device. */
 
-#if (KERNEL_COLORCODE)
+#ifdef CONFIG_LOG_COLORCODE
     kprintf("\e[31m[\e[32m%05llu.%03u\e[31m] [\e[33m%s\e[31m]\e[0m ",
     sec, (uint32_t)nano / 1000000, debug_names[src], &msg);
 #else

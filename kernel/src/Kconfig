@@ -1,0 +1,41 @@
+# Common kernel configuration
+
+config LOG_COLORCODE
+    bool "Color-code kernel log output"
+
+config EMBEDDED_INITRD
+    bool "Embeded initrd into kernel image"
+
+config SAFETY_CHECKS
+    bool "Enable runtime data checks"
+    default y
+    help
+      Enables checks for input/data validity within the kernel, including data
+      that comes from userspace. This causes some overhead for kernel calls and
+      other operations. Disabling this is a huge security risk, and should only
+      be done if you know what you are doing.
+
+      This is an older config and may one day be merged with STRICTNESS, or a
+      similar config.
+
+config STRICTNESS
+    int "Kernel strictness level"
+    range 0 255
+    default 255
+    help
+      How strictly the kernel should monitor data and parameters. Setting this
+      to 0 creates a security risk, as validation of userland input is not
+      checked. See SAFETY_CHECKS for details. It is useful to set this to a
+      higher level during development to catch bugs.
+
+      Levels:
+       0: Disable all checks
+       1: Enable checking of data passed in from userland
+       2: Enable additional checks where performance impact is negligible
+       3: Enable additional checks where performance impact is low
+       4: Enable additional checks where performance impact is moderate
+       5: Enable additional checks where performance impact is high
+       255: Enable all checks
+
+source "kernel/src/proc/Kconfig"
+

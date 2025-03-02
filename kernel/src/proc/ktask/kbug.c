@@ -2,10 +2,9 @@
 #include <time/time.h>
 #include <err/error.h>
 #include <mm/alloc.h>
-#include <config.h>
 #include <io/output.h>
 
-#if DEBUGGER
+#ifdef CONFIG_KTASK_DEBUGGER
 
 static void idebug();
 
@@ -73,10 +72,11 @@ __noreturn void kbug_task() {
 static void idebug() {
     kerror(ERR_INFO, "IDEBUG started");
     
-    if(KERNEL_COLORCODE)
+#ifdef CONFIG_LOG_COLORCODE
         kprintf("\e[41mPID  UID  GID      SENT  RECEIVED BLCK PRI      TYPE SCHED_C LAST_EIP  SYSCALLS NAME            \e[0m\n");
-    else
+#else
         kprintf("PID  UID  GID      SENT  RECEIVED BLCK PRI      TYPE SCHED_C  SYSCALLS NAME\n");
+#endif
 
     int i = 0;
     for(; i < MAX_PROCESSES; i++)
