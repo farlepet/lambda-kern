@@ -2,6 +2,7 @@
 
 #include <lambda/export.h>
 #include <arch/io/ioport.h>
+#include <arch/intr/apic/apic.h>
 #include <arch/intr/idt.h>
 #include <arch/intr/int.h>
 #include <arch/intr/pic.h>
@@ -76,5 +77,11 @@ void idt_handle_interrupt(uint8_t int_n, x86_pusha_regs_t pregs, x86_iret_regs_t
             }
         }
     }
+
+#ifdef CONFIG_X86_APIC
+    if (int_n > 32) {
+        ((apic_lapic_regs_t *)0xFEE00000)->eoi.value = 0;
+    }
+#endif
 }
 

@@ -57,6 +57,9 @@ doc
 .gdb_history
 __pycache__
 
-# ctags
+# ctags/LSP
 tags
+compile_commands.json
+.cache
+
 

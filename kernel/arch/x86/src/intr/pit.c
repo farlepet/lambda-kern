@@ -32,9 +32,6 @@ void pit_create_timerdev(hal_timer_dev_t *dev) {
 static void _pit_handler(intr_handler_hand_t *hdlr) {
     (void)hdlr;
 
-    /* TODO: Determine from timer settings. */
-    time_update(10);
-    
     outb(0x20, 0x20);
 
     if(pit_callback) {

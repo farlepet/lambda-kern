@@ -1,6 +1,7 @@
 #ifndef MM_MMU_H
 #define MM_MMU_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include <arch/types/mmu.h>

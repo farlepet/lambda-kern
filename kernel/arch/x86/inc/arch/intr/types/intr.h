@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 typedef enum x86_interrupt_idx_enum {
+    /* Legacy PIT interrupts */
     INTR_TIMER        = 32,
     INTR_KEYBOARD     = 33,
     INTR_SERIALA      = 35,
@@ -19,6 +20,10 @@ typedef enum x86_interrupt_idx_enum {
     INTR_COPROCESSOR  = 45,
     INTR_ATAPRIMARY   = 46,
     INTR_ATASECONDARY = 47,
+    /* Other statically-defined interrupts */
+    INTR_APICTIMER    = 48,
+    INTR_APICERROR    = 49,
+    /* Kernel software interrupts */
     INTR_SCHED        = 64,
     INTR_SYSCALL      = 255
 } interrupt_idx_e;
