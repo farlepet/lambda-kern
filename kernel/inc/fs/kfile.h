@@ -5,10 +5,13 @@
 #include <stddef.h>
 #include <sys/types.h>
 
-#include <data/llist.h>
+typedef struct kfile kfile_t;
+typedef struct kfile_hand kfile_hand_t;
+
+#include <data/types/llist.h>
 #include <fs/dirent.h>
 #include <fs/dirstream.h>
-#include <proc/atomic.h>
+#include <proc/atomic/types/tlock.h>
 #include <time/time.h>
 
 /* NOTE: Some of these flags don't matter after the file is opened, it might be
@@ -46,8 +49,6 @@
 #define PERM_RW  06
 #define PERM_RWE 07
 
-typedef struct kfile kfile_t;
-typedef struct kfile_hand kfile_hand_t;
 
 typedef int            (*fileop_close_f)  (kfile_hand_t *);
 typedef ssize_t        (*fileop_read_f)   (kfile_hand_t *, size_t, size_t, void *);
@@ -103,7 +104,7 @@ struct kfile
 
     void *info;               //!< Driver-specific information (eg: Hard-disk, partition, and offset for a file on a HDD)
 
-    lock_t file_lock;         //!< Make sure only one process can access this at a time
+    tlock_t file_lock;        //!< Make sure only one process can access this at a time
 
     kfile_t *parent;          //!< Pointer to parent directory
 
@@ -120,7 +121,7 @@ struct kfile_hand {
 
     const file_hand_ops_t *ops;
     
-    lock_t lock;         //!< Make sure only one process can access this at a time
+    tlock_t lock;        //!< Make sure only one process can access this at a time
 
     kfile_t *file;       //!< Pointer to file itself
 };

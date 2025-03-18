@@ -43,4 +43,11 @@ int thread_spawn(uintptr_t entrypoint, void *data, const char *name, size_t stac
  */
 int thread_destroy(kthread_t *thread);
 
+/**
+ * @brief Get the TID of the running thread on the current CPU
+ *
+ * @return TID on success, else < 0
+ */
+int thread_get_tid(void);
+
 #endif

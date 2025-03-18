@@ -1,8 +1,10 @@
+#include <string.h>
+
 #include <lambda/export.h>
 #include <data/cbuff.h>
 #include <fs/stream.h>
 #include <mm/alloc.h>
-#include <string.h>
+#include <proc/atomic/tlock.h>
 
 static ssize_t _read (kfile_hand_t *, size_t off, size_t sz, void *);
 static ssize_t _write(kfile_hand_t *, size_t off, size_t sz, const void *);
@@ -87,11 +89,11 @@ static ssize_t _write(kfile_hand_t *hand, size_t off, size_t sz, const void *buf
 static int _open(kfile_t *f, kfile_hand_t *hand)
 {
     /* TODO: Check open flags */
-    lock(&f->file_lock);
+    tlock_acquire(&f->file_lock);
     hand->ops  = &_file_hand_ops;
     hand->file = f;
     hand->open_flags |= OFLAGS_OPEN;
-    unlock(&f->file_lock);
+    tlock_release(&f->file_lock);
 
     return 0;
 }
@@ -100,10 +102,10 @@ static int _close(kfile_hand_t *hand)
 {
     /* TODO: Check if any other file handles reference the file */
 
-    lock(&hand->lock);
+    tlock_acquire(&hand->lock);
     hand->open_flags = 0;
     /*kfree(hand->file->info);*/
-    unlock(&hand->lock);
+    tlock_release(&hand->lock);
 
     return 0;
 }

@@ -6,7 +6,7 @@
 #include <io/output.h>
 #include <string.h>
 #include <mm/mm.h>
-#include <proc/atomic.h>
+#include <proc/atomic/tlock.h>
 #include <proc/mtask.h>
 
 static hal_io_char_dev_t *_kput_char_dev = NULL;
@@ -16,7 +16,7 @@ void output_set_dev(hal_io_char_dev_t *dev) {
 }
 
 
-static lock_t print_lock;
+static tlock_t print_lock = STATIC_TLOCK();
 
 void kput(char c) {
     if(_kput_char_dev) {
@@ -25,15 +25,18 @@ void kput(char c) {
 }
 
 void kprint(char *str) {
+    int use_lock = mtask_get_curr_thread() && interrupts_enabled();
     /* @todo Revisit this method of blocking on prints. Perhaps a print queue
      * would work better. */
-    if(mtask_get_curr_thread() &&
-       interrupts_enabled()) lock_for(&print_lock, 100);
+    if(use_lock) {
+        tlock_acquire(&print_lock);
+    }
 
     while(*str) kput(*str++);
 
-    if(mtask_get_curr_thread() &&
-       interrupts_enabled()) unlock(&print_lock);
+    if(use_lock) {
+        tlock_release(&print_lock);
+    }
 }
 
 

@@ -2,10 +2,12 @@
 
 #include <lambda/config_defs.h>
 #include <lambda/export.h>
+#include <data/llist.h>
 #include <err/error.h>
 #include <err/panic.h>
 #include <mm/alloc.h>
 #include <fs/fs.h>
+#include <proc/atomic/tlock.h>
 
 #include <sys/stat.h>
 
@@ -24,7 +26,9 @@ int fs_add_file(kfile_t *file, kfile_t *parent) {
 #endif
     //kerror(ERR_BOOTINFO, "  -> fs_add_file: %s, %d", file->name, file->length);
     file->inode     = c_inode++;
-    file->file_lock = 0;
+    if (tlock_init(&file->file_lock)) {
+        return -1;
+    }
 
     if(parent == NULL) parent = _fs_root;
 
@@ -99,9 +103,9 @@ int fs_close(kfile_hand_t *hand) {
         hand->ops->close(hand);
     }
 
-    lock(&hand->lock);
+    tlock_acquire(&hand->lock);
     hand->open_flags = 0;
-    unlock(&hand->lock);
+    tlock_release(&hand->lock);
 
     return 0;
 }

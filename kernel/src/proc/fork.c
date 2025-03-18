@@ -1,8 +1,11 @@
-#include <proc/mtask.h>
+#include "types.h"
+#include <string.h>
+
 #include <err/error.h>
 #include <err/panic.h>
 #include <mm/alloc.h>
-#include <string.h>
+#include <proc/atomic/lock.h>
+#include <proc/mtask.h>
 
 #include <arch/proc/stack.h>
 
@@ -31,6 +34,9 @@ static int proc_copy_data(kthread_t *dest, const kthread_t *src) {
     pent = src->process->mmap;
 
     dest->process->mmap = (struct kproc_mem_map_ent *)kmalloc(sizeof(struct kproc_mem_map_ent) * n_ents);
+    if(!dest->process->mmap) {
+        return -1;
+    }
     cent = dest->process->mmap;
 
     while(pent != NULL) {
@@ -46,6 +52,9 @@ static int proc_copy_data(kthread_t *dest, const kthread_t *src) {
 
         // Allocate new memory:
         cent->phys_address = (uintptr_t)kmalloc(cent->length + 0x1000);
+        if(!cent->phys_address) {
+            return -1;
+        }
 
         // Ensure memory has same alignment:
         if((cent->phys_address & 0xFFF) <= (pent->phys_address & 0xFFF)) {
@@ -138,7 +147,6 @@ static int __no_inline fork_clone_process(kproc_t *child, kproc_t *parent) {
 
     return 0;
 }
-
 
 int fork(void) {
     kthread_t *thread = mtask_get_curr_thread();

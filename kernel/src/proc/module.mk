@@ -1,7 +1,6 @@
 MDIR = $(dir $(lastword $(MAKEFILE_LIST)))
 
-obj-y += $(MDIR)atomic.o \
-         $(MDIR)cond.o \
+obj-y += $(MDIR)cond.o \
          $(MDIR)exec.o \
          $(MDIR)fork.o \
          $(MDIR)mtask.o \
@@ -11,7 +10,8 @@ obj-y += $(MDIR)atomic.o \
          $(MDIR)thread.o \
          $(MDIR)wait.o
 
-dirs-y := elf \
+dirs-y := atomic \
+          elf \
           ktask
 
 include $(patsubst %,$(MDIR)%/module.mk,$(dirs-y))

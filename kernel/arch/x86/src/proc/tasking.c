@@ -6,7 +6,7 @@
 #include <arch/mm/paging.h>
 #include <arch/mm/gdt.h>
 
-#include <proc/atomic.h>
+#include <proc/atomic/lock.h>
 #include <proc/mtask.h>
 #include <proc/proc.h>
 #include <intr/intr.h>

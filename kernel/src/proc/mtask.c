@@ -1,7 +1,7 @@
 #include <arch/intr/int.h>
 #include <arch/proc/tasking.h>
 
-#include <proc/atomic.h>
+#include <proc/atomic/lock.h>
 #include <proc/mtask.h>
 #include <proc/cond.h>
 #include <proc/thread.h>

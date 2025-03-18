@@ -25,7 +25,7 @@ typedef struct kproc_mem_map_ent kproc_mem_map_ent_t;
 #include <proc/types/elf.h>
 #include <proc/types/kthread.h>
 
-#include <data/llist.h>
+#include <data/types/llist.h>
 #include <fs/kfile.h>
 #include <mm/mmu.h>
 #include <mm/symbols.h>

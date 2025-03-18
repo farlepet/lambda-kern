@@ -1,15 +1,9 @@
-#ifndef ATOMIC_H
-#define ATOMIC_H
+#ifndef PROC_ATOMIC_LOCK_H
+#define PROC_ATOMIC_LOCK_H
 
-#include <stdatomic.h>
+#include <stdint.h>
 
-#include <arch/intr/int.h>
-
-#include <time/time.h>
-#include <types.h>
-
-typedef atomic_int lock_t;
-
+#include <proc/atomic/types/lock.h>
 
 /**
  * \brief Release an atomic lock

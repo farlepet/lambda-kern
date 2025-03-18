@@ -1,4 +1,4 @@
-#include <proc/atomic.h>
+#include <proc/atomic/lock.h>
 #include <proc/thread.h>
 #include <proc/mtask.h>
 #include <err/error.h>
@@ -64,3 +64,12 @@ int thread_destroy(kthread_t *thread) {
 
     return 0;
 }
+
+int thread_get_tid(void) {
+    const kthread_t *thread = mtask_get_curr_thread();
+    if(!thread) {
+        return -1;
+    }
+    return thread->tid;
+}
+

@@ -5,7 +5,7 @@
 #include <err/error.h>
 #include <err/panic.h>
 #include <proc/mtask.h>
-#include <proc/atomic.h>
+#include <proc/atomic/lock.h>
 
 static lock_t alloc_lock = 0;
 

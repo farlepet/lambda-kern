@@ -1,11 +1,12 @@
-#include <proc/proc.h>
-#include <proc/mtask.h>
-#include <proc/thread.h>
 #include <data/llist.h>
-#include <mm/alloc.h>
 #include <err/error.h>
 #include <err/panic.h>
 #include <io/output.h>
+#include <mm/alloc.h>
+#include <proc/atomic/lock.h>
+#include <proc/mtask.h>
+#include <proc/proc.h>
+#include <proc/thread.h>
 
 static llist_t     _thread_queue;
 static llist_t    *_cpu_threads = NULL;

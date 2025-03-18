@@ -1,10 +1,11 @@
+#include <libgen.h>
+#include <string.h>
+
 #include <fs/initrd.h>
 #include <err/error.h>
 #include <err/panic.h>
 #include <mm/alloc.h>
-#include <string.h>
-
-#include <libgen.h>
+#include <proc/atomic/tlock.h>
 
 static int     _open(kfile_t *, kfile_hand_t *);
 static ssize_t _read(kfile_hand_t *, size_t, size_t, void *);
@@ -53,7 +54,7 @@ static int _open(kfile_t *f, kfile_hand_t *hand) {
     }
     /* TODO: Further check open flags/permissions */
     
-    lock(&f->file_lock);
+    tlock_acquire(&f->file_lock);
 
     if(f->flags & FS_SYMLINK) {
         /* We need to find the file this symlinks to */
@@ -61,7 +62,7 @@ static int _open(kfile_t *f, kfile_hand_t *hand) {
         char symlink[128];
         memcpy(symlink, f->info, f->length);
         symlink[f->length] = '\0';
-        unlock(&f->file_lock);
+        tlock_release(&f->file_lock);
     
         f->link = fs_find_file(f->parent, symlink);
         
@@ -78,15 +79,15 @@ static int _open(kfile_t *f, kfile_hand_t *hand) {
 
     hand->open_flags |= OFLAGS_OPEN;
 
-    unlock(&f->file_lock);
+    tlock_release(&f->file_lock);
 
     return 0;
 }
 
 /*static void _close(kfile_t *f) {
-    lock(&f->file_lock);
+    tlock_acquire(&f->file_lock);
     f->open = 0;
-    unlock(&f->file_lock);
+    tlock_release(&f->file_lock);
 }*/
 
 

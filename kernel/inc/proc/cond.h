@@ -1,6 +1,7 @@
 #ifndef PROC_COND_H
 #define PROC_COND_H
 
+#include <mm/alloc.h>
 #include <proc/types/cond.h>
 
 /**
@@ -10,6 +11,21 @@
  * @return int 0 on success, else non-zero
  */
 int cond_init(cond_t *cond);
+
+/**
+ * @brief Allocate and initialize a condition variable
+ *
+ * @return Pointer to condition variable on success, else NULL
+ */
+static inline cond_t *cond_create(void) {
+    cond_t *cond = kmalloc(sizeof(cond_t));
+    if(!cond) {
+        return NULL;
+    }
+    /* Currently, cond_init never returns error */
+    cond_init(cond);
+    return cond;
+}
 
 /**
  * @brief Wait for condition variable to be signaled

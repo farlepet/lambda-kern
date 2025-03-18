@@ -2,6 +2,7 @@
 
 #include <lambda/config_defs.h>
 #include <lambda/export.h>
+#include <proc/atomic/lock.h>
 #include <proc/cond.h>
 #include <proc/mtask.h>
 #include <mm/alloc.h>
@@ -39,7 +40,7 @@ int cond_wait(cond_t *cond) {
 EXPORT_FUNC(cond_wait);
 
 static int _unblock_thread(cond_listitem_t *item) {
-    item->thread->cond = NULL;
+    ((kthread_t *)item->thread)->cond = NULL;
     kfree(item);
 
     return 0;

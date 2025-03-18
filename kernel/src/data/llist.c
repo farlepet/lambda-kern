@@ -7,6 +7,7 @@
 #include <data/llist.h>
 #include <err/panic.h>
 #include <mm/mm.h>
+#include <proc/atomic/lock.h>
 
 void llist_init(llist_t *list) {
     memset(list, 0, sizeof(llist_t));

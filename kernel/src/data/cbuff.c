@@ -1,7 +1,31 @@
+#include <string.h>
+
 #include <lambda/export.h>
 #include <data/cbuff.h>
+#include <mm/alloc.h>
 
 #define WRAP(N, M) (((N) >= (M)) ? ((N) - (M)) : (N))
+
+int cbuff_allocate(cbuff_t *buff, size_t size) {
+    if(size == 0) {
+        return -1;
+    }
+
+    memset(buff, 0, sizeof(&buff));
+
+    buff->size = size;
+    buff->buff = kmalloc(buff->size);
+    if(!buff->buff) {
+        return -1;
+    }
+
+    return 0;
+}
+
+void cbuff_free(cbuff_t *buff) {
+    kfree(buff->buff);
+    memset(buff, 0, sizeof(*buff));
+}
 
 int cbuff_put(uint8_t data, cbuff_t *buff) {
     if(!buff || !buff->buff) return CBUFF_ERR_INVAL; // Invalid buffer
