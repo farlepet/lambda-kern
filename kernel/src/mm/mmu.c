@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <string.h>
 
 #include <lambda/config_defs.h>
@@ -8,7 +9,7 @@ int mmu_map(uintptr_t virt, uintptr_t phys, size_t size, uint32_t flags) {
     mmu_table_t *table = mmu_get_current_table();
 #if CHECK_STRICTNESS(LAMBDA_STRICTNESS_LOWIMPACT)
     if(table == NULL) {
-        return -1;
+        return -EINVAL;
     }
 #endif
 
@@ -19,7 +20,7 @@ int mmu_unmap(uintptr_t virt, size_t size) {
     mmu_table_t *table = mmu_get_current_table();
 #if CHECK_STRICTNESS(LAMBDA_STRICTNESS_LOWIMPACT)
     if(table == NULL) {
-        return -1;
+        return -EINVAL;
     }
 #endif
 
@@ -40,7 +41,7 @@ int mmu_map_get(uintptr_t virt, uintptr_t *phys) {
 int mmu_map_save(mmu_map_entry_t *entry, uintptr_t virt) {
     int flags;
     if((flags = mmu_map_get(virt, &entry->phys)) < 0) {
-        return -1;
+        return -EINVAL;
     }
     entry->flags = (uint32_t)flags;
     entry->virt  = virt;
@@ -59,7 +60,7 @@ int mmu_copy_data(mmu_table_t *dmmu, uintptr_t dvirt, mmu_table_t *smmu, uintptr
 
 #if CHECK_STRICTNESS(LAMBDA_STRICTNESS_LOWIMPACT)
     if((dvirt & ~sizemask) != (svirt & ~sizemask)) {
-        return -1;
+        return -EINVAL;
     }
 #endif
 
@@ -84,7 +85,7 @@ int mmu_copy_data(mmu_table_t *dmmu, uintptr_t dvirt, mmu_table_t *smmu, uintptr
            !(sflag & MMU_FLAG_READ)                              ||
            ((dflag = mmu_map_get_table(dmmu, dest, &dphys)) < 0) ||
            !(dflag & MMU_FLAG_WRITE)) {
-            return -1;
+            return -EUNSPEC;
         }
 
         off += to_copy;
@@ -141,7 +142,7 @@ int mmu_write_data(mmu_table_t *table, uintptr_t virt, const void *buff, size_t 
 
         if(((dflag = mmu_map_get_table(table, daddr, &dphys)) < 0) ||
            !(dflag & MMU_FLAG_WRITE)) {
-            return -1;
+            return -EUNSPEC;
         }
 
         off += to_copy;
@@ -188,7 +189,7 @@ int mmu_read_data(mmu_table_t *table, uintptr_t virt, void *buff, size_t size) {
 
         if(((sflag = mmu_map_get_table(table, saddr, &sphys)) < 0) ||
            !(sflag & MMU_FLAG_READ)) {
-            return -1;
+            return -EUNSPEC;
         }
 
         off += to_copy;

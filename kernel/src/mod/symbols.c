@@ -1,8 +1,10 @@
+#include <errno.h>
+#include <string.h>
+
 #include <lambda/export.h>
 #include <mod/symbols.h>
 #include <err/error.h>
 
-#include <string.h>
 
 int module_symbol_find_kernel(const char *symbol, uintptr_t *addr) {
     lambda_symbol_t *sym = &__lambda_symbols_begin;
@@ -14,7 +16,7 @@ int module_symbol_find_kernel(const char *symbol, uintptr_t *addr) {
         sym++;
     }
 
-    return -1;
+    return -EUNSPEC;
 }
 
 int module_symbol_find_module(const char *symbol, uintptr_t *addr, const symbol_t *symbols) {
@@ -30,5 +32,5 @@ int module_symbol_find_module(const char *symbol, uintptr_t *addr, const symbol_
         sym++;
     }
 
-    return -1;
+    return -EUNSPEC;
 }

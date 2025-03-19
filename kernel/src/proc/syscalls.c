@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <string.h>
 
 #include <err/error.h>
@@ -64,7 +65,7 @@ int syscall_service(uint32_t scn, syscallarg_t *args) {
     if((scn >= ARRAY_SZ(_syscalls)) ||
        !_syscalls[scn].func) {
         kdebug(DEBUGSRC_SYSCALL, ERR_INFO, "Thread %d (%s) has tried to call an invalid syscall: %u Args: %08X", curr_thread->tid, curr_thread->name, scn, args);
-        return -1;
+        return -ENOSYS;
     }
 
     func0_t func = _syscalls[scn].func;

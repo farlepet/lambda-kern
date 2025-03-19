@@ -1,3 +1,6 @@
+#include <errno.h>
+#include <string.h>
+
 #include <proc/mtask.h>
 #include <proc/thread.h>
 #include <err/error.h>
@@ -5,8 +8,6 @@
 #include <proc/proc.h>
 #include <mm/alloc.h>
 #include <fs/fs.h>
-
-#include <string.h>
 
 
 int proc_add_file(kproc_t *proc, kfile_hand_t *file) {
@@ -18,7 +19,7 @@ int proc_add_file(kproc_t *proc, kfile_hand_t *file) {
         }
     }
 
-    return -1;
+    return -ENFILE;
 }
 
 int proc_add_mmap_ent(kproc_t *proc, uintptr_t virt_address, uintptr_t phys_address, size_t length) {
@@ -61,7 +62,7 @@ int proc_add_child(kproc_t *parent, kproc_t *child) {
         }
     }
 
-    return 1;
+    return -EUNSPEC;
 }
 
 kproc_t *proc_create(char *name, int domain, mmu_table_t *mmu_table) {

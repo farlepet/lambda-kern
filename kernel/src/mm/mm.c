@@ -1,3 +1,5 @@
+#include <errno.h>
+
 #include <mm/mm.h>
 #include <io/output.h>
 #include <err/panic.h>
@@ -53,7 +55,7 @@ int mm_proc_mmap_add(struct kproc *proc, uintptr_t phys, uintptr_t virt, size_t 
     
     struct kproc_mem_map_ent *mmap_ent = (struct kproc_mem_map_ent *)kmalloc(sizeof(struct kproc_mem_map_ent));
     if(!mmap_ent) {
-        return -1;
+        return -ENOMEM;
     }
 
     mmap_ent->virt_address = virt;
@@ -90,7 +92,7 @@ int mm_proc_mmap_remove_virt(struct kproc *proc, uintptr_t virt) {
         mmap_ent  = mmap_ent->next;
     }
 
-    return -1;
+    return -EINVAL;
 }
 
 int mm_proc_mmap_remove_phys(struct kproc *proc, uintptr_t phys) {
@@ -113,5 +115,5 @@ int mm_proc_mmap_remove_phys(struct kproc *proc, uintptr_t phys) {
         mmap_ent  = mmap_ent->next;
     }
 
-    return -1;
+    return -EINVAL;
 }

@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <string.h>
 
 #include <lambda/export.h>
@@ -53,14 +54,14 @@ kfile_t *stream_create(int length) {
 EXPORT_FUNC(stream_create);
 
 static ssize_t _read(kfile_hand_t *hand, size_t off, size_t sz, void *buff) {
-    if(!hand->file || !hand->file->info) return 0;
+    if(!hand->file || !hand->file->info) return -EINVAL;
     (void)off; // Offset goes unused, this is basically a queue
 
     kfile_t *f = hand->file;
     uint32_t count = 0;
     int ret;
 
-    while((count < sz) && !((ret = cbuff_get((cbuff_t *)f->info)) & CBUFF_ERR_MASK)) {
+    while((count < sz) && ((ret = cbuff_get((cbuff_t *)f->info)) >= 0)) {
         ((uint8_t *)buff)[count] = (uint8_t)ret;
         count++;
     }
@@ -71,13 +72,13 @@ static ssize_t _read(kfile_hand_t *hand, size_t off, size_t sz, void *buff) {
 }
 
 static ssize_t _write(kfile_hand_t *hand, size_t off, size_t sz, const void *buff) {
-    if(!hand->file || !hand->file->info) return 0;
+    if(!hand->file || !hand->file->info) return -EINVAL;
     (void)off; // Offset goes unused, this is basically a queue
 
     kfile_t *f = hand->file;
     uint32_t count = 0;
 
-    while((count < sz) && !(cbuff_put(((uint8_t *)buff)[count], (cbuff_t *)f->info) & CBUFF_ERR_MASK)) {
+    while((count < sz) && (cbuff_put(((uint8_t *)buff)[count], (cbuff_t *)f->info) >= 0)) {
         count++;
     }
 

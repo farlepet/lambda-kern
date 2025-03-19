@@ -1,3 +1,7 @@
+#include <errno.h>
+#include <string.h>
+#include <sys/stat.h>
+
 #include <lambda/export.h>
 #include <mod/symbols.h>
 #include <mod/module.h>
@@ -5,11 +9,9 @@
 #include <proc/thread.h>
 #include <proc/proc.h>
 #include <proc/elf.h>
-#include <sys/stat.h>
 #include <mm/alloc.h>
 #include <fs/fs.h>
 #include <io/output.h>
-#include <string.h>
 
 static llist_t loaded_modules;
 
@@ -25,38 +27,37 @@ int module_read(kfile_hand_t *file, lambda_mod_head_t **head, uintptr_t *base, E
     kstat_t            file_stat;
 
     if(!file) {
-        return 1;
+        return -EINVAL;
     }
 
-    if(kfstat(file->file, &file_stat)) {
-        return 1;
-    }
+    TRY_OR_RET(kfstat(file->file, &file_stat));
+
     elf_data = (Elf32_Ehdr *)kmalloc((size_t)file_stat.size);
     if(!elf_data) {
-        return 1;
+        return -ENOMEM;
     }
     if((size_t)fs_read(file, 0, sizeof(Elf32_Ehdr), (void *)elf_data) != sizeof(Elf32_Ehdr)) {
         kfree(elf_data);
-        return 1;
+        return -EUNSPEC;
     }
     if(elf_check_header(elf_data)) {
         kfree(elf_data);
-        return 1;
+        return -EUNSPEC;
     }
 
     if((size_t)fs_read(file, 0, (size_t)file_stat.size, (void *)elf_data) != file_stat.size) {
         kfree(elf_data);
-        return 1;
+        return -EUNSPEC;
     }
     if(elf_find_section(elf_data, &mod_section, LAMBDA_MODULE_SECTION_NAME)) {
         kfree(elf_data);
-        return 1;
+        return -EUNSPEC;
     }
 
     mod_head = (lambda_mod_head_t *)((uintptr_t)elf_data + mod_section->sh_offset);
     if(mod_head->head_magic != LAMBDA_MODULE_HEAD_MAGIC) {
         kfree(elf_data);
-        return 1;
+        return -EUNSPEC;
     }
 
     *head = mod_head;
@@ -93,7 +94,7 @@ static int _check_requirements(lambda_mod_head_t *mod_head) {
         if(!found) {
             /* Requirement not satisfied */
             kdebug(DEBUGSRC_MODULE, ERR_WARN, "%s: Requirement not satisfied: %s", mod_head->metadata.name, reqs[i]);
-            return -1;
+            return -EUNSPEC;
         }
     }
 
@@ -110,7 +111,7 @@ int module_install(kfile_hand_t *file) {
     
     kdebug(DEBUGSRC_MODULE, ERR_DEBUG, "module_install: Reading module");
     if(module_read(file, &mod_head, &mod_base, &mod_elf)) {
-        return -1;
+        return -EUNSPEC;
     }
 
     kdebug(DEBUGSRC_MODULE, ERR_TRACE, "module_install: Generating module entry");
@@ -123,7 +124,7 @@ int module_install(kfile_hand_t *file) {
     kdebug(DEBUGSRC_MODULE, ERR_TRACE, "module_install: Reading symbol table");
     if(elf_load_symbols(mod_elf, &symbols)) {
         kfree(mod_elf);
-        return -1;
+        return -EUNSPEC;
     }
 
     /* This is potentially wasteful if the module ends up getting rejected, but
@@ -138,7 +139,7 @@ int module_install(kfile_hand_t *file) {
         kfree(symbols);
         kfree(modent);
 
-        return -1;
+        return -EUNSPEC;
     }
     _current_base += 0x10000; /* TODO: Actually determine module space */
 
@@ -148,7 +149,7 @@ int module_install(kfile_hand_t *file) {
         kfree(symbols);
         kfree(modent);
 
-        return -1;
+        return -EUNSPEC;
     }
 
     kdebug(DEBUGSRC_MODULE, ERR_TRACE, "module_install: Calling function @ %p", modent->func);
@@ -231,7 +232,7 @@ static int _do_reloc(uintptr_t baseaddr, const elf_reloc_t *relocs, uintptr_t sy
             break;
         default:
             kdebug(DEBUGSRC_MODULE, ERR_WARN, "_module_apply_relocs: Unhandled relocation type: %d", ELF32_R_TYPE(rel->r_info));
-            return -1;
+            return -EUNSPEC;
     }
     
     kdebug(DEBUGSRC_MODULE, ERR_TRACE, "_do_reloc: Wrote %08X to %08X [%d]", *(uint32_t *)dataaddr, dataaddr, ELF32_R_TYPE(rel->r_info));
@@ -247,7 +248,7 @@ static int _module_apply_relocs(const Elf32_Ehdr *elf, const elf_reloc_t *relocs
     Elf32_Shdr *elf_strtab = NULL;
     if(elf_find_section(elf, &elf_symtab, ".dynsym") ||
        elf_find_section(elf, &elf_strtab, ".dynstr")) {
-        return -1;
+        return -EUNSPEC;
     }
     Elf32_Sym *syms = (Elf32_Sym *)((uintptr_t)elf + elf_symtab->sh_offset);
     char      *strs = (char *)((uintptr_t)elf + elf_strtab->sh_offset);
@@ -285,7 +286,7 @@ static int _module_apply_relocs(const Elf32_Ehdr *elf, const elf_reloc_t *relocs
                     }
                     if (!found) {
                         kdebug(DEBUGSRC_MODULE, ERR_WARN, "_module_apply_relocs: Could not find symbol %s", ident);
-                        return -1;
+                        return -EUNSPEC;
                     }
                 }
             } else {
@@ -294,7 +295,7 @@ static int _module_apply_relocs(const Elf32_Ehdr *elf, const elf_reloc_t *relocs
             }
 
             if(_do_reloc(baseaddr, relocs, symaddr, &rel[j])) {
-                return -1;
+                return -EUNSPEC;
             }
         }
     }
@@ -398,7 +399,7 @@ static lambda_mod_head_t *_module_place(const Elf32_Ehdr *elf, const lambda_mod_
 int module_start_thread(module_entry_t *mod, void (*entry)(void *), void *data, const char *name) {
     if((mod == NULL) ||
        (entry == NULL)) {
-        return -1;
+        return -EINVAL;
     }
     
     static char _name[256];
@@ -416,13 +417,13 @@ int module_start_thread(module_entry_t *mod, void (*entry)(void *), void *data, 
     }
     if(tidx == MOD_THREAD_MAX) {
         kdebug(DEBUGSRC_MODULE, ERR_ERROR, "module_start_thread: Ran out of thread slots!");
-        return -1;
+        return -EUNSPEC;
     }
 
     /* TODO: Allow configuration of stack size and priority? */
     int tid = thread_spawn((uintptr_t)entry, data, name, CONFIG_PROC_KERN_STACK_SIZE, PRIO_DRIVER);
     if(tid < 0) {
-        return -1;
+        return tid;
     }
 
     mod->threads[tidx] = tid;

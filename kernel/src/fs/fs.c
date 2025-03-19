@@ -1,3 +1,5 @@
+#include "types.h"
+#include <errno.h>
 #include <string.h>
 
 #include <lambda/config_defs.h>
@@ -26,9 +28,7 @@ int fs_add_file(kfile_t *file, kfile_t *parent) {
 #endif
     //kerror(ERR_BOOTINFO, "  -> fs_add_file: %s, %d", file->name, file->length);
     file->inode     = c_inode++;
-    if (tlock_init(&file->file_lock)) {
-        return -1;
-    }
+    TRY_OR_RET(tlock_init(&file->file_lock));
 
     if(parent == NULL) parent = _fs_root;
 
@@ -74,12 +74,12 @@ EXPORT_FUNC(fs_write);
 int fs_open(kfile_t *f, kfile_hand_t *hand) {
     if((f == NULL) ||
        (hand == NULL)) {
-       return -1;
+       return -EINVAL;
     }
 
     if(hand->open_flags & OFLAGS_OPEN) {
         /* File is already open, or flags incorrectly set */
-        return -1;
+        return -EINVAL;
     }
 
     if(f->ops && f->ops->open) {
@@ -96,7 +96,7 @@ int fs_open(kfile_t *f, kfile_hand_t *hand) {
 EXPORT_FUNC(fs_open);
 
 int fs_close(kfile_hand_t *hand) {
-    if(hand == NULL) return -1;
+    if(hand == NULL) return -EINVAL;
     
     if(SAFETY_CHECK(hand->ops) &&
        hand->ops->close) {
@@ -169,40 +169,32 @@ DIR *fs_opendir(kfile_t *f) {
 
 int fs_mkdir(kfile_t *f, const char *name, uint32_t perms)
 {
+    if(!SAFETY_CHECK(f) || SAFETY_CHECK(f->ops) || !f->ops->mkdir) {
+        return -EINVAL;
+    }
     // TODO: Check name
 
-    if(SAFETY_CHECK(f)      &&
-       SAFETY_CHECK(f->ops) &&
-       f->ops->mkdir) {
-        return f->ops->mkdir(f, name, perms);
-    }
-
-    return -1;
+    return f->ops->mkdir(f, name, perms);
 }
 
 int fs_create(kfile_t *f, const char *name, uint32_t perms)
 {
+    if(!SAFETY_CHECK(f) || SAFETY_CHECK(f->ops) || !f->ops->create) {
+        return -EINVAL;
+    }
     // TODO: Check name
 
-    if(SAFETY_CHECK(f)      &&
-       SAFETY_CHECK(f->ops) &&
-       f->ops->create){
-        return f->ops->create(f, name, perms);
-    }
-
-    return -1;
+    return f->ops->create(f, name, perms);
 }
 EXPORT_FUNC(fs_create);
 
 int fs_ioctl(kfile_hand_t *hand, int req, void *args)
 {
-    if(SAFETY_CHECK(hand)      &&
-       SAFETY_CHECK(hand->ops) &&
-       hand->ops->ioctl) {
-        return hand->ops->ioctl(hand, req, args);
+    if(!SAFETY_CHECK(hand) || SAFETY_CHECK(hand->ops) || !hand->ops->ioctl) {
+        return -EINVAL;
     }
 
-    return -1;
+    return hand->ops->ioctl(hand, req, args);
 }
 EXPORT_FUNC(fs_ioctl);
 
@@ -281,7 +273,7 @@ kfile_hand_t *fs_handle_create(void) {
 
 int fs_handle_destroy(kfile_hand_t *hand) {
     if(!hand) {
-        return -1;
+        return -EINVAL;
     }
     kfree(hand);
     return 0;
@@ -323,13 +315,13 @@ static int __read_file(kfile_hand_t *file, void **buff, size_t *sz, size_t max_s
 
     *buff = kmalloc(max_sz);
     if(*buff == NULL) {
-        return -1;
+        return -ENOMEM;
     }
 
     ssize_t read = fs_read(file, 0, max_sz, *buff);
     if(read < 0) {
         kfree(*buff);
-        return -1;
+        return read;
     }
 
     /* TODO: Should we error on the case where read != max_sz? */
@@ -342,7 +334,7 @@ int fs_read_file_by_path(const char *path, kfile_t *cwd, void **buff, size_t *sz
     if((path   == NULL) ||
        (buff   == NULL) ||
        (sz     == NULL)) {
-        return -1;
+        return -EINVAL;
     }
     
     if(cwd == NULL) {
@@ -350,12 +342,12 @@ int fs_read_file_by_path(const char *path, kfile_t *cwd, void **buff, size_t *sz
     }
     kfile_t *f = fs_find_file(cwd, path);
     if(f == NULL) {
-        return -1;
+        return -ENOENT;
     }
 
     kfile_hand_t *hand = fs_handle_create_open(f, OFLAGS_READ);
     if(hand == NULL) {
-        return -1;
+        return -EUNSPEC;
     }
 
     int ret = __read_file(hand, buff, sz, max_sz);

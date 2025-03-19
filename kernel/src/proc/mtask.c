@@ -1,3 +1,4 @@
+#include "errno.h"
 #include <arch/intr/int.h>
 #include <arch/proc/tasking.h>
 
@@ -64,7 +65,7 @@ kthread_t *thread_by_tid(int tid) {
 int get_pid() {
     kthread_t *thread = mtask_get_curr_thread();
     if(!thread) {
-        return -1;
+        return -EUNSPEC;
     } else {
         return thread->process->pid;
     }
@@ -97,7 +98,7 @@ int add_task(void *process, char* name, uint32_t stack_size, int pri, int domain
     kproc_t *proc = proc_create(name, domain, mmu_table);
     if(!proc) {
         kdebug(DEBUGSRC_PROC, ERR_CRIT, "mtask:add_task: Could not create process.");
-        return -1;
+        return -EUNSPEC;
     }
 
     if(curr_proc && proc_add_child(curr_proc, proc)) {

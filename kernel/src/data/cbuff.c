@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <string.h>
 
 #include <lambda/export.h>
@@ -28,8 +29,8 @@ void cbuff_free(cbuff_t *buff) {
 }
 
 int cbuff_put(uint8_t data, cbuff_t *buff) {
-    if(!buff || !buff->buff) return CBUFF_ERR_INVAL; // Invalid buffer
-    if(buff->count >= buff->size) return CBUFF_ERR_FULL; // Not enough room in cbuff
+    if(!buff || !buff->buff) return -EINVAL; // Invalid buffer
+    if(buff->count >= buff->size) return -ENOMEM; // Not enough room in cbuff
 
     buff->buff[WRAP(buff->begin + buff->count, buff->size)] = data;
 
@@ -40,8 +41,8 @@ int cbuff_put(uint8_t data, cbuff_t *buff) {
 EXPORT_FUNC(cbuff_put);
 
 int cbuff_get(cbuff_t *buff) {
-    if(!buff || !buff->buff) return CBUFF_ERR_INVAL; // Invalid buffer
-    if(buff->count == 0) return CBUFF_ERR_EMPTY; // No data to be read
+    if(!buff || !buff->buff) return -EINVAL; // Invalid buffer
+    if(buff->count == 0) return -ENOMEM; // No data to be read
 
     uint8_t d = buff->buff[buff->begin];
 
@@ -54,9 +55,8 @@ EXPORT_FUNC(cbuff_get);
 
 
 int cbuff_write(const uint8_t *data, size_t size, cbuff_t *buff) {
-    if(!data) return CBUFF_ERR_INVLD; // Invalid data
-    if(!buff || !buff->buff) return CBUFF_ERR_INVAL; // Invalid buffer
-    if(size > (buff->size - buff->count)) return CBUFF_ERR_FULL; // Also not enough room in the buffer
+    if(!data || !buff || !buff->buff) return -EINVAL; // Invalid data or buffer
+    if(size > (buff->size - buff->count)) return -ENOMEM; // Also not enough room in the buffer
 
     int i = 0;
     while(size--) {
@@ -69,9 +69,8 @@ int cbuff_write(const uint8_t *data, size_t size, cbuff_t *buff) {
 EXPORT_FUNC(cbuff_write);
 
 int cbuff_read(uint8_t *data, size_t size, cbuff_t *buff) {
-    if(!data) return CBUFF_ERR_INVLD; // Invalid data
-    if(!buff || !buff->buff) return CBUFF_ERR_INVAL; // Invalid buffer
-    if(size > buff->count) return CBUFF_ERR_NENOD; // Not enough readable data
+    if(!data || !buff || !buff->buff) return -EINVAL; // Invalid data or buffer
+    if(size > buff->count) return -ENODATA; // Not enough readable data
 
     int i = 0;
     while(size--) {

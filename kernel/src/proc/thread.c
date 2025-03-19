@@ -1,11 +1,12 @@
+#include <errno.h>
+#include <string.h>
+
 #include <proc/atomic/lock.h>
 #include <proc/thread.h>
 #include <proc/mtask.h>
 #include <err/error.h>
 #include <err/panic.h>
 #include <mm/alloc.h>
-
-#include <string.h>
 
 kthread_t *thread_create(uintptr_t entrypoint, void * data, const char *name, size_t stack_size, int prio) {
     kthread_t *thread = (kthread_t *)kmalloc(sizeof(kthread_t));
@@ -35,12 +36,12 @@ kthread_t *thread_create(uintptr_t entrypoint, void * data, const char *name, si
 int thread_spawn(uintptr_t entrypoint, void *data, const char *name, size_t stack_size, int prio) {
     kproc_t *curr_proc = mtask_get_curr_process();
     if(curr_proc == NULL) {
-        return -1;
+        return -EUNSPEC;
     }
  
     kthread_t *thread = thread_create(entrypoint, data, name, stack_size, prio);
     if(thread == NULL) {
-        return -1;
+        return -EUNSPEC;
     }
  
     proc_add_thread(curr_proc, thread);
@@ -68,7 +69,7 @@ int thread_destroy(kthread_t *thread) {
 int thread_get_tid(void) {
     const kthread_t *thread = mtask_get_curr_thread();
     if(!thread) {
-        return -1;
+        return -EUNSPEC;
     }
     return thread->tid;
 }

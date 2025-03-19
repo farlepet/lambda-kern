@@ -1,9 +1,11 @@
+#include <errno.h>
+#include <string.h>
+
 #include <proc/mtask.h>
 #include <proc/exec.h>
 #include <err/error.h>
 #include <mm/alloc.h>
 #include <proc/elf.h>
-#include <string.h>
 #include <io/output.h>
 
 static void elf_read_phdr(const Elf32_Ehdr *elf, struct kproc_mem_map_ent **mmap_entries, proc_elf_data_t *elf_data, mmu_table_t *mmu_table) {
@@ -105,7 +107,7 @@ static uintptr_t elf_exec_common(void *data, uint32_t length, mmu_table_t *mmu_t
 
 int exec_elf(exec_data_t *exec_data) {
     if(elf_check_header(exec_data->file_data)) {
-        return -1;
+        return -ENOEXEC;
     }
 
     exec_data->elf_data = (proc_elf_data_t *)kmalloc(sizeof(proc_elf_data_t));
@@ -113,7 +115,7 @@ int exec_elf(exec_data_t *exec_data) {
     exec_data->entrypoint = elf_exec_common(exec_data->file_data, exec_data->file_size, exec_data->mmu_table,
                                             &exec_data->symbols, &exec_data->mmap_entries, exec_data->elf_data);
     if(exec_data->entrypoint == 0) {
-        return -1;
+        return -EUNSPEC;
     }
 
     kdebug(DEBUGSRC_EXEC, ERR_TRACE, "Entrypoint: %08X", exec_data->entrypoint);

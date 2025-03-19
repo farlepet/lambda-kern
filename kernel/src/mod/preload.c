@@ -1,3 +1,6 @@
+#include <errno.h>
+#include <string.h>
+
 #include <mod/module.h>
 #include <err/error.h>
 #include <err/panic.h>
@@ -5,14 +8,13 @@
 #include <mm/mmap.h>
 #include <fs/fs.h>
 #include <io/output.h>
-#include <string.h>
 
 int modules_preload(const char *path) {
     void  *pre_data = NULL;
     size_t pre_sz   = 0;
     if(fs_read_file_by_path(path, NULL, &pre_data, &pre_sz, 0)) {
         kdebug(DEBUGSRC_MODULE, ERR_WARN, "Could not read modules preload file `%s`", path);
-        return 1;
+        return -ENOENT;
     }
 
     char *text     = pre_data;
@@ -39,7 +41,7 @@ int modules_preload(const char *path) {
         if(mod_file == NULL) {
             kdebug(DEBUGSRC_MODULE, ERR_ERROR, "Could not access module `%s`", mod_path);
             kfree(mod_path);
-            return 1;
+            return -ENOENT;
         }
         kfile_hand_t *mod_hand = fs_handle_create_open(mod_file, OFLAGS_READ);
 
@@ -47,7 +49,7 @@ int modules_preload(const char *path) {
             kdebug(DEBUGSRC_MODULE, ERR_ERROR, "Could not load module `%s`", mod_path);
             fs_handle_destroy(mod_hand);
             kfree(mod_path);
-            return 1;
+            return -EUNSPEC;
         }
 
         fs_handle_destroy(mod_hand);

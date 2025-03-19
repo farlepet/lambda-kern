@@ -1,4 +1,4 @@
-#include "types.h"
+#include <errno.h>
 #include <string.h>
 
 #include <err/error.h>
@@ -35,7 +35,7 @@ static int proc_copy_data(kthread_t *dest, const kthread_t *src) {
 
     dest->process->mmap = (struct kproc_mem_map_ent *)kmalloc(sizeof(struct kproc_mem_map_ent) * n_ents);
     if(!dest->process->mmap) {
-        return -1;
+        return -ENOMEM;
     }
     cent = dest->process->mmap;
 
@@ -53,7 +53,8 @@ static int proc_copy_data(kthread_t *dest, const kthread_t *src) {
         // Allocate new memory:
         cent->phys_address = (uintptr_t)kmalloc(cent->length + 0x1000);
         if(!cent->phys_address) {
-            return -1;
+            /* TODO: Free previously allocated memory */
+            return -ENOMEM;
         }
 
         // Ensure memory has same alignment:
@@ -67,13 +68,15 @@ static int proc_copy_data(kthread_t *dest, const kthread_t *src) {
         /* Map memory in new process */
         if(mmu_map_table(dest->process->mmu_table, cent->virt_address, cent->phys_address, pent->length,
                          (MMU_FLAG_READ | MMU_FLAG_WRITE) /* TODO: Dynamically determine flags */)){
-            return -1;
+            /* TODO: Free previously allocated memory */
+            return -EUNSPEC;
         }
 
         if(mmu_copy_data(dest->process->mmu_table, cent->virt_address,
                          src->process->mmu_table,  pent->virt_address,
                          pent->length)) {
-            return -1;
+            /* TODO: Free previously allocated memory */
+            return -EUNSPEC;
         }
 
         // Move on to next memory map entry:
@@ -98,7 +101,7 @@ static int __no_inline fork_clone_process(kproc_t *child, kproc_t *parent) {
     if(proc_add_child(parent, child)) {
         kdebug(DEBUGSRC_PROC, ERR_DEBUG, "fork_clone_process: Process %d has run out of children slots", parent->pid);
         unlock(&creat_task);
-        return -1;
+        return -EUNSPEC;
     }
 
     /*
@@ -133,12 +136,12 @@ static int __no_inline fork_clone_process(kproc_t *child, kproc_t *parent) {
 
     if(proc_create_stack(cthread) ||
        proc_create_kernel_stack(cthread)) {
-        return -1;
+        return -EUNSPEC;
     }
 
     if(proc_copy_stack(cthread, pthread) ||
        proc_copy_data(cthread, pthread)) {
-        return -1;
+        return -EUNSPEC;
     }
 
     cthread->flags |= KTHREAD_FLAG_RANONCE;
@@ -171,7 +174,8 @@ int fork(void) {
     proc_add_thread(child, cthread);
 
     if(fork_clone_process(child, proc)) {
-        return -1;
+        /* TODO: Cleanup */
+        return -EUNSPEC;
     }
 
     child->type    |= TYPE_RUNNABLE;

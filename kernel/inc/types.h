@@ -8,6 +8,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include "arch/proc/user.h"
 #include <stdint.h>
 
 
@@ -86,5 +87,16 @@ typedef syscallarg_t (*func3_t)(syscallarg_t, syscallarg_t, syscallarg_t);
 typedef syscallarg_t (*func4_t)(syscallarg_t, syscallarg_t, syscallarg_t, syscallarg_t);
 typedef syscallarg_t (*func5_t)(syscallarg_t, syscallarg_t, syscallarg_t, syscallarg_t, syscallarg_t);
 typedef syscallarg_t (*func6_t)(syscallarg_t, syscallarg_t, syscallarg_t, syscallarg_t, syscallarg_t, syscallarg_t);
+
+/**
+ * @brief Macro to try an operation, and return the result if it is < 0
+ */
+#define TRY_OR_RET(OP) ({ \
+    int ret = (OP); \
+    if (ret < 0) {  \
+        return ret; \
+    }               \
+    ret;            \
+})
 
 #endif

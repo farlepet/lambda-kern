@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -47,7 +48,7 @@ void tlock_acquire(tlock_t *tlock) {
     while(ret) {
         lock(&tlock->thread_lock);
         int ret = cbuff_write((uint8_t *)&thread, sizeof(thread), &tlock->threads);
-        if (ret && (ret != CBUFF_ERR_FULL)) {
+        if (ret && (ret != -ENOMEM)) {
             kpanic("Unexpected cbuff error adding thread to tlock: %08x", ret);
         }
         unlock(&tlock->thread_lock);

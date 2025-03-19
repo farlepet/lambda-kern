@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -93,9 +94,8 @@ void llist_remove(llist_t *list, llist_item_t *item) {
 EXPORT_FUNC(llist_remove);
 
 int llist_get_position(llist_t *list, llist_item_t *item) {
-    if((list == NULL) ||
-       (item == NULL)) {
-        return -1;
+    if((list == NULL) || (item == NULL)) {
+        return -EINVAL;
     }
 
 #if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
@@ -115,7 +115,7 @@ int llist_get_position(llist_t *list, llist_item_t *item) {
         i++;
     } while(citem != list->list);
 
-    return -1;
+    return -EINVAL;
 }
 EXPORT_FUNC(llist_get_position);
 
@@ -177,7 +177,7 @@ llist_item_t *llist_pop_unlocked(llist_t *list) {
 
 int llist_count(const llist_t *list) {
     if(list == NULL) {
-        return -1;
+        return -EINVAL;
     }
     if(list->list == NULL) {
         return 0;

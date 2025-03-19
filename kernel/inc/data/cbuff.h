@@ -15,7 +15,7 @@ void cbuff_free(cbuff_t *buff);
  * @param data Byte to place in buffer
  * @param buff Circular buffer in which to place byte
  * @return int 0 on success,
- *             CBUFF_ERR_* on failure
+ *             -E* on failure
  */
 int cbuff_put(uint8_t data, cbuff_t *buff);
 
@@ -24,7 +24,7 @@ int cbuff_put(uint8_t data, cbuff_t *buff);
  *
  * @param buff Circular buffer from which to read
  * @return int Read byte on success,
- *             CBUFF_ERR_* on failure
+ *             -E* on failure
  */
 int cbuff_get(cbuff_t *buff);
 
@@ -36,8 +36,9 @@ int cbuff_get(cbuff_t *buff);
  * @param data Pointer to data to write into buffer
  * @param size Size of data in bytes
  * @param buff Buffer to write data into
+ *
  * @return int 0 on success,
- *             CBUFF_ERR_* on failure
+ *             -E* on failure
  */
 int cbuff_write(const uint8_t *data, size_t size, cbuff_t *buff);
 
@@ -47,8 +48,9 @@ int cbuff_write(const uint8_t *data, size_t size, cbuff_t *buff);
  * @param data Pointer to where to store data
  * @param size Number of bytes to read
  * @param buff Buffer to read from
+ *
  * @return int 0 on success,
- *             CBUFF_ERR_* on failure
+ *             -E* on failure
  */
 int cbuff_read(uint8_t *data, size_t size, cbuff_t *buff);
 

@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdint.h>
 
 #include <lambda/export.h>
@@ -19,7 +20,7 @@ int lock_for(lock_t *lock, uint32_t ms) {
     uint64_t end = kerneltime + ms;
 
     while(atomic_exchange_explicit(lock, test, memory_order_acquire)) {
-        if(kerneltime >= end) return 1;
+        if(kerneltime >= end) return -ETIMEDOUT;
         run_sched();
     }
 

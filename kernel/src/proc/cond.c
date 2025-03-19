@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <string.h>
 
 #include <lambda/config_defs.h>
@@ -18,11 +19,11 @@ EXPORT_FUNC(cond_init);
 int cond_wait(cond_t *cond) {
     kthread_t *thread = mtask_get_curr_thread();
 #if CHECK_STRICTNESS(LAMBDA_STRICTNESS_LOWIMPACT)
-    if(!thread) { return -1; }
+    if(!thread) { return -EUNSPEC; }
 #endif
 
     cond_listitem_t *item = kmalloc(sizeof(cond_listitem_t));
-    if(!item) { return -1; }
+    if(!item) { return -ENOMEM; }
 
     item->list_item.data = item;
     item->thread         = thread;
@@ -53,7 +54,7 @@ int cond_signal(cond_t *cond) {
     while((item = llist_pop_unlocked(&cond->list))) {
         if(_unblock_thread(item->data)) {
             unlock(&cond->lock);
-            return -1;
+            return -EUNSPEC;
         }
     }
     unlock(&cond->lock);

@@ -53,7 +53,7 @@ void llist_remove_unlocked(llist_t *list, llist_item_t *item);
  * @param list List item is a part of
  * @param item Item to get position of
  * 
- * @return -1 if item not found, else 0-indexed position of item
+ * @return -EINVAL if item not found, else 0-indexed position of item
  */
 int llist_get_position(llist_t *list, llist_item_t *item);
 
@@ -87,7 +87,7 @@ llist_item_t *llist_pop_unlocked(llist_t *list);
  * \brief Count number of items in a list
  * 
  * @param list List to count items of
- * @return -1 on error, else number of items in the list
+ * @return -E* on error, else number of items in the list
  */
 int llist_count(const llist_t *list);
 

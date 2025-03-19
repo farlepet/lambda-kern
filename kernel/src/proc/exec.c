@@ -1,3 +1,7 @@
+#include <errno.h>
+#include <string.h>
+#include <sys/stat.h>
+
 #include <proc/mtask.h>
 #include <proc/thread.h>
 #include <proc/exec.h>
@@ -10,8 +14,6 @@
 
 #include <arch/intr/int.h>
 
-#include <string.h>
-#include <sys/stat.h>
 
 static void _exec_replace_process_image(exec_data_t *exec_data);
 
@@ -33,13 +35,13 @@ int execve(const char *filename, const char **argv, const char **envp) {
     exec_data_t *exec_data = (exec_data_t *)kmalloc(sizeof(exec_data_t));
     if(exec_data == NULL) {
         kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "execve: Could not allocate exec_data struct!\n");
-        return -1;
+        return -ENOMEM;
     }
 
     if(fs_read_file_by_path(filename, NULL, &exec_data->file_data, &exec_data->file_size, 0)) {
         kdebug(DEBUGSRC_EXEC, ERR_DEBUG, "execve: Could not open %s!\n", filename);
         kfree(exec_data);
-        return -1;
+        return -ENOENT;
     }
 
     exec_data->argv      = argv;
@@ -49,7 +51,7 @@ int execve(const char *filename, const char **argv, const char **envp) {
 
     strncpy(exec_data->name, argv[0], KPROC_NAME_MAX);
 
-    int ret = -1;
+    int ret = -EUNSPEC;
 
     // TODO: Add executable type handlers in the future, so that they can be
     // registered on-the-fly
@@ -72,7 +74,7 @@ int execve(const char *filename, const char **argv, const char **envp) {
     kfree(exec_data->file_data);
     kfree(exec_data);
 
-    return -1;
+    return ret;
 }
 
 /**

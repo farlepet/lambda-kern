@@ -1,6 +1,7 @@
 #ifndef PROC_ATOMIC_LOCK_H
 #define PROC_ATOMIC_LOCK_H
 
+#include <errno.h>
 #include <stdint.h>
 
 #include <proc/atomic/types/lock.h>
@@ -26,7 +27,7 @@ void lock(lock_t *lock);
  * 
  * @param lock Lock to attempt to aquire
  * @param ticks How long to attempt to aquire lock, in milliseconds
- * @return int 0 if successful, else 1
+ * @return int 0 if successful, else -ETIMEDOUT
  */
 int lock_for(lock_t *lock, uint32_t ms);
 
@@ -34,11 +35,11 @@ int lock_for(lock_t *lock, uint32_t ms);
  * \brief Attempt to acquire lock without blocking
  * 
  * @param lock Lock to acquire
- * @return 0 on success, 1 on failure
+ * @return 0 on success, -EUNSPEC on failure
  */
 static inline int lock_try(lock_t *lock) {
     int test = 1;
-    return (atomic_exchange_explicit(lock, test, memory_order_acquire) ? 0 : 1);
+    return (atomic_exchange_explicit(lock, test, memory_order_acquire) ? 0 : -EUNSPEC);
 }
 
 #endif

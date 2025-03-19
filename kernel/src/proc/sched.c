@@ -1,3 +1,5 @@
+#include <errno.h>
+
 #include <data/llist.h>
 #include <err/error.h>
 #include <err/panic.h>
@@ -86,7 +88,7 @@ int sched_enqueue_thread(kthread_t *thread) {
     kdebug(DEBUGSRC_PROC, ERR_TRACE, "sched_enqueue(): TID: %d | NAME: %s", thread->tid, thread->name);
     
     if(lock_for(&_thread_queue.lock, 2000)) {
-        return -1;
+        return -ETIMEDOUT;
     }
  
     llist_append_unlocked(&_thread_queue, &thread->sched_item);
@@ -102,7 +104,7 @@ int sched_remove_thread(kthread_t *thread) {
         if(llist_get_position(&_cpu_threads[i], &thread->sched_item) >= 0) {
             kdebug(DEBUGSRC_PROC, ERR_TRACE, "Removing thread (%d, %s) from cpu %u", thread->tid, thread->name, i);
             if(lock_for(&_cpu_threads[i].lock, 2000)) {
-                return -1;
+                return -ETIMEDOUT;
             }
 
             llist_remove_unlocked(&_cpu_threads[i], &thread->sched_item);

@@ -1,3 +1,5 @@
+#include <errno.h>
+
 #include <lambda/export.h>
 #include <arch/intr/int.h>
 
@@ -23,7 +25,7 @@ static inline int _find_dead_child(struct kproc *parent) {
         }
     }
 
-    return -1;
+    return -EUNSPEC;
 }
 
 int wait(int *stat_loc) {
@@ -46,7 +48,7 @@ int wait(int *stat_loc) {
     // If process has no children, return -1
     if(!child_exists) {
         kdebug(DEBUGSRC_PROC, ERR_TRACE, "wait(): No children");
-        return -1;
+        return -EUNSPEC;
     }
 
     disable_interrupts();

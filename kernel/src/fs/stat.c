@@ -1,10 +1,12 @@
+#include <errno.h>
+#include <sys/stat.h>
+
 #include <lambda/export.h>
 #include <proc/mtask.h>
 
-#include <sys/stat.h>
 
 int kfstat(kfile_t *f, kstat_t *buf) {
-    if(!f || !buf) return -1;
+    if(!f || !buf) return -EINVAL;
 
     /* These options currently unsupported */
     buf->dev_id     = 0;
@@ -40,10 +42,10 @@ int kfstat(kfile_t *f, kstat_t *buf) {
 EXPORT_FUNC(kfstat);
 
 int fstat(int fd, kstat_t *buf) {
-    if(fd < 0 || fd >= MAX_OPEN_FILES) return -1;
+    if(fd < 0 || fd >= MAX_OPEN_FILES) return -EBADF;
     
     kthread_t *thread = mtask_get_curr_thread();
-    if(!thread) return -1;
+    if(!thread) return -EUNSPEC;
 
     return kfstat(thread->process->open_files[fd]->file, buf);
 }

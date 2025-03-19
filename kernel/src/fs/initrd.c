@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <libgen.h>
 #include <string.h>
 
@@ -50,7 +51,7 @@ static ssize_t _read(kfile_hand_t *hand, size_t off, size_t sz, void *buff) {
 static int _open(kfile_t *f, kfile_hand_t *hand) {
     if(hand->open_flags & OFLAGS_WRITE) {
         kdebug(DEBUGSRC_FS, ERR_DEBUG, "initrd: _open: Attempted to open file for writing!");
-        return -1;
+        return -EROFS;
     }
     /* TODO: Further check open flags/permissions */
     
@@ -70,7 +71,7 @@ static int _open(kfile_t *f, kfile_hand_t *hand) {
             return fs_open(f->link, hand);
         } else {
             kdebug(DEBUGSRC_FS, ERR_DEBUG, "initrd: _open: Could not open following symlink!");
-            return -1;
+            return -ENOENT;
         }
     }
 
