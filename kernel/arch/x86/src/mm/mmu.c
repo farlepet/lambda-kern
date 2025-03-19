@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <string.h>
 
 #include <arch/mm/paging.h>
@@ -70,7 +71,7 @@ int mmu_map_get_table(mmu_table_t *table, uintptr_t virt, uintptr_t *phys) {
     uint32_t entry = pgdir_get_page_entry((uint32_t *)table, (void *)virt);
 
     if(!(entry & PAGE_TABLE_FLAG_PRESENT)) {
-        return -1;
+        return -EUNSPEC;
     }
 
     uint32_t flags = MMU_FLAG_READ;

@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <string.h>
 
 #include <arch/intr/timer/timer_sp804.h>
@@ -23,7 +24,7 @@ int timer_sp804_create_timerdev(timer_sp804_handle_t *hand, hal_timer_dev_t *dev
 
 int timer_sp804_init(timer_sp804_handle_t *hand, void *base) {
     if(!base) {
-        return -1;
+        return -EINVAL;
     }
 
     /* TODO: Determine actual source clock */
@@ -72,10 +73,10 @@ static int _timerdev_setfreq(void *data, uint8_t idx, uint32_t freq) {
     timer_sp804_handle_t *hand = (timer_sp804_handle_t *)data;
     
     if(idx >= 2) {
-        return -1;
+        return -EINVAL;
     }
     if(freq > hand->srcclk_freq) {
-        return -1;
+        return -EUNSPEC;
     }
 
     timer_sp804_regmap_tspec_t *timer = (idx == 0) ?
@@ -97,14 +98,14 @@ static int _timerdev_setfreq(void *data, uint8_t idx, uint32_t freq) {
 
 static int _timerdev_attach(void *data, uint8_t idx, void (*callback)(void)) {
     if(idx >= 2) {
-        return -1;
+        return -EINVAL;
     }
     
     timer_sp804_handle_t *hand = (timer_sp804_handle_t *)data;
 
     if(hand->callbacks[idx]) {
         /* Presently only support a single callback per timer */
-        return -1;
+        return -EUNSPEC;
     }
     
     hand->callbacks[idx] = callback;

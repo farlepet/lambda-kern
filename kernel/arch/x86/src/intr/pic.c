@@ -1,3 +1,5 @@
+#include <errno.h>
+
 #include <arch/intr/pic.h>
 #include <arch/io/ioport.h>
 
@@ -5,7 +7,7 @@
 
 int pic_irq_disable(uint8_t irq_id) {
     if(irq_id >= 16) {
-        return -1;
+        return -EINVAL;
     }
 
     uint16_t port = PIC1_DATA;
@@ -23,7 +25,7 @@ EXPORT_FUNC(pic_irq_disable);
 
 int pic_irq_enable(uint8_t irq_id) {
     if(irq_id >= 16) {
-        return -1;
+        return -EINVAL;
     }
 
     uint16_t port = PIC1_DATA;

@@ -1,3 +1,5 @@
+#include <errno.h>
+
 #include <arch/proc/tasking.h>
 
 #include <lambda/config_defs.h>
@@ -16,7 +18,7 @@ static int _allocate_stack(arch_stack_t *stack, uint32_t size) {
     stack->size  = size;
     stack->begin = (uint32_t)kmamalloc(size, 4096);
     if(!stack->begin) {
-        return -1;
+        return -ENOMEM;
     }
     /* TODO: MMU */
     stack->begin += size;
@@ -25,17 +27,13 @@ static int _allocate_stack(arch_stack_t *stack, uint32_t size) {
 }
 
 int arch_proc_create_stack(kthread_t *thread) {
-    if(_allocate_stack(&thread->arch.stack_user, thread->stack_size)) {
-        return -1;
-    }
+    TRY_OR_RET(_allocate_stack(&thread->arch.stack_user, thread->stack_size));
 
     return 0;
 }
 
 int arch_proc_create_kernel_stack(kthread_t *thread) {
-    if(_allocate_stack(&thread->arch.stack_kern, CONFIG_PROC_KERN_STACK_SIZE)) {
-        return -1;
-    }
+    TRY_OR_RET(_allocate_stack(&thread->arch.stack_kern, CONFIG_PROC_KERN_STACK_SIZE));
 
     return 0;
 }
@@ -103,7 +101,7 @@ int arch_postfork_setup(const kthread_t *parent, kthread_t *child) {
     (void)parent;
     (void)child;
 
-    return -1;
+    return -EUNSPEC;
 }
 
 __naked

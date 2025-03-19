@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <string.h>
 
 #include <err/error.h>
@@ -71,7 +72,7 @@ static void _irqhandle(void *data) {
 
 static int _intctlr_intr_enable(void *data, uint32_t int_n) {
     if (int_n > 255) {
-        return -1;
+        return -EINVAL;
     }
 
     armv7_gic_handle_t *hand = (armv7_gic_handle_t *)data;
@@ -87,7 +88,7 @@ static int _intctlr_intr_enable(void *data, uint32_t int_n) {
 
 static int _intctlr_intr_disable(void *data, uint32_t int_n) {
     if (int_n > 255) {
-        return -1;
+        return -EINVAL;
     }
 
     armv7_gic_handle_t *hand = (armv7_gic_handle_t *)data;
@@ -100,7 +101,7 @@ static int _intctlr_intr_disable(void *data, uint32_t int_n) {
 
 static int _intctlr_intr_attach(void *data, uint32_t int_n, void (*callback)(uint32_t, void *), void *int_data) {
     if (int_n > 255) {
-        return -1;
+        return -EINVAL;
     }
 
     armv7_gic_handle_t *hand = (armv7_gic_handle_t *)data;
@@ -115,5 +116,5 @@ static int _intctlr_intr_attach(void *data, uint32_t int_n, void (*callback)(uin
     }
 
     /* No free slots */
-    return -1;
+    return -EUNSPEC;
 }

@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <string.h>
 
 #include <arch/intr/gtimer.h>
@@ -42,7 +43,7 @@ int armv7_gtimer_init(uint32_t freq) {
 
 static int timerdev_setfreq(void __unused *data, uint8_t idx, uint32_t freq) {
     if(idx != 0) {
-        return -1;
+        return -EINVAL;
     }
     
     __WRITE_CNTFRQ(freq);
@@ -52,12 +53,12 @@ static int timerdev_setfreq(void __unused *data, uint8_t idx, uint32_t freq) {
 
 static int timerdev_attach(void __unused *data, uint8_t idx, void (*callback)(void)) {
     if(idx != 0) {
-        return -1;
+        return -EINVAL;
     }
     
     if(gtimer_callback) {
         /* Presently only support a single callback */
-        return -1;
+        return -EUNSPEC;
     }
 
     gtimer_callback = callback;

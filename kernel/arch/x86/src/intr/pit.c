@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <string.h>
 
 #include <arch/io/ioport.h>
@@ -72,7 +73,7 @@ void pit_init(uint32_t freq) {
 
 static int timerdev_setfreq(void __unused *data, uint8_t idx, uint32_t freq) {
     if(idx != 0) {
-        return -1;
+        return -EINVAL;
     }
 
     if(freq < 18 || freq > 1193181) return -1;
@@ -87,12 +88,12 @@ static int timerdev_setfreq(void __unused *data, uint8_t idx, uint32_t freq) {
 
 static int timerdev_attach(void __unused *data, uint8_t idx, void (*callback)(void)) {
     if(idx != 0) {
-        return -1;
+        return -EINVAL;
     }
     
     if(pit_callback) {
         /* Presently only support a single callback */
-        return -1;
+        return -EUNSPEC;
     }
 
     pit_callback = callback;

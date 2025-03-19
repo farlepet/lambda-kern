@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <string.h>
 
 #include <arch/intr/timer/bcm2835_systimer.h>
@@ -25,7 +26,7 @@ int bcm2835_systimer_create_timerdev(bcm2835_systimer_handle_t *hand, hal_timer_
 static hal_clock_dev_t _dummy_clock = { .freq = 800000 };
 int bcm2835_systimer_init(bcm2835_systimer_handle_t *hand, void *base) {
     if(!hand || !base) {
-        return -1;
+        return -EINVAL;
     }
 
     memset(hand, 0, sizeof(bcm2835_systimer_handle_t));
@@ -93,10 +94,10 @@ static int _timerdev_setfreq(void *data, uint8_t idx, uint32_t freq) {
     bcm2835_systimer_handle_t *hand = (bcm2835_systimer_handle_t *)data;
     
     if(idx >= 2) {
-        return -1;
+        return -EINVAL;
     }
     if(freq > hand->src_clock->freq) {
-        return -1;
+        return -EUNSPEC;
     }
 
     hand->reload[idx] = (hand->src_clock->freq / freq);
@@ -107,14 +108,14 @@ static int _timerdev_setfreq(void *data, uint8_t idx, uint32_t freq) {
 
 static int _timerdev_attach(void *data, uint8_t idx, void (*callback)(void)) {
     if(idx >= 2) {
-        return -1;
+        return -EINVAL;
     }
     
     bcm2835_systimer_handle_t *hand = (bcm2835_systimer_handle_t *)data;
 
     if(hand->callbacks[idx]) {
         /* Presently only support a single callback per timer */
-        return -1;
+        return -EUNSPEC;
     }
     
     hand->callbacks[idx] = callback;

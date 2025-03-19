@@ -1,5 +1,6 @@
 /* NOTE: Currently supports Allwinner V3s compatible UART structures only */
 
+#include <errno.h>
 #include <string.h>
 
 #include <arch/io/uart/uart_allwinner.h>
@@ -24,7 +25,7 @@ int uart_allwinner_create_chardev(uart_allwinner_handle_t *hand, hal_io_char_dev
 
 int uart_allwinner_init(uart_allwinner_handle_t *hand, void *base, uint32_t baud) {
     if(!base) {
-        return -1;
+        return -EINVAL;
     }
 
     hand->base = (uart_allwinner_regmap_t *)base;

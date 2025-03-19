@@ -1,7 +1,8 @@
+#include <errno.h>
+#include <string.h>
+
 #include <err/error.h>
 #include <err/panic.h>
-
-#include <string.h>
 
 #include <arch/intr/apic/apic.h>
 #include <arch/acpi/acpi.h>
@@ -120,7 +121,7 @@ static void _ioapic_write(uint32_t reg, uint32_t val) {
 
 static int _intctlr_intr_enable(void *data, uint32_t int_n) {
     if (int_n > 255) {
-        return -1;
+        return -EINVAL;
     }
 
     apic_lapic_handle_t *hand = (apic_lapic_handle_t *)data;
@@ -133,7 +134,7 @@ static int _intctlr_intr_enable(void *data, uint32_t int_n) {
 
 static int _intctlr_intr_disable(void *data, uint32_t int_n) {
     if (int_n > 255) {
-        return -1;
+        return -EINVAL;
     }
 
     apic_lapic_handle_t *hand = (apic_lapic_handle_t *)data;
@@ -146,7 +147,7 @@ static int _intctlr_intr_disable(void *data, uint32_t int_n) {
 
 static int _intctlr_intr_attach(void *data, uint32_t int_n, void (*callback)(uint32_t, void *), void *int_data) {
     if (int_n > 255) {
-        return -1;
+        return -EINVAL;
     }
 
     apic_lapic_handle_t *hand = (apic_lapic_handle_t *)data;

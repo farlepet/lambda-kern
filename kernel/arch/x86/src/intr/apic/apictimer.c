@@ -1,6 +1,7 @@
-#include <arch/intr/apic/apictimer.h>
-
+#include <errno.h>
 #include <string.h>
+
+#include <arch/intr/apic/apictimer.h>
 
 /* NOTE: Divisor = 2 ^ D, except for where D == 7, where Divisor = 1 */
 #define DIVISOR_CONV(D) (((D) & 0x03) | (((D) & 0x04) << 1))
@@ -29,11 +30,11 @@ void apictimer_create_timerdev(apictimer_handle_t *hand, hal_timer_dev_t *dev) {
 
 static int _timerdev_setfreq(void *data, uint8_t idx, uint32_t freq) {
     if(idx >= 1) {
-        return -1;
+        return -EINVAL;
     }
     apictimer_handle_t *hand = (apictimer_handle_t *)data;
     if(freq > (hand->busfreq / 2)) {
-        return -1;
+        return -EINVAL;
     }
 
     /* Just a static divisor of 2 for now */

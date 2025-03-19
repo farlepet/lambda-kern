@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <string.h>
 
 #include <arch/mm/mmu.h>
@@ -152,7 +153,7 @@ int mmu_unmap_table(mmu_table_t *table, uintptr_t virt, size_t size) {
     (void)virt;
     (void)size;
 
-    return -1;
+    return -EUNSPEC;
 }
 
 int mmu_map_get_table(mmu_table_t *table, uintptr_t virt, uintptr_t *phys) {

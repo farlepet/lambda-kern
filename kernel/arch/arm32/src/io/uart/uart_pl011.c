@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <string.h>
 
 #include <arch/io/uart/uart_pl011.h>
@@ -30,7 +31,7 @@ int uart_pl011_create_chardev(uart_pl011_handle_t *hand, hal_io_char_dev_t *char
 
 static int _calc_divisor(uint32_t clkfreq, uint32_t baud, uint16_t *divint, uint8_t *divfrac) {
     if(clkfreq < (16 * baud)) {
-        return -1;
+        return -EINVAL;
     }
 
     float div = (float)clkfreq / ((float)baud * 16.0F);
@@ -44,7 +45,7 @@ static int _calc_divisor(uint32_t clkfreq, uint32_t baud, uint16_t *divint, uint
 int uart_pl011_init(uart_pl011_handle_t *hand, void *base, hal_clock_dev_t *src_clock, uint32_t baud) {
     if(!base ||
        !src_clock) {
-        return -1;
+        return -EINVAL;
     }
 
     hand->base      = (uart_pl011_regmap_t *)base;
@@ -60,7 +61,7 @@ int uart_pl011_init(uart_pl011_handle_t *hand, void *base, hal_clock_dev_t *src_
     uint8_t  fracdiv;
     /* TODO: Determine UART source clock frequency */
     if (_calc_divisor(hand->src_clock->freq, baud, &intdiv, &fracdiv)) {
-        return -1;
+        return -EUNSPEC;
     }
     hand->base->IBRD = intdiv;
     hand->base->FBRD = fracdiv;
