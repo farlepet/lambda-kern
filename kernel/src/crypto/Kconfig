@@ -1,0 +1,27 @@
+menuconfig CRYPTO
+    bool "Crypto support"
+    default y
+    help
+        Cryptogrophy support, includes compression/decompression support
+
+if CRYPTO
+
+menuconfig CRYPTO_COMP
+    bool "Compression/decompression support"
+    default y
+    help
+        Enable support for compression and decompression in the kernel
+
+
+if CRYPTO_COMP
+
+config CRYPTO_COMP_LZOP
+    bool "LZOP support"
+    default y
+    help
+        Enable support for LZOP compressed file format, decompression only
+
+endif # CRYPTO_COMP
+
+endif # CRYPTO
+
