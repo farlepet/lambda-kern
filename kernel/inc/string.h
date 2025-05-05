@@ -42,5 +42,16 @@ void *memset(void *s, int c, size_t n);
 
 void *memmove(void *dst, const void *src, size_t n);
 
+/**
+ * @brief Compare two sets of data for equality
+ *
+ * @param s1 Pointer to first set of data
+ * @param s2 Pointer to second set of data
+ * @param n Size of data to compare, in bytes
+ *
+ * @return 0 if both sets of data are equal, else non-zero
+ */
+int memcmp(const void *s1, const void *s2, size_t n);
+
 #endif
 

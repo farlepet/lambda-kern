@@ -200,3 +200,20 @@ void *memmove(void *dst, const void *src, size_t n) {
 }
 EXPORT_FUNC(memmove);
 
+int memcmp(const void *s1, const void *s2, size_t n) {
+#if CHECK_STRICTNESS(LAMBDA_STRICTNESS_HIGHIMPACT)
+    if(!mm_check_addr(s1)) {
+        kpanic("Bad s1 address: %p", s1);
+    }
+    if(!mm_check_addr(s2)) {
+        kpanic("Bad s2 address: %p", s2);
+    }
+#endif
+    while (n--) {
+        if (((const uint8_t *)s1)[n] != ((const uint8_t *)s2)[n]) {
+            return ((const uint8_t *)s1)[n] - ((const uint8_t *)s2)[n];
+        }
+    }
+    return 0;
+}
+EXPORT_FUNC(memcmp);

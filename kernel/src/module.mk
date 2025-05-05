@@ -15,6 +15,8 @@ dirs-y := data \
           std  \
           time
 
+dirs-$(CONFIG_CRYPTO) += crypto
+
 include $(patsubst %,$(MDIR)%/module.mk,$(dirs-y))
 
 cflags-$(CONFIG_LOG_COLORCODE)   += -DCONFIG_LOG_COLORCODE

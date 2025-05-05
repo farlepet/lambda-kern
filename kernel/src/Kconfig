@@ -37,5 +37,6 @@ config STRICTNESS
        5: Enable additional checks where performance impact is high
        255: Enable all checks
 
+source "kernel/src/crypto/Kconfig"
 source "kernel/src/proc/Kconfig"
 
