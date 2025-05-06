@@ -6,8 +6,17 @@
 
 #ifdef CONFIG_EMBEDDED_INITRD
 /* Linked in through initrd.o */
+#  ifdef CONFIG_EMBEDDED_INITRD_LZOP
 extern int _binary_initrd_cpio_start;
 extern int _binary_initrd_cpio_end;
+#    define INITRD_START _binary_initrd_cpio_start
+#    define INITRD_END   _binary_initrd_cpio_start
+#  else
+extern int _binary_initrd_cpio_lzo_start;
+extern int _binary_initrd_cpio_lzo_end;
+#    define INITRD_START _binary_initrd_cpio_lzo_start
+#    define INITRD_END   _binary_initrd_cpio_lzo_start
+#  endif
 #endif
 
 /**

@@ -69,7 +69,10 @@ cflags-$(CONFIG_BUILD_USE_WERROR) += -Werror
 
 include kernel/module.mk
 
-obj-$(CONFIG_EMBEDDED_INITRD) += initrd.o
+ifneq ($(CONFIG_EMBEDDED_INITRD_LZOP),y)
+    obj-$(CONFIG_EMBEDDED_INITRD) += initrd.o
+endif
+obj-$(CONFIG_EMBEDDED_INITRD_LZOP) += initrd.lzo.o
 
 BUILDDIR   = $(MAINDIR)/build/$(ARCH)/$(CPU)/$(HW)
 
@@ -95,6 +98,11 @@ $(BUILDDIR)/symbols.o: $(BUILDDIR)/lambda.o
 # TODO: Only include this if FEATURE_INITRD_EMBEDDED
 $(BUILDDIR)/initrd.o: initrd.cpio
 	@echo -e "\033[33m  \033[1mGenerating embedded InitRD object\033[0m"
+	$(Q) mkdir -p $(dir $@)
+	$(Q) $(LD) $(LDARCH) -r -b binary $< -o $@
+
+$(BUILDDIR)/initrd.lzo.o: initrd.cpio.lzo
+	@echo -e "\033[33m  \033[1mGenerating embedded compressed InitRD object\033[0m"
 	$(Q) mkdir -p $(dir $@)
 	$(Q) $(LD) $(LDARCH) -r -b binary $< -o $@
 

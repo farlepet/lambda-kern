@@ -2,9 +2,10 @@
 #include <libgen.h>
 #include <string.h>
 
-#include <fs/initrd.h>
+#include <crypto/comp/comp.h>
 #include <err/error.h>
 #include <err/panic.h>
+#include <fs/initrd.h>
 #include <mm/alloc.h>
 #include <proc/atomic/tlock.h>
 
@@ -93,8 +94,24 @@ static int _open(kfile_t *f, kfile_hand_t *hand) {
 
 
 
-void initrd_mount(kfile_t *mntpoint, uintptr_t initrd, size_t __unused len) {
+void initrd_mount(kfile_t *mntpoint, uintptr_t initrd, size_t len) {
     cpio = (const struct header_old_cpio *)initrd;
+
+#ifdef CONFIG_CRYPTO_COMP_LZOP
+    if (!memcmp((void *)initrd, "\x89LZO", 4)) {
+        kdebug(DEBUGSRC_FS, ERR_INFO, "  -> Decompressing InitCPIO");
+
+        size_t comp_len = len;
+        crypto_comp_handle_t handle = { .format = CRYPTO_COMP_FMT_LZOP, };
+        int ret = crypto_comp_decompress(&handle, (void *)initrd, comp_len, (void **)&cpio, &len);
+        if (ret) {
+            kdebug(DEBUGSRC_FS, ERR_CRIT, "  -> Failed to decompress InitCPIO: %d", ret);
+            return;
+        }
+        /* TODO: Free compressed data */
+    }
+#endif
+    (void)len;
 
     if(cpio->c_magic != 070707) {
         kdebug(DEBUGSRC_FS, ERR_CRIT, "  -> Invalid CPIO magic number");

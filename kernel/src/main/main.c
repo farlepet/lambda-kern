@@ -57,9 +57,9 @@ __noreturn void kmain(void) {
     kerror(ERR_INFO, "---------------------------------------");
 
 #ifdef CONFIG_EMBEDDED_INITRD
-    kerror(ERR_INFO, "Embedded initrd: %08X-%08X", &_binary_initrd_cpio_start, &_binary_initrd_cpio_end);
+    kerror(ERR_INFO, "Embedded initrd: %08X-%08X", &INITRD_START, &INITRD_END);
     kfile_t *fs_root = fs_get_root();
-    initrd_mount(fs_root, (uintptr_t)&_binary_initrd_cpio_start, &_binary_initrd_cpio_end - &_binary_initrd_cpio_start);
+    initrd_mount(fs_root, (uintptr_t)&INITRD_START, &INITRD_END - &INITRD_START);
 #endif
 
     timer_init(100);

@@ -6,6 +6,10 @@ config LOG_COLORCODE
 config EMBEDDED_INITRD
     bool "Embeded initrd into kernel image"
 
+config EMBEDDED_INITRD_LZOP
+    bool "Use LZO1X compression for embedded initrd"
+    depends on EMBEDDED_INITRD
+
 config SAFETY_CHECKS
     bool "Enable runtime data checks"
     default y
