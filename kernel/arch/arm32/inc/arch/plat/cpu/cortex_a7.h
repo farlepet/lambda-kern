@@ -1,6 +1,0 @@
-#ifndef ARCH_PLAT_CPU_CORTEX_A7_H
-#define ARCH_PLAT_CPU_CORTEX_A7_H
-
-/* TODO */
-
-#endif
